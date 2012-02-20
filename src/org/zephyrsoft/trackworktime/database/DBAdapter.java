@@ -1,4 +1,4 @@
-package org.zephyrsoft.worktimetracker.database;
+package org.zephyrsoft.trackworktime.database;
 
 import android.content.ContentValues;
 import android.content.Context;

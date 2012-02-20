@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="hello">Hello World, WorkTimeTrackerActivity!</string>
-    <string name="app_name">Work Time Tracker</string>
+    <string name="app_name">Track Work Time</string>
     <string name="in">IN</string>
     <string name="monday">Mo</string>
     <string name="onespace">" "</string>

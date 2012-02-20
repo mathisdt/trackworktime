@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.zephyrsoft.worktimetracker"
+    package="org.zephyrsoft.trackworktime"
     android:versionCode="1"
     android:versionName="0.1">
 
@@ -18,8 +18,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="TaskListActivity" android:label="@string/edit_tasks">
-            
+        <activity 
+            android:name="TaskListActivity"
+            android:label="@string/edit_tasks">
         </activity>
     </application>
 

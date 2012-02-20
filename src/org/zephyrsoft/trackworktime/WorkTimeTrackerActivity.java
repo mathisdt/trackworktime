@@ -1,4 +1,4 @@
-package org.zephyrsoft.worktimetracker;
+package org.zephyrsoft.trackworktime;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,8 +14,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.zephyrsoft.worktimetracker.database.DBAdapter;
-import org.zephyrsoft.worktimetracker.database.DBUtil;
+import org.zephyrsoft.trackworktime.database.DBAdapter;
+import org.zephyrsoft.trackworktime.database.DBUtil;
 
 public class WorkTimeTrackerActivity extends Activity {
 	

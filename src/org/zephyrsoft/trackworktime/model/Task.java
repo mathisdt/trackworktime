@@ -1,4 +1,4 @@
-package org.zephyrsoft.worktimetracker.model;
+package org.zephyrsoft.trackworktime.model;
 
 public class Task extends Base implements Comparable<Task> {
 	private Integer id = null;

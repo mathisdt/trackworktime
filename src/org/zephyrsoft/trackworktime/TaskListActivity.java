@@ -1,4 +1,4 @@
-package org.zephyrsoft.worktimetracker;
+package org.zephyrsoft.trackworktime;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,9 +15,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.zephyrsoft.worktimetracker.database.DBAdapter;
-import org.zephyrsoft.worktimetracker.database.DBUtil;
-import org.zephyrsoft.worktimetracker.model.Task;
+import org.zephyrsoft.trackworktime.database.DBAdapter;
+import org.zephyrsoft.trackworktime.database.DBUtil;
+import org.zephyrsoft.trackworktime.model.Task;
 
 public class TaskListActivity extends ListActivity {
 	

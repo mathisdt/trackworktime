@@ -1,11 +1,11 @@
-package org.zephyrsoft.worktimetracker.database;
+package org.zephyrsoft.trackworktime.database;
 
 import java.util.Collection;
 import java.util.TreeSet;
 import android.database.Cursor;
-import org.zephyrsoft.worktimetracker.model.Event;
-import org.zephyrsoft.worktimetracker.model.Task;
-import org.zephyrsoft.worktimetracker.model.Week;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.Week;
 
 public class DBUtil {
 	

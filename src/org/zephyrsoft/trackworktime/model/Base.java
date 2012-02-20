@@ -1,4 +1,4 @@
-package org.zephyrsoft.worktimetracker.model;
+package org.zephyrsoft.trackworktime.model;
 
 public class Base {
 	
