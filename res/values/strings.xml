@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, WorkTimeTrackerActivity!</string>
+    <string name="app_name">Work Time Tracker</string>
+    <string name="in">IN</string>
+    <string name="monday">Mo</string>
+    <string name="onespace">" "</string>
+    <string name="out">OUT</string>
+    <string name="worked">Worked</string>
+    <string name="flexi">Flexi</string>
+    <string name="tuesday">Tu</string>
+    <string name="wednesday">We</string>
+    <string name="thursday">Th</string>
+    <string name="friday">Fr</string>
+    <string name="saturday">Sa</string>
+    <string name="sunday">Su</string>
+    <string name="total">Total</string>
+    <string name="task">Task</string>
+    <string name="text">Text</string>
+    <string name="choose_task">Choose a task</string>
+    <string name="clockIn">Clock In</string>
+    <string name="clockOut">Clock Out</string>
+    <string name="edit_tasks">Edit Tasks</string>
+    <string name="options">Options</string>
+    <string name="new_task">New Task</string>
+    <string name="enter_new_task_name">Enter the new task name:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+</resources>

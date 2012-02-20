@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/TableLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:stretchColumns="0,1,2,3,4" >
+
+    <TableRow
+        android:id="@+id/tableRow20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/spacer0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/spacer1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/inLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/in"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/outLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/out"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/workedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/worked"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/flexiLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/flexi"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/mondayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/monday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/mondayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/mondayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/mondayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/mondayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/tuesdayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tuesday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tuesdayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tuesdayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tuesdayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tuesdayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/wednesdayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wednesday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/wednesdayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/wednesdayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/wednesdayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/wednesdayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/thursdayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/thursday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/thursdayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/thursdayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/thursdayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/thursdayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/fridayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/friday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/fridayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/fridayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/fridayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/fridayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/saturdayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/saturday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/saturdayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/saturdayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/saturdayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/saturdayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/sundayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sunday"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/sundayIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/sundayOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/sundayWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/sundayFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/totalLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/total"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/totalIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/totalOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/totalWorked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/totalFlexi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/spacer2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/taskLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="5"
+            android:text="@string/task"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <Spinner
+            android:id="@+id/task"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="5"
+            android:prompt="@string/choose_task" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="5"
+            android:text="@string/text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="5"
+            android:inputType="textMultiLine" >
+
+            <requestFocus />
+        </EditText>
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/spacer3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/onespace" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/clockInOutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="5"
+            android:text="@string/clockIn" />
+    </TableRow>
+
+</TableLayout>
