@@ -1,21 +1,21 @@
 package org.zephyrsoft.trackworktime;
 
+import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.zephyrsoft.trackworktime.database.DBAdapter;
-import org.zephyrsoft.trackworktime.database.DBUtil;
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.model.Task;
 
 public class WorkTimeTrackerActivity extends Activity {
 	
@@ -73,44 +73,45 @@ public class WorkTimeTrackerActivity extends Activity {
 	private Button clockInOutButton = null;
 	
 	private OnClickListener clockInOut = new OnClickListener() {
-		
 		@Override
 		public void onClick(View v) {
-			Toast.makeText(
-				WorkTimeTrackerActivity.this,
-				"Clock In/Out: Task=" + DBUtil.getColumnAsString((Cursor) task.getSelectedItem(), 1) + " / Text="
-					+ text.getText(), Toast.LENGTH_LONG).show();
+			Toast.makeText(WorkTimeTrackerActivity.this,
+				"Clock In/Out: Task=" + ((Task) task.getSelectedItem()).getName() + " / Text=" + text.getText(),
+				Toast.LENGTH_LONG).show();
 		}
 	};
 	
-	private DBAdapter dbAdapter = null;
-	private SimpleCursorAdapter tasksAdapter;
-	private static WorkTimeTrackerActivity instance;
+	private static WorkTimeTrackerActivity instance = null;
 	
-	public WorkTimeTrackerActivity() {
-		instance = this;
-	}
+	private DAO dao = null;
+	private ArrayAdapter<Task> tasksAdapter;
+	private boolean reloadTasksOnResume = false;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		instance = this;
+		
 		setContentView(R.layout.main);
 		
 		findAllViewsById();
 		
 		clockInOutButton.setOnClickListener(clockInOut);
 		
-		dbAdapter = new DBAdapter(this);
-		dbAdapter.open();
+		dao = new DAO(this);
+		dao.open();
 		
-		Cursor tasks = dbAdapter.getActiveTasks();
-		tasksAdapter =
-			new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, tasks,
-				new String[] {DBAdapter.TASK_NAME}, new int[] {android.R.id.text1});
+		setupTasksAdapter();
+		
+	}
+	
+	private void setupTasksAdapter() {
+		List<Task> values = dao.getActiveTasks();
+		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, values);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
-		
 	}
 	
 	private void findAllViewsById() {
@@ -166,7 +167,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	}
 	
 	public void refreshTasks() {
-		tasksAdapter.notifyDataSetChanged();
+		reloadTasksOnResume = true;
 	}
 	
 	@Override
@@ -195,16 +196,19 @@ public class WorkTimeTrackerActivity extends Activity {
 	}
 	
 	@Override
-	protected void onPause() {
-		// TODO commit data
-		
-		super.onPause();
+	protected void onResume() {
+		dao.open();
+		if (reloadTasksOnResume) {
+			reloadTasksOnResume = false;
+			setupTasksAdapter();
+		}
+		super.onResume();
 	}
 	
 	@Override
-	protected void onStop() {
-		dbAdapter.close();
-		super.onStop();
+	protected void onPause() {
+		dao.close();
+		super.onPause();
 	}
 	
 	public static WorkTimeTrackerActivity getInstance() {

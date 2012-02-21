@@ -6,13 +6,19 @@ public class Event extends Base implements Comparable<Event> {
 	private Integer task = null;
 	private Integer type = null;
 	private String time = null;
+	private String text = null;
 	
-	public Event(Integer id, Integer week, Integer task, Integer type, String time) {
+	public Event() {
+		// do nothing
+	}
+	
+	public Event(Integer id, Integer week, Integer task, Integer type, String time, String text) {
 		this.id = id;
 		this.week = week;
 		this.task = task;
 		this.type = type;
 		this.time = time;
+		this.text = text;
 	}
 	
 	public Integer getId() {
@@ -55,8 +61,27 @@ public class Event extends Base implements Comparable<Event> {
 		this.time = time;
 	}
 	
+	public String getText() {
+		return text;
+	}
+	
+	public void setText(String text) {
+		this.text = text;
+	}
+	
 	@Override
 	public int compareTo(Event another) {
 		return compare(getTime(), another.getTime(), compare(getId(), another.getId(), 0));
 	}
+	
+	/**
+	 * This is used e.g. by an ArrayAdapter in a ListView and it is also useful for debugging.
+	 * 
+	 * @see org.zephyrsoft.trackworktime.model.Base#toString()
+	 */
+	@Override
+	public String toString() {
+		return getTime() + " / " + getType() + " / " + getTask() + " - " + getText();
+	}
+	
 }

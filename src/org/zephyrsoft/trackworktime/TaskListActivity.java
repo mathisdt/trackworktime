@@ -1,7 +1,6 @@
 package org.zephyrsoft.trackworktime;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -12,37 +11,37 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import org.zephyrsoft.trackworktime.database.DBAdapter;
-import org.zephyrsoft.trackworktime.database.DBUtil;
+import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
 
 public class TaskListActivity extends ListActivity {
 	
 	private static final int NEW_TASK = 0;
 	
-	private DBAdapter dbAdapter = null;
+	private DAO dao = null;
 	
-	private Collection<Task> tasks = null;
+	private List<Task> tasks = null;
 	
-	private final WorkTimeTrackerActivity parentActivity;
+	private WorkTimeTrackerActivity parentActivity = null;
 	
-	public TaskListActivity() {
-		this.parentActivity = WorkTimeTrackerActivity.getInstance();
-	}
+	private ArrayAdapter<Task> tasksAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		dbAdapter = new DBAdapter(this);
-		dbAdapter.open();
-		dbAdapter.beginTransaction();
-		this.tasks = DBUtil.toTasks(dbAdapter.getAllTasks());
+		parentActivity = WorkTimeTrackerActivity.getInstance();
 		
-		setListAdapter(new TaskAdapter(this, R.layout.task_list_row, new ArrayList<Task>(tasks)));
+		dao = new DAO(this);
+		dao.open();
+		tasks = dao.getAllTasks();
+		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		setListAdapter(tasksAdapter);
 		
 		ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
@@ -52,7 +51,7 @@ public class TaskListActivity extends ListActivity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// TODO
 				// When clicked, show a toast with the TextView text
-				Task task = tasks.toArray(new Task[0])[position];
+				Task task = tasks.get(position);
 				Toast.makeText(getApplicationContext(), task.getName() + " ID=" + task.getId(), Toast.LENGTH_SHORT)
 					.show();
 			}
@@ -77,8 +76,11 @@ public class TaskListActivity extends ListActivity {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						String value = input.getText().toString();
 						// create new task in DB
-						dbAdapter.insertTask(value);
-						Log.d(TaskListActivity.class.getName(), "inserted new task: " + value);
+						Task newTask = dao.insertTask(new Task(null, value, 1, 0));
+						Log.d(TaskListActivity.class.getName(), "inserted new task: " + newTask);
+						tasks.add(newTask);
+						tasksAdapter.notifyDataSetChanged();
+						parentActivity.refreshTasks();
 						return;
 					}
 				});
@@ -104,10 +106,7 @@ public class TaskListActivity extends ListActivity {
 	
 	@Override
 	protected void onPause() {
-		// commit data but do not close the database
-		dbAdapter.commitTransaction();
-		dbAdapter.close();
-		parentActivity.refreshTasks();
+		dao.close();
 		Log.d(TaskListActivity.class.getName(), "refreshed task list");
 		super.onPause();
 	}

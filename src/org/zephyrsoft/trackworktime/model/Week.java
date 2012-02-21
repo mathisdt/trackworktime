@@ -5,6 +5,10 @@ public class Week extends Base implements Comparable<Week> {
 	private String start = null;
 	private Integer sum = null;
 	
+	public Week() {
+		// do nothing
+	}
+	
 	public Week(Integer id, String start, Integer sum) {
 		this.id = id;
 		this.start = start;
@@ -38,5 +42,15 @@ public class Week extends Base implements Comparable<Week> {
 	@Override
 	public int compareTo(Week another) {
 		return compare(getStart(), another.getStart(), compare(getId(), another.getId(), 0));
+	}
+	
+	/**
+	 * This is used e.g. by an ArrayAdapter in a ListView and it is also useful for debugging.
+	 * 
+	 * @see org.zephyrsoft.trackworktime.model.Base#toString()
+	 */
+	@Override
+	public String toString() {
+		return getStart() + " - " + getSum();
 	}
 }

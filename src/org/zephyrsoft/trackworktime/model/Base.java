@@ -1,6 +1,6 @@
 package org.zephyrsoft.trackworktime.model;
 
-public class Base {
+public abstract class Base {
 	
 	/**
 	 * Chainable compare operation.
@@ -17,5 +17,8 @@ public class Base {
 			return attributeOfMe.toString().compareTo(attributeOfOther.toString());
 		}
 	}
+	
+	@Override
+	public abstract String toString();
 	
 }
