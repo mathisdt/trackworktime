@@ -173,7 +173,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, EDIT_TASKS, 0, getString(R.string.edit_tasks)).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, OPTIONS, 0, getString(R.string.options)).setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, OPTIONS, 1, getString(R.string.options)).setIcon(android.R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
