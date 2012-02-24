@@ -108,7 +108,6 @@ public class TaskListActivity extends ListActivity {
 	@Override
 	protected void onPause() {
 		dao.close();
-		Log.d(TaskListActivity.class.getName(), "refreshed task list");
 		super.onPause();
 	}
 	

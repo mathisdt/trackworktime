@@ -419,10 +419,12 @@
 
         <Spinner
             android:id="@+id/task"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_span="5"
-            android:prompt="@string/choose_task" />
+            android:prompt="@string/choose_task" >
+            <!-- Preview: listitem=@android:layout/simple_spinner_item -->
+        </Spinner>
     </TableRow>
 
     <TableRow

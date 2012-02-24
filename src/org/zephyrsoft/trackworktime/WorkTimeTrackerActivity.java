@@ -3,7 +3,10 @@ package org.zephyrsoft.trackworktime;
 import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,6 +89,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	private DAO dao = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
+	private SharedPreferences preferences;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -93,6 +97,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		instance = this;
+		
+		readPreferences();
 		
 		setContentView(R.layout.main);
 		
@@ -105,6 +111,11 @@ public class WorkTimeTrackerActivity extends Activity {
 		
 		setupTasksAdapter();
 		
+	}
+	
+	private void readPreferences() {
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		// TODO
 	}
 	
 	private void setupTasksAdapter() {
@@ -184,14 +195,23 @@ public class WorkTimeTrackerActivity extends Activity {
 				showTaskList();
 				return true;
 			case OPTIONS:
-				// TODO
+				showOptions();
 				return true;
+			default:
+				Log.w(getClass().getName(), "options menu: unknown item selected");
 		}
 		return false;
 	}
 	
 	private void showTaskList() {
+		Log.d(getClass().getName(), "showing TaskList");
 		Intent i = new Intent(this, TaskListActivity.class);
+		startActivity(i);
+	}
+	
+	private void showOptions() {
+		Log.d(getClass().getName(), "showing Options");
+		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
 	}
 	
@@ -202,6 +222,7 @@ public class WorkTimeTrackerActivity extends Activity {
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
 		}
+		readPreferences();
 		super.onResume();
 	}
 	

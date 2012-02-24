@@ -31,5 +31,9 @@
     <string name="really_enable_task">Really enable the task?</string>
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
+    <string name="enableFlexiTime">Enable Flexi Time</string>
+    <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
+    <string name="flexiTimeBalancing">Flexi Time Balancing</string>
+    <string name="preferences">Options</string>
 
 </resources>
