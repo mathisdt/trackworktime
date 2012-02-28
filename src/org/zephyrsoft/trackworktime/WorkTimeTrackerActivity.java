@@ -7,18 +7,22 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 public class WorkTimeTrackerActivity extends Activity {
 	
@@ -78,18 +82,34 @@ public class WorkTimeTrackerActivity extends Activity {
 	private OnClickListener clockInOut = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			Toast.makeText(WorkTimeTrackerActivity.this,
-				"Clock In/Out: Task=" + ((Task) task.getSelectedItem()).getName() + " / Text=" + text.getText(),
-				Toast.LENGTH_LONG).show();
+			
+			if (timerManager.isTracking() && !taskOrTextChanged) {
+				timerManager.stopTracking();
+			} else {
+				Task selectedTask = (Task) task.getSelectedItem();
+				String description = text.getText().toString();
+				if (timerManager.isTracking() && taskOrTextChanged) {
+					timerManager.startTracking(selectedTask, description);
+				} else if (!timerManager.isTracking()) {
+					timerManager.startTracking(selectedTask, description);
+				}
+			}
+			
+			taskOrTextChanged = false;
+			refreshView();
 		}
 	};
+	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
 	
 	private static WorkTimeTrackerActivity instance = null;
 	
 	private DAO dao = null;
+	private TimerManager timerManager = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private SharedPreferences preferences;
+	private List<Task> tasks;
+	private boolean taskOrTextChanged = false;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -106,11 +126,17 @@ public class WorkTimeTrackerActivity extends Activity {
 		
 		clockInOutButton.setOnClickListener(clockInOut);
 		
+		// make the clock-in/clock-out button change its title when changing task and/or text
+		task.setOnItemSelectedListener(taskAndTextListener);
+		text.setOnKeyListener(taskAndTextListener);
+		
 		dao = new DAO(this);
 		dao.open();
+		timerManager = new TimerManager(dao);
 		
 		setupTasksAdapter();
 		
+		refreshView();
 	}
 	
 	private void readPreferences() {
@@ -118,9 +144,20 @@ public class WorkTimeTrackerActivity extends Activity {
 		// TODO
 	}
 	
+	protected void refreshView() {
+		if (timerManager.isTracking() && !taskOrTextChanged) {
+			clockInOutButton.setText(R.string.clockOut);
+		} else if (timerManager.isTracking() && taskOrTextChanged) {
+			clockInOutButton.setText(R.string.clockInChange);
+		} else if (!timerManager.isTracking()) {
+			clockInOutButton.setText(R.string.clockIn);
+		}
+		// TODO update times
+	}
+	
 	private void setupTasksAdapter() {
-		List<Task> values = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, values);
+		tasks = dao.getActiveTasks();
+		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 	}
@@ -217,13 +254,18 @@ public class WorkTimeTrackerActivity extends Activity {
 	
 	@Override
 	protected void onResume() {
+		initDaoAndPrefs();
+		refreshView();
+		super.onResume();
+	}
+	
+	private void initDaoAndPrefs() {
 		dao.open();
 		if (reloadTasksOnResume) {
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
 		}
 		readPreferences();
-		super.onResume();
 	}
 	
 	@Override
@@ -234,6 +276,31 @@ public class WorkTimeTrackerActivity extends Activity {
 	
 	public static WorkTimeTrackerActivity getInstance() {
 		return instance;
+	}
+	
+	private class TaskAndTextListener implements OnItemSelectedListener, OnKeyListener {
+		
+		private void valueChanged() {
+			taskOrTextChanged = true;
+			refreshView();
+		}
+		
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			valueChanged();
+			return false;
+		}
+		
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+			valueChanged();
+		}
+		
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {
+			valueChanged();
+		}
+		
 	}
 	
 }

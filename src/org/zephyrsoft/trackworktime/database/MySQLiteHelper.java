@@ -27,14 +27,15 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String EVENT_TEXT = "customtext";
 	
 	private static final String DATABASE_NAME = "trackworktime.db";
-	private static final int DATABASE_VERSION = 5;
-	private static final String DATABASE_CREATE = "create table " + TASK + " (" + TASK_ID
+	private static final int DATABASE_VERSION = 2;
+	private static final String DATABASE_CREATE_TASK = "create table " + TASK + " (" + TASK_ID
 		+ " integer primary key autoincrement, " + TASK_NAME + " text not null, " + TASK_ACTIVE + " integer not null, "
-		+ TASK_ORDERING + " integer null); create table " + WEEK + " (" + WEEK_ID
-		+ " integer primary key autoincrement, " + WEEK_START + " text not null, " + WEEK_SUM
-		+ " integer null); create table " + EVENT + " (" + EVENT_ID + " integer primary key autoincrement, "
-		+ EVENT_WEEK + " integer null, " + EVENT_TYPE + " integer not null, " + EVENT_TIME + " text not null, "
-		+ EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
+		+ TASK_ORDERING + " integer null);";
+	private static final String DATABASE_CREATE_WEEK = "create table " + WEEK + " (" + WEEK_ID
+		+ " integer primary key autoincrement, " + WEEK_START + " text not null, " + WEEK_SUM + " integer null);";
+	private static final String DATABASE_CREATE_EVENT = "create table " + EVENT + " (" + EVENT_ID
+		+ " integer primary key autoincrement, " + EVENT_WEEK + " integer null, " + EVENT_TYPE + " integer not null, "
+		+ EVENT_TIME + " text not null, " + EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
 	
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -42,7 +43,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase database) {
-		database.execSQL(DATABASE_CREATE);
+		database.execSQL(DATABASE_CREATE_TASK);
+		database.execSQL(DATABASE_CREATE_WEEK);
+		database.execSQL(DATABASE_CREATE_EVENT);
 		// add default task
 		database.execSQL("insert into " + TASK + " (" + TASK_NAME + ", " + TASK_ACTIVE + ", " + TASK_ORDERING
 			+ ") values ('Default', 1, 0)");

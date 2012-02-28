@@ -81,9 +81,15 @@ public class DAO {
 		return getTasksWithConstraint(TASK_ACTIVE + "!=0");
 	}
 	
+	public Task getTask(Integer id) {
+		List<Task> tasks = getTasksWithConstraint(TASK_ID + "=" + id);
+		return tasks.isEmpty() ? null : tasks.get(0);
+	}
+	
 	private List<Task> getTasksWithConstraint(String constraint) {
 		List<Task> ret = new ArrayList<Task>();
-		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null, null, null);
+		// TODO sort tasks by TASK_ORDERING when we have UI support for manually ordering the tasks
+		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null, null, TASK_NAME);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Task task = cursorToTask(cursor);
@@ -98,7 +104,7 @@ public class DAO {
 		ContentValues args = taskToContentValues(task);
 		db.update(TASK, args, TASK_ID + "=" + task.getId(), null);
 		// now fetch the newly updated row and return it as Task object
-		List<Task> updated = getTasksWithConstraint(TASK_ID + "=" + task.getId());
+		List<Task> updated = getTasksWithConstraint(TASK_ID + "=" + task.getId() + "");
 		return updated.get(0);
 	}
 	
@@ -137,9 +143,19 @@ public class DAO {
 		return getWeeksWithConstraint(null);
 	}
 	
+	public Week getWeek(String start) {
+		List<Week> weeks = getWeeksWithConstraint(WEEK_START + "=\"" + start + "\"");
+		return weeks.isEmpty() ? null : weeks.get(0);
+	}
+	
+	public Week getWeek(Integer id) {
+		List<Week> weeks = getWeeksWithConstraint(WEEK_ID + "=" + id);
+		return weeks.isEmpty() ? null : weeks.get(0);
+	}
+	
 	private List<Week> getWeeksWithConstraint(String constraint) {
 		List<Week> ret = new ArrayList<Week>();
-		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, null);
+		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, WEEK_START);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Week week = cursorToWeek(cursor);
@@ -165,6 +181,8 @@ public class DAO {
 	// =======================================================
 	
 	private static final String[] EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, EVENT_TIME, EVENT_TYPE, EVENT_TASK, EVENT_TEXT};
+	private static final String[] MAX_EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, "max(" + EVENT_TIME + ")", EVENT_TYPE,
+		EVENT_TASK, EVENT_TEXT};
 	
 	private Event cursorToEvent(Cursor cursor) {
 		Event event = new Event();
@@ -203,9 +221,15 @@ public class DAO {
 		return getEventsWithConstraint(EVENT_WEEK + "=" + week.getId());
 	}
 	
-	private List<Event> getEventsWithConstraint(String constraint) {
+	public Event getLatestEvent() {
+		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null);
+		// if latestEvent is empty, then there is no event in the database
+		return latestEvent.isEmpty() ? null : latestEvent.get(0);
+	}
+	
+	private List<Event> getEventsWithParameters(String[] fields, String constraint) {
 		List<Event> ret = new ArrayList<Event>();
-		Cursor cursor = db.query(EVENT, EVENT_FIELDS, constraint, null, null, null, null);
+		Cursor cursor = db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Event event = cursorToEvent(cursor);
@@ -214,6 +238,10 @@ public class DAO {
 		}
 		cursor.close();
 		return ret;
+	}
+	
+	private List<Event> getEventsWithConstraint(String constraint) {
+		return getEventsWithParameters(EVENT_FIELDS, constraint);
 	}
 	
 	public Event updateEvent(Event event) {

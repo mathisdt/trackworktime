@@ -17,8 +17,8 @@
     <string name="task">Task</string>
     <string name="text">Text</string>
     <string name="choose_task">Choose a task</string>
-    <string name="clockIn">Clock In</string>
-    <string name="clockOut">Clock Out</string>
+    <string name="clockIn">Start Tracking</string>
+    <string name="clockOut">Stop Tracking</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="options">Options</string>
     <string name="new_task">New Task</string>
@@ -35,5 +35,6 @@
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
+    <string name="clockInChange">Start New Tracking Period</string>
 
 </resources>

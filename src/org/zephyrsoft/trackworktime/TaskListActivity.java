@@ -95,6 +95,8 @@ public class TaskListActivity extends ListActivity {
 				alert.show();
 				
 				return true;
+			default:
+				Log.w(getClass().getName(), "options menu: unknown item selected");
 		}
 		return false;
 	}
