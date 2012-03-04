@@ -254,6 +254,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	
 	@Override
 	protected void onResume() {
+		Log.d(getClass().getName(), "onResume called");
 		initDaoAndPrefs();
 		refreshView();
 		super.onResume();
@@ -270,6 +271,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	
 	@Override
 	protected void onPause() {
+		Log.d(getClass().getName(), "onPause called");
 		dao.close();
 		super.onPause();
 	}
