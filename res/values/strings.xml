@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Track Work Time</string>
     <string name="in">IN</string>
-    <string name="monday">Mo</string>
+    <string name="monday">Mo, </string>
     <string name="onespace">" "</string>
     <string name="out">OUT</string>
     <string name="worked">Worked</string>
     <string name="flexi">Flexi</string>
-    <string name="tuesday">Tu</string>
-    <string name="wednesday">We</string>
-    <string name="thursday">Th</string>
-    <string name="friday">Fr</string>
-    <string name="saturday">Sa</string>
-    <string name="sunday">Su</string>
+    <string name="tuesday">Tu, </string>
+    <string name="wednesday">We, </string>
+    <string name="thursday">Th, </string>
+    <string name="friday">Fr, </string>
+    <string name="saturday">Sa, </string>
+    <string name="sunday">Su, </string>
     <string name="total">Total</string>
     <string name="task">Task</string>
     <string name="text">Text</string>
@@ -36,5 +37,6 @@
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
     <string name="clockInChange">Start New Tracking Period</string>
+    <string name="shortDateFormat">DD.MM.</string>
 
 </resources>

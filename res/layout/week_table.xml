@@ -6,7 +6,7 @@
     android:stretchColumns="0,1,2,3,4" >
 
     <TableRow
-        android:id="@+id/tableRow1"
+        android:id="@+id/titleRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp" >
@@ -48,10 +48,10 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow2"
+        android:id="@+id/mondayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_borders"
+        android:background="@drawable/table_row"
         android:padding="2dp" >
 
         <TextView
@@ -91,7 +91,7 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow3"
+        android:id="@+id/tuesdayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp" >
@@ -133,10 +133,10 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow4"
+        android:id="@+id/wednesdayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_borders"
+        android:background="@drawable/table_row"
         android:padding="2dp" >
 
         <TextView
@@ -176,7 +176,7 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow5"
+        android:id="@+id/thursdayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp" >
@@ -218,10 +218,10 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow6"
+        android:id="@+id/fridayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_borders"
+        android:background="@drawable/table_row"
         android:padding="2dp" >
 
         <TextView
@@ -261,7 +261,7 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow7"
+        android:id="@+id/saturdayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp" >
@@ -303,10 +303,10 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow8"
+        android:id="@+id/sundayRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_borders"
+        android:background="@drawable/table_row"
         android:padding="2dp" >
 
         <TextView
@@ -346,7 +346,7 @@
     </TableRow>
 
     <TableRow
-        android:id="@+id/tableRow9"
+        android:id="@+id/totalRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp" >
