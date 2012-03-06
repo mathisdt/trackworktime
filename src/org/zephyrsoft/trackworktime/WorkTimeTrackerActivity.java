@@ -1,7 +1,16 @@
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+
 import java.util.List;
+
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,18 +31,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class WorkTimeTrackerActivity extends Activity {
-	
+
 	private static final int EDIT_TASKS = 0;
 	private static final int OPTIONS = 1;
-	
+
 	private TableRow titleRow = null;
 	private TextView inLabel = null;
 	private TextView outLabel = null;
@@ -92,11 +95,11 @@ public class WorkTimeTrackerActivity extends Activity {
 	private TextView textLabel = null;
 	private EditText text = null;
 	private Button clockInOutButton = null;
-	
+
 	private OnClickListener clockInOut = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			
+
 			if (timerManager.isTracking() && !taskOrTextChanged) {
 				timerManager.stopTracking();
 			} else {
@@ -108,15 +111,15 @@ public class WorkTimeTrackerActivity extends Activity {
 					timerManager.startTracking(selectedTask, description);
 				}
 			}
-			
+
 			taskOrTextChanged = false;
 			refreshView();
 		}
 	};
 	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
-	
+
 	private static WorkTimeTrackerActivity instance = null;
-	
+
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private ArrayAdapter<Task> tasksAdapter;
@@ -125,47 +128,51 @@ public class WorkTimeTrackerActivity extends Activity {
 	private List<Task> tasks;
 	private boolean taskOrTextChanged = false;
 	private Week currentlyShownWeek;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		instance = this;
-		
+
 		readPreferences();
-		
+
 		setContentView(R.layout.main);
-		
+
 		findAllViewsById();
-		
+
 		clockInOutButton.setOnClickListener(clockInOut);
-		
-		// make the clock-in/clock-out button change its title when changing task and/or text
+
+		// make the clock-in/clock-out button change its title when changing
+		// task and/or text
 		task.setOnItemSelectedListener(taskAndTextListener);
 		text.setOnKeyListener(taskAndTextListener);
-		
+
 		dao = new DAO(this);
 		dao.open();
 		timerManager = new TimerManager(dao);
-		
+
 		setupTasksAdapter();
-		
-		String weekStart = DateTimeUtil.getWeekStart(DateTimeUtil.getCurrentDateTime());
+
+		String weekStart = DateTimeUtil.getWeekStart(DateTimeUtil
+				.getCurrentDateTime());
 		currentlyShownWeek = dao.getWeek(weekStart);
 		if (currentlyShownWeek == null) {
-			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
+			currentlyShownWeek = dao
+					.insertWeek(new Week(null, weekStart, null));
 		}
-		
+
 		refreshView();
 	}
-	
+
 	private void readPreferences() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		// TODO
 	}
-	
+
 	protected void refreshView() {
-		// update task and text from current tracking period (if currently tracking)
+		// update task and text from current tracking period (if currently
+		// tracking)
 		if (timerManager.isTracking()) {
 			Event latestEvent = dao.getLatestEvent();
 			Task latestTask = dao.getTask(latestEvent.getTask());
@@ -183,53 +190,98 @@ public class WorkTimeTrackerActivity extends Activity {
 			clockInOutButton.setText(R.string.clockIn);
 		}
 		if (currentlyShownWeek != null) {
-			// set dates
-			DateTime monday = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart());
+			DateTime monday = DateTimeUtil.stringToDateTime(currentlyShownWeek
+					.getStart());
 			DateTime tuesday = monday.plusDays(1);
 			DateTime wednesday = tuesday.plusDays(1);
 			DateTime thursday = wednesday.plusDays(1);
 			DateTime friday = thursday.plusDays(1);
 			DateTime saturday = friday.plusDays(1);
 			DateTime sunday = saturday.plusDays(1);
-			mondayLabel.setText(getString(R.string.monday) + getString(R.string.onespace)
-				+ monday.format(getString(R.string.shortDateFormat)));
-			tuesdayLabel.setText(getString(R.string.tuesday) + getString(R.string.onespace)
-				+ tuesday.format(getString(R.string.shortDateFormat)));
-			wednesdayLabel.setText(getString(R.string.wednesday) + getString(R.string.onespace)
-				+ wednesday.format(getString(R.string.shortDateFormat)));
-			thursdayLabel.setText(getString(R.string.thursday) + getString(R.string.onespace)
-				+ thursday.format(getString(R.string.shortDateFormat)));
-			fridayLabel.setText(getString(R.string.friday) + getString(R.string.onespace)
-				+ friday.format(getString(R.string.shortDateFormat)));
-			saturdayLabel.setText(getString(R.string.saturday) + getString(R.string.onespace)
-				+ saturday.format(getString(R.string.shortDateFormat)));
-			sundayLabel.setText(getString(R.string.sunday) + getString(R.string.onespace)
-				+ sunday.format(getString(R.string.shortDateFormat)));
-			// highlight current day (if it is visible) and reset the highlighting for the other days
-			DateTime today = DateTimeUtil.getCurrentDateTime().getStartOfDay();
-			mondayRow.setBackgroundResource(today.isSameDayAs(monday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-			tuesdayRow.setBackgroundResource(today.isSameDayAs(tuesday) ? R.drawable.table_row_highlighting : 0);
-			wednesdayRow.setBackgroundResource(today.isSameDayAs(wednesday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-			thursdayRow.setBackgroundResource(today.isSameDayAs(thursday) ? R.drawable.table_row_highlighting : 0);
-			fridayRow.setBackgroundResource(today.isSameDayAs(friday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-			saturdayRow.setBackgroundResource(today.isSameDayAs(saturday) ? R.drawable.table_row_highlighting : 0);
-			sundayRow.setBackgroundResource(today.isSameDayAs(sunday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-			// TODO display times
-			
+			// set dates
+			showActualDates(monday, tuesday, wednesday, thursday, friday,
+					saturday, sunday);
+			// highlight current day (if it is visible)
+			// and reset the highlighting for the other days
+			refreshRowHighlighting(monday, tuesday, wednesday, thursday,
+					friday, saturday, sunday);
+			// display times
+			showTimes(monday, tuesday, wednesday, thursday, friday, saturday,
+					sunday);
 		}
 	}
-	
+
+	private void refreshRowHighlighting(DateTime monday, DateTime tuesday,
+			DateTime wednesday, DateTime thursday, DateTime friday,
+			DateTime saturday, DateTime sunday) {
+		DateTime today = DateTimeUtil.getCurrentDateTime();
+		mondayRow
+				.setBackgroundResource(today.isSameDayAs(monday) ? R.drawable.table_row_highlighting
+						: R.drawable.table_row);
+		tuesdayRow
+				.setBackgroundResource(today.isSameDayAs(tuesday) ? R.drawable.table_row_highlighting
+						: 0);
+		wednesdayRow
+				.setBackgroundResource(today.isSameDayAs(wednesday) ? R.drawable.table_row_highlighting
+						: R.drawable.table_row);
+		thursdayRow
+				.setBackgroundResource(today.isSameDayAs(thursday) ? R.drawable.table_row_highlighting
+						: 0);
+		fridayRow
+				.setBackgroundResource(today.isSameDayAs(friday) ? R.drawable.table_row_highlighting
+						: R.drawable.table_row);
+		saturdayRow
+				.setBackgroundResource(today.isSameDayAs(saturday) ? R.drawable.table_row_highlighting
+						: 0);
+		sundayRow
+				.setBackgroundResource(today.isSameDayAs(sunday) ? R.drawable.table_row_highlighting
+						: R.drawable.table_row);
+	}
+
+	private void showActualDates(DateTime monday, DateTime tuesday,
+			DateTime wednesday, DateTime thursday, DateTime friday,
+			DateTime saturday, DateTime sunday) {
+		mondayLabel.setText(getString(R.string.monday)
+				+ getString(R.string.onespace)
+				+ monday.format(getString(R.string.shortDateFormat)));
+		tuesdayLabel.setText(getString(R.string.tuesday)
+				+ getString(R.string.onespace)
+				+ tuesday.format(getString(R.string.shortDateFormat)));
+		wednesdayLabel.setText(getString(R.string.wednesday)
+				+ getString(R.string.onespace)
+				+ wednesday.format(getString(R.string.shortDateFormat)));
+		thursdayLabel.setText(getString(R.string.thursday)
+				+ getString(R.string.onespace)
+				+ thursday.format(getString(R.string.shortDateFormat)));
+		fridayLabel.setText(getString(R.string.friday)
+				+ getString(R.string.onespace)
+				+ friday.format(getString(R.string.shortDateFormat)));
+		saturdayLabel.setText(getString(R.string.saturday)
+				+ getString(R.string.onespace)
+				+ saturday.format(getString(R.string.shortDateFormat)));
+		sundayLabel.setText(getString(R.string.sunday)
+				+ getString(R.string.onespace)
+				+ sunday.format(getString(R.string.shortDateFormat)));
+	}
+
+	private void showTimes(DateTime monday, DateTime tuesday,
+			DateTime wednesday, DateTime thursday, DateTime friday,
+			DateTime saturday, DateTime sunday) {
+		if (currentlyShownWeek != null) {
+			List<Event> events = dao.getEventsOnDay(monday);
+			// TODO
+		}
+	}
+
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
-		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		tasksAdapter = new ArrayAdapter<Task>(this,
+				android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 	}
-	
+
 	private void findAllViewsById() {
 		titleRow = (TableRow) findViewById(R.id.titleRow);
 		inLabel = (TextView) findViewById(R.id.inLabel);
@@ -290,45 +342,47 @@ public class WorkTimeTrackerActivity extends Activity {
 		text = (EditText) findViewById(R.id.text);
 		clockInOutButton = (Button) findViewById(R.id.clockInOutButton);
 	}
-	
+
 	public void refreshTasks() {
 		reloadTasksOnResume = true;
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, EDIT_TASKS, 0, getString(R.string.edit_tasks)).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, OPTIONS, 1, getString(R.string.options)).setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, EDIT_TASKS, 0, getString(R.string.edit_tasks))
+				.setIcon(android.R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, OPTIONS, 1, getString(R.string.options)).setIcon(
+				android.R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case EDIT_TASKS:
-				showTaskList();
-				return true;
-			case OPTIONS:
-				showOptions();
-				return true;
-			default:
-				Log.w(getClass().getName(), "options menu: unknown item selected");
+		case EDIT_TASKS:
+			showTaskList();
+			return true;
+		case OPTIONS:
+			showOptions();
+			return true;
+		default:
+			Log.w(getClass().getName(), "options menu: unknown item selected");
 		}
 		return false;
 	}
-	
+
 	private void showTaskList() {
 		Log.d(getClass().getName(), "showing TaskList");
 		Intent i = new Intent(this, TaskListActivity.class);
 		startActivity(i);
 	}
-	
+
 	private void showOptions() {
 		Log.d(getClass().getName(), "showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		Log.d(getClass().getName(), "onResume called");
@@ -336,7 +390,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		refreshView();
 		super.onResume();
 	}
-	
+
 	private void initDaoAndPrefs() {
 		dao.open();
 		if (reloadTasksOnResume) {
@@ -345,41 +399,43 @@ public class WorkTimeTrackerActivity extends Activity {
 		}
 		readPreferences();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		Log.d(getClass().getName(), "onPause called");
 		dao.close();
 		super.onPause();
 	}
-	
+
 	public static WorkTimeTrackerActivity getInstance() {
 		return instance;
 	}
-	
-	private class TaskAndTextListener implements OnItemSelectedListener, OnKeyListener {
-		
+
+	private class TaskAndTextListener implements OnItemSelectedListener,
+			OnKeyListener {
+
 		private void valueChanged() {
 			taskOrTextChanged = true;
 			refreshView();
 		}
-		
+
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			valueChanged();
 			return false;
 		}
-		
+
 		@Override
-		public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		public void onItemSelected(AdapterView<?> parent, View view,
+				int position, long id) {
 			valueChanged();
 		}
-		
+
 		@Override
 		public void onNothingSelected(AdapterView<?> parent) {
 			valueChanged();
 		}
-		
+
 	}
-	
+
 }
