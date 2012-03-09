@@ -1,15 +1,29 @@
 package org.zephyrsoft.trackworktime.model;
 
+import org.zephyrsoft.trackworktime.database.DAO;
+
+/**
+ * Data class for a task.
+ * 
+ * @see DAO
+ * @author Mathis Dirksen-Thedens
+ */
 public class Task extends Base implements Comparable<Task> {
 	private Integer id = null;
 	private String name = null;
 	private Integer active = null;
 	private Integer ordering = null;
 	
+	/**
+	 * Constructor
+	 */
 	public Task() {
 		// do nothing
 	}
 	
+	/**
+	 * Constructor
+	 */
 	public Task(Integer id, String name, Integer active, Integer ordering) {
 		this.id = id;
 		this.name = name;
@@ -17,34 +31,58 @@ public class Task extends Base implements Comparable<Task> {
 		this.ordering = ordering;
 	}
 	
+	/**
+	 * Getter
+	 */
 	public Integer getId() {
 		return id;
 	}
 	
+	/**
+	 * Getter
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * Getter
+	 */
 	public Integer getActive() {
 		return active;
 	}
 	
+	/**
+	 * Setter
+	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 	
+	/**
+	 * Setter
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 	
+	/**
+	 * Setter
+	 */
 	public void setActive(Integer active) {
 		this.active = active;
 	}
 	
+	/**
+	 * Getter
+	 */
 	public Integer getOrdering() {
 		return ordering;
 	}
 	
+	/**
+	 * Setter
+	 */
 	public void setOrdering(Integer ordering) {
 		this.ordering = ordering;
 	}

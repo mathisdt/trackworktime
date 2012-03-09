@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 /**
+ * Activity to set the preferences of the application.
+ * 
  * @author Mathis Dirksen-Thedens
  */
 public class OptionsActivity extends PreferenceActivity {

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="keyFlexiTimeCategory">keyFlexiTimeCategory</string><string name="keyEnableFlexiTime">keyEnableFlexiTime</string><string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
-    
-    
-    
+
+    <string name="keyFlexiTimeCategory">keyFlexiTimeCategory</string>
+    <string name="keyEnableFlexiTime">keyEnableFlexiTime</string>
+    <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
+    <string name="keyFlatteningCategory">keyFlatteningCategory</string>
+    <string name="keySmallestTimeUnit">keySmallestTimeUnit</string>
+
 </resources>

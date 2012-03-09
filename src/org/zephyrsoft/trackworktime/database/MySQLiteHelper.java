@@ -5,25 +5,46 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * Helper class to manage the SQLite database.
+ * 
+ * @author Mathis Dirksen-Thedens
+ */
 public class MySQLiteHelper extends SQLiteOpenHelper {
 	
+	/** name of the task table */
 	public static final String TASK = "task";
+	/** name of the ID attribute of the task table */
 	public static final String TASK_ID = "_id";
+	/** name of the name attribute of the task table */
 	public static final String TASK_NAME = "name";
-	public static final String TASK_ACTIVE = "active"; // 0=false, 1=true
-	public static final String TASK_ORDERING = "ordering"; // for future use
+	/** name of the active attribute of the task table - 0=false, 1=true */
+	public static final String TASK_ACTIVE = "active";
+	/** name of the ordering attribute of the task table - for future use */
+	public static final String TASK_ORDERING = "ordering";
 	
+	/** name of the week table */
 	public static final String WEEK = "week";
+	/** name of the ID attribute of the week table */
 	public static final String WEEK_ID = "_id";
-	public static final String WEEK_START = "start"; // date and time of monday 0:00 AM
-	public static final String WEEK_SUM = "sum"; // in whole minutes
+	/** name of the start attribute of the week table - date and time of monday 0:00 AM */
+	public static final String WEEK_START = "start";
+	/** name of the sum attribute of the week table - in whole minutes */
+	public static final String WEEK_SUM = "sum";
 	
+	/** name of the event table */
 	public static final String EVENT = "event";
+	/** name of the ID attribute of the event table */
 	public static final String EVENT_ID = "_id";
-	public static final String EVENT_WEEK = "week"; // reference to WEEK_ID
+	/** name of the week attribute of the event table - reference to WEEK_ID */
+	public static final String EVENT_WEEK = "week";
+	/** name of the type attribute of the event table */
 	public static final String EVENT_TYPE = "type";
+	/** name of the time attribute of the event table */
 	public static final String EVENT_TIME = "time";
-	public static final String EVENT_TASK = "task"; // reference to TASK_ID
+	/** name of the task attribute of the event table - reference to TASK_ID */
+	public static final String EVENT_TASK = "task";
+	/** name of the customtext attribute of the event table */
 	public static final String EVENT_TEXT = "customtext";
 	
 	private static final String DATABASE_NAME = "trackworktime.db";
@@ -37,6 +58,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		+ " integer primary key autoincrement, " + EVENT_WEEK + " integer null, " + EVENT_TYPE + " integer not null, "
 		+ EVENT_TIME + " text not null, " + EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
 	
+	/**
+	 * Constructor
+	 */
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}

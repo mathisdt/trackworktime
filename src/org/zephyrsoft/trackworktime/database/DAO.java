@@ -17,43 +17,57 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_START;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
 import hirondelle.date4j.DateTime;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+/**
+ * The data access object for structures from the app's SQLite database.
+ * 
+ * The model consists of three main elements: tasks (which are defined by the user and can be referenced when clocking
+ * in), events (which are generated when clocking in or out and when changing task or text) and weeks (which are like a
+ * clip around events and also can provide a sum so that not all events have to be read to calculate the flexi time).
+ * 
+ * @author Mathis Dirksen-Thedens
+ */
 public class DAO {
-
+	
 	private SQLiteDatabase db;
 	private MySQLiteHelper dbHelper;
-
+	
+	/**
+	 * Constructor
+	 */
 	public DAO(Context context) {
 		dbHelper = new MySQLiteHelper(context);
 	}
-
+	
+	/**
+	 * Open the underlying database.
+	 */
 	public void open() throws SQLException {
 		db = dbHelper.getWritableDatabase();
 	}
-
+	
+	/**
+	 * Close the underlying database.
+	 */
 	public void close() {
 		dbHelper.close();
 	}
-
+	
 	// =======================================================
-
-	private static final String[] TASK_FIELDS = { TASK_ID, TASK_NAME,
-			TASK_ACTIVE, TASK_ORDERING };
-
+	
+	private static final String[] TASK_FIELDS = {TASK_ID, TASK_NAME, TASK_ACTIVE, TASK_ORDERING};
+	
 	private Task cursorToTask(Cursor cursor) {
 		Task task = new Task();
 		task.setId(cursor.getInt(0));
@@ -62,7 +76,7 @@ public class DAO {
 		task.setOrdering(cursor.getInt(3));
 		return task;
 	}
-
+	
 	private ContentValues taskToContentValues(Task task) {
 		ContentValues ret = new ContentValues();
 		ret.put(TASK_NAME, task.getName());
@@ -70,7 +84,13 @@ public class DAO {
 		ret.put(TASK_ORDERING, task.getOrdering());
 		return ret;
 	}
-
+	
+	/**
+	 * Insert a new task.
+	 * 
+	 * @param task the task to add
+	 * @return the newly created task as read from the database (complete with ID)
+	 */
 	public Task insertTask(Task task) {
 		ContentValues args = taskToContentValues(task);
 		long insertId = db.insert(TASK, null, args);
@@ -78,26 +98,41 @@ public class DAO {
 		List<Task> created = getTasksWithConstraint(TASK_ID + "=" + insertId);
 		return created.get(0);
 	}
-
+	
+	/**
+	 * Get all tasks.
+	 * 
+	 * @return all existing tasks
+	 */
 	public List<Task> getAllTasks() {
 		return getTasksWithConstraint(null);
 	}
-
+	
+	/**
+	 * Get all active tasks.
+	 * 
+	 * @return all existing tasks that are active at the moment
+	 */
 	public List<Task> getActiveTasks() {
 		return getTasksWithConstraint(TASK_ACTIVE + "!=0");
 	}
-
+	
+	/**
+	 * Get the task with a specific ID.
+	 * 
+	 * @param id the ID
+	 * @return the task or {@code null} if the specified ID does not exist
+	 */
 	public Task getTask(Integer id) {
 		List<Task> tasks = getTasksWithConstraint(TASK_ID + "=" + id);
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
-
+	
 	private List<Task> getTasksWithConstraint(String constraint) {
 		List<Task> ret = new ArrayList<Task>();
 		// TODO sort tasks by TASK_ORDERING when we have UI support for manually
 		// ordering the tasks
-		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null,
-				null, TASK_NAME);
+		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null, null, TASK_NAME);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Task task = cursorToTask(cursor);
@@ -107,24 +142,35 @@ public class DAO {
 		cursor.close();
 		return ret;
 	}
-
+	
+	/**
+	 * Update a task.
+	 * 
+	 * @param task the task to update - the ID has to be set!
+	 * @return the task as newly read from the database
+	 */
 	public Task updateTask(Task task) {
 		ContentValues args = taskToContentValues(task);
 		db.update(TASK, args, TASK_ID + "=" + task.getId(), null);
 		// now fetch the newly updated row and return it as Task object
-		List<Task> updated = getTasksWithConstraint(TASK_ID + "="
-				+ task.getId() + "");
+		List<Task> updated = getTasksWithConstraint(TASK_ID + "=" + task.getId() + "");
 		return updated.get(0);
 	}
-
+	
+	/**
+	 * Remove a task.
+	 * 
+	 * @param task the task to delete - the ID has to be set!
+	 * @return {@code true} if successful, {@code false} if not
+	 */
 	public boolean deleteTask(Task task) {
 		return db.delete(TASK, TASK_ID + "=" + task.getId(), null) > 0;
 	}
-
+	
 	// =======================================================
-
-	private static final String[] WEEK_FIELDS = { WEEK_ID, WEEK_START, WEEK_SUM };
-
+	
+	private static final String[] WEEK_FIELDS = {WEEK_ID, WEEK_START, WEEK_SUM};
+	
 	private Week cursorToWeek(Cursor cursor) {
 		Week week = new Week();
 		week.setId(cursor.getInt(0));
@@ -132,14 +178,20 @@ public class DAO {
 		week.setSum(cursor.getInt(2));
 		return week;
 	}
-
+	
 	private ContentValues weekToContentValues(Week week) {
 		ContentValues ret = new ContentValues();
 		ret.put(WEEK_START, week.getStart());
 		ret.put(WEEK_SUM, week.getSum());
 		return ret;
 	}
-
+	
+	/**
+	 * Insert a new week.
+	 * 
+	 * @param week the week to add
+	 * @return the newly created week as read from the database (complete with ID)
+	 */
 	public Week insertWeek(Week week) {
 		ContentValues args = weekToContentValues(week);
 		long insertId = db.insert(WEEK, null, args);
@@ -147,26 +199,37 @@ public class DAO {
 		List<Week> created = getWeeksWithConstraint(WEEK_ID + "=" + insertId);
 		return created.get(0);
 	}
-
+	
+	/**
+	 * Return all weeks.
+	 */
 	public List<Week> getAllWeeks() {
 		return getWeeksWithConstraint(null);
 	}
-
+	
+	/**
+	 * Returns the week identified by the given start date or {@code null} if no week exists for that date.
+	 * 
+	 * @param start the start date
+	 */
 	public Week getWeek(String start) {
-		List<Week> weeks = getWeeksWithConstraint(WEEK_START + "=\"" + start
-				+ "\"");
+		List<Week> weeks = getWeeksWithConstraint(WEEK_START + "=\"" + start + "\"");
 		return weeks.isEmpty() ? null : weeks.get(0);
 	}
-
+	
+	/**
+	 * Returns the week identified by the given ID or {@code null} if no week exists for that ID.
+	 * 
+	 * @param id the ID
+	 */
 	public Week getWeek(Integer id) {
 		List<Week> weeks = getWeeksWithConstraint(WEEK_ID + "=" + id);
 		return weeks.isEmpty() ? null : weeks.get(0);
 	}
-
+	
 	private List<Week> getWeeksWithConstraint(String constraint) {
 		List<Week> ret = new ArrayList<Week>();
-		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null,
-				null, WEEK_START);
+		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, WEEK_START);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Week week = cursorToWeek(cursor);
@@ -176,27 +239,37 @@ public class DAO {
 		cursor.close();
 		return ret;
 	}
-
+	
+	/**
+	 * Update a week.
+	 * 
+	 * @param week the week to update - the ID has to be set!
+	 * @return the week as newly read from the database
+	 */
 	public Week updateWeek(Week week) {
 		ContentValues args = weekToContentValues(week);
 		db.update(WEEK, args, WEEK_ID + "=" + week.getId(), null);
 		// now fetch the newly updated row and return it as Week object
-		List<Week> updated = getWeeksWithConstraint(WEEK_ID + "="
-				+ week.getId());
+		List<Week> updated = getWeeksWithConstraint(WEEK_ID + "=" + week.getId());
 		return updated.get(0);
 	}
-
+	
+	/**
+	 * Remove a week.
+	 * 
+	 * @param week the week to delete - the ID has to be set!
+	 * @return {@code true} if successful, {@code false} if not
+	 */
 	public boolean deleteWeek(Week week) {
 		return db.delete(WEEK, WEEK_ID + "=" + week.getId(), null) > 0;
 	}
-
+	
 	// =======================================================
-
-	private static final String[] EVENT_FIELDS = { EVENT_ID, EVENT_WEEK,
-			EVENT_TIME, EVENT_TYPE, EVENT_TASK, EVENT_TEXT };
-	private static final String[] MAX_EVENT_FIELDS = { EVENT_ID, EVENT_WEEK,
-			"max(" + EVENT_TIME + ")", EVENT_TYPE, EVENT_TASK, EVENT_TEXT };
-
+	
+	private static final String[] EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, EVENT_TIME, EVENT_TYPE, EVENT_TASK, EVENT_TEXT};
+	private static final String[] MAX_EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, "max(" + EVENT_TIME + ")", EVENT_TYPE,
+		EVENT_TASK, EVENT_TEXT};
+	
 	private Event cursorToEvent(Cursor cursor) {
 		Event event = new Event();
 		event.setId(cursor.getInt(0));
@@ -207,7 +280,7 @@ public class DAO {
 		event.setText(cursor.getString(5));
 		return event;
 	}
-
+	
 	private ContentValues eventToContentValues(Event event) {
 		ContentValues ret = new ContentValues();
 		ret.put(EVENT_WEEK, event.getWeek());
@@ -217,7 +290,13 @@ public class DAO {
 		ret.put(EVENT_TEXT, event.getText());
 		return ret;
 	}
-
+	
+	/**
+	 * Insert a new event.
+	 * 
+	 * @param event the event to add
+	 * @return the newly created event as read from the database (complete with ID)
+	 */
 	public Event insertEvent(Event event) {
 		ContentValues args = eventToContentValues(event);
 		long insertId = db.insert(EVENT, null, args);
@@ -225,32 +304,44 @@ public class DAO {
 		List<Event> created = getEventsWithConstraint(EVENT_ID + "=" + insertId);
 		return created.get(0);
 	}
-
+	
+	/**
+	 * Return all events - attention: this may be slow if many events exist!
+	 */
 	public List<Event> getAllEvents() {
 		return getEventsWithConstraint(null);
 	}
-
+	
+	/**
+	 * Return all events in a certain week.
+	 * 
+	 * @param week the week in which the events are searched - the ID has to be set!
+	 */
 	public List<Event> getEventsInWeek(Week week) {
 		return getEventsWithConstraint(EVENT_WEEK + "=" + week.getId());
 	}
-
+	
+	/**
+	 * Return all events on a certain day.
+	 * 
+	 * @param day the day on which the events are searched
+	 */
 	public List<Event> getEventsOnDay(DateTime day) {
-		return getEventsWithConstraint(EVENT_TIME + " like \""
-				+ DateTimeUtil.dateTimeToDateString(day) + "%\"");
+		return getEventsWithConstraint(EVENT_TIME + " like \"" + DateTimeUtil.dateTimeToDateString(day) + "%\"");
 	}
-
+	
+	/**
+	 * Return the last recorded event or {@code null} if no event exists.
+	 */
 	public Event getLatestEvent() {
-		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS,
-				null);
+		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null);
 		// if latestEvent is empty, then there is no event in the database
 		return latestEvent.isEmpty() ? null : latestEvent.get(0);
 	}
-
-	private List<Event> getEventsWithParameters(String[] fields,
-			String constraint) {
+	
+	private List<Event> getEventsWithParameters(String[] fields, String constraint) {
 		List<Event> ret = new ArrayList<Event>();
-		Cursor cursor = db.query(EVENT, fields, constraint, null, null, null,
-				EVENT_TIME);
+		Cursor cursor = db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Event event = cursorToEvent(cursor);
@@ -260,20 +351,31 @@ public class DAO {
 		cursor.close();
 		return ret;
 	}
-
+	
 	private List<Event> getEventsWithConstraint(String constraint) {
 		return getEventsWithParameters(EVENT_FIELDS, constraint);
 	}
-
+	
+	/**
+	 * Update an event.
+	 * 
+	 * @param event the event to update - the ID has to be set!
+	 * @return the event as newly read from the database
+	 */
 	public Event updateEvent(Event event) {
 		ContentValues args = eventToContentValues(event);
 		db.update(EVENT, args, EVENT_ID + "=" + event.getId(), null);
 		// now fetch the newly updated row and return it as Event object
-		List<Event> updated = getEventsWithConstraint(EVENT_ID + "="
-				+ event.getId());
+		List<Event> updated = getEventsWithConstraint(EVENT_ID + "=" + event.getId());
 		return updated.get(0);
 	}
-
+	
+	/**
+	 * Remove an event.
+	 * 
+	 * @param event the event to delete - the ID has to be set!
+	 * @return {@code true} if successful, {@code false} if not
+	 */
 	public boolean deleteEvent(Event event) {
 		return db.delete(EVENT, EVENT_ID + "=" + event.getId(), null) > 0;
 	}

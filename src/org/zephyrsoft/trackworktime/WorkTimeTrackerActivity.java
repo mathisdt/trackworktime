@@ -31,6 +31,11 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+/**
+ * Main activity of the application.
+ * 
+ * @author Mathis Dirksen-Thedens
+ */
 public class WorkTimeTrackerActivity extends Activity {
 	
 	private static final int EDIT_TASKS = 0;
@@ -260,12 +265,19 @@ public class WorkTimeTrackerActivity extends Activity {
 	
 	private void showTimesForSingleDay(List<Event> events, TextView in, TextView out, TextView worked, TextView flexi) {
 		if (!events.isEmpty()) {
-			// TODO be sensible to the event type (CLOCK_IN vs. CLOCK_OUT)!
+			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT)
+			Event firstEvent = events.get(0);
+			Event lastEvent = events.get(events.size() - 1);
 			String timeIn =
-				DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(events.get(0).getTime()));
+				DateTimeUtil
+					.dateTimeToHourMinuteString(firstEvent.getType().equals(TypeEnum.CLOCK_IN.getValue()) ? DateTimeUtil
+						.stringToDateTime(firstEvent.getTime()) : DateTimeUtil.stringToDateTime(firstEvent.getTime())
+						.getStartOfDay());
 			String timeOut =
-				DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(events.get(events.size() - 1)
-					.getTime()));
+				DateTimeUtil
+					.dateTimeToHourMinuteString(lastEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue()) ? DateTimeUtil
+						.stringToDateTime(lastEvent.getTime()) : DateTimeUtil.stringToDateTime(lastEvent.getTime())
+						.getEndOfDay());
 			DateTime amountWorked = calculateWorkedTime(events);
 			String timeWorked = DateTimeUtil.dateTimeToHourMinuteString(amountWorked);
 			// TODO handle flexi time - use amountWorked!
@@ -374,6 +386,9 @@ public class WorkTimeTrackerActivity extends Activity {
 		clockInOutButton = (Button) findViewById(R.id.clockInOutButton);
 	}
 	
+	/**
+	 * Mark task list as changed so it will be re-read from the database the next time the GUI is refreshed.
+	 */
 	public void refreshTasks() {
 		reloadTasksOnResume = true;
 	}
@@ -436,6 +451,9 @@ public class WorkTimeTrackerActivity extends Activity {
 		super.onPause();
 	}
 	
+	/**
+	 * Get the instance of this activity.
+	 */
 	public static WorkTimeTrackerActivity getInstance() {
 		return instance;
 	}

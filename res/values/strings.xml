@@ -33,10 +33,14 @@
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
     <string name="enableFlexiTime">Enable Flexi Time</string>
-    <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
     <string name="clockInChange">Start New Tracking Period</string>
     <string name="shortDateFormat">DD.MM.</string>
+    <string name="timeFlattening">Time Flattening</string>
+    <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
+    <string name="flexiTimeStartValueDescription">Input as hours:minutes, e.g. 10:45.</string>
+    <string name="smallestTimeUnit">Smallest Time Unit</string>
+    <string name="smallestTimeUnitDescription">Input as minutes, e.g. 15. Flattening rounds to this amount of time.</string>
 
 </resources>

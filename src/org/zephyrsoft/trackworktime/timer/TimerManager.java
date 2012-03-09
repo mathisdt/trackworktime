@@ -10,7 +10,7 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
- * Keeps accounts of tracked time.
+ * Manages the time tracking.
  * 
  * @author Mathis Dirksen-Thedens
  */
@@ -18,6 +18,9 @@ public class TimerManager {
 	
 	private final DAO dao;
 	
+	/**
+	 * Constructor
+	 */
 	public TimerManager(DAO dao) {
 		this.dao = dao;
 		
@@ -33,6 +36,9 @@ public class TimerManager {
 		return latestEvent == null ? false : latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
 	}
 	
+	/**
+	 * Returns the currently active task or {@code null} if tracking is disabled at the moment.
+	 */
 	public Task getCurrentTask() {
 		Event latestEvent = dao.getLatestEvent();
 		if (latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {

@@ -1,5 +1,10 @@
 package org.zephyrsoft.trackworktime.model;
 
+/**
+ * Base class which all other data classes extend. Basic operations are defined here.
+ * 
+ * @author Mathis Dirksen-Thedens
+ */
 public abstract class Base {
 	
 	/**

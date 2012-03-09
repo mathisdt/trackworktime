@@ -10,11 +10,22 @@ import java.util.TimeZone;
  */
 public class DateTimeUtil {
 	
+	/**
+	 * Gets the current date and time.
+	 * 
+	 * @return {@link DateTime} object
+	 */
 	public static DateTime getCurrentDateTime() {
 		DateTime now = DateTime.now(TimeZone.getDefault());
 		return now;
 	}
 	
+	/**
+	 * Gets the week's start related to the specified date and time.
+	 * 
+	 * @param dateTime the date and time
+	 * @return {@code DateTime} object
+	 */
 	public static String getWeekStart(DateTime dateTime) {
 		// go back to this day's start
 		DateTime ret = dateTime.getStartOfDay();
