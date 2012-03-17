@@ -42,5 +42,9 @@
     <string name="flexiTimeStartValueDescription">Input as hours:minutes, e.g. 10:45.</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
     <string name="smallestTimeUnitDescription">Input as minutes, e.g. 15. Flattening rounds to this amount of time.</string>
+    <string name="backward">jumped backward</string>
+    <string name="forward">jumped forward</string>
+    <string name="weeks">weeks</string>
+    <string name="now">NOW</string>
 
 </resources>

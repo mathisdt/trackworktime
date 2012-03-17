@@ -44,7 +44,7 @@ public class DateTimeUtil {
 	 * @return the String which corresponds to the given input
 	 */
 	public static String dateTimeToString(DateTime dateTime) {
-		return dateTime.format("YYYY-MM-DD hh:mm:ss");
+		return dateTime.format("YYYY-MM-DD hh:mm:ss.ffff");
 	}
 	
 	/**
@@ -79,7 +79,16 @@ public class DateTimeUtil {
 	 * @return the String which corresponds to the given input
 	 */
 	public static String dateTimeToHourMinuteString(DateTime dateTime) {
+		// if the format is changed here, change it also in the method getCompleteDayAsHourMinuteString()
 		return dateTime.format("hh:mm");
+	}
+	
+	/**
+	 * Returns a {@code String} representing the amount of time for a complete day (24 hours).
+	 * The format is the same as in {@link #dateTimeToHourMinuteString(DateTime)}.
+	 */
+	public static String getCompleteDayAsHourMinuteString() {
+		return "24:00";
 	}
 	
 }

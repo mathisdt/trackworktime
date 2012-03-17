@@ -2,6 +2,8 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 import hirondelle.date4j.DateTime.DayOverflow;
+import hirondelle.date4j.DateTime.Unit;
+import java.util.ArrayList;
 import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -23,6 +26,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -30,13 +34,15 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
+import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
 /**
  * Main activity of the application.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends Activity {
+public class WorkTimeTrackerActivity extends Activity implements SimpleGestureListener {
 	
 	private static final int EDIT_TASKS = 0;
 	private static final int OPTIONS = 1;
@@ -133,6 +139,8 @@ public class WorkTimeTrackerActivity extends Activity {
 	private boolean taskOrTextChanged = false;
 	private Week currentlyShownWeek;
 	
+	private SimpleGestureFilter detector;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -144,6 +152,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		setContentView(R.layout.main);
 		
 		findAllViewsById();
+		
+		detector = new SimpleGestureFilter(this, this);
 		
 		clockInOutButton.setOnClickListener(clockInOut);
 		
@@ -170,6 +180,32 @@ public class WorkTimeTrackerActivity extends Activity {
 	private void readPreferences() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		// TODO
+	}
+	
+	/**
+	 * @param interval position of the week relative to the currently displayed week, e.g. -2 for two weeks before
+	 *            the currently displayed week
+	 */
+	private void changeDisplayedWeek(int interval) {
+		if (interval == 0) {
+			return;
+		}
+		
+		DateTime targetWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart()).plusDays(interval * 7);
+		Week targetWeek = dao.getWeek(DateTimeUtil.dateTimeToString(targetWeekStart));
+		if (targetWeek == null) {
+			targetWeek = dao.insertWeek(new Week(null, DateTimeUtil.dateTimeToString(targetWeekStart), null));
+		}
+		
+		// display a Toast indicating the change interval (helps the user for more than one week difference)
+		if (Math.abs(interval) > 1) {
+			CharSequence backwardOrForward = interval < 0 ? getText(R.string.backward) : getText(R.string.forward);
+			Toast.makeText(this, backwardOrForward + " " + Math.abs(interval) + " " + getText(R.string.weeks),
+				Toast.LENGTH_SHORT).show();
+		}
+		
+		currentlyShownWeek = targetWeek;
+		refreshView();
 	}
 	
 	protected void refreshView() {
@@ -246,67 +282,157 @@ public class WorkTimeTrackerActivity extends Activity {
 	private void showTimes(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday, DateTime friday,
 		DateTime saturday, DateTime sunday) {
 		if (currentlyShownWeek != null) {
-			List<Event> events = dao.getEventsOnDay(monday);
-			showTimesForSingleDay(events, mondayIn, mondayOut, mondayWorked, mondayFlexi);
-			events = dao.getEventsOnDay(tuesday);
-			showTimesForSingleDay(events, tuesdayIn, tuesdayOut, tuesdayWorked, tuesdayFlexi);
-			events = dao.getEventsOnDay(wednesday);
-			showTimesForSingleDay(events, wednesdayIn, wednesdayOut, wednesdayWorked, wednesdayFlexi);
-			events = dao.getEventsOnDay(thursday);
-			showTimesForSingleDay(events, thursdayIn, thursdayOut, thursdayWorked, thursdayFlexi);
-			events = dao.getEventsOnDay(friday);
-			showTimesForSingleDay(events, fridayIn, fridayOut, fridayWorked, fridayFlexi);
-			events = dao.getEventsOnDay(saturday);
-			showTimesForSingleDay(events, saturdayIn, saturdayOut, saturdayWorked, saturdayFlexi);
-			events = dao.getEventsOnDay(sunday);
-			showTimesForSingleDay(events, sundayIn, sundayOut, sundayWorked, sundayFlexi);
+			List<Event> events = fetchEventsForDay(monday);
+			showTimesForSingleDay(monday, events, mondayIn, mondayOut, mondayWorked, mondayFlexi);
+			events = fetchEventsForDay(tuesday);
+			showTimesForSingleDay(tuesday, events, tuesdayIn, tuesdayOut, tuesdayWorked, tuesdayFlexi);
+			events = fetchEventsForDay(wednesday);
+			showTimesForSingleDay(wednesday, events, wednesdayIn, wednesdayOut, wednesdayWorked, wednesdayFlexi);
+			events = fetchEventsForDay(thursday);
+			showTimesForSingleDay(thursday, events, thursdayIn, thursdayOut, thursdayWorked, thursdayFlexi);
+			events = fetchEventsForDay(friday);
+			showTimesForSingleDay(friday, events, fridayIn, fridayOut, fridayWorked, fridayFlexi);
+			events = fetchEventsForDay(saturday);
+			showTimesForSingleDay(saturday, events, saturdayIn, saturdayOut, saturdayWorked, saturdayFlexi);
+			events = fetchEventsForDay(sunday);
+			showTimesForSingleDay(sunday, events, sundayIn, sundayOut, sundayWorked, sundayFlexi);
 		}
 	}
 	
-	private void showTimesForSingleDay(List<Event> events, TextView in, TextView out, TextView worked, TextView flexi) {
+	private List<Event> fetchEventsForDay(DateTime day) {
+		List<Event> ret = dao.getEventsOnDay(day);
+		Log.d(getClass().getName(), "fetchEventsForDay: " + DateTimeUtil.dateTimeToDateString(day));
+		DateTime now = DateTimeUtil.getCurrentDateTime();
+		Event lastEventBeforeNow = dao.getLastEventBefore(now);
+		Log.d(getClass().getName(), "lastEventBeforeNow: " + lastEventBeforeNow);
+		if (day.isSameDayAs(now) && lastEventBeforeNow != null
+			&& lastEventBeforeNow.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+			// currently clocked in: add clock-out event "NOW"
+			ret.add(new Event(null, currentlyShownWeek.getId(), null, TypeEnum.CLOCK_OUT_NOW.getValue(), DateTimeUtil
+				.dateTimeToString(now), null));
+		}
+		return ret;
+	}
+	
+	private void showTimesForSingleDay(DateTime day, List<Event> events, TextView in, TextView out, TextView worked,
+		TextView flexi) {
+		CharSequence timeIn = null;
+		CharSequence timeOut = null;
+		CharSequence timeWorked = null;
+		CharSequence timeFlexi = null;
+		
 		if (!events.isEmpty()) {
-			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT)
+			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
 			Event firstEvent = events.get(0);
 			Event lastEvent = events.get(events.size() - 1);
-			String timeIn =
-				DateTimeUtil
-					.dateTimeToHourMinuteString(firstEvent.getType().equals(TypeEnum.CLOCK_IN.getValue()) ? DateTimeUtil
-						.stringToDateTime(firstEvent.getTime()) : DateTimeUtil.stringToDateTime(firstEvent.getTime())
+			if (firstEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+				timeIn = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstEvent.getTime()));
+			} else if (firstEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue())
+				|| firstEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+				timeIn =
+					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstEvent.getTime())
 						.getStartOfDay());
-			String timeOut =
-				DateTimeUtil
-					.dateTimeToHourMinuteString(lastEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue()) ? DateTimeUtil
-						.stringToDateTime(lastEvent.getTime()) : DateTimeUtil.stringToDateTime(lastEvent.getTime())
+			} else {
+				throw new IllegalArgumentException("illegal event type");
+			}
+			if (lastEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue())
+				|| lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+				timeOut = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(lastEvent.getTime()));
+			} else if (lastEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+				timeOut =
+					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(lastEvent.getTime())
 						.getEndOfDay());
-			DateTime amountWorked = calculateWorkedTime(events);
-			String timeWorked = DateTimeUtil.dateTimeToHourMinuteString(amountWorked);
-			// TODO handle flexi time - use amountWorked!
+			} else {
+				throw new IllegalArgumentException("illegal event type");
+			}
+			if (lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+				timeOut = getText(R.string.now);
+			}
 			
-			in.setText(timeIn);
-			out.setText(timeOut);
-			worked.setText(timeWorked);
+			DateTime amountWorked = calculateWorkedTime(day, events);
+			timeWorked = DateTimeUtil.dateTimeToHourMinuteString(amountWorked);
+			
+			// TODO handle flexi time - use amountWorked
+			timeFlexi = "";
+			
+		} else {
+			Event lastEventBeforeToday = dao.getLastEventBefore(day);
+			DateTime now = DateTimeUtil.getCurrentDateTime();
+			if (lastEventBeforeToday != null && lastEventBeforeToday.getType().equals(TypeEnum.CLOCK_IN.getValue())
+				&& day.getStartOfDay().lt(now)) {
+				// although there are no events on this day, the user is clocked in all day long - else there would be a
+				// CLOCK_OUT_NOW event!
+				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
+				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
+				timeWorked = DateTimeUtil.getCompleteDayAsHourMinuteString();
+				// TODO handle flexi time
+				timeFlexi = "";
+			} else {
+				// clear all fields
+				timeIn = "";
+				timeOut = "";
+				timeWorked = "";
+				timeFlexi = "";
+			}
 		}
 		
+		in.setText(timeIn);
+		out.setText(timeOut);
+		worked.setText(timeWorked);
+		flexi.setText(timeFlexi);
 	}
 	
-	private DateTime calculateWorkedTime(List<Event> events) {
-		DateTime ret = DateTimeUtil.stringToDateTime(events.get(0).getTime()).getStartOfDay();
+	/**
+	 * Calculate the amount of work time for one day (doesn't work for multiple days).
+	 * 
+	 * @param events the events on one specific day
+	 * @return a DateTime whose time part is set to the amount of work time (the date part has to be ignored)
+	 */
+	private DateTime calculateWorkedTime(DateTime day, List<Event> events) {
+		DateTime ret = DateTimeUtil.getCurrentDateTime().getStartOfDay();
 		boolean isFirst = true;
 		DateTime clockedInSince = null;
-		for (Event event : events) {
+		
+		// copy list so the original is not changed externally
+		List<Event> internalEvents = new ArrayList<Event>();
+		internalEvents.addAll(events);
+		if (!internalEvents.isEmpty()
+			&& internalEvents.get(internalEvents.size() - 1).getType().equals(TypeEnum.CLOCK_IN.getValue())
+			&& !DateTimeUtil.getCurrentDateTime().isSameDayAs(
+				DateTimeUtil.stringToDateTime(internalEvents.get(internalEvents.size() - 1).getTime()))) {
+			// add clock-out event at midnight to be sure that all time is counted
+			Log.d(getClass().getName(), "adding clock-out event at midnight");
+			internalEvents.add(new Event(null, null, null, TypeEnum.CLOCK_OUT.getValue(), DateTimeUtil
+				.dateTimeToString(day.getEndOfDay()), null));
+		}
+		
+		for (Event event : internalEvents) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
+			Log.d(getClass().getName(), "handling event: " + event.toString());
 			
 			// clocked in over midnight? => add time since midnight to result
-			if (isFirst && event.getType().equals(TypeEnum.CLOCK_OUT.getValue())) {
+			if (isFirst
+				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
+					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
+				Log.d(getClass().getName(), "clocked in over midnight");
 				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
 			}
 			// clock-in event while not clocked in? => remember time
 			if (clockedInSince == null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+				Log.d(getClass().getName(), "remembering time");
 				clockedInSince = eventTime;
 			}
 			// clock-out event while clocked in? => add time since last clock-in to result
-			if (clockedInSince != null && event.getType().equals(TypeEnum.CLOCK_OUT.getValue())) {
+			if (clockedInSince != null
+				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
+					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
+				Log.d(getClass().getName(), "counting time");
 				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
+				if (eventTime.truncate(Unit.SECOND).equals(day.getEndOfDay().truncate(Unit.SECOND))) {
+					// still clocked in at midnight: add 1 minute for the last minute of the day (23:59)
+					ret = ret.plus(0, 0, 0, 0, 1, 0, DayOverflow.Abort);
+					Log.d(getClass().getName(), "adding one minute");
+				}
 				ret = ret.minus(0, 0, 0, clockedInSince.getHour(), clockedInSince.getMinute(), 0, DayOverflow.Abort);
 				clockedInSince = null;
 			}
@@ -458,6 +584,9 @@ public class WorkTimeTrackerActivity extends Activity {
 		return instance;
 	}
 	
+	/**
+	 * Listener for task dropdown field and text field. Triggers a refresh of the main activity.
+	 */
 	private class TaskAndTextListener implements OnItemSelectedListener, OnKeyListener {
 		
 		private void valueChanged() {
@@ -481,6 +610,41 @@ public class WorkTimeTrackerActivity extends Activity {
 			valueChanged();
 		}
 		
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent me) {
+		// first pass the events to the SimpleGestureFilter
+		this.detector.onTouchEvent(me);
+		// then process them normally
+		return super.dispatchTouchEvent(me);
+	}
+	
+	@Override
+	public void onSwipe(int direction) {
+		switch (direction) {
+			case SimpleGestureFilter.SWIPE_RIGHT:
+				changeDisplayedWeek(-1);
+				break;
+			case SimpleGestureFilter.SWIPE_LEFT:
+				changeDisplayedWeek(1);
+				break;
+			case SimpleGestureFilter.SWIPE_DOWN:
+				// display 4 weeks before
+				changeDisplayedWeek(-4);
+				break;
+			case SimpleGestureFilter.SWIPE_UP:
+				// display 4 weeks after
+				changeDisplayedWeek(4);
+				break;
+			default:
+				// do nothing
+		}
+	}
+	
+	@Override
+	public void onDoubleTap() {
+		// do nothing
 	}
 	
 }

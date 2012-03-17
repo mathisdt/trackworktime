@@ -331,17 +331,46 @@ public class DAO {
 	}
 	
 	/**
+	 * Return the last event before a certain date and time or {@code null} if there is no such event.
+	 * 
+	 * @param dateTime the date and time before which the event is searched
+	 */
+	public Event getLastEventBefore(DateTime dateTime) {
+		List<Event> lastEvent =
+			getEventsWithParameters(EVENT_FIELDS,
+				EVENT_TIME + " < \"" + DateTimeUtil.dateTimeToString(dateTime) + "\"", true, true);
+		// if lastEvent is empty, then there is no such event in the database
+		return lastEvent.isEmpty() ? null : lastEvent.get(0);
+	}
+	
+	/**
+	 * Return the first event after a certain date and time or {@code null} if there is no such event.
+	 * 
+	 * @param dateTime the date and time after which the event is searched
+	 */
+	public Event getFirstEventAfter(DateTime dateTime) {
+		List<Event> firstEvent =
+			getEventsWithParameters(EVENT_FIELDS,
+				EVENT_TIME + " > \"" + DateTimeUtil.dateTimeToString(dateTime) + "\"", false, true);
+		// if firstEvent is empty, then there is no such event in the database
+		return firstEvent.isEmpty() ? null : firstEvent.get(0);
+	}
+	
+	/**
 	 * Return the last recorded event or {@code null} if no event exists.
 	 */
 	public Event getLatestEvent() {
-		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null);
+		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null, false, true);
 		// if latestEvent is empty, then there is no event in the database
 		return latestEvent.isEmpty() ? null : latestEvent.get(0);
 	}
 	
-	private List<Event> getEventsWithParameters(String[] fields, String constraint) {
+	private List<Event> getEventsWithParameters(String[] fields, String constraint, boolean descending,
+		boolean limitedToOne) {
 		List<Event> ret = new ArrayList<Event>();
-		Cursor cursor = db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME);
+		Cursor cursor =
+			db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME + (descending ? " desc" : "") + ","
+				+ EVENT_ID + (descending ? " desc" : ""), (limitedToOne ? "1" : null));
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Event event = cursorToEvent(cursor);
@@ -353,7 +382,7 @@ public class DAO {
 	}
 	
 	private List<Event> getEventsWithConstraint(String constraint) {
-		return getEventsWithParameters(EVENT_FIELDS, constraint);
+		return getEventsWithParameters(EVENT_FIELDS, constraint, false, false);
 	}
 	
 	/**

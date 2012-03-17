@@ -131,7 +131,7 @@ public class Event extends Base implements Comparable<Event> {
 	 */
 	@Override
 	public String toString() {
-		return getTime() + " / " + getType() + " / " + getTask() + " - " + getText();
+		return getTime() + " / " + TypeEnum.byValue(getType()).name() + " / " + getTask() + " - " + getText();
 	}
 	
 }
