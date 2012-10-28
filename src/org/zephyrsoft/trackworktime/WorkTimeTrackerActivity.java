@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,8 +22,10 @@ import hirondelle.date4j.DateTime.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -44,12 +46,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.LocationTracker;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
 import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
@@ -148,6 +152,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private DAO dao = null;
 	private TimerManager timerManager = null;
+	private LocationTracker locationTracker = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private SharedPreferences preferences;
@@ -190,6 +195,11 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
 		}
 		
+		locationTracker =
+			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), timerManager);
+		
+		checkLocationBasedTracking();
+		
 		refreshView();
 	}
 	
@@ -198,9 +208,38 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		// TODO
 	}
 	
+	protected void checkLocationBasedTracking() {
+		if (preferences.getBoolean("keyLocationBasedTrackingEnabled", false)) {
+			String latitudeString = preferences.getString("keyLocationBasedTrackingLatitude", "0");
+			String longitudeString = preferences.getString("keyLocationBasedTrackingLongitude", "0");
+			String toleranceString = preferences.getString("keyLocationBasedTrackingTolerance", "0");
+			double latitude = 0.0;
+			try {
+				latitude = Double.parseDouble(latitudeString);
+			} catch (NumberFormatException nfe) {
+				Logger.warn("could not parse latitude: {}", latitudeString);
+			}
+			double longitude = 0.0;
+			try {
+				longitude = Double.parseDouble(longitudeString);
+			} catch (NumberFormatException nfe) {
+				Logger.warn("could not parse longitude: {}", longitudeString);
+			}
+			double tolerance = 0.0;
+			try {
+				tolerance = Double.parseDouble(toleranceString);
+			} catch (NumberFormatException nfe) {
+				Logger.warn("could not parse tolerance: {}", toleranceString);
+			}
+			locationTracker.startTrackingByLocation(latitude, longitude, tolerance);
+		} else {
+			locationTracker.stopTrackingByLocation();
+		}
+	}
+	
 	/**
-	 * @param interval position of the week relative to the currently displayed week, e.g. -2 for two weeks before
-	 *            the currently displayed week
+	 * @param interval position of the week relative to the currently displayed week, e.g. -2 for two weeks before the
+	 *            currently displayed week
 	 */
 	private void changeDisplayedWeek(int interval) {
 		if (interval == 0) {

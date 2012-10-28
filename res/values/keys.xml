@@ -6,5 +6,10 @@
     <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
     <string name="keyFlatteningCategory">keyFlatteningCategory</string>
     <string name="keySmallestTimeUnit">keySmallestTimeUnit</string>
+    <string name="keyLocationBasedTrackingCategory">keyLocationBasedTrackingCategory</string>
+    <string name="keyLocationBasedTrackingEnabled">keyLocationBasedTrackingEnabled</string>
+    <string name="keyLocationBasedTrackingLatitude">keyLocationBasedTrackingLatitude</string>
+    <string name="keyLocationBasedTrackingLongitude">keyLocationBasedTrackingLongitude</string>
+    <string name="keyLocationBasedTrackingTolerance">keyLocationBasedTrackingTolerance</string>
 
 </resources>

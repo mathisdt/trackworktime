@@ -46,5 +46,12 @@
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
     <string name="now">NOW</string>
+    <string name="locationBasedTracking">Location-based Tracking</string>
+    <string name="enableLocationBasedTracking">Track by Location</string>
+    <string name="workplaceLatitude">Latitude of Workplace</string>
+    <string name="workplaceLongitude">Longitude of Workplace</string>
+    <string name="workplaceLatitudeLongitudeDescription">Input a decimal degree value</string>
+    <string name="trackingTolerance">Tolerance</string>
+    <string name="trackingToleranceDescription">Input in whole meters, e.g. 500</string>
 
 </resources>

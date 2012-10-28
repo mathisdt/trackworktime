@@ -21,5 +21,25 @@
             android:summary="@string/smallestTimeUnitDescription"
             android:title="@string/smallestTimeUnit" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyLocationBasedTrackingCategory"
+        android:title="@string/locationBasedTracking" >
+        <CheckBoxPreference
+            android:key="@string/keyLocationBasedTrackingEnabled"
+            android:title="@string/enableLocationBasedTracking" />
+
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingLatitude"
+            android:summary="@string/workplaceLatitudeLongitudeDescription"
+            android:title="@string/workplaceLatitude" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingLongitude"
+            android:summary="@string/workplaceLatitudeLongitudeDescription"
+            android:title="@string/workplaceLongitude" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingTolerance"
+            android:summary="@string/trackingToleranceDescription"
+            android:title="@string/trackingTolerance" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

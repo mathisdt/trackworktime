@@ -2,13 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.zephyrsoft.trackworktime"
     android:versionCode="1"
-    android:versionName="0.1">
+    android:versionName="0.1" >
 
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="7" />
+
+    <permission android:name="ACCESS_COARSE_LOCATION" >
+    </permission>
 
     <application
+        android:hasCode="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" android:hasCode="true">
+        android:label="@string/app_name" >
         <activity
             android:name=".WorkTimeTrackerActivity"
             android:label="@string/app_name" >
@@ -18,13 +24,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
+        <activity
             android:name=".TaskListActivity"
-            android:label="@string/edit_tasks">
+            android:label="@string/edit_tasks" >
         </activity>
-        <activity 
+        <activity
             android:name=".OptionsActivity"
-            android:label="@string/preferences">
+            android:label="@string/preferences" >
         </activity>
     </application>
 
