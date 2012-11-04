@@ -22,12 +22,9 @@ import hirondelle.date4j.DateTime.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -46,14 +43,12 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.location.LocationTracker;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
 import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
@@ -150,12 +145,11 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private static WorkTimeTrackerActivity instance = null;
 	
+	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
-	private LocationTracker locationTracker = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
-	private SharedPreferences preferences;
 	private List<Task> tasks;
 	private boolean taskOrTextChanged = false;
 	private Week currentlyShownWeek;
@@ -167,8 +161,15 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		super.onCreate(savedInstanceState);
 		
 		instance = this;
-		
-		readPreferences();
+		if (Basics.getInstance() == null) {
+			// the device wasn't booted since the app was installed
+			Basics basics = new Basics();
+			basics.receivedIntent(getApplicationContext());
+		}
+		// fill basic data from central structures
+		preferences = Basics.getInstance().getPreferences();
+		dao = Basics.getInstance().getDao();
+		timerManager = Basics.getInstance().getTimerManager();
 		
 		setContentView(R.layout.main);
 		
@@ -183,10 +184,6 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		task.setOnItemSelectedListener(taskAndTextListener);
 		text.setOnKeyListener(taskAndTextListener);
 		
-		dao = new DAO(this);
-		dao.open();
-		timerManager = new TimerManager(dao);
-		
 		setupTasksAdapter();
 		
 		String weekStart = DateTimeUtil.getWeekStart(DateTimeUtil.getCurrentDateTime());
@@ -195,46 +192,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
 		}
 		
-		locationTracker =
-			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), timerManager);
-		
-		checkLocationBasedTracking();
-		
 		refreshView();
-	}
-	
-	private void readPreferences() {
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		// TODO
-	}
-	
-	protected void checkLocationBasedTracking() {
-		if (preferences.getBoolean("keyLocationBasedTrackingEnabled", false)) {
-			String latitudeString = preferences.getString("keyLocationBasedTrackingLatitude", "0");
-			String longitudeString = preferences.getString("keyLocationBasedTrackingLongitude", "0");
-			String toleranceString = preferences.getString("keyLocationBasedTrackingTolerance", "0");
-			double latitude = 0.0;
-			try {
-				latitude = Double.parseDouble(latitudeString);
-			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse latitude: {}", latitudeString);
-			}
-			double longitude = 0.0;
-			try {
-				longitude = Double.parseDouble(longitudeString);
-			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse longitude: {}", longitudeString);
-			}
-			double tolerance = 0.0;
-			try {
-				tolerance = Double.parseDouble(toleranceString);
-			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse tolerance: {}", toleranceString);
-			}
-			locationTracker.startTrackingByLocation(latitude, longitude, tolerance);
-		} else {
-			locationTracker.stopTrackingByLocation();
-		}
 	}
 	
 	/**
@@ -611,24 +569,17 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	@Override
 	protected void onResume() {
 		Log.d(getClass().getName(), "onResume called");
-		initDaoAndPrefs();
-		refreshView();
-		super.onResume();
-	}
-	
-	private void initDaoAndPrefs() {
-		dao.open();
 		if (reloadTasksOnResume) {
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
 		}
-		readPreferences();
+		refreshView();
+		super.onResume();
 	}
 	
 	@Override
 	protected void onPause() {
 		Log.d(getClass().getName(), "onPause called");
-		dao.close();
 		super.onPause();
 	}
 	
@@ -636,6 +587,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	 * Get the instance of this activity.
 	 */
 	public static WorkTimeTrackerActivity getInstance() {
+		if (instance == null) {
+			throw new IllegalStateException("the WTT activity is not created yet");
+		}
 		return instance;
 	}
 	

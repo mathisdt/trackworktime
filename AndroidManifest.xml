@@ -8,13 +8,20 @@
         android:minSdkVersion="7"
         android:targetSdkVersion="7" />
 
-    <permission android:name="ACCESS_COARSE_LOCATION" >
-    </permission>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:hasCode="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
+        <receiver android:name=".Basics" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".WorkTimeTrackerActivity"
             android:label="@string/app_name" >
@@ -32,6 +39,11 @@
             android:name=".OptionsActivity"
             android:label="@string/preferences" >
         </activity>
+
+        <service
+            android:name=".location.LocationTrackerService"
+            android:enabled="true" >
+        </service>
     </application>
 
 </manifest>

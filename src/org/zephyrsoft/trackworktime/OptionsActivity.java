@@ -37,7 +37,7 @@ public class OptionsActivity extends PreferenceActivity {
 		super.onPause();
 		
 		// make sure that location-based tracking gets enabled/disabled
-		WorkTimeTrackerActivity.getInstance().checkLocationBasedTracking();
+		Basics.getInstance().checkLocationBasedTracking();
 	}
 	
 	@Override
@@ -45,7 +45,7 @@ public class OptionsActivity extends PreferenceActivity {
 		super.onStop();
 		
 		// make sure that location-based tracking gets enabled/disabled
-		WorkTimeTrackerActivity.getInstance().checkLocationBasedTracking();
+		Basics.getInstance().checkLocationBasedTracking();
 	}
 	
 }

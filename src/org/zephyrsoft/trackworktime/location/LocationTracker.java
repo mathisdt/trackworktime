@@ -16,11 +16,14 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 
@@ -30,7 +33,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class LocationTracker {
+public class LocationTracker implements LocationListener {
 	
 	private final int SECONDS_TO_SLEEP_BETWEEN_CHECKS = 60;
 	
@@ -38,7 +41,7 @@ public class LocationTracker {
 	private final TimerManager timerManager;
 	private ExecutorService executor;
 	private Future<?> countDownFuture;
-	private boolean isTrackingByLocation = false;
+	private AtomicBoolean isTrackingByLocation = new AtomicBoolean(false);
 	
 	private Location targetLocation;
 	private double toleranceInMeters;
@@ -48,6 +51,12 @@ public class LocationTracker {
 	 * {@link #startTrackingByLocation(double, double, double)} explicitly.
 	 */
 	public LocationTracker(LocationManager locationManager, TimerManager timerManager) {
+		if (locationManager == null) {
+			throw new IllegalArgumentException("the LocationManager is null");
+		}
+		if (timerManager == null) {
+			throw new IllegalArgumentException("the TimerManager is null");
+		}
 		this.locationManager = locationManager;
 		this.timerManager = timerManager;
 	}
@@ -68,36 +77,44 @@ public class LocationTracker {
 		// just in case:
 		stopTrackingByLocation();
 		
-		executor = Executors.newSingleThreadExecutor();
-		Runnable checkLocationRunnable = new Runnable() {
-			@Override
-			public void run() {
-				while (isTrackingByLocation) {
-					Logger.info("location-based tracking: checking location");
-					Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-					Logger.info("last known location: latitude={} / longitude={} / accuracy={}",
-						lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
-						lastKnownLocation.getAccuracy());
-					if (lastKnownLocation != null) {
-						checkLocation(lastKnownLocation);
-					}
-					Logger.info("location-based tracking: starting to sleep");
-					try {
-						Thread.sleep(SECONDS_TO_SLEEP_BETWEEN_CHECKS * 1000);
-					} catch (InterruptedException e) {
-						// just continue, the while loop will take care of stopping
-					}
-				}
-			}
-		};
-		
-		if (executor.isShutdown()) {
-			throw new IllegalStateException("background executor is already stopped");
-		} else {
-			isTrackingByLocation = true;
-			countDownFuture = executor.submit(checkLocationRunnable);
+//		executor = Executors.newSingleThreadExecutor();
+//		Runnable checkLocationRunnable = new Runnable() {
+//			@Override
+//			public void run() {
+//				while (isTrackingByLocation) {
+//					Logger.info("location-based tracking: checking location");
+//
+//					Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//
+//					if (location != null) {
+//						Date recordedTime = new Date(location.getTime());
+//						Logger
+//							.info(
+//								"location: latitude={0,number,#.######} / longitude={1,number,#.######} / accuracy={2,number} / recorded on {3,date} at {3,time} UTC",
+//								location.getLatitude(), location.getLongitude(), location.getAccuracy(), recordedTime);
+//						checkLocation(location);
+//					} else {
+//						Logger.info("last known location is null");
+//					}
+//					Logger.info("location-based tracking: starting to sleep");
+//					try {
+//						Thread.sleep(SECONDS_TO_SLEEP_BETWEEN_CHECKS * 1000);
+//					} catch (InterruptedException e) {
+//						// just continue, the while loop will take care of stopping
+//					}
+//				}
+//			}
+//		};
+//
+//		if (executor.isShutdown()) {
+//			throw new IllegalStateException("background executor is already stopped");
+//		} else {
+//			countDownFuture = executor.submit(checkLocationRunnable);
+		if (isTrackingByLocation.compareAndSet(false, true)) {
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, this);
 			Logger.info("started location-based tracking");
 		}
+//		}
 	}
 	
 	private void checkLocation(Location location) {
@@ -119,16 +136,47 @@ public class LocationTracker {
 	 * Stop the periodic checks to track by location.
 	 */
 	public void stopTrackingByLocation() {
-		isTrackingByLocation = false;
-		if (countDownFuture != null) {
-			countDownFuture.cancel(true);
-			countDownFuture = null;
+		if (isTrackingByLocation.compareAndSet(true, false)) {
+			Logger.info("stopped location-based tracking");
 		}
-		if (executor != null) {
-			executor.shutdownNow();
-			executor = null;
+//		if (countDownFuture != null) {
+//			countDownFuture.cancel(true);
+//			countDownFuture = null;
+//		}
+//		if (executor != null) {
+//			executor.shutdownNow();
+//			executor = null;
+//		}
+//		Logger.info("stopped location-based tracking");
+	}
+	
+	@Override
+	public void onLocationChanged(Location location) {
+		if (location != null) {
+			Date recordedTime = new Date(location.getTime());
+			Logger
+				.info(
+					"location: latitude={0,number,#.######} / longitude={1,number,#.######} / accuracy={2,number} / recorded on {3,date} at {3,time} UTC",
+					location.getLatitude(), location.getLongitude(), location.getAccuracy(), recordedTime);
+			checkLocation(location);
+		} else {
+			Logger.info("last known location is null");
 		}
-		Logger.info("stopped location-based tracking");
+	}
+	
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// nothing to do
+	}
+	
+	@Override
+	public void onProviderEnabled(String provider) {
+		// nothing to do
+	}
+	
+	@Override
+	public void onProviderDisabled(String provider) {
+		// nothing to do
 	}
 	
 }
