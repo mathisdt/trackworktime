@@ -23,13 +23,10 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
- * The background service providing the location-based tracking without having the app open. <br/>
- * <br/>
- * <b>ATTENTION: THIS SERVICE NEEDS AN INSTANCE OF {@link WorkTimeTrackerActivity} TO FUNCTION PROPERLY!</b>
+ * The background service providing the location-based tracking without having the activity open.
  * 
  * @author Mathis Dirksen-Thedens
  */
@@ -44,7 +41,7 @@ public class LocationTrackerService extends Service {
 	/** the key for the {@link Double} which determines the tolerance in the intent's extras */
 	public static String INTENT_EXTRA_TOLERANCE = "TOLERANCE";
 	
-	private LocationTracker locationTracker = null;
+	private static LocationTracker locationTracker = null;
 	private int startId;
 	
 	private static AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -52,9 +49,9 @@ public class LocationTrackerService extends Service {
 	@Override
 	public void onCreate() {
 		Logger.info("creating LocationTrackerService");
+		Basics basics = Basics.getOrCreateInstance(getApplicationContext());
 		locationTracker =
-			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), Basics.getInstance()
-				.getTimerManager());
+			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics.getTimerManager());
 	}
 	
 	@Override
@@ -65,11 +62,13 @@ public class LocationTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
+		// TODO handle the case that the tracking already runs, but the target location has to be updated!
 		if (isRunning.compareAndSet(false, true)) {
 			this.startId = startId;
 			locationTracker.startTrackingByLocation((Double) intent.getExtras().get(INTENT_EXTRA_LATITUDE),
 				(Double) intent.getExtras().get(INTENT_EXTRA_LONGITUDE),
 				(Double) intent.getExtras().get(INTENT_EXTRA_TOLERANCE));
+			
 			return Service.START_REDELIVER_INTENT;
 		} else {
 			return Service.START_NOT_STICKY;

@@ -26,7 +26,7 @@ import android.util.Log;
  */
 public class Logger {
 	
-	private static final String TAG = "TrackWorkTime";
+	private static final String TAG = "trackworktime";
 	
 	/**
 	 * Log a debug message.

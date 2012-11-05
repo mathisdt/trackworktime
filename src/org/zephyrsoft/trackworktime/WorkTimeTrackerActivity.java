@@ -161,15 +161,11 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		super.onCreate(savedInstanceState);
 		
 		instance = this;
-		if (Basics.getInstance() == null) {
-			// the device wasn't booted since the app was installed
-			Basics basics = new Basics();
-			basics.receivedIntent(getApplicationContext());
-		}
+		Basics basics = Basics.getOrCreateInstance(getApplicationContext());
 		// fill basic data from central structures
-		preferences = Basics.getInstance().getPreferences();
-		dao = Basics.getInstance().getDao();
-		timerManager = Basics.getInstance().getTimerManager();
+		preferences = basics.getPreferences();
+		dao = basics.getDao();
+		timerManager = basics.getTimerManager();
 		
 		setContentView(R.layout.main);
 		

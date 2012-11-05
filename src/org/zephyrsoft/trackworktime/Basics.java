@@ -58,6 +58,17 @@ public class Basics extends BroadcastReceiver {
 	}
 	
 	/**
+	 * Creates the singleton if not already created.
+	 */
+	public static Basics getOrCreateInstance(Context androidContext) {
+		if (instance == null) {
+			instance = new Basics();
+			instance.receivedIntent(androidContext);
+		}
+		return instance;
+	}
+	
+	/**
 	 * Forwarding from {@link #onReceive(Context, Intent)}, but this method is only called on the singleton instance -
 	 * no matter how many instances Android might choose to create of this class.
 	 */
@@ -143,4 +154,5 @@ public class Basics extends BroadcastReceiver {
 	public TimerManager getTimerManager() {
 		return timerManager;
 	}
+	
 }

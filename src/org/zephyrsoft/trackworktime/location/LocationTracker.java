@@ -77,44 +77,10 @@ public class LocationTracker implements LocationListener {
 		// just in case:
 		stopTrackingByLocation();
 		
-//		executor = Executors.newSingleThreadExecutor();
-//		Runnable checkLocationRunnable = new Runnable() {
-//			@Override
-//			public void run() {
-//				while (isTrackingByLocation) {
-//					Logger.info("location-based tracking: checking location");
-//
-//					Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//
-//					if (location != null) {
-//						Date recordedTime = new Date(location.getTime());
-//						Logger
-//							.info(
-//								"location: latitude={0,number,#.######} / longitude={1,number,#.######} / accuracy={2,number} / recorded on {3,date} at {3,time} UTC",
-//								location.getLatitude(), location.getLongitude(), location.getAccuracy(), recordedTime);
-//						checkLocation(location);
-//					} else {
-//						Logger.info("last known location is null");
-//					}
-//					Logger.info("location-based tracking: starting to sleep");
-//					try {
-//						Thread.sleep(SECONDS_TO_SLEEP_BETWEEN_CHECKS * 1000);
-//					} catch (InterruptedException e) {
-//						// just continue, the while loop will take care of stopping
-//					}
-//				}
-//			}
-//		};
-//
-//		if (executor.isShutdown()) {
-//			throw new IllegalStateException("background executor is already stopped");
-//		} else {
-//			countDownFuture = executor.submit(checkLocationRunnable);
 		if (isTrackingByLocation.compareAndSet(false, true)) {
 			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, this);
 			Logger.info("started location-based tracking");
 		}
-//		}
 	}
 	
 	private void checkLocation(Location location) {
@@ -129,7 +95,12 @@ public class LocationTracker implements LocationListener {
 	}
 	
 	private boolean isInRange(Location location) {
-		return location.distanceTo(targetLocation) + location.getAccuracy() <= toleranceInMeters;
+		float distance = location.distanceTo(targetLocation);
+		float actualTolerance = location.getAccuracy();
+		Logger.info(
+			"comparing: calculated distance={0,number} / actual tolerance={1,number} / allowed tolerance={2,number}",
+			distance, actualTolerance, toleranceInMeters);
+		return distance + actualTolerance <= toleranceInMeters;
 	}
 	
 	/**
@@ -139,15 +110,6 @@ public class LocationTracker implements LocationListener {
 		if (isTrackingByLocation.compareAndSet(true, false)) {
 			Logger.info("stopped location-based tracking");
 		}
-//		if (countDownFuture != null) {
-//			countDownFuture.cancel(true);
-//			countDownFuture = null;
-//		}
-//		if (executor != null) {
-//			executor.shutdownNow();
-//			executor = null;
-//		}
-//		Logger.info("stopped location-based tracking");
 	}
 	
 	@Override
