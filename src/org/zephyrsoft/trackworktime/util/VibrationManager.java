@@ -14,30 +14,33 @@
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.zephyrsoft.trackworktime;
+package org.zephyrsoft.trackworktime.util;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.content.Context;
+import android.os.Vibrator;
 
 /**
- * Activity to set the preferences of the application.
+ * Manages vibration alarms.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class OptionsActivity extends PreferenceActivity {
+public class VibrationManager {
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.options);
+	private Vibrator vibratorService;
+	
+	/**
+	 * Create the manager.
+	 */
+	public VibrationManager(Context context) {
+		vibratorService = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
 	
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		// make sure that location-based tracking gets enabled/disabled
-		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
+	/**
+	 * Vibrate a specified pattern (once, do not repeat it).
+	 * 
+	 * @see Vibrator#vibrate(long[], int)
+	 */
+	public void vibrate(long[] pattern) {
+		vibratorService.vibrate(pattern, -1);
 	}
-	
 }

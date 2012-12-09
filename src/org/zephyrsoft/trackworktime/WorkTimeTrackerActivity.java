@@ -25,7 +25,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,6 +48,7 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
 import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
@@ -180,6 +180,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		task.setOnItemSelectedListener(taskAndTextListener);
 		text.setOnKeyListener(taskAndTextListener);
 		
+		// TODO move the rest completely to onResume method?
 		setupTasksAdapter();
 		
 		String weekStart = DateTimeUtil.getWeekStart(DateTimeUtil.getCurrentDateTime());
@@ -310,10 +311,10 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private List<Event> fetchEventsForDay(DateTime day) {
 		List<Event> ret = dao.getEventsOnDay(day);
-		Log.d(getClass().getName(), "fetchEventsForDay: " + DateTimeUtil.dateTimeToDateString(day));
+		Logger.debug("fetchEventsForDay: " + DateTimeUtil.dateTimeToDateString(day));
 		DateTime now = DateTimeUtil.getCurrentDateTime();
 		Event lastEventBeforeNow = dao.getLastEventBefore(now);
-		Log.d(getClass().getName(), "lastEventBeforeNow: " + lastEventBeforeNow);
+		Logger.debug("lastEventBeforeNow: " + lastEventBeforeNow);
 		if (day.isSameDayAs(now) && lastEventBeforeNow != null
 			&& lastEventBeforeNow.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
 			// currently clocked in: add clock-out event "NOW"
@@ -410,37 +411,37 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			&& !DateTimeUtil.getCurrentDateTime().isSameDayAs(
 				DateTimeUtil.stringToDateTime(internalEvents.get(internalEvents.size() - 1).getTime()))) {
 			// add clock-out event at midnight to be sure that all time is counted
-			Log.d(getClass().getName(), "adding clock-out event at midnight");
+			Logger.debug("adding clock-out event at midnight");
 			internalEvents.add(new Event(null, null, null, TypeEnum.CLOCK_OUT.getValue(), DateTimeUtil
 				.dateTimeToString(day.getEndOfDay()), null));
 		}
 		
 		for (Event event : internalEvents) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-			Log.d(getClass().getName(), "handling event: " + event.toString());
+			Logger.debug("handling event: " + event.toString());
 			
 			// clocked in over midnight? => add time since midnight to result
 			if (isFirst
 				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
 					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
-				Log.d(getClass().getName(), "clocked in over midnight");
+				Logger.debug("clocked in over midnight");
 				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
 			}
 			// clock-in event while not clocked in? => remember time
 			if (clockedInSince == null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
-				Log.d(getClass().getName(), "remembering time");
+				Logger.debug("remembering time");
 				clockedInSince = eventTime;
 			}
 			// clock-out event while clocked in? => add time since last clock-in to result
 			if (clockedInSince != null
 				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
 					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
-				Log.d(getClass().getName(), "counting time");
+				Logger.debug("counting time");
 				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
 				if (eventTime.truncate(Unit.SECOND).equals(day.getEndOfDay().truncate(Unit.SECOND))) {
 					// still clocked in at midnight: add 1 minute for the last minute of the day (23:59)
 					ret = ret.plus(0, 0, 0, 0, 1, 0, DayOverflow.Abort);
-					Log.d(getClass().getName(), "adding one minute");
+					Logger.debug("adding one minute");
 				}
 				ret = ret.minus(0, 0, 0, clockedInSince.getHour(), clockedInSince.getMinute(), 0, DayOverflow.Abort);
 				clockedInSince = null;
@@ -545,26 +546,26 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				showOptions();
 				return true;
 			default:
-				Log.w(getClass().getName(), "options menu: unknown item selected");
+				Logger.warn("options menu: unknown item selected");
 		}
 		return false;
 	}
 	
 	private void showTaskList() {
-		Log.d(getClass().getName(), "showing TaskList");
+		Logger.debug("showing TaskList");
 		Intent i = new Intent(this, TaskListActivity.class);
 		startActivity(i);
 	}
 	
 	private void showOptions() {
-		Log.d(getClass().getName(), "showing Options");
+		Logger.debug("showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
 	}
 	
 	@Override
 	protected void onResume() {
-		Log.d(getClass().getName(), "onResume called");
+		Logger.debug("onResume called");
 		if (reloadTasksOnResume) {
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
@@ -575,7 +576,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	@Override
 	protected void onPause() {
-		Log.d(getClass().getName(), "onPause called");
+		Logger.debug("onPause called");
+		dao.close();
 		super.onPause();
 	}
 	
@@ -634,14 +636,14 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			case SimpleGestureFilter.SWIPE_LEFT:
 				changeDisplayedWeek(1);
 				break;
-			case SimpleGestureFilter.SWIPE_DOWN:
-				// display 4 weeks before
-				changeDisplayedWeek(-4);
-				break;
-			case SimpleGestureFilter.SWIPE_UP:
-				// display 4 weeks after
-				changeDisplayedWeek(4);
-				break;
+//			case SimpleGestureFilter.SWIPE_DOWN:
+//				// display 4 weeks before
+//				changeDisplayedWeek(-4);
+//				break;
+//			case SimpleGestureFilter.SWIPE_UP:
+//				// display 4 weeks after
+//				changeDisplayedWeek(4);
+//				break;
 			default:
 				// do nothing
 		}

@@ -16,28 +16,22 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 
 /**
- * Activity to set the preferences of the application.
+ * Service watchdog which checks for {@link LocationTrackerService}. It gets periodic intents scheduled by
+ * {@link Basics}.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class OptionsActivity extends PreferenceActivity {
+public class ServiceWatchdogReceiver extends BroadcastReceiver {
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.options);
-	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		// make sure that location-based tracking gets enabled/disabled
-		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
+	public void onReceive(Context context, Intent intent) {
+		Basics.getOrCreateInstance(context).checkLocationBasedTracking();
 	}
 	
 }

@@ -2,6 +2,22 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory
+        android:key="@string/keyAutoPause"
+        android:title="@string/autoPause" >
+        <CheckBoxPreference
+            android:key="@string/keyAutoPauseEnabled"
+            android:title="@string/autoPauseEnabled" />
+
+        <EditTextPreference
+            android:key="@string/keyAutoPauseBegin"
+            android:summary="@string/autoPauseBeginDescription"
+            android:title="@string/autoPauseBegin" />
+        <EditTextPreference
+            android:key="@string/keyAutoPauseEnd"
+            android:summary="@string/autoPauseEndDescription"
+            android:title="@string/autoPauseEnd" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:key="@string/keyFlexiTimeCategory"
         android:title="@string/flexiTimeBalancing" >
         <CheckBoxPreference
@@ -12,6 +28,10 @@
             android:key="@string/keyFlexiTimeStartValue"
             android:summary="@string/flexiTimeStartValueDescription"
             android:title="@string/flexiTimeStartValue" />
+        <EditTextPreference
+            android:key="@string/keyFlexiTimeTarget"
+            android:summary="@string/flexiTimeTargetDescription"
+            android:title="@string/flexiTimeTarget" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyFlatteningCategory"
@@ -27,6 +47,9 @@
         <CheckBoxPreference
             android:key="@string/keyLocationBasedTrackingEnabled"
             android:title="@string/enableLocationBasedTracking" />
+        <CheckBoxPreference
+            android:key="@string/keyLocationBasedTrackingVibrate"
+            android:title="@string/locationBasedTrackingVibrate" />
 
         <EditTextPreference
             android:key="@string/keyLocationBasedTrackingLatitude"

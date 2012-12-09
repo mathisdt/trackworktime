@@ -17,12 +17,17 @@
 package org.zephyrsoft.trackworktime.location;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.MessageActivity;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -32,26 +37,34 @@ import org.zephyrsoft.trackworktime.util.Logger;
  */
 public class LocationTrackerService extends Service {
 	
-	/** the key for the {@link Double} which determines the latitude in the intent's extras */
+	/** the key for the {@link Double} which determines the latitude */
 	public static String INTENT_EXTRA_LATITUDE = "LATITUDE";
 	
-	/** the key for the {@link Double} which determines the longitude in the intent's extras */
+	/** the key for the {@link Double} which determines the longitude */
 	public static String INTENT_EXTRA_LONGITUDE = "LONGITUDE";
 	
-	/** the key for the {@link Double} which determines the tolerance in the intent's extras */
+	/** the key for the {@link Double} which determines the tolerance */
 	public static String INTENT_EXTRA_TOLERANCE = "TOLERANCE";
+	
+	/** the key for the {@link Boolean} which determines if vibration should be used */
+	public static String INTENT_EXTRA_VIBRATE = "VIBRATE";
 	
 	private static LocationTracker locationTracker = null;
 	private int startId;
 	
-	private static AtomicBoolean isRunning = new AtomicBoolean(false);
+	private static final AtomicBoolean isRunning = new AtomicBoolean(false);
+	
+	private Basics basics = null;
 	
 	@Override
 	public void onCreate() {
 		Logger.info("creating LocationTrackerService");
-		Basics basics = Basics.getOrCreateInstance(getApplicationContext());
+		basics = Basics.getOrCreateInstance(getApplicationContext());
 		locationTracker =
-			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics.getTimerManager());
+			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics.getTimerManager(),
+				basics.getVibrationManager());
+		// restart if service crashed previously
+		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
 	}
 	
 	@Override
@@ -62,25 +75,51 @@ public class LocationTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
-		// TODO handle the case that the tracking already runs, but the target location has to be updated!
+		Double latitude = (Double) intent.getExtras().get(INTENT_EXTRA_LATITUDE);
+		Double longitude = (Double) intent.getExtras().get(INTENT_EXTRA_LONGITUDE);
+		Double toleranceInMeters = (Double) intent.getExtras().get(INTENT_EXTRA_TOLERANCE);
+		Boolean vibrate = (Boolean) intent.getExtras().get(INTENT_EXTRA_VIBRATE);
+		Result result = null;
 		if (isRunning.compareAndSet(false, true)) {
 			this.startId = startId;
-			locationTracker.startTrackingByLocation((Double) intent.getExtras().get(INTENT_EXTRA_LATITUDE),
-				(Double) intent.getExtras().get(INTENT_EXTRA_LONGITUDE),
-				(Double) intent.getExtras().get(INTENT_EXTRA_TOLERANCE));
-			
-			return Service.START_REDELIVER_INTENT;
+			result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
 		} else {
-			return Service.START_NOT_STICKY;
+			// already running, but perhaps the target location has to be updated?
+			if (!latitude.equals(locationTracker.getLatitude()) || !longitude.equals(locationTracker.getLongitude())
+				|| !toleranceInMeters.equals(locationTracker.getTolerance())) {
+				result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
+			}
 		}
+		
+		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
+			// disable the tracking and notify user of it
+			basics.disableLocationBasedTracking();
+			NotificationManager notificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			Notification notification =
+				new Notification(R.drawable.ic_launcher,
+					"Disabling the location-based tracking because of missing privileges!", System.currentTimeMillis());
+			Intent messageIntent = new Intent(this, MessageActivity.class);
+			messageIntent
+				.putExtra(
+					MessageActivity.MESSAGE_EXTRA_KEY,
+					"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.");
+			messageIntent.putExtra(MessageActivity.ID_EXTRA_KEY,
+				MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
+			notification.setLatestEventInfo(getApplicationContext(), "Disabled location-based tracking!",
+				"(open to see details)", PendingIntent.getActivity(getApplicationContext(), 0, messageIntent, flags));
+			notificationManager.notify(MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, notification);
+		}
+		
+		return Service.START_NOT_STICKY;
 	}
 	
 	@Override
 	public void onDestroy() {
 		Logger.info("destroying LocationTrackerService");
 		locationTracker.stopTrackingByLocation();
-		stopSelf(startId);
 		isRunning.set(false);
+		stopSelf();
 	}
 	
 }

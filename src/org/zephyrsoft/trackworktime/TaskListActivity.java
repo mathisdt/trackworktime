@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,6 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -35,6 +34,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Activity for managing the tasks that the user can select. A task can be deleted if no reference to it exists, but it
@@ -58,13 +58,18 @@ public class TaskListActivity extends ListActivity {
 	private ArrayAdapter<Task> tasksAdapter;
 	
 	@Override
+	protected void onPause() {
+		dao.close();
+		super.onPause();
+	}
+	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		parentActivity = WorkTimeTrackerActivity.getInstance();
 		
-		dao = new DAO(this);
-		dao.open();
+		dao = Basics.getInstance().getDao();
 		tasks = dao.getAllTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -100,7 +105,7 @@ public class TaskListActivity extends ListActivity {
 						String value = input.getText().toString();
 						// create new task in DB
 						Task newTask = dao.insertTask(new Task(null, value, 1, 0));
-						Log.d(TaskListActivity.class.getName(), "inserted new task: " + newTask);
+						Logger.debug("inserted new task: " + newTask);
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
 						parentActivity.refreshTasks();
@@ -118,7 +123,7 @@ public class TaskListActivity extends ListActivity {
 				
 				return true;
 			default:
-				Log.w(getClass().getName(), "options menu: unknown item selected");
+				Logger.warn("options menu: unknown item selected");
 		}
 		return false;
 	}
@@ -127,12 +132,6 @@ public class TaskListActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, NEW_TASK, 0, getString(R.string.new_task)).setIcon(android.R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
-	}
-	
-	@Override
-	protected void onPause() {
-		dao.close();
-		super.onPause();
 	}
 	
 	@Override
@@ -168,8 +167,8 @@ public class TaskListActivity extends ListActivity {
 						oldTask.setName(value);
 						// update task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Log.d(TaskListActivity.class.getName(), "updated task with ID " + oldTask.getId()
-							+ " to have the new name: " + updatedTask.getName());
+						Logger.debug("updated task with ID " + oldTask.getId() + " to have the new name: "
+							+ updatedTask.getName());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -205,8 +204,8 @@ public class TaskListActivity extends ListActivity {
 						}
 						// enable or disable task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Log.d(TaskListActivity.class.getName(), "updated task with ID " + oldTask.getId()
-							+ " to have the new active value: " + updatedTask.getActive());
+						Logger.debug("updated task with ID " + oldTask.getId() + " to have the new active value: "
+							+ updatedTask.getActive());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -234,12 +233,11 @@ public class TaskListActivity extends ListActivity {
 						// delete task in DB
 						boolean success = dao.deleteTask(oldTask);
 						if (success) {
-							Log.d(TaskListActivity.class.getName(), "deleted task with ID " + oldTask.getId()
-								+ " and name " + oldTask.getName());
+							Logger.debug("deleted task with ID " + oldTask.getId() + " and name " + oldTask.getName());
 							tasks.remove(taskPosition);
 						} else {
-							Log.w(TaskListActivity.class.getName(), "could not delete task with ID " + oldTask.getId()
-								+ " and name " + oldTask.getName());
+							Logger.warn("could not delete task with ID " + oldTask.getId() + " and name "
+								+ oldTask.getName());
 						}
 						tasksAdapter.notifyDataSetChanged();
 						parentActivity.refreshTasks();

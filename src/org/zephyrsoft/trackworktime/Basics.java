@@ -16,28 +16,38 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import java.util.Calendar;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
- * tracking is enabled).
+ * tracking is enabled). Also schedules periodic intents for {@link ServiceWatchdogReceiver} which in turn checks if
+ * {@link LocationTrackerService} needs to be (re-)started.
  * 
  * @author Mathis Dirksen-Thedens
  */
 public class Basics extends BroadcastReceiver {
 	
+	// check once every minute
+	private static final long REPEAT_TIME = 1000 * 60;
+	
 	private Context context = null;
 	private SharedPreferences preferences = null;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
+	private VibrationManager vibrationManager = null;
 	
 	private static Basics instance = null;
 	
@@ -68,16 +78,6 @@ public class Basics extends BroadcastReceiver {
 		return instance;
 	}
 	
-	/**
-	 * Forwarding from {@link #onReceive(Context, Intent)}, but this method is only called on the singleton instance -
-	 * no matter how many instances Android might choose to create of this class.
-	 */
-	public void receivedIntent(Context androidContext) {
-		context = androidContext;
-		init();
-		checkLocationBasedTracking();
-	}
-	
 	@Override
 	public void onReceive(Context androidContext, Intent intent) {
 		// always only use the one instance
@@ -85,21 +85,47 @@ public class Basics extends BroadcastReceiver {
 		
 	}
 	
+	/**
+	 * Forwarding from {@link #onReceive(Context, Intent)}, but this method is only called on the singleton instance -
+	 * no matter how many instances Android might choose to create of this class.
+	 */
+	public void receivedIntent(Context androidContext) {
+		context = androidContext;
+		init();
+		schedulePeriodicIntents();
+	}
+	
 	private void init() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		dao = new DAO(context);
-		dao.open();
-		timerManager = new TimerManager(dao);
+		timerManager = new TimerManager(dao, preferences);
+		vibrationManager = new VibrationManager(context);
+	}
+	
+	private void schedulePeriodicIntents() {
+		AlarmManager service = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		Intent intentToSchedule = new Intent(context, ServiceWatchdogReceiver.class);
+		PendingIntent pendingIntent =
+			PendingIntent.getBroadcast(context, 0, intentToSchedule, PendingIntent.FLAG_CANCEL_CURRENT);
+		
+		Calendar cal = Calendar.getInstance();
+		// start one minute after boot completed
+		cal.add(Calendar.MINUTE, 1);
+		
+		// schedule once every minute
+		service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), REPEAT_TIME, pendingIntent);
 	}
 	
 	/**
 	 * Check if location-based tracking has to be en- or disabled.
 	 */
 	public void checkLocationBasedTracking() {
-		if (preferences.getBoolean("keyLocationBasedTrackingEnabled", false)) {
-			String latitudeString = preferences.getString("keyLocationBasedTrackingLatitude", "0");
-			String longitudeString = preferences.getString("keyLocationBasedTrackingLongitude", "0");
-			String toleranceString = preferences.getString("keyLocationBasedTrackingTolerance", "0");
+		Logger.debug("checking location-based tracking");
+		if (preferences.getBoolean(Constants.LOCATION_BASED_TRACKING_ENABLED, false)) {
+			Logger.debug("checking location-based tracking ENABLED");
+			String latitudeString = preferences.getString(Constants.LOCATION_BASED_TRACKING_LATITUDE, "0");
+			String longitudeString = preferences.getString(Constants.LOCATION_BASED_TRACKING_LONGITUDE, "0");
+			String toleranceString = preferences.getString(Constants.LOCATION_BASED_TRACKING_TOLERANCE, "0");
 			double latitude = 0.0;
 			try {
 				latitude = Double.parseDouble(latitudeString);
@@ -118,19 +144,36 @@ public class Basics extends BroadcastReceiver {
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse tolerance: {0}", toleranceString);
 			}
-			Intent startIntent = buildServiceIntent(latitude, longitude, tolerance);
+			Boolean vibrate = preferences.getBoolean(Constants.LOCATION_BASED_TRACKING_VIBRATE, Boolean.FALSE);
+			Intent startIntent = buildServiceIntent(latitude, longitude, tolerance, vibrate);
+			// we can start the service again even if it is already running because
+			// onStartCommand(...) in LocationTrackerService won't do anything if the service
+			// is already running with the current parameters - if the location or the
+			// tolerance changed, then it will update the values for the service
 			context.startService(startIntent);
+			Logger.debug("location-based tracking service started");
 		} else {
-			Intent stopIntent = buildServiceIntent(null, null, null);
+			Intent stopIntent = buildServiceIntent(null, null, null, null);
 			context.stopService(stopIntent);
+			Logger.debug("location-based tracking service stopped");
 		}
 	}
 	
-	private Intent buildServiceIntent(Double latitude, Double longitude, Double tolerance) {
+	/**
+	 * Disable the tracking.
+	 */
+	public void disableLocationBasedTracking() {
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putBoolean(Constants.LOCATION_BASED_TRACKING_ENABLED, false);
+		editor.commit();
+	}
+	
+	private Intent buildServiceIntent(Double latitude, Double longitude, Double tolerance, Boolean vibrate) {
 		Intent intent = new Intent(context, LocationTrackerService.class);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LATITUDE, latitude);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LONGITUDE, longitude);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_TOLERANCE, tolerance);
+		intent.putExtra(LocationTrackerService.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
 	
@@ -153,6 +196,13 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public TimerManager getTimerManager() {
 		return timerManager;
+	}
+	
+	/**
+	 * The wrapper for Android's {@link Vibrator}.
+	 */
+	public VibrationManager getVibrationManager() {
+		return vibrationManager;
 	}
 	
 }

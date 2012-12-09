@@ -11,5 +11,11 @@
     <string name="keyLocationBasedTrackingLatitude">keyLocationBasedTrackingLatitude</string>
     <string name="keyLocationBasedTrackingLongitude">keyLocationBasedTrackingLongitude</string>
     <string name="keyLocationBasedTrackingTolerance">keyLocationBasedTrackingTolerance</string>
+    <string name="keyFlexiTimeTarget">keyFlexiTimeTarget</string>
+    <string name="keyLocationBasedTrackingVibrate">keyLocationBasedTrackingVibrate</string>
+    <string name="keyAutoPause">keyAutoPause</string>
+    <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
+    <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>
+    <string name="keyAutoPauseEnd">keyAutoPauseEnd</string>
 
 </resources>

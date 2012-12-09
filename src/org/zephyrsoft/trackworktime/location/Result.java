@@ -14,30 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.zephyrsoft.trackworktime;
-
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+package org.zephyrsoft.trackworktime.location;
 
 /**
- * Activity to set the preferences of the application.
+ * Result which gets returned by {@link LocationTracker#startTrackingByLocation(double, double, double)}.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class OptionsActivity extends PreferenceActivity {
+public enum Result {
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.options);
-	}
+	/** successfully started the tracking */
+	SUCCESS,
 	
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		// make sure that location-based tracking gets enabled/disabled
-		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
-	}
+	/** could not start the tracking because is was already running */
+	FAILURE_ALREADY_RUNNING,
+	
+	/** could not start the tracking, the app doesn't have the necessary rights */
+	FAILURE_INSUFFICIENT_RIGHTS
 	
 }

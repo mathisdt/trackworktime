@@ -35,6 +35,7 @@
     <string name="enableFlexiTime">Enable Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
+    <string name="message">Message</string>
     <string name="clockInChange">Start New Tracking Period</string>
     <string name="shortDateFormat">DD.MM.</string>
     <string name="timeFlattening">Time Flattening</string>
@@ -53,5 +54,14 @@
     <string name="workplaceLatitudeLongitudeDescription">Input a degree value, e.g. 44.2</string>
     <string name="trackingTolerance">Tolerance</string>
     <string name="trackingToleranceDescription">Input in whole meters, e.g. 500</string>
+    <string name="flexiTimeTarget">Flexi Time Target</string>
+    <string name="flexiTimeTargetDescription">in hours per week, e.g. 38.5</string>
+    <string name="locationBasedTrackingVibrate">Vibrate on Events</string>
+    <string name="autoPause">Automatic Pause</string>
+    <string name="autoPauseEnabled">Enable Automatic Pause</string>
+    <string name="autoPauseBegin">Begin of Automatic Pause</string>
+    <string name="autoPauseBeginDescription">in 24 hour time, e.g. 12.30</string>
+    <string name="autoPauseEnd">End of Automatic Pause</string>
+    <string name="autoPauseEndDescription">in 24 hour time, e.g. 13.30</string>
 
 </resources>

@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,7 +19,7 @@ package org.zephyrsoft.trackworktime.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Helper class to manage the SQLite database.
@@ -93,7 +93,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w(MySQLiteHelper.class.getName(), "Upgrading database from version " + oldVersion + " to " + newVersion
+		Logger.warn("Upgrading database from version " + oldVersion + " to " + newVersion
 			+ ", which destroys all old data!");
 		db.execSQL("drop table if exists " + TASK);
 		db.execSQL("drop table if exists " + WEEK);

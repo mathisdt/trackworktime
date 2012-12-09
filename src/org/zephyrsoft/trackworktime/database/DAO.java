@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,11 +46,10 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
- * The data access object for structures from the app's SQLite database.
- * 
- * The model consists of three main elements: tasks (which are defined by the user and can be referenced when clocking
- * in), events (which are generated when clocking in or out and when changing task or text) and weeks (which are like a
- * clip around events and also can provide a sum so that not all events have to be read to calculate the flexi time).
+ * The data access object for structures from the app's SQLite database. The model consists of three main elements:
+ * tasks (which are defined by the user and can be referenced when clocking in), events (which are generated when
+ * clocking in or out and when changing task or text) and weeks (which are like a clip around events and also can
+ * provide a sum so that not all events have to be read to calculate the flexi time).
  * 
  * @author Mathis Dirksen-Thedens
  */
@@ -67,9 +66,9 @@ public class DAO {
 	}
 	
 	/**
-	 * Open the underlying database.
+	 * Open the underlying database. Implicitly called before any database operation.
 	 */
-	public void open() throws SQLException {
+	private void open() throws SQLException {
 		db = dbHelper.getWritableDatabase();
 	}
 	
@@ -108,6 +107,7 @@ public class DAO {
 	 * @return the newly created task as read from the database (complete with ID)
 	 */
 	public Task insertTask(Task task) {
+		open();
 		ContentValues args = taskToContentValues(task);
 		long insertId = db.insert(TASK, null, args);
 		// now fetch the newly inserted row and return it as Task object
@@ -145,6 +145,7 @@ public class DAO {
 	}
 	
 	private List<Task> getTasksWithConstraint(String constraint) {
+		open();
 		List<Task> ret = new ArrayList<Task>();
 		// TODO sort tasks by TASK_ORDERING when we have UI support for manually
 		// ordering the tasks
@@ -166,6 +167,7 @@ public class DAO {
 	 * @return the task as newly read from the database
 	 */
 	public Task updateTask(Task task) {
+		open();
 		ContentValues args = taskToContentValues(task);
 		db.update(TASK, args, TASK_ID + "=" + task.getId(), null);
 		// now fetch the newly updated row and return it as Task object
@@ -180,6 +182,7 @@ public class DAO {
 	 * @return {@code true} if successful, {@code false} if not
 	 */
 	public boolean deleteTask(Task task) {
+		open();
 		return db.delete(TASK, TASK_ID + "=" + task.getId(), null) > 0;
 	}
 	
@@ -209,6 +212,7 @@ public class DAO {
 	 * @return the newly created week as read from the database (complete with ID)
 	 */
 	public Week insertWeek(Week week) {
+		open();
 		ContentValues args = weekToContentValues(week);
 		long insertId = db.insert(WEEK, null, args);
 		// now fetch the newly inserted row and return it as Week object
@@ -244,6 +248,7 @@ public class DAO {
 	}
 	
 	private List<Week> getWeeksWithConstraint(String constraint) {
+		open();
 		List<Week> ret = new ArrayList<Week>();
 		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, WEEK_START);
 		cursor.moveToFirst();
@@ -263,6 +268,7 @@ public class DAO {
 	 * @return the week as newly read from the database
 	 */
 	public Week updateWeek(Week week) {
+		open();
 		ContentValues args = weekToContentValues(week);
 		db.update(WEEK, args, WEEK_ID + "=" + week.getId(), null);
 		// now fetch the newly updated row and return it as Week object
@@ -277,6 +283,7 @@ public class DAO {
 	 * @return {@code true} if successful, {@code false} if not
 	 */
 	public boolean deleteWeek(Week week) {
+		open();
 		return db.delete(WEEK, WEEK_ID + "=" + week.getId(), null) > 0;
 	}
 	
@@ -314,6 +321,7 @@ public class DAO {
 	 * @return the newly created event as read from the database (complete with ID)
 	 */
 	public Event insertEvent(Event event) {
+		open();
 		ContentValues args = eventToContentValues(event);
 		long insertId = db.insert(EVENT, null, args);
 		// now fetch the newly created row and return it as Event object
@@ -383,6 +391,7 @@ public class DAO {
 	
 	private List<Event> getEventsWithParameters(String[] fields, String constraint, boolean descending,
 		boolean limitedToOne) {
+		open();
 		List<Event> ret = new ArrayList<Event>();
 		Cursor cursor =
 			db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME + (descending ? " desc" : "") + ","
@@ -408,6 +417,7 @@ public class DAO {
 	 * @return the event as newly read from the database
 	 */
 	public Event updateEvent(Event event) {
+		open();
 		ContentValues args = eventToContentValues(event);
 		db.update(EVENT, args, EVENT_ID + "=" + event.getId(), null);
 		// now fetch the newly updated row and return it as Event object
@@ -422,6 +432,7 @@ public class DAO {
 	 * @return {@code true} if successful, {@code false} if not
 	 */
 	public boolean deleteEvent(Event event) {
+		open();
 		return db.delete(EVENT, EVENT_ID + "=" + event.getId(), null) > 0;
 	}
 }

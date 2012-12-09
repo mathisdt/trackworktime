@@ -17,13 +17,15 @@
 package org.zephyrsoft.trackworktime.timer;
 
 import hirondelle.date4j.DateTime;
-import android.util.Log;
+import android.content.SharedPreferences;
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Manages the time tracking.
@@ -33,12 +35,14 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 public class TimerManager {
 	
 	private final DAO dao;
+	private final SharedPreferences preferences;
 	
 	/**
 	 * Constructor
 	 */
-	public TimerManager(DAO dao) {
+	public TimerManager(DAO dao, SharedPreferences preferences) {
 		this.dao = dao;
+		this.preferences = preferences;
 		
 	}
 	
@@ -78,22 +82,60 @@ public class TimerManager {
 	 * Stops tracking time.
 	 */
 	public void stopTracking() {
+		if (isAutoPauseEnabled() && isAutoPauseApplicable()) {
+			// insert auto-pause events
+			DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_BEGIN, "24.00"));
+			DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_END, "00.00"));
+			count(begin, null, TypeEnum.CLOCK_OUT, null);
+			Event lastBeforePause = dao.getLastEventBefore(begin);
+			count(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
+				(lastBeforePause == null ? null : lastBeforePause.getText()));
+		}
 		count(null, TypeEnum.CLOCK_OUT, null);
+	}
+	
+	private boolean isAutoPauseEnabled() {
+		return preferences.getBoolean(Constants.AUTO_PAUSE_ENABLED, false);
+	}
+	
+	private boolean isAutoPauseApplicable() {
+		DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_BEGIN, "24.00"));
+		DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_END, "00.00"));
+		Event lastEventBeforeBegin = dao.getLastEventBefore(begin);
+		Event lastEventBeforeEnd = dao.getLastEventBefore(end);
+		// is clocked in before begin
+		return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
+		// no event is in auto-pause interval
+			&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId())
+			// current time is after auto-pause end
+			&& DateTimeUtil.getCurrentDateTime().gt(end);
+	}
+	
+	private String getAutoPauseData(String key, String defaultTime) {
+		String ret = preferences.getString(key, defaultTime);
+		ret = ret.replace('.', ':');
+		ret = ret.replaceAll("^0\\:", "00:");
+		ret += ":00";
+		return ret;
 	}
 	
 	private void count(Integer taskId, TypeEnum type, String text) {
 		DateTime now = DateTimeUtil.getCurrentDateTime();
-		String weekStart = DateTimeUtil.getWeekStart(now);
-		String time = DateTimeUtil.dateTimeToString(now);
+		count(now, taskId, type, text);
+	}
+	
+	private void count(DateTime dateTime, Integer taskId, TypeEnum type, String text) {
+		String weekStart = DateTimeUtil.getWeekStart(dateTime);
+		String time = DateTimeUtil.dateTimeToString(dateTime);
 		Week currentWeek = dao.getWeek(weekStart);
 		if (currentWeek == null) {
 			currentWeek = dao.insertWeek(new Week(null, weekStart, 0));
 		}
 		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
-		Log.d(getClass().getName(), "TRACKING: " + type.name() + " @ " + time + " taskId=" + taskId + " text=" + text);
+		Logger.debug("TRACKING: " + type.name() + " @ " + time + " taskId=" + taskId + " text=" + text);
 		event = dao.insertEvent(event);
 		if (type == TypeEnum.CLOCK_OUT) {
-			// TODO update this week's sum (and perhaps also the sum of the last week when clocked in overnight)
+			// TODO update this week's sum (and also the sum of the last week if clocked in overnight)
 			
 		}
 	}
