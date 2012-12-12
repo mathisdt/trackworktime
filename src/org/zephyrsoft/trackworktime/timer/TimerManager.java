@@ -18,12 +18,12 @@ package org.zephyrsoft.trackworktime.timer;
 
 import hirondelle.date4j.DateTime;
 import android.content.SharedPreferences;
-import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 
@@ -84,23 +84,27 @@ public class TimerManager {
 	public void stopTracking() {
 		if (isAutoPauseEnabled() && isAutoPauseApplicable()) {
 			// insert auto-pause events
-			DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_BEGIN, "24.00"));
-			DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_END, "00.00"));
+			DateTime begin =
+				DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
+			DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
+			Logger.debug("inserting auto-pause, begin={0}, end={1}", begin, end);
 			count(begin, null, TypeEnum.CLOCK_OUT, null);
 			Event lastBeforePause = dao.getLastEventBefore(begin);
 			count(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
 				(lastBeforePause == null ? null : lastBeforePause.getText()));
+		} else {
+			Logger.debug("NOT inserting auto-pause");
 		}
 		count(null, TypeEnum.CLOCK_OUT, null);
 	}
 	
 	private boolean isAutoPauseEnabled() {
-		return preferences.getBoolean(Constants.AUTO_PAUSE_ENABLED, false);
+		return preferences.getBoolean(Key.AUTO_PAUSE_ENABLED.getName(), false);
 	}
 	
 	private boolean isAutoPauseApplicable() {
-		DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_BEGIN, "24.00"));
-		DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Constants.AUTO_PAUSE_END, "00.00"));
+		DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
+		DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
 		Event lastEventBeforeBegin = dao.getLastEventBefore(begin);
 		Event lastEventBeforeEnd = dao.getLastEventBefore(end);
 		// is clocked in before begin
@@ -113,9 +117,7 @@ public class TimerManager {
 	
 	private String getAutoPauseData(String key, String defaultTime) {
 		String ret = preferences.getString(key, defaultTime);
-		ret = ret.replace('.', ':');
-		ret = ret.replaceAll("^0\\:", "00:");
-		ret += ":00";
+		ret = DateTimeUtil.refineTime(ret);
 		return ret;
 	}
 	

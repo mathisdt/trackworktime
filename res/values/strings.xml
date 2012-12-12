@@ -40,9 +40,9 @@
     <string name="shortDateFormat">DD.MM.</string>
     <string name="timeFlattening">Time Flattening</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
-    <string name="flexiTimeStartValueDescription">Input as hours:minutes, e.g. 10:45.</string>
+    <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45.</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
-    <string name="smallestTimeUnitDescription">Input as minutes, e.g. 15. Flattening rounds to this amount of time.</string>
+    <string name="smallestTimeUnitDescription">in minutes, e.g. 15. Flattening rounds to this amount of time.</string>
     <string name="backward">jumped backward</string>
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
@@ -51,9 +51,9 @@
     <string name="enableLocationBasedTracking">Track by Location</string>
     <string name="workplaceLatitude">Latitude of Workplace</string>
     <string name="workplaceLongitude">Longitude of Workplace</string>
-    <string name="workplaceLatitudeLongitudeDescription">Input a degree value, e.g. 44.2</string>
+    <string name="workplaceLatitudeLongitudeDescription">in degrees, e.g. 44.2</string>
     <string name="trackingTolerance">Tolerance</string>
-    <string name="trackingToleranceDescription">Input in whole meters, e.g. 500</string>
+    <string name="trackingToleranceDescription">in whole meters, e.g. 500</string>
     <string name="flexiTimeTarget">Flexi Time Target</string>
     <string name="flexiTimeTargetDescription">in hours per week, e.g. 38.5</string>
     <string name="locationBasedTrackingVibrate">Vibrate on Events</string>
@@ -63,5 +63,6 @@
     <string name="autoPauseBeginDescription">in 24 hour time, e.g. 12.30</string>
     <string name="autoPauseEnd">End of Automatic Pause</string>
     <string name="autoPauseEndDescription">in 24 hour time, e.g. 13.30</string>
+    <string name="flatteningEnabled">Enable Time Flattening</string>
 
 </resources>

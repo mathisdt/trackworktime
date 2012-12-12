@@ -71,8 +71,10 @@ public class MessageActivity extends Activity implements OnClickListener {
 	}
 	
 	private void closeNotificationAndDialog() {
-		NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		service.cancel(id);
+		if (id != -1) {
+			NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			service.cancel(id);
+		}
 		finish();
 	}
 	

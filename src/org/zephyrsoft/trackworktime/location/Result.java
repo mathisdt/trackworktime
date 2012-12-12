@@ -17,7 +17,7 @@
 package org.zephyrsoft.trackworktime.location;
 
 /**
- * Result which gets returned by {@link LocationTracker#startTrackingByLocation(double, double, double)}.
+ * Result which gets returned by {@link LocationTracker#startTrackingByLocation(double, double, double, boolean)}.
  * 
  * @author Mathis Dirksen-Thedens
  */

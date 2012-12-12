@@ -17,17 +17,12 @@
 package org.zephyrsoft.trackworktime.location;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.MessageActivity;
-import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -94,21 +89,11 @@ public class LocationTrackerService extends Service {
 		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
 			// disable the tracking and notify user of it
 			basics.disableLocationBasedTracking();
-			NotificationManager notificationManager =
-				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-			Notification notification =
-				new Notification(R.drawable.ic_launcher,
-					"Disabling the location-based tracking because of missing privileges!", System.currentTimeMillis());
-			Intent messageIntent = new Intent(this, MessageActivity.class);
-			messageIntent
-				.putExtra(
-					MessageActivity.MESSAGE_EXTRA_KEY,
+			basics
+				.showNotification(
+					"Disabling the location-based tracking because of missing privileges!",
+					"Disabled location-based tracking!",
 					"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.");
-			messageIntent.putExtra(MessageActivity.ID_EXTRA_KEY,
-				MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
-			notification.setLatestEventInfo(getApplicationContext(), "Disabled location-based tracking!",
-				"(open to see details)", PendingIntent.getActivity(getApplicationContext(), 0, messageIntent, flags));
-			notificationManager.notify(MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, notification);
 		}
 		
 		return Service.START_NOT_STICKY;

@@ -115,4 +115,14 @@ public class DateTimeUtil {
 		return "24:00";
 	}
 	
+	/**
+	 * Prepare the a user-entered time string to suffice for {@link #parseTimeForToday}.
+	 */
+	public static String refineTime(String timeString) {
+		String ret = timeString.replace('.', ':');
+		ret = ret.replaceAll("^(\\d):", "0$1:");
+		ret += ":00";
+		return ret;
+	}
+	
 }

@@ -18,6 +18,8 @@ package org.zephyrsoft.trackworktime;
 
 import java.util.Calendar;
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +29,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
@@ -121,11 +124,11 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public void checkLocationBasedTracking() {
 		Logger.debug("checking location-based tracking");
-		if (preferences.getBoolean(Constants.LOCATION_BASED_TRACKING_ENABLED, false)) {
+		if (preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)) {
 			Logger.debug("checking location-based tracking ENABLED");
-			String latitudeString = preferences.getString(Constants.LOCATION_BASED_TRACKING_LATITUDE, "0");
-			String longitudeString = preferences.getString(Constants.LOCATION_BASED_TRACKING_LONGITUDE, "0");
-			String toleranceString = preferences.getString(Constants.LOCATION_BASED_TRACKING_TOLERANCE, "0");
+			String latitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), "0");
+			String longitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), "0");
+			String toleranceString = preferences.getString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), "0");
 			double latitude = 0.0;
 			try {
 				latitude = Double.parseDouble(latitudeString);
@@ -144,7 +147,7 @@ public class Basics extends BroadcastReceiver {
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse tolerance: {0}", toleranceString);
 			}
-			Boolean vibrate = preferences.getBoolean(Constants.LOCATION_BASED_TRACKING_VIBRATE, Boolean.FALSE);
+			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
 			Intent startIntent = buildServiceIntent(latitude, longitude, tolerance, vibrate);
 			// we can start the service again even if it is already running because
 			// onStartCommand(...) in LocationTrackerService won't do anything if the service
@@ -160,11 +163,37 @@ public class Basics extends BroadcastReceiver {
 	}
 	
 	/**
+	 * Show a notification.
+	 */
+	public void showNotification(String scrollingText, String notificationTitle, String detailText) {
+		NotificationManager notificationManager =
+			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification notification = new Notification(R.drawable.ic_launcher, scrollingText, System.currentTimeMillis());
+		Intent messageIntent =
+			createMessageIntent(detailText, MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
+		notification.setLatestEventInfo(context, notificationTitle, "(open to see details)",
+			PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+		notificationManager.notify(MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, notification);
+	}
+	
+	/**
+	 * Create an intent which shows a message dialog.
+	 */
+	public Intent createMessageIntent(String text, Integer id) {
+		Intent messageIntent = new Intent(context, MessageActivity.class);
+		messageIntent.putExtra(MessageActivity.MESSAGE_EXTRA_KEY, text);
+		if (id != null) {
+			messageIntent.putExtra(MessageActivity.ID_EXTRA_KEY, id.intValue());
+		}
+		return messageIntent;
+	}
+	
+	/**
 	 * Disable the tracking.
 	 */
 	public void disableLocationBasedTracking() {
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putBoolean(Constants.LOCATION_BASED_TRACKING_ENABLED, false);
+		editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
 		editor.commit();
 	}
 	

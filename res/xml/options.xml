@@ -36,6 +36,10 @@
     <PreferenceCategory
         android:key="@string/keyFlatteningCategory"
         android:title="@string/timeFlattening" >
+        <CheckBoxPreference
+            android:key="@string/keyFlatteningEnabled"
+            android:title="@string/flatteningEnabled" />
+
         <EditTextPreference
             android:key="@string/keySmallestTimeUnit"
             android:summary="@string/smallestTimeUnitDescription"
