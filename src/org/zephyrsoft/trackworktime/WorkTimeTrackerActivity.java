@@ -59,8 +59,9 @@ import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
  */
 public class WorkTimeTrackerActivity extends Activity implements SimpleGestureListener {
 	
-	private static final int EDIT_TASKS = 0;
-	private static final int OPTIONS = 1;
+	private static final int EDIT_EVENTS = 0;
+	private static final int EDIT_TASKS = 1;
+	private static final int OPTIONS = 2;
 	
 	private TableRow titleRow = null;
 	private TextView inLabel = null;
@@ -531,14 +532,18 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, EDIT_TASKS, 0, getString(R.string.edit_tasks)).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, OPTIONS, 1, getString(R.string.options)).setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(android.R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(android.R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(android.R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case EDIT_EVENTS:
+				showEventList();
+				return true;
 			case EDIT_TASKS:
 				showTaskList();
 				return true;
@@ -546,9 +551,15 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				showOptions();
 				return true;
 			default:
-				Logger.warn("options menu: unknown item selected");
+				throw new IllegalArgumentException("options menu: unknown item selected");
 		}
-		return false;
+	}
+	
+	private void showEventList() {
+		Logger.debug("showing EventList");
+		Intent i = new Intent(this, EventListActivity.class);
+		i.putExtra(EventListActivity.WEEK_ID_EXTRA_KEY, currentlyShownWeek.getId());
+		startActivity(i);
 	}
 	
 	private void showTaskList() {

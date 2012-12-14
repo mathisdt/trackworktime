@@ -42,6 +42,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="EventListActivity"
+            android:label="@string/edit_events" >
+        </activity>
+        <activity
             android:name="TaskListActivity"
             android:label="@string/edit_tasks" >
         </activity>

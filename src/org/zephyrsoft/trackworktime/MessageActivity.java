@@ -47,7 +47,7 @@ public class MessageActivity extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.messageactivity);
+		setContentView(R.layout.message);
 		textView = (TextView) findViewById(R.id.dialogMessage);
 		textView.setOnClickListener(this);
 	}
