@@ -532,9 +532,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(android.R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
 	

@@ -69,5 +69,8 @@
     <string name="autoPauseEnd">End of Automatic Pause</string>
     <string name="autoPauseEndDescription">in 24 hour time, e.g. 13.30</string>
     <string name="flatteningEnabled">Enable Time Flattening</string>
+    <string name="type">Type</string>
+    <string name="time">Time</string>
+    <string name="saveChanges">Save Changes</string>
 
 </resources>

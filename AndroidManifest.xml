@@ -46,6 +46,10 @@
             android:label="@string/edit_events" >
         </activity>
         <activity
+            android:name="EventEditActivity"
+            android:label="@string/edit_event" >
+        </activity>
+        <activity
             android:name="TaskListActivity"
             android:label="@string/edit_tasks" >
         </activity>

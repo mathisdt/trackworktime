@@ -130,17 +130,16 @@ public class TaskListActivity extends ListActivity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, NEW_TASK, 0, getString(R.string.new_task)).setIcon(android.R.drawable.ic_menu_add);
+		menu.add(Menu.NONE, NEW_TASK, 0, getString(R.string.new_task)).setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		menu.add(Menu.NONE, RENAME_TASK, 0, getString(R.string.rename_task)).setIcon(
-			android.R.drawable.ic_menu_info_details);
+		menu.add(Menu.NONE, RENAME_TASK, 0, getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, TOGGLE_ACTIVATION_STATE_OF_TASK, 1, getString(R.string.toggle_activation_state_of_task))
-			.setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(Menu.NONE, DELETE_TASK, 2, getString(R.string.delete_task)).setIcon(android.R.drawable.ic_menu_delete);
+			.setIcon(R.drawable.ic_menu_revert);
+		menu.add(Menu.NONE, DELETE_TASK, 2, getString(R.string.delete_task)).setIcon(R.drawable.ic_menu_delete);
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 	

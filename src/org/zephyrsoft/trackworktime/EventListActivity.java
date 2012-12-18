@@ -21,6 +21,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -55,8 +56,11 @@ public class EventListActivity extends ListActivity {
 	private static final int EDIT_EVENT = 1;
 	private static final int DELETE_EVENT = 2;
 	
+	private static EventListActivity instance = null;
+	
 	private DAO dao = null;
 	
+	private Week week;
 	private List<Event> events = null;
 	
 	private WorkTimeTrackerActivity parentActivity = null;
@@ -65,6 +69,7 @@ public class EventListActivity extends ListActivity {
 	
 	@Override
 	protected void onPause() {
+		// TODO check plausibility of the edited events?
 		dao.close();
 		super.onPause();
 	}
@@ -73,10 +78,15 @@ public class EventListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		instance = this;
 		parentActivity = WorkTimeTrackerActivity.getInstance();
 		
 		dao = Basics.getInstance().getDao();
-		Week week = dao.getWeek(getIntent().getIntExtra(WEEK_ID_EXTRA_KEY, -1));
+		int weekId = getIntent().getIntExtra(WEEK_ID_EXTRA_KEY, -1);
+		week = dao.getWeek(weekId);
+		if (week == null) {
+			throw new IllegalStateException("no week found with ID " + weekId);
+		}
 		events = dao.getEventsInWeek(week);
 		eventsAdapter =
 			new FlexibleArrayAdapter<Event>(this, android.R.layout.simple_list_item_1, events,
@@ -100,14 +110,14 @@ public class EventListActivity extends ListActivity {
 		eventsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		setListAdapter(eventsAdapter);
 		
-		ListView lv = getListView();
+		final ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
 		
 		registerForContextMenu(lv);
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				openContextMenu(view);
+				startEditing((Event) lv.getItemAtPosition(position));
 			}
 		});
 	}
@@ -116,8 +126,10 @@ public class EventListActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case NEW_EVENT:
-				// TODO
-				
+				Logger.debug("starting to enter a new event");
+				Intent i = new Intent(this, EventEditActivity.class);
+				i.putExtra(EventEditActivity.WEEK_ID_EXTRA_KEY, week.getId());
+				startActivity(i);
 				return true;
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");
@@ -126,17 +138,16 @@ public class EventListActivity extends ListActivity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, NEW_EVENT, NEW_EVENT, getString(R.string.new_event))
-			.setIcon(android.R.drawable.ic_menu_add);
+		menu.add(Menu.NONE, NEW_EVENT, NEW_EVENT, getString(R.string.new_event)).setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.add(Menu.NONE, EDIT_EVENT, EDIT_EVENT, getString(R.string.edit_event)).setIcon(
-			android.R.drawable.ic_menu_info_details);
+			R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, DELETE_EVENT, DELETE_EVENT, getString(R.string.delete_event)).setIcon(
-			android.R.drawable.ic_menu_delete);
+			R.drawable.ic_menu_delete);
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 	
@@ -148,8 +159,7 @@ public class EventListActivity extends ListActivity {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		switch (item.getItemId()) {
 			case EDIT_EVENT:
-				// TODO
-				
+				startEditing(oldEvent);
 				return true;
 			case DELETE_EVENT:
 				alert.setTitle(getString(R.string.delete_event));
@@ -160,14 +170,12 @@ public class EventListActivity extends ListActivity {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// delete event in DB
 						boolean success = dao.deleteEvent(oldEvent);
+						refreshView();
 						if (success) {
 							Logger.debug("deleted event with ID " + oldEvent.getId());
-							events.remove(eventPosition);
 						} else {
 							Logger.warn("could not delete event with ID " + oldEvent.getId());
 						}
-						eventsAdapter.notifyDataSetChanged();
-						parentActivity.refreshView();
 						return;
 					}
 				});
@@ -185,11 +193,27 @@ public class EventListActivity extends ListActivity {
 		return super.onContextItemSelected(item);
 	}
 	
-	@Override
-	public void onBackPressed() {
-		// TODO check plausibility of the edited events!
-		
-		super.onBackPressed();
+	private void startEditing(Event event) {
+		Logger.debug("starting to edit an existing event");
+		Intent i = new Intent(this, EventEditActivity.class);
+		i.putExtra(EventEditActivity.EVENT_ID_EXTRA_KEY, event.getId());
+		startActivity(i);
 	}
 	
+	/**
+	 * Refresh the event list and the main activity.
+	 */
+	public void refreshView() {
+		events.clear();
+		events.addAll(dao.getEventsInWeek(week));
+		eventsAdapter.notifyDataSetChanged();
+		parentActivity.refreshView();
+	}
+	
+	/**
+	 * Getter for the singleton.
+	 */
+	public static EventListActivity getInstance() {
+		return instance;
+	}
 }

@@ -355,6 +355,18 @@ public class DAO {
 	}
 	
 	/**
+	 * Fetch a specific event.
+	 * 
+	 * @param id the ID of the event
+	 * @return the event, or {@code null} if the id does not exist
+	 */
+	public Event getEvent(Integer id) {
+		List<Event> event = getEventsWithParameters(EVENT_FIELDS, EVENT_ID + " = " + id, false, true);
+		// if event is empty, then there is no such event in the database
+		return event.isEmpty() ? null : event.get(0);
+	}
+	
+	/**
 	 * Return the last event before a certain date and time or {@code null} if there is no such event.
 	 * 
 	 * @param dateTime the date and time before which the event is searched

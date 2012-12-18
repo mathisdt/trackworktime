@@ -35,6 +35,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 	
 	private StringExtractionMethod<T> extractionMethod;
 	private final int resource;
+	private int dropDownResource;
 	private final Context context;
 	private final int fieldId;
 	
@@ -43,6 +44,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, resource, textViewResourceId, objects);
 		this.context = context;
 		this.resource = resource;
+		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
 	}
@@ -52,6 +54,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, resource, textViewResourceId, objects);
 		this.context = context;
 		this.resource = resource;
+		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
 	}
@@ -61,6 +64,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, resource, textViewResourceId);
 		this.context = context;
 		this.resource = resource;
+		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
 	}
@@ -70,6 +74,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, textViewResourceId, objects);
 		this.context = context;
 		this.resource = textViewResourceId;
+		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
 	}
@@ -79,6 +84,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, textViewResourceId, objects);
 		this.context = context;
 		this.resource = textViewResourceId;
+		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
 	}
@@ -87,18 +93,33 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		super(context, textViewResourceId);
 		this.context = context;
 		this.resource = textViewResourceId;
+		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
 	}
 	
 	@Override
+	public void setDropDownViewResource(int dropDownResourceToUse) {
+		this.dropDownResource = dropDownResourceToUse;
+	}
+	
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		return createView(position, convertView, parent, resource);
+	}
+	
+	@Override
+	public View getDropDownView(int position, View convertView, ViewGroup parent) {
+		return createView(position, convertView, parent, dropDownResource);
+	}
+	
+	private View createView(int position, View convertView, ViewGroup parent, int resourceToUse) {
 		View view;
 		TextView text;
 		
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = inflater.inflate(resource, parent, false);
+			view = inflater.inflate(resourceToUse, parent, false);
 		} else {
 			view = convertView;
 		}
@@ -121,5 +142,4 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 		
 		return view;
 	}
-	
 }

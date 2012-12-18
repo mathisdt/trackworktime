@@ -1,20 +1,23 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime.model;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The possible event types - clock in or clock out.
@@ -53,6 +56,14 @@ public enum TypeEnum {
 	@Override
 	public String toString() {
 		return String.valueOf(getValue());
+	}
+	
+	/**
+	 * Gets the "default" types, meaning those that get saved. At the moment, only CLOCK_IN and CLOCK_OUT make sense
+	 * here.
+	 */
+	public static List<TypeEnum> getDefaultTypes() {
+		return Arrays.asList(CLOCK_IN, CLOCK_OUT);
 	}
 	
 	/**
