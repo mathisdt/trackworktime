@@ -38,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private static final int EDIT_TASKS = 1;
 	private static final int OPTIONS = 2;
 	
+	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
 	private TextView inLabel = null;
 	private TextView outLabel = null;
@@ -173,6 +175,12 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		findAllViewsById();
 		
 		detector = new SimpleGestureFilter(this, this);
+		weekTable.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showEventList();
+			}
+		});
 		
 		clockInOutButton.setOnClickListener(clockInOut);
 		
@@ -463,6 +471,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 	
 	private void findAllViewsById() {
+		weekTable = (TableLayout) findViewById(R.id.week_table);
 		titleRow = (TableRow) findViewById(R.id.titleRow);
 		inLabel = (TextView) findViewById(R.id.inLabel);
 		outLabel = (TextView) findViewById(R.id.outLabel);

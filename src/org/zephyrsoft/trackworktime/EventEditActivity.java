@@ -17,6 +17,7 @@
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 import java.util.List;
 import android.app.Activity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
@@ -43,7 +45,7 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class EventEditActivity extends Activity {
+public class EventEditActivity extends Activity implements OnDateChangedListener {
 	
 	/** key for the intent extra "week id" */
 	public static final String WEEK_ID_EXTRA_KEY = "WEEK_ID_EXTRA_KEY";
@@ -58,6 +60,7 @@ public class EventEditActivity extends Activity {
 	private ArrayAdapter<TypeEnum> typesAdapter;
 	private Spinner type = null;
 	private DatePicker date = null;
+	private boolean dateIsInited = false;
 	private TimePicker time = null;
 	private List<Task> tasks;
 	private ArrayAdapter<Task> tasksAdapter;
@@ -65,6 +68,8 @@ public class EventEditActivity extends Activity {
 	private EditText text = null;
 	
 	private Week week = null;
+	private DateTime weekStart;
+	private DateTime weekEnd;
 	/** only filled if an existing event is edited! blank for new events! */
 	private Event editedEvent = null;
 	private boolean newEvent = false;
@@ -90,6 +95,8 @@ public class EventEditActivity extends Activity {
 		time = (TimePicker) findViewById(R.id.time);
 		task = (Spinner) findViewById(R.id.task);
 		text = (EditText) findViewById(R.id.text);
+		
+		time.setIs24HourView(Boolean.TRUE);
 		
 		// bind lists to spinners
 		types = TypeEnum.getDefaultTypes();
@@ -121,12 +128,7 @@ public class EventEditActivity extends Activity {
 			public void onClick(View v) {
 				// save the event
 				Integer typeId = ((TypeEnum) type.getSelectedItem()).getValue();
-				String datePartString =
-					String.valueOf(date.getYear()) + "-" + padToTwoDigits(date.getMonth() + 1) + "-"
-						+ padToTwoDigits(date.getDayOfMonth());
-				String timePartString =
-					padToTwoDigits(time.getCurrentHour()) + ":" + padToTwoDigits(time.getCurrentMinute()) + ":00";
-				DateTime dateTime = new DateTime(datePartString + " " + timePartString);
+				DateTime dateTime = getCurrentlySetDateAndTime();
 				String timeString = DateTimeUtil.dateTimeToString(dateTime);
 				Integer taskId = ((Task) task.getSelectedItem()).getId();
 				String textString = text.getText().toString();
@@ -186,6 +188,8 @@ public class EventEditActivity extends Activity {
 			weekId = editedEvent.getWeek();
 		}
 		week = dao.getWeek(weekId);
+		weekStart = DateTimeUtil.stringToDateTime(week.getStart());
+		weekEnd = weekStart.plus(0, 0, 6, 23, 59, 0, DayOverflow.Spillover);
 		if (eventId == -1) {
 			newEvent = true;
 			// prepare for entering a new event: make sure the date is inside the currently selected week
@@ -193,7 +197,6 @@ public class EventEditActivity extends Activity {
 			if (WeekUtil.isDateInWeek(now, week)) {
 				updateDateAndTimePickers(now);
 			} else {
-				DateTime weekStart = DateTimeUtil.stringToDateTime(week.getStart());
 				updateDateAndTimePickers(weekStart);
 			}
 		} else {
@@ -217,15 +220,39 @@ public class EventEditActivity extends Activity {
 			}
 			text.setText(editedEvent.getText());
 		}
-		// TODO restrict date range
-//		DateTime weekFirstDay = DateTimeUtil.stringToDateTime(week.getStart());
-//		DateTime weekLastDay = weekFirstDay.plusDays(6);
 	}
 	
 	private void updateDateAndTimePickers(DateTime dateTime) {
-		date.updateDate(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay());
+		if (dateIsInited) {
+			date.updateDate(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay());
+		} else {
+			date.init(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay(), this);
+			dateIsInited = true;
+		}
 		time.setCurrentHour(dateTime.getHour());
 		time.setCurrentMinute(dateTime.getMinute());
+	}
+	
+	@Override
+	public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+		// restrict date range to the week we are editing right now
+		DateTime newDate = getCurrentlySetDateAndTime();
+		if (newDate.lt(weekStart)) {
+			date.updateDate(weekStart.getYear(), weekStart.getMonth() - 1, weekStart.getDay());
+		} else if (newDate.gt(weekEnd)) {
+			date.updateDate(weekEnd.getYear(), weekEnd.getMonth() - 1, weekEnd.getDay());
+		}
+		
+	}
+	
+	private DateTime getCurrentlySetDateAndTime() {
+		String datePartString =
+			String.valueOf(date.getYear()) + "-" + padToTwoDigits(date.getMonth() + 1) + "-"
+				+ padToTwoDigits(date.getDayOfMonth());
+		String timePartString =
+			padToTwoDigits(time.getCurrentHour()) + ":" + padToTwoDigits(time.getCurrentMinute()) + ":00";
+		DateTime dateTime = new DateTime(datePartString + " " + timePartString);
+		return dateTime;
 	}
 	
 }

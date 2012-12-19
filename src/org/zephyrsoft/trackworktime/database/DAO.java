@@ -396,6 +396,7 @@ public class DAO {
 	 * Return the last recorded event or {@code null} if no event exists.
 	 */
 	public Event getLatestEvent() {
+		// TODO is this always the latest event? try with mixed automatic/manual events
 		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null, false, true);
 		// if latestEvent is empty, then there is no event in the database
 		return latestEvent.isEmpty() ? null : latestEvent.get(0);
