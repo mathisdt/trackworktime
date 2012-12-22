@@ -102,8 +102,19 @@ public class DateTimeUtil {
 	 * @return a DateTime which represents the given time on the current day
 	 */
 	public static DateTime parseTimeForToday(String timeString) {
-		DateTime now = getCurrentDateTime();
-		DateTime ret = new DateTime(dateTimeToDateString(now) + " " + timeString);
+		return parseTimeFor(getCurrentDateTime(), timeString);
+	}
+	
+	/**
+	 * Parse a time as if it was on a specific day, resulting in a complete DateTime object containing date AND time.
+	 * 
+	 * @param day the date for which the time should be parsed (only the year, month and day fields are read)
+	 * @param timeString a String which contains the hour and minute only (omitting the date and the seconds), e.g.
+	 *            "14:30"
+	 * @return a DateTime which represents the given time on the given day
+	 */
+	public static DateTime parseTimeFor(DateTime day, String timeString) {
+		DateTime ret = new DateTime(dateTimeToDateString(day) + " " + timeString);
 		return ret;
 	}
 	

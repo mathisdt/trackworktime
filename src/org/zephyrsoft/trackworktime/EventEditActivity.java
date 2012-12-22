@@ -29,14 +29,18 @@ import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.TimePicker.OnTimeChangedListener;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
+import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.StringExtractionMethod;
 import org.zephyrsoft.trackworktime.util.WeekUtil;
 
@@ -45,7 +49,7 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class EventEditActivity extends Activity implements OnDateChangedListener {
+public class EventEditActivity extends Activity implements OnDateChangedListener, OnTimeChangedListener {
 	
 	/** key for the intent extra "week id" */
 	public static final String WEEK_ID_EXTRA_KEY = "WEEK_ID_EXTRA_KEY";
@@ -53,14 +57,21 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	public static final String EVENT_ID_EXTRA_KEY = "EVENT_ID_EXTRA_KEY";
 	
 	private DAO dao = null;
+	private TimerManager timerManager = null;
 	
 	private Button save = null;
 	private Button cancel = null;
 	private List<TypeEnum> types;
 	private ArrayAdapter<TypeEnum> typesAdapter;
 	private Spinner type = null;
+	private TextView weekday = null;
 	private DatePicker date = null;
-	private boolean dateIsInited = false;
+	private int selectedYear = -1;
+	private int selectedMonth = -1;
+	private int selectedDay = -1;
+	private int selectedHour = -1;
+	private int selectedMinute = -1;
+	private boolean pickersAreInitialized = false;
 	private TimePicker time = null;
 	private List<Task> tasks;
 	private ArrayAdapter<Task> tasksAdapter;
@@ -85,12 +96,14 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		super.onCreate(savedInstanceState);
 		
 		dao = Basics.getInstance().getDao();
+		timerManager = Basics.getInstance().getTimerManager();
 		
 		setContentView(R.layout.event);
 		
 		save = (Button) findViewById(R.id.save);
 		cancel = (Button) findViewById(R.id.cancel);
 		type = (Spinner) findViewById(R.id.type);
+		weekday = (TextView) findViewById(R.id.weekday);
 		date = (DatePicker) findViewById(R.id.date);
 		time = (TimePicker) findViewById(R.id.time);
 		task = (Spinner) findViewById(R.id.task);
@@ -127,16 +140,15 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			@Override
 			public void onClick(View v) {
 				// save the event
-				Integer typeId = ((TypeEnum) type.getSelectedItem()).getValue();
+				TypeEnum typeEnum = ((TypeEnum) type.getSelectedItem());
 				DateTime dateTime = getCurrentlySetDateAndTime();
 				String timeString = DateTimeUtil.dateTimeToString(dateTime);
 				Integer taskId = ((Task) task.getSelectedItem()).getId();
 				String textString = text.getText().toString();
 				if (newEvent) {
-					Event eventToCreate = new Event(null, week.getId(), taskId, typeId, timeString, textString);
-					dao.insertEvent(eventToCreate);
+					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
 				} else {
-					editedEvent.setType(typeId);
+					editedEvent.setType(typeEnum.getValue());
 					editedEvent.setTime(timeString);
 					editedEvent.setTask(taskId);
 					editedEvent.setText(textString);
@@ -223,18 +235,59 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	}
 	
 	private void updateDateAndTimePickers(DateTime dateTime) {
-		if (dateIsInited) {
-			date.updateDate(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay());
-		} else {
-			date.init(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay(), this);
-			dateIsInited = true;
-		}
 		time.setCurrentHour(dateTime.getHour());
 		time.setCurrentMinute(dateTime.getMinute());
+		if (pickersAreInitialized) {
+			date.updateDate(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay());
+		} else {
+			time.setOnTimeChangedListener(this);
+			date.init(dateTime.getYear(), dateTime.getMonth() - 1, dateTime.getDay(), this);
+			pickersAreInitialized = true;
+			// manually set the variables once:
+			selectedHour = dateTime.getHour();
+			selectedMinute = dateTime.getMinute();
+			selectedYear = dateTime.getYear();
+			selectedMonth = dateTime.getMonth() - 1;
+			selectedDay = dateTime.getDay();
+			setWeekday();
+		}
+	}
+	
+	private void setWeekday() {
+		DateTime currentlySelected = getCurrentlySetDateAndTime();
+		switch (currentlySelected.getWeekDay()) {
+			case 1:
+				weekday.setText(R.string.sunday);
+				break;
+			case 2:
+				weekday.setText(R.string.monday);
+				break;
+			case 3:
+				weekday.setText(R.string.tuesday);
+				break;
+			case 4:
+				weekday.setText(R.string.wednesday);
+				break;
+			case 5:
+				weekday.setText(R.string.thursday);
+				break;
+			case 6:
+				weekday.setText(R.string.friday);
+				break;
+			case 7:
+				weekday.setText(R.string.saturday);
+				break;
+			default:
+				throw new IllegalStateException("unknown weekday");
+		}
 	}
 	
 	@Override
 	public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+		selectedYear = year;
+		selectedMonth = monthOfYear;
+		selectedDay = dayOfMonth;
+		
 		// restrict date range to the week we are editing right now
 		DateTime newDate = getCurrentlySetDateAndTime();
 		if (newDate.lt(weekStart)) {
@@ -242,15 +295,22 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		} else if (newDate.gt(weekEnd)) {
 			date.updateDate(weekEnd.getYear(), weekEnd.getMonth() - 1, weekEnd.getDay());
 		}
-		
+		setWeekday();
+		Logger.debug("date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
+	}
+	
+	@Override
+	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+		selectedHour = hourOfDay;
+		selectedMinute = minute;
+		Logger.debug("time changed to {0}:{1}", hourOfDay, minute);
 	}
 	
 	private DateTime getCurrentlySetDateAndTime() {
+		// DON'T get the numbers directly from the date and time controls, but from the private variables!
 		String datePartString =
-			String.valueOf(date.getYear()) + "-" + padToTwoDigits(date.getMonth() + 1) + "-"
-				+ padToTwoDigits(date.getDayOfMonth());
-		String timePartString =
-			padToTwoDigits(time.getCurrentHour()) + ":" + padToTwoDigits(time.getCurrentMinute()) + ":00";
+			String.valueOf(selectedYear) + "-" + padToTwoDigits(selectedMonth + 1) + "-" + padToTwoDigits(selectedDay);
+		String timePartString = padToTwoDigits(selectedHour) + ":" + padToTwoDigits(selectedMinute) + ":00";
 		DateTime dateTime = new DateTime(datePartString + " " + timePartString);
 		return dateTime;
 	}

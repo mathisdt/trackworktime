@@ -75,64 +75,66 @@ public class TimerManager {
 	 * @param text free text to describe in detail what was done
 	 */
 	public void startTracking(Task selectedTask, String text) {
-		count((selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
+		createEvent((selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
 	}
 	
 	/**
 	 * Stops tracking time.
 	 */
 	public void stopTracking() {
-		if (isAutoPauseEnabled() && isAutoPauseApplicable()) {
-			// insert auto-pause events
-			DateTime begin =
-				DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
-			DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
-			Logger.debug("inserting auto-pause, begin={0}, end={1}", begin, end);
-			count(begin, null, TypeEnum.CLOCK_OUT, null);
-			Event lastBeforePause = dao.getLastEventBefore(begin);
-			count(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
-				(lastBeforePause == null ? null : lastBeforePause.getText()));
-		} else {
-			Logger.debug("NOT inserting auto-pause");
-		}
-		count(null, TypeEnum.CLOCK_OUT, null);
+		createEvent(null, TypeEnum.CLOCK_OUT, null);
 	}
 	
-	private boolean isAutoPauseEnabled() {
-		return preferences.getBoolean(Key.AUTO_PAUSE_ENABLED.getName(), false);
-	}
-	
-	private boolean isAutoPauseApplicable() {
-		DateTime begin = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
-		DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
-		Event lastEventBeforeBegin = dao.getLastEventBefore(begin);
-		Event lastEventBeforeEnd = dao.getLastEventBefore(end);
-		// is clocked in before begin
-		return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
-		// no event is in auto-pause interval
-			&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId())
-			// current time is after auto-pause end
-			&& DateTimeUtil.getCurrentDateTime().gt(end);
-	}
-	
-	private String getAutoPauseData(String key, String defaultTime) {
-		String ret = preferences.getString(key, defaultTime);
-		ret = DateTimeUtil.refineTime(ret);
-		return ret;
-	}
-	
-	private void count(Integer taskId, TypeEnum type, String text) {
+	/**
+	 * Create a new event at current time.
+	 * 
+	 * @param taskId the task id (may be {@code null})
+	 * @param type the type
+	 * @param text the text (may be {@code null})
+	 */
+	public void createEvent(Integer taskId, TypeEnum type, String text) {
 		DateTime now = DateTimeUtil.getCurrentDateTime();
-		count(now, taskId, type, text);
+		createEvent(now, taskId, type, text);
 	}
 	
-	private void count(DateTime dateTime, Integer taskId, TypeEnum type, String text) {
+	/**
+	 * Create a new event at the given time.
+	 * 
+	 * @param dateTime the time for which the new event should be created
+	 * @param taskId the task id (may be {@code null})
+	 * @param type the type
+	 * @param text the text (may be {@code null})
+	 */
+	public void createEvent(DateTime dateTime, Integer taskId, TypeEnum type, String text) {
+		if (dateTime == null) {
+			throw new IllegalArgumentException("date/time has to be given");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("type has to be given");
+		}
 		String weekStart = DateTimeUtil.getWeekStart(dateTime);
 		String time = DateTimeUtil.dateTimeToString(dateTime);
 		Week currentWeek = dao.getWeek(weekStart);
 		if (currentWeek == null) {
 			currentWeek = dao.insertWeek(new Week(null, weekStart, 0));
 		}
+		
+		if (type == TypeEnum.CLOCK_OUT) {
+			if (isAutoPauseEnabled() && isAutoPauseApplicable(dateTime)) {
+				// insert auto-pause events
+				DateTime begin =
+					DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
+				DateTime end = DateTimeUtil.parseTimeForToday(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
+				Logger.debug("inserting auto-pause, begin={0}, end={1}", begin, end);
+				createEvent(begin, null, TypeEnum.CLOCK_OUT, null);
+				Event lastBeforePause = dao.getLastEventBefore(begin);
+				createEvent(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
+					(lastBeforePause == null ? null : lastBeforePause.getText()));
+			} else {
+				Logger.debug("NOT inserting auto-pause");
+			}
+		}
+		
 		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
 		Logger.debug("TRACKING: " + type.name() + " @ " + time + " taskId=" + taskId + " text=" + text);
 		event = dao.insertEvent(event);
@@ -140,6 +142,34 @@ public class TimerManager {
 			// TODO update this week's sum (and also the sum of the last week if clocked in overnight)
 			
 		}
+	}
+	
+	private boolean isAutoPauseEnabled() {
+		return preferences.getBoolean(Key.AUTO_PAUSE_ENABLED.getName(), false);
+	}
+	
+	private boolean isAutoPauseApplicable(DateTime dateTime) {
+		DateTime begin = DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
+		DateTime end = DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
+		if (begin.lt(end)) {
+			Event lastEventBeforeBegin = dao.getLastEventBefore(begin);
+			Event lastEventBeforeEnd = dao.getLastEventBefore(end);
+			// is clocked in before begin
+			return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
+			// no event is in auto-pause interval
+				&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId())
+				// given time is after auto-pause end
+				&& dateTime.gt(end);
+		} else {
+			// begin is equal to end or (even worse) begin is after end => no auto-pause
+			return false;
+		}
+	}
+	
+	private String getAutoPauseData(String key, String defaultTime) {
+		String ret = preferences.getString(key, defaultTime);
+		ret = DateTimeUtil.refineTime(ret);
+		return ret;
 	}
 	
 }
