@@ -17,9 +17,6 @@
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
-import hirondelle.date4j.DateTime.Unit;
-import java.util.ArrayList;
 import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
@@ -45,6 +42,7 @@ import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -324,8 +322,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		DateTime now = DateTimeUtil.getCurrentDateTime();
 		Event lastEventBeforeNow = dao.getLastEventBefore(now);
 		Logger.debug("lastEventBeforeNow: " + lastEventBeforeNow);
-		if (day.isSameDayAs(now) && lastEventBeforeNow != null
-			&& lastEventBeforeNow.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+		if (day.isSameDayAs(now) && lastEventBeforeNow != null && isClockInEvent(lastEventBeforeNow)) {
 			// currently clocked in: add clock-out event "NOW"
 			ret.add(new Event(null, currentlyShownWeek.getId(), null, TypeEnum.CLOCK_OUT_NOW.getValue(), DateTimeUtil
 				.dateTimeToString(now), null));
@@ -340,45 +337,59 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		CharSequence timeWorked = null;
 		CharSequence timeFlexi = null;
 		
+		Event lastEventBeforeToday = dao.getLastEventBefore(day);
 		if (!events.isEmpty()) {
 			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
-			Event firstEvent = events.get(0);
-			Event lastEvent = events.get(events.size() - 1);
-			if (firstEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
-				timeIn = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstEvent.getTime()));
-			} else if (firstEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue())
-				|| firstEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-				timeIn =
-					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstEvent.getTime())
-						.getStartOfDay());
-			} else {
-				throw new IllegalArgumentException("illegal event type");
+			Event firstClockInEvent = null;
+			for (Event event : events) {
+				if (isClockInEvent(event)) {
+					firstClockInEvent = event;
+					break;
+				}
 			}
-			if (lastEvent.getType().equals(TypeEnum.CLOCK_OUT.getValue())
-				|| lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-				timeOut = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(lastEvent.getTime()));
-			} else if (lastEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
-				timeOut =
-					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(lastEvent.getTime())
-						.getEndOfDay());
-			} else {
-				throw new IllegalArgumentException("illegal event type");
-			}
-			if (lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-				timeOut = getText(R.string.now);
+			Event effectiveClockOutEvent = null;
+			for (int i = events.size() - 1; i >= 0; i--) {
+				Event event = events.get(i);
+				if (isClockOutEvent(event)) {
+					effectiveClockOutEvent = event;
+				}
+				if (isClockInEvent(event)) {
+					break;
+				}
 			}
 			
-			DateTime amountWorked = calculateWorkedTime(day, events);
-			timeWorked = DateTimeUtil.dateTimeToHourMinuteString(amountWorked);
+			if (lastEventBeforeToday != null && isClockInEvent(lastEventBeforeToday)) {
+				// clocked in since begin of day
+				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
+			} else if (firstClockInEvent != null) {
+				timeIn =
+					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstClockInEvent.getTime()));
+			} else {
+				// apparently not clocked in before begin of day and no clock-in event
+				timeIn = "";
+			}
+			
+			if (effectiveClockOutEvent != null) {
+				timeOut =
+					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(effectiveClockOutEvent
+						.getTime()));
+				// replace time with NOW if applicable
+				if (effectiveClockOutEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+					timeOut = getText(R.string.now);
+				}
+			} else {
+				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
+			}
+			
+			TimeSum amountWorked = calculateWorkedTime(day, events);
+			timeWorked = amountWorked.toString();
 			
 			// TODO handle flexi time - use amountWorked
 			timeFlexi = "";
 			
 		} else {
-			Event lastEventBeforeToday = dao.getLastEventBefore(day);
 			DateTime now = DateTimeUtil.getCurrentDateTime();
-			if (lastEventBeforeToday != null && lastEventBeforeToday.getType().equals(TypeEnum.CLOCK_IN.getValue())
-				&& day.getStartOfDay().lt(now)) {
+			if (lastEventBeforeToday != null && isClockInEvent(lastEventBeforeToday) && day.getStartOfDay().lt(now)) {
 				// although there are no events on this day, the user is clocked in all day long - else there would be a
 				// CLOCK_OUT_NOW event!
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
@@ -402,65 +413,69 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 	
 	/**
-	 * Calculate the amount of work time for one day (doesn't work for multiple days).
+	 * Calculate the amount of work time for one day. Don't use for events of multiple days!
 	 * 
 	 * @param events the events on one specific day
-	 * @return a DateTime whose time part is set to the amount of work time (the date part has to be ignored)
+	 * @return the time sum
 	 */
-	private DateTime calculateWorkedTime(DateTime day, List<Event> events) {
-		DateTime ret = DateTimeUtil.getCurrentDateTime().getStartOfDay();
-		boolean isFirst = true;
-		DateTime clockedInSince = null;
+	private TimeSum calculateWorkedTime(DateTime day, List<Event> events) {
+		TimeSum ret = new TimeSum();
+		Event lastEventBefore = dao.getLastEventBefore(day.getStartOfDay());
 		
-		// copy list so the original is not changed externally
-		List<Event> internalEvents = new ArrayList<Event>();
-		internalEvents.addAll(events);
-		if (!internalEvents.isEmpty()
-			&& internalEvents.get(internalEvents.size() - 1).getType().equals(TypeEnum.CLOCK_IN.getValue())
-			&& !DateTimeUtil.getCurrentDateTime().isSameDayAs(
-				DateTimeUtil.stringToDateTime(internalEvents.get(internalEvents.size() - 1).getTime()))) {
-			// add clock-out event at midnight to be sure that all time is counted
-			Logger.debug("adding clock-out event at midnight");
-			internalEvents.add(new Event(null, null, null, TypeEnum.CLOCK_OUT.getValue(), DateTimeUtil
-				.dateTimeToString(day.getEndOfDay()), null));
+		DateTime clockedInSince = null;
+		if (isClockInEvent(lastEventBefore)) {
+			clockedInSince = day.getStartOfDay();
 		}
 		
-		for (Event event : internalEvents) {
+		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
 			Logger.debug("handling event: " + event.toString());
 			
-			// clocked in over midnight? => add time since midnight to result
-			if (isFirst
-				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
-					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
-				Logger.debug("clocked in over midnight");
-				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
-			}
 			// clock-in event while not clocked in? => remember time
-			if (clockedInSince == null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+			if (clockedInSince == null && isClockInEvent(event)) {
 				Logger.debug("remembering time");
 				clockedInSince = eventTime;
 			}
 			// clock-out event while clocked in? => add time since last clock-in to result
-			if (clockedInSince != null
-				&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
-					TypeEnum.CLOCK_OUT_NOW.getValue()))) {
+			if (clockedInSince != null && isClockOutEvent(event)) {
 				Logger.debug("counting time");
-				ret = ret.plus(0, 0, 0, eventTime.getHour(), eventTime.getMinute(), 0, DayOverflow.Abort);
-				if (eventTime.truncate(Unit.SECOND).equals(day.getEndOfDay().truncate(Unit.SECOND))) {
-					// still clocked in at midnight: add 1 minute for the last minute of the day (23:59)
-					ret = ret.plus(0, 0, 0, 0, 1, 0, DayOverflow.Abort);
-					Logger.debug("adding one minute");
-				}
-				ret = ret.minus(0, 0, 0, clockedInSince.getHour(), clockedInSince.getMinute(), 0, DayOverflow.Abort);
+				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
+				ret.add(eventTime.getHour(), eventTime.getMinute());
 				clockedInSince = null;
 			}
-			
-			if (isFirst) {
-				isFirst = false;
+		}
+		
+		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
+		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+			// try to substract the auto-pause for today because it is not counted in the database yet
+			DateTime eventTime = DateTimeUtil.stringToDateTime(lastEvent.getTime());
+			boolean canApplyAutoPause =
+				timerManager.isAutoPauseEnabled() && timerManager.isAutoPauseApplicable(eventTime);
+			if (canApplyAutoPause) {
+				DateTime autoPauseBegin = timerManager.getAutoPauseBegin(eventTime);
+				DateTime autoPauseEnd = timerManager.getAutoPauseEnd(eventTime);
+				ret.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
+				ret.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
 			}
 		}
+		
+		if (clockedInSince != null) {
+			// still clocked in at midnight
+			ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
+			ret.add(24, 0);
+		}
+		
 		return ret;
+	}
+	
+	private static boolean isClockInEvent(Event event) {
+		return event != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue());
+	}
+	
+	private static boolean isClockOutEvent(Event event) {
+		return event != null
+			&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
+				TypeEnum.CLOCK_OUT_NOW.getValue()));
 	}
 	
 	private void setupTasksAdapter() {

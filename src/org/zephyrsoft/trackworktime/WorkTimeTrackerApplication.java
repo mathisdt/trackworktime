@@ -4,6 +4,7 @@ import android.app.Application;
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
+import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -19,6 +20,11 @@ public class WorkTimeTrackerApplication extends Application {
 		Logger.info("creating application");
 		ACRA.init(this);
 		Basics.getOrCreateInstance(getApplicationContext());
+		
+		Logger.info("running self-tests");
+		TimeSum.test();
+		
+		Logger.info("handing off to super");
 		super.onCreate();
 	}
 	

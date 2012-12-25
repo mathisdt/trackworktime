@@ -136,4 +136,17 @@ public class DateTimeUtil {
 		return ret;
 	}
 	
+	/**
+	 * Return the given number left-padded with 0 if applicable.
+	 */
+	public static String padToTwoDigits(int number) {
+		if (number < 0) {
+			throw new IllegalArgumentException("number has to be >= 0");
+		} else if (number < 10) {
+			return "0" + String.valueOf(number);
+		} else {
+			return String.valueOf(number);
+		}
+	}
+	
 }

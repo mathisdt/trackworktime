@@ -109,6 +109,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		task = (Spinner) findViewById(R.id.task);
 		text = (EditText) findViewById(R.id.text);
 		
+		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
 		
 		// bind lists to spinners
@@ -166,16 +167,6 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				finish();
 			}
 		});
-	}
-	
-	private static String padToTwoDigits(int number) {
-		if (number < 0) {
-			throw new IllegalArgumentException("");
-		} else if (number < 10) {
-			return "0" + String.valueOf(number);
-		} else {
-			return String.valueOf(number);
-		}
 	}
 	
 	@Override
@@ -309,8 +300,10 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	private DateTime getCurrentlySetDateAndTime() {
 		// DON'T get the numbers directly from the date and time controls, but from the private variables!
 		String datePartString =
-			String.valueOf(selectedYear) + "-" + padToTwoDigits(selectedMonth + 1) + "-" + padToTwoDigits(selectedDay);
-		String timePartString = padToTwoDigits(selectedHour) + ":" + padToTwoDigits(selectedMinute) + ":00";
+			String.valueOf(selectedYear) + "-" + DateTimeUtil.padToTwoDigits(selectedMonth + 1) + "-"
+				+ DateTimeUtil.padToTwoDigits(selectedDay);
+		String timePartString =
+			DateTimeUtil.padToTwoDigits(selectedHour) + ":" + DateTimeUtil.padToTwoDigits(selectedMinute) + ":00";
 		DateTime dateTime = new DateTime(datePartString + " " + timePartString);
 		return dateTime;
 	}
