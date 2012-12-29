@@ -3,17 +3,25 @@
 
     <string name="app_name">Track Work Time</string>
     <string name="in">IN</string>
-    <string name="monday">Mo, </string>
     <string name="onespace">" "</string>
     <string name="out">OUT</string>
     <string name="worked">Worked</string>
     <string name="flexi">Flexi</string>
+    <string name="monday">Mo, </string>
     <string name="tuesday">Tu, </string>
     <string name="wednesday">We, </string>
     <string name="thursday">Th, </string>
     <string name="friday">Fr, </string>
     <string name="saturday">Sa, </string>
     <string name="sunday">Su, </string>
+    <string name="mondayLong">Monday</string>
+    <string name="tuesdayLong">Tuesday</string>
+    <string name="wednesdayLong">Wednesday</string>
+    <string name="thursdayLong">Thursday</string>
+    <string name="fridayLong">Friday</string>
+    <string name="saturdayLong">Saturday</string>
+    <string name="sundayLong">Sunday</string>
+    <string name="flexiTimeDayDescription">check if you work on this day</string>
     <string name="total">Total</string>
     <string name="task">Task</string>
     <string name="text">Text</string>
@@ -36,6 +44,7 @@
     <string name="really_enable_task">Really enable the task?</string>
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
+    <string name="cannot_delete_task">The task cannot be deleted because it is still used in events.</string>
     <string name="really_delete_event">Really delete the event?</string>
     <string name="enableFlexiTime">Enable Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
@@ -45,9 +54,9 @@
     <string name="shortDateFormat">DD.MM.</string>
     <string name="timeFlattening">Time Flattening</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
-    <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45.</string>
+    <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
-    <string name="smallestTimeUnitDescription">in minutes, e.g. 15. Flattening rounds to this amount of time.</string>
+    <string name="smallestTimeUnitDescription">in minutes, e.g. 15 - flattening rounds to this amount of time</string>
     <string name="backward">jumped backward</string>
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
@@ -60,7 +69,7 @@
     <string name="trackingTolerance">Tolerance</string>
     <string name="trackingToleranceDescription">in whole meters, e.g. 500</string>
     <string name="flexiTimeTarget">Flexi Time Target</string>
-    <string name="flexiTimeTargetDescription">in hours per week, e.g. 38.5</string>
+    <string name="flexiTimeTargetDescription">in hours:minutes per week, e.g. 38:30</string>
     <string name="locationBasedTrackingVibrate">Vibrate on Events</string>
     <string name="autoPause">Automatic Pause</string>
     <string name="autoPauseEnabled">Enable Automatic Pause</string>

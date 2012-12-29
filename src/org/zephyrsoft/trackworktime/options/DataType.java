@@ -103,7 +103,7 @@ public enum DataType {
 	HOUR_MINUTE {
 		@Override
 		public boolean validate(String value) {
-			return value != null && Pattern.matches("\\d+:\\d\\d", value);
+			return value != null && Pattern.matches("\\-?\\d+:\\d\\d", value);
 		}
 		
 		@Override
@@ -122,4 +122,15 @@ public enum DataType {
 	 * Validate that the value found under "key" in "sharedPreferences" is correct for this data type.
 	 */
 	public abstract boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key);
+	
+	/** Run some internal self-tests. */
+	public static void test() {
+		boolean valid = HOUR_MINUTE.validate("-1:55");
+		valid &= HOUR_MINUTE.validate("1:00");
+		valid &= HOUR_MINUTE.validate("1:29");
+		valid &= HOUR_MINUTE.validate("37:30");
+		if (!valid) {
+			throw new AssertionError("HOUR_MINUTE");
+		}
+	}
 }

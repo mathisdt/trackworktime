@@ -5,6 +5,13 @@
     <string name="keyEnableFlexiTime">keyEnableFlexiTime</string>
     <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
     <string name="keyFlexiTimeTarget">keyFlexiTimeTarget</string>
+    <string name="keyFlexiTimeDayMonday">keyFlexiTimeDayMonday</string>
+    <string name="keyFlexiTimeDayTuesday">keyFlexiTimeDayTuesday</string>
+    <string name="keyFlexiTimeDayWednesday">keyFlexiTimeDayWednesday</string>
+    <string name="keyFlexiTimeDayThursday">keyFlexiTimeDayThursday</string>
+    <string name="keyFlexiTimeDayFriday">keyFlexiTimeDayFriday</string>
+    <string name="keyFlexiTimeDaySaturday">keyFlexiTimeDaySaturday</string>
+    <string name="keyFlexiTimeDaySunday">keyFlexiTimeDaySunday</string>
     <string name="keyFlatteningCategory">keyFlatteningCategory</string>
     <string name="keyFlatteningEnabled">keyFlatteningEnabled</string>
     <string name="keySmallestTimeUnit">keySmallestTimeUnit</string>

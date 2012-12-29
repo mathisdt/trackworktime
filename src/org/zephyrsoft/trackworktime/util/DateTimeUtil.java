@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import hirondelle.date4j.DateTime;
 import java.util.TimeZone;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 
 /**
  * Utility class for handling {@link DateTime} objects and converting them.
@@ -37,19 +38,45 @@ public class DateTimeUtil {
 	}
 	
 	/**
+	 * Determines if the given {@link DateTime} is in the future.
+	 */
+	public static boolean isInFuture(DateTime dateTime) {
+		DateTime now = getCurrentDateTime();
+		return now.lt(dateTime);
+	}
+	
+	/**
+	 * Determines if the given {@link DateTime} is in the past.
+	 */
+	public static boolean isInPast(DateTime dateTime) {
+		DateTime now = getCurrentDateTime();
+		return now.gt(dateTime);
+	}
+	
+	/**
 	 * Gets the week's start related to the specified date and time.
 	 * 
 	 * @param dateTime the date and time
-	 * @return {@code DateTime} object
+	 * @return a string representing the week start
 	 */
-	public static String getWeekStart(DateTime dateTime) {
+	public static String getWeekStartAsString(DateTime dateTime) {
+		return DateTimeUtil.dateTimeToString(getWeekStart(dateTime));
+	}
+	
+	/**
+	 * Gets the week's start related to the specified date and time.
+	 * 
+	 * @param dateTime the date and time
+	 * @return a DateTime representing the week start
+	 */
+	public static DateTime getWeekStart(DateTime dateTime) {
 		// go back to this day's start
 		DateTime ret = dateTime.getStartOfDay();
 		// go back to last Monday
-		while (ret.getWeekDay() != 2) {
+		while (ret.getWeekDay() != WeekDayEnum.MONDAY.getValue()) {
 			ret = ret.minusDays(1);
 		}
-		return DateTimeUtil.dateTimeToString(ret);
+		return ret;
 	}
 	
 	/**
@@ -147,6 +174,18 @@ public class DateTimeUtil {
 		} else {
 			return String.valueOf(number);
 		}
+	}
+	
+	/**
+	 * Get the week start date of the first week of the given year, according to ISO 8601.
+	 */
+	public static DateTime getBeginOfFirstWeekFor(int year) {
+		DateTime date = new DateTime(String.valueOf(year) + "-01-01 00:00:00");
+		while (date.getWeekDay() != WeekDayEnum.THURSDAY.getValue()) {
+			date = date.plusDays(1);
+		}
+		date.minusDays(3);
+		return date;
 	}
 	
 }

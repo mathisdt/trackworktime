@@ -37,6 +37,7 @@ import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
@@ -144,7 +145,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				TypeEnum typeEnum = ((TypeEnum) type.getSelectedItem());
 				DateTime dateTime = getCurrentlySetDateAndTime();
 				String timeString = DateTimeUtil.dateTimeToString(dateTime);
-				Integer taskId = ((Task) task.getSelectedItem()).getId();
+				Task selectedTask = (Task) task.getSelectedItem();
+				Integer taskId = selectedTask == null ? null : selectedTask.getId();
 				String textString = text.getText().toString();
 				if (newEvent) {
 					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
@@ -154,6 +156,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 					editedEvent.setTask(taskId);
 					editedEvent.setText(textString);
 					dao.updateEvent(editedEvent);
+					// we have to call this manually when using the DAO directly:
+					timerManager.updateWeekSum(week);
 				}
 				
 				// refresh parents and close the event editor
@@ -246,27 +250,28 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	
 	private void setWeekday() {
 		DateTime currentlySelected = getCurrentlySetDateAndTime();
-		switch (currentlySelected.getWeekDay()) {
-			case 1:
-				weekday.setText(R.string.sunday);
-				break;
-			case 2:
+		WeekDayEnum weekDay = WeekDayEnum.getByValue(currentlySelected.getWeekDay());
+		switch (weekDay) {
+			case MONDAY:
 				weekday.setText(R.string.monday);
 				break;
-			case 3:
+			case TUESDAY:
 				weekday.setText(R.string.tuesday);
 				break;
-			case 4:
+			case WEDNESDAY:
 				weekday.setText(R.string.wednesday);
 				break;
-			case 5:
+			case THURSDAY:
 				weekday.setText(R.string.thursday);
 				break;
-			case 6:
+			case FRIDAY:
 				weekday.setText(R.string.friday);
 				break;
-			case 7:
+			case SATURDAY:
 				weekday.setText(R.string.saturday);
+				break;
+			case SUNDAY:
+				weekday.setText(R.string.sunday);
 				break;
 			default:
 				throw new IllegalStateException("unknown weekday");

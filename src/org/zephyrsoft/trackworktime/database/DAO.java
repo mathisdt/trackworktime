@@ -144,11 +144,26 @@ public class DAO {
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 	
+	/**
+	 * Return if the task with the given ID is used in an event.
+	 */
+	public boolean isTaskUsed(Integer id) {
+		Cursor cursor =
+			db.query(EVENT, new String[] {"count(*)"}, EVENT_TASK + " = " + String.valueOf(id), null, null, null, null,
+				null);
+		cursor.moveToFirst();
+		int count = 0;
+		if (!cursor.isAfterLast()) {
+			count = cursor.getInt(0);
+		}
+		cursor.close();
+		return count > 0;
+	}
+	
 	private List<Task> getTasksWithConstraint(String constraint) {
 		open();
 		List<Task> ret = new ArrayList<Task>();
-		// TODO sort tasks by TASK_ORDERING when we have UI support for manually
-		// ordering the tasks
+		// TODO sort tasks by TASK_ORDERING when the UI supports manual ordering of tasks
 		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null, null, TASK_NAME);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -238,6 +253,17 @@ public class DAO {
 	}
 	
 	/**
+	 * Returns all weeks up to the given date. If "start" is a week start date, the week with that start date is also
+	 * included in the result.
+	 * 
+	 * @param date the limiting date
+	 */
+	public List<Week> getWeeksUpTo(String date) {
+		List<Week> weeks = getWeeksWithConstraint(WEEK_START + "<=\"" + date + "\"");
+		return weeks;
+	}
+	
+	/**
 	 * Returns the week identified by the given ID or {@code null} if no week exists for that ID.
 	 * 
 	 * @param id the ID
@@ -290,6 +316,7 @@ public class DAO {
 	// =======================================================
 	
 	private static final String[] EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, EVENT_TIME, EVENT_TYPE, EVENT_TASK, EVENT_TEXT};
+	private static final String[] COUNT_FIELDS = {"count(*)"};
 	private static final String[] MAX_EVENT_FIELDS = {EVENT_ID, EVENT_WEEK, "max(" + EVENT_TIME + ")", EVENT_TYPE,
 		EVENT_TASK, EVENT_TEXT};
 	

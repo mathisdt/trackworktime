@@ -54,6 +54,15 @@ public class TimeSum {
 		balance();
 	}
 	
+	/**
+	 * Add or substract the value of the given time sum.
+	 */
+	public void addOrSubstract(TimeSum timeSum) {
+		hours += timeSum.hours;
+		minutes += timeSum.minutes;
+		balance();
+	}
+	
 	private void balance() {
 		while (minutes >= 60) {
 			hours += 1;
@@ -72,11 +81,20 @@ public class TimeSum {
 		boolean negative = false;
 		if (hoursForDisplay < 0) {
 			negative = true;
-			hoursForDisplay += 1;
-			minutesForDisplay = 60 - minutesForDisplay;
+			if (minutesForDisplay != 0) {
+				hoursForDisplay += 1;
+				minutesForDisplay = 60 - minutesForDisplay;
+			}
 		}
 		return (negative && hoursForDisplay == 0 ? "-" : "") + String.valueOf(hoursForDisplay) + ":"
 			+ DateTimeUtil.padToTwoDigits(minutesForDisplay);
+	}
+	
+	/**
+	 * Get the time sum as accumulated value in minutes.
+	 */
+	public int getAsMinutes() {
+		return hours * 60 + minutes;
 	}
 	
 	/** test the behaviour of this class */
@@ -88,10 +106,25 @@ public class TimeSum {
 		assertEquals(underTest.toString(), "4:20");
 		underTest.substract(0, 140);
 		assertEquals(underTest.toString(), "2:00");
+		assertEquals(underTest.getAsMinutes(), 120);
 		underTest.substract(1, 75);
 		assertEquals(underTest.toString(), "-0:15");
 		underTest.substract(1, 50);
 		assertEquals(underTest.toString(), "-2:05");
+		assertEquals(underTest.getAsMinutes(), -125);
+		
+		TimeSum positive = new TimeSum();
+		positive.add(2, 30);
+		assertEquals(positive.toString(), "2:30");
+		underTest.addOrSubstract(positive);
+		assertEquals(underTest.toString(), "0:25");
+		
+		TimeSum negative = new TimeSum();
+		negative.substract(0, 85);
+		assertEquals(negative.toString(), "-1:25");
+		underTest.addOrSubstract(negative);
+		assertEquals(underTest.toString(), "-1:00");
+		
 	}
 	
 	private static void assertEquals(Object o1, Object o2) {

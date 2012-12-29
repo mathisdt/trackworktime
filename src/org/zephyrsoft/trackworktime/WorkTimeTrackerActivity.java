@@ -41,10 +41,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -64,6 +67,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
+	private TextView topLeftCorner = null;
 	private TextView inLabel = null;
 	private TextView outLabel = null;
 	private TextView workedLabel = null;
@@ -187,16 +191,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		task.setOnItemSelectedListener(taskAndTextListener);
 		text.setOnKeyListener(taskAndTextListener);
 		
-		// TODO move the rest completely to onResume method?
-		setupTasksAdapter();
-		
-		String weekStart = DateTimeUtil.getWeekStart(DateTimeUtil.getCurrentDateTime());
-		currentlyShownWeek = dao.getWeek(weekStart);
-		if (currentlyShownWeek == null) {
-			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
-		}
-		
-		refreshView();
+		// delegate the rest of the work to onResume()
+		reloadTasksOnResume = true;
 	}
 	
 	/**
@@ -211,6 +207,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		DateTime targetWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart()).plusDays(interval * 7);
 		Week targetWeek = dao.getWeek(DateTimeUtil.dateTimeToString(targetWeekStart));
 		if (targetWeek == null) {
+			// TODO don't insert a new week but only some non-persistent placeholder as long as no event exists
 			targetWeek = dao.insertWeek(new Week(null, DateTimeUtil.dateTimeToString(targetWeekStart), null));
 		}
 		
@@ -280,6 +277,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private void showActualDates(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
 		DateTime friday, DateTime saturday, DateTime sunday) {
+		topLeftCorner.setText("W " + thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear())));
 		mondayLabel.setText(getString(R.string.monday) + getString(R.string.onespace)
 			+ monday.format(getString(R.string.shortDateFormat)));
 		tuesdayLabel.setText(getString(R.string.tuesday) + getString(R.string.onespace)
@@ -299,50 +297,69 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private void showTimes(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday, DateTime friday,
 		DateTime saturday, DateTime sunday) {
 		if (currentlyShownWeek != null) {
+			TimeSum flexiBalance = null;
+			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(currentlyShownWeek.getStart());
+			}
 			List<Event> events = fetchEventsForDay(monday);
-			showTimesForSingleDay(monday, events, mondayIn, mondayOut, mondayWorked, mondayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked, mondayFlexi);
 			events = fetchEventsForDay(tuesday);
-			showTimesForSingleDay(tuesday, events, tuesdayIn, tuesdayOut, tuesdayWorked, tuesdayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(tuesday, events, flexiBalance, tuesdayIn, tuesdayOut, tuesdayWorked, tuesdayFlexi);
 			events = fetchEventsForDay(wednesday);
-			showTimesForSingleDay(wednesday, events, wednesdayIn, wednesdayOut, wednesdayWorked, wednesdayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(wednesday, events, flexiBalance, wednesdayIn, wednesdayOut, wednesdayWorked,
+					wednesdayFlexi);
 			events = fetchEventsForDay(thursday);
-			showTimesForSingleDay(thursday, events, thursdayIn, thursdayOut, thursdayWorked, thursdayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(thursday, events, flexiBalance, thursdayIn, thursdayOut, thursdayWorked,
+					thursdayFlexi);
 			events = fetchEventsForDay(friday);
-			showTimesForSingleDay(friday, events, fridayIn, fridayOut, fridayWorked, fridayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(friday, events, flexiBalance, fridayIn, fridayOut, fridayWorked, fridayFlexi);
 			events = fetchEventsForDay(saturday);
-			showTimesForSingleDay(saturday, events, saturdayIn, saturdayOut, saturdayWorked, saturdayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(saturday, events, flexiBalance, saturdayIn, saturdayOut, saturdayWorked,
+					saturdayFlexi);
 			events = fetchEventsForDay(sunday);
-			showTimesForSingleDay(sunday, events, sundayIn, sundayOut, sundayWorked, sundayFlexi);
+			flexiBalance =
+				showTimesForSingleDay(sunday, events, flexiBalance, sundayIn, sundayOut, sundayWorked, sundayFlexi);
+			
+			TimeSum amountWorked =
+				timerManager.calculateTimeSum(
+					DateTimeUtil.getWeekStart(DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart())),
+					PeriodEnum.WEEK);
+			showSummaryLine(amountWorked, flexiBalance);
 		}
 	}
 	
 	private List<Event> fetchEventsForDay(DateTime day) {
-		List<Event> ret = dao.getEventsOnDay(day);
 		Logger.debug("fetchEventsForDay: " + DateTimeUtil.dateTimeToDateString(day));
+		List<Event> ret = dao.getEventsOnDay(day);
 		DateTime now = DateTimeUtil.getCurrentDateTime();
 		Event lastEventBeforeNow = dao.getLastEventBefore(now);
-		Logger.debug("lastEventBeforeNow: " + lastEventBeforeNow);
-		if (day.isSameDayAs(now) && lastEventBeforeNow != null && isClockInEvent(lastEventBeforeNow)) {
+		if (day.isSameDayAs(now) && TimerManager.isClockInEvent(lastEventBeforeNow)) {
 			// currently clocked in: add clock-out event "NOW"
-			ret.add(new Event(null, currentlyShownWeek.getId(), null, TypeEnum.CLOCK_OUT_NOW.getValue(), DateTimeUtil
-				.dateTimeToString(now), null));
+			ret.add(timerManager.createClockOutNowEvent());
 		}
 		return ret;
 	}
 	
-	private void showTimesForSingleDay(DateTime day, List<Event> events, TextView in, TextView out, TextView worked,
-		TextView flexi) {
+	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
+		TextView in, TextView out, TextView worked, TextView flexi) {
 		CharSequence timeIn = null;
 		CharSequence timeOut = null;
 		CharSequence timeWorked = null;
 		CharSequence timeFlexi = null;
+		TimeSum flexiBalance = flexiBalanceAtDayStart;
 		
 		Event lastEventBeforeToday = dao.getLastEventBefore(day);
 		if (!events.isEmpty()) {
 			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
 			Event firstClockInEvent = null;
 			for (Event event : events) {
-				if (isClockInEvent(event)) {
+				if (TimerManager.isClockInEvent(event)) {
 					firstClockInEvent = event;
 					break;
 				}
@@ -350,15 +367,15 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			Event effectiveClockOutEvent = null;
 			for (int i = events.size() - 1; i >= 0; i--) {
 				Event event = events.get(i);
-				if (isClockOutEvent(event)) {
+				if (TimerManager.isClockOutEvent(event)) {
 					effectiveClockOutEvent = event;
 				}
-				if (isClockInEvent(event)) {
+				if (TimerManager.isClockInEvent(event)) {
 					break;
 				}
 			}
 			
-			if (lastEventBeforeToday != null && isClockInEvent(lastEventBeforeToday)) {
+			if (TimerManager.isClockInEvent(lastEventBeforeToday)) {
 				// clocked in since begin of day
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
 			} else if (firstClockInEvent != null) {
@@ -381,28 +398,54 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
 			}
 			
-			TimeSum amountWorked = calculateWorkedTime(day, events);
+			TimeSum amountWorked = timerManager.calculateTimeSum(day, PeriodEnum.DAY);
 			timeWorked = amountWorked.toString();
 			
-			// TODO handle flexi time - use amountWorked
-			timeFlexi = "";
+			if (flexiBalance != null) {
+				flexiBalance.addOrSubstract(amountWorked);
+				// substract the "normal" work time for one day
+				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
+				int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+				flexiBalance.substract(0, normalWorkTimeInMinutes);
+				timeFlexi = flexiBalance.toString();
+			} else {
+				timeFlexi = "";
+			}
 			
 		} else {
 			DateTime now = DateTimeUtil.getCurrentDateTime();
-			if (lastEventBeforeToday != null && isClockInEvent(lastEventBeforeToday) && day.getStartOfDay().lt(now)) {
+			if (TimerManager.isClockInEvent(lastEventBeforeToday) && day.getStartOfDay().lt(now)) {
 				// although there are no events on this day, the user is clocked in all day long - else there would be a
 				// CLOCK_OUT_NOW event!
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
 				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
 				timeWorked = DateTimeUtil.getCompleteDayAsHourMinuteString();
-				// TODO handle flexi time
-				timeFlexi = "";
+				if (flexiBalance != null) {
+					flexiBalance.add(24, 0);
+					// substract the "normal" work time for one day
+					WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
+					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+					flexiBalance.substract(0, normalWorkTimeInMinutes);
+					timeFlexi = flexiBalance.toString();
+				} else {
+					timeFlexi = "";
+				}
 			} else {
-				// clear all fields
+				// clear all/most fields
 				timeIn = "";
 				timeOut = "";
 				timeWorked = "";
-				timeFlexi = "";
+				
+				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
+				if (flexiBalance != null && DateTimeUtil.isInPast(day.getStartOfDay())
+					&& timerManager.isWorkDay(weekDay)) {
+					// substract the "normal" work time for one day
+					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+					flexiBalance.substract(0, normalWorkTimeInMinutes);
+					timeFlexi = flexiBalance.toString();
+				} else {
+					timeFlexi = "";
+				}
 			}
 		}
 		
@@ -410,72 +453,15 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		out.setText(timeOut);
 		worked.setText(timeWorked);
 		flexi.setText(timeFlexi);
+		
+		return flexiBalance;
 	}
 	
-	/**
-	 * Calculate the amount of work time for one day. Don't use for events of multiple days!
-	 * 
-	 * @param events the events on one specific day
-	 * @return the time sum
-	 */
-	private TimeSum calculateWorkedTime(DateTime day, List<Event> events) {
-		TimeSum ret = new TimeSum();
-		Event lastEventBefore = dao.getLastEventBefore(day.getStartOfDay());
-		
-		DateTime clockedInSince = null;
-		if (isClockInEvent(lastEventBefore)) {
-			clockedInSince = day.getStartOfDay();
+	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance) {
+		totalWorked.setText(amountWorked.toString());
+		if (flexiBalance != null) {
+			totalFlexi.setText(flexiBalance.toString());
 		}
-		
-		for (Event event : events) {
-			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-			Logger.debug("handling event: " + event.toString());
-			
-			// clock-in event while not clocked in? => remember time
-			if (clockedInSince == null && isClockInEvent(event)) {
-				Logger.debug("remembering time");
-				clockedInSince = eventTime;
-			}
-			// clock-out event while clocked in? => add time since last clock-in to result
-			if (clockedInSince != null && isClockOutEvent(event)) {
-				Logger.debug("counting time");
-				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
-				ret.add(eventTime.getHour(), eventTime.getMinute());
-				clockedInSince = null;
-			}
-		}
-		
-		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
-		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-			// try to substract the auto-pause for today because it is not counted in the database yet
-			DateTime eventTime = DateTimeUtil.stringToDateTime(lastEvent.getTime());
-			boolean canApplyAutoPause =
-				timerManager.isAutoPauseEnabled() && timerManager.isAutoPauseApplicable(eventTime);
-			if (canApplyAutoPause) {
-				DateTime autoPauseBegin = timerManager.getAutoPauseBegin(eventTime);
-				DateTime autoPauseEnd = timerManager.getAutoPauseEnd(eventTime);
-				ret.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
-				ret.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
-			}
-		}
-		
-		if (clockedInSince != null) {
-			// still clocked in at midnight
-			ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
-			ret.add(24, 0);
-		}
-		
-		return ret;
-	}
-	
-	private static boolean isClockInEvent(Event event) {
-		return event != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue());
-	}
-	
-	private static boolean isClockOutEvent(Event event) {
-		return event != null
-			&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
-				TypeEnum.CLOCK_OUT_NOW.getValue()));
 	}
 	
 	private void setupTasksAdapter() {
@@ -488,6 +474,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private void findAllViewsById() {
 		weekTable = (TableLayout) findViewById(R.id.week_table);
 		titleRow = (TableRow) findViewById(R.id.titleRow);
+		topLeftCorner = (TextView) findViewById(R.id.topLeftCorner);
 		inLabel = (TextView) findViewById(R.id.inLabel);
 		outLabel = (TextView) findViewById(R.id.outLabel);
 		workedLabel = (TextView) findViewById(R.id.workedLabel);
@@ -605,6 +592,14 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
 		}
+		
+		String weekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
+		currentlyShownWeek = dao.getWeek(weekStart);
+		if (currentlyShownWeek == null) {
+			// TODO don't insert a new week but only some non-persistent placeholder as long as no event exists
+			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
+		}
+		
 		refreshView();
 		super.onResume();
 	}

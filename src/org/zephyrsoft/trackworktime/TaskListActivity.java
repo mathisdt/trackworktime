@@ -223,34 +223,51 @@ public class TaskListActivity extends ListActivity {
 				
 				return true;
 			case DELETE_TASK:
-				alert.setTitle(getString(R.string.delete_task));
-				alert.setMessage(getString(R.string.really_delete_task));
-				
-				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// delete task in DB
-						boolean success = dao.deleteTask(oldTask);
-						if (success) {
-							Logger.debug("deleted task with ID " + oldTask.getId() + " and name " + oldTask.getName());
-							tasks.remove(taskPosition);
-						} else {
-							Logger.warn("could not delete task with ID " + oldTask.getId() + " and name "
-								+ oldTask.getName());
+				if (dao.isTaskUsed(oldTask.getId())) {
+					// can't delete, task is used in events
+					alert.setCancelable(false);
+					alert.setTitle(getString(R.string.delete_task));
+					alert.setMessage(getString(R.string.cannot_delete_task));
+					alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
 						}
-						tasksAdapter.notifyDataSetChanged();
-						parentActivity.refreshTasks();
-						return;
-					}
-				});
-				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
-				});
-				
-				alert.show();
+					});
+					
+					alert.show();
+				} else {
+					// delete task after confirmation
+					alert.setTitle(getString(R.string.delete_task));
+					alert.setMessage(getString(R.string.really_delete_task));
+					
+					alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int whichButton) {
+							// delete task in DB
+							boolean success = dao.deleteTask(oldTask);
+							if (success) {
+								Logger.debug("deleted task with ID " + oldTask.getId() + " and name "
+									+ oldTask.getName());
+								tasks.remove(taskPosition);
+							} else {
+								Logger.warn("could not delete task with ID " + oldTask.getId() + " and name "
+									+ oldTask.getName());
+							}
+							tasksAdapter.notifyDataSetChanged();
+							parentActivity.refreshTasks();
+							return;
+						}
+					});
+					alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
+						}
+					});
+					
+					alert.show();
+				}
 				
 				return true;
 		}

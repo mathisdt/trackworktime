@@ -32,6 +32,35 @@
             android:key="@string/keyFlexiTimeTarget"
             android:summary="@string/flexiTimeTargetDescription"
             android:title="@string/flexiTimeTarget" />
+
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayMonday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/mondayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayTuesday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/tuesdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayWednesday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/wednesdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayThursday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/thursdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayFriday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/fridayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDaySaturday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/saturdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDaySunday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/sundayLong" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyFlatteningCategory"

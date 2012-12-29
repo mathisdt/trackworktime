@@ -17,12 +17,19 @@
 package org.zephyrsoft.trackworktime.timer;
 
 import hirondelle.date4j.DateTime;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.List;
 import android.content.SharedPreferences;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -86,6 +93,212 @@ public class TimerManager {
 	}
 	
 	/**
+	 * Is the event a clock-in event? {@code null} as argument will return {@code false}.
+	 */
+	public static boolean isClockInEvent(Event event) {
+		return event != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue());
+	}
+	
+	/**
+	 * Is the event a clock-out event? {@code null} as argument will return {@code false}.
+	 */
+	public static boolean isClockOutEvent(Event event) {
+		return event != null
+			&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
+				TypeEnum.CLOCK_OUT_NOW.getValue()));
+	}
+	
+	/**
+	 * Calculate a time sum for a given period.
+	 */
+	public TimeSum calculateTimeSum(DateTime date, PeriodEnum periodEnum) {
+		TimeSum ret = new TimeSum();
+		
+		DateTime beginOfPeriod = null;
+		DateTime endOfPeriod = null;
+		List<Event> events = null;
+		if (periodEnum == PeriodEnum.DAY) {
+			beginOfPeriod = date.getStartOfDay();
+			endOfPeriod = beginOfPeriod.plusDays(1);
+			events = dao.getEventsOnDay(date);
+		} else if (periodEnum == PeriodEnum.WEEK) {
+			beginOfPeriod = DateTimeUtil.getWeekStart(date);
+			endOfPeriod = beginOfPeriod.plusDays(7);
+			Week week = dao.getWeek(DateTimeUtil.dateTimeToString(beginOfPeriod));
+			events = dao.getEventsInWeek(week);
+		} else {
+			throw new IllegalArgumentException("unknown period type");
+		}
+		Event lastEventBefore = dao.getLastEventBefore(beginOfPeriod);
+		
+		DateTime clockedInSince = null;
+		if (isClockInEvent(lastEventBefore)) {
+			clockedInSince = beginOfPeriod;
+		}
+		
+		for (Event event : events) {
+			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
+			Logger.debug("handling event: " + event.toString());
+			
+			// clock-in event while not clocked in? => remember time
+			if (clockedInSince == null && isClockInEvent(event)) {
+				Logger.debug("remembering time");
+				clockedInSince = eventTime;
+			}
+			// clock-out event while clocked in? => add time since last clock-in to result
+			if (clockedInSince != null && isClockOutEvent(event)) {
+				Logger.debug("counting time");
+				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
+				ret.add(eventTime.getHour(), eventTime.getMinute());
+				clockedInSince = null;
+			}
+		}
+		
+		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
+		DateTime lastEventTime = (lastEvent == null ? null : DateTimeUtil.stringToDateTime(lastEvent.getTime()));
+		
+		// insert CLOCK_OUT_NOW event if applicable
+		if (isClockInEvent(lastEvent) && DateTimeUtil.isInPast(lastEventTime) && DateTimeUtil.isInFuture(endOfPeriod)) {
+			Event clockOutNowEvent = createClockOutNowEvent();
+			events.add(clockOutNowEvent);
+			lastEvent = clockOutNowEvent;
+			clockedInSince = null;
+			
+		}
+		
+		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
+			// try to substract the auto-pause for today because it is not counted in the database yet
+			DateTime eventTime = DateTimeUtil.stringToDateTime(lastEvent.getTime());
+			boolean canApplyAutoPause = isAutoPauseEnabled() && isAutoPauseApplicable(eventTime);
+			if (canApplyAutoPause) {
+				DateTime autoPauseBegin = getAutoPauseBegin(eventTime);
+				DateTime autoPauseEnd = getAutoPauseEnd(eventTime);
+				ret.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
+				ret.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
+			}
+		}
+		
+		if (clockedInSince != null) {
+			// still clocked in at end of period: count hours and minutes
+			ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
+			ret.add(24, 0);
+			if (periodEnum == PeriodEnum.WEEK) {
+				// calculating for week: also count days
+				DateTime counting = clockedInSince.minusDays(1);
+				while (counting.lt(endOfPeriod)) {
+					ret.add(24, 0);
+					counting = counting.plusDays(1);
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Get the flexi-time balance which is effective at the given week start.
+	 */
+	public TimeSum getFlexiBalanceAtWeekStart(String weekStart) {
+		TimeSum ret = new TimeSum();
+		String startValueString = preferences.getString(Key.FLEXI_TIME_START_VALUE.getName(), "0:00");
+		String targetWorkTimeString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
+		TimeSum startValue = parseHoursMinutesString(startValueString);
+		TimeSum targetWorkTime = parseHoursMinutesString(targetWorkTimeString);
+		ret.addOrSubstract(startValue);
+		
+		DateTime upTo = DateTimeUtil.stringToDateTime(weekStart).minusDays(1);
+		List<Week> weeksToCount = dao.getWeeksUpTo(DateTimeUtil.dateTimeToString(upTo));
+		
+		for (Week week : weeksToCount) {
+			Integer weekWorkedMinutes = week.getSum();
+			if (weekWorkedMinutes != null) {
+				// add the actual work time
+				ret.add(0, weekWorkedMinutes);
+				// substract the target work time
+				ret.substract(0, targetWorkTime.getAsMinutes());
+			} else {
+				Logger.warn("week {0} (starting at {1}) has a null sum", week.getId(), week.getStart());
+			}
+		}
+		
+		return ret;
+	}
+	
+	private static TimeSum parseHoursMinutesString(String hoursMinutes) {
+		TimeSum ret = new TimeSum();
+		if (hoursMinutes != null) {
+			String[] startValueArray = hoursMinutes.split(":");
+			int hours = Integer.parseInt(startValueArray[0]);
+			int minutes = Integer.parseInt(startValueArray[1]);
+			if (hoursMinutes.trim().startsWith("-")) {
+				ret.substract(-1 * hours, minutes);
+			} else {
+				ret.add(hours, minutes);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Get the normal work time (in minutes) for a specific week day.
+	 */
+	public int getNormalWorkDurationFor(WeekDayEnum weekDay) {
+		if (isWorkDay(weekDay)) {
+			String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
+			TimeSum targetValue = parseHoursMinutesString(targetValueString);
+			BigDecimal minutes = new BigDecimal(targetValue.getAsMinutes()).divide(new BigDecimal(countWorkDays()));
+			MathContext mc = new MathContext(1, RoundingMode.HALF_UP);
+			minutes.round(mc);
+			return minutes.intValue();
+		} else {
+			return 0;
+		}
+	}
+	
+	private int countWorkDays() {
+		int ret = 0;
+		for (WeekDayEnum day : WeekDayEnum.values()) {
+			if (isWorkDay(day)) {
+				ret++;
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Is this a work day?
+	 */
+	public boolean isWorkDay(WeekDayEnum weekDay) {
+		Key key = null;
+		switch (weekDay) {
+			case MONDAY:
+				key = Key.FLEXI_TIME_DAY_MONDAY;
+				break;
+			case TUESDAY:
+				key = Key.FLEXI_TIME_DAY_TUESDAY;
+				break;
+			case WEDNESDAY:
+				key = Key.FLEXI_TIME_DAY_WEDNESDAY;
+				break;
+			case THURSDAY:
+				key = Key.FLEXI_TIME_DAY_THURSDAY;
+				break;
+			case FRIDAY:
+				key = Key.FLEXI_TIME_DAY_FRIDAY;
+				break;
+			case SATURDAY:
+				key = Key.FLEXI_TIME_DAY_SATURDAY;
+				break;
+			case SUNDAY:
+				key = Key.FLEXI_TIME_DAY_SUNDAY;
+				break;
+			default:
+				throw new IllegalArgumentException("unknown weekday");
+		}
+		return preferences.getBoolean(key.getName(), false);
+	}
+	
+	/**
 	 * Create a new event at current time.
 	 * 
 	 * @param taskId the task id (may be {@code null})
@@ -112,7 +325,7 @@ public class TimerManager {
 		if (type == null) {
 			throw new IllegalArgumentException("type has to be given");
 		}
-		String weekStart = DateTimeUtil.getWeekStart(dateTime);
+		String weekStart = DateTimeUtil.getWeekStartAsString(dateTime);
 		String time = DateTimeUtil.dateTimeToString(dateTime);
 		Week currentWeek = dao.getWeek(weekStart);
 		if (currentWeek == null) {
@@ -126,10 +339,31 @@ public class TimerManager {
 		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
 		Logger.debug("TRACKING: " + type.name() + " @ " + time + " taskId=" + taskId + " text=" + text);
 		event = dao.insertEvent(event);
-		if (type == TypeEnum.CLOCK_OUT) {
-			// TODO update this week's sum (and also the sum of the last week if clocked in overnight)
-			
-		}
+		
+		updateWeekSum(currentWeek);
+	}
+	
+	/**
+	 * Update the week's total worked sum.
+	 */
+	public void updateWeekSum(Week week) {
+		TimeSum sum = calculateTimeSum(DateTimeUtil.stringToDateTime(week.getStart()), PeriodEnum.WEEK);
+		int minutes = sum.getAsMinutes();
+		Logger.info("updating the time sum to {0} minutes for the week beginning at {1}", minutes, week.getStart());
+		week.setSum(minutes);
+		dao.updateWeek(week);
+		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
+		// TODO update the sum of the next week(s) if type is CLOCK_IN?
+	}
+	
+	/**
+	 * Create a new NON-PERSISTENT (!) event of the type CLOCK_OUT_NOW.
+	 */
+	public Event createClockOutNowEvent() {
+		DateTime now = DateTimeUtil.getCurrentDateTime();
+		Week currentWeek = dao.getWeek(DateTimeUtil.getWeekStartAsString(now));
+		return new Event(null, currentWeek.getId(), null, TypeEnum.CLOCK_OUT_NOW.getValue(),
+			DateTimeUtil.dateTimeToString(now), null);
 	}
 	
 	private void tryToInsertAutoPause(DateTime dateTime) {

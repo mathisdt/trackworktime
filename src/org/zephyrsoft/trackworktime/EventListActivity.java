@@ -69,7 +69,6 @@ public class EventListActivity extends ListActivity {
 	
 	@Override
 	protected void onPause() {
-		// TODO check plausibility of the edited events?
 		dao.close();
 		super.onPause();
 	}
