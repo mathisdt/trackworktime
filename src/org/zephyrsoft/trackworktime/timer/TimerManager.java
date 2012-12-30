@@ -30,6 +30,7 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -350,10 +351,20 @@ public class TimerManager {
 		TimeSum sum = calculateTimeSum(DateTimeUtil.stringToDateTime(week.getStart()), PeriodEnum.WEEK);
 		int minutes = sum.getAsMinutes();
 		Logger.info("updating the time sum to {0} minutes for the week beginning at {1}", minutes, week.getStart());
-		week.setSum(minutes);
-		dao.updateWeek(week);
+		Week weekToUse = week;
+		if (week instanceof WeekPlaceholder) {
+			weekToUse = createPersistentWeek(week.getStart());
+		}
+		weekToUse.setSum(minutes);
+		dao.updateWeek(weekToUse);
 		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
 		// TODO update the sum of the next week(s) if type is CLOCK_IN?
+	}
+	
+	private Week createPersistentWeek(String weekStart) {
+		Week week = new Week(null, weekStart, 0);
+		week = dao.insertWeek(week);
+		return week;
 	}
 	
 	/**

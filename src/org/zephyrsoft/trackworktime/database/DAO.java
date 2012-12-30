@@ -34,6 +34,7 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_START;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
 import hirondelle.date4j.DateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,6 +44,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
@@ -369,7 +371,11 @@ public class DAO {
 	 * @param week the week in which the events are searched - the ID has to be set!
 	 */
 	public List<Event> getEventsInWeek(Week week) {
-		return getEventsWithConstraint(EVENT_WEEK + "=" + week.getId());
+		if (week == null || week instanceof WeekPlaceholder) {
+			return Collections.EMPTY_LIST;
+		} else {
+			return getEventsWithConstraint(EVENT_WEEK + "=" + week.getId());
+		}
 	}
 	
 	/**

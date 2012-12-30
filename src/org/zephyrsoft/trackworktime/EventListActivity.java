@@ -37,6 +37,7 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -49,8 +50,8 @@ import org.zephyrsoft.trackworktime.util.StringExtractionMethod;
  */
 public class EventListActivity extends ListActivity {
 	
-	/** key for the intent extra "week id" */
-	public static final String WEEK_ID_EXTRA_KEY = "WEEK_ID_EXTRA_KEY";
+	/** key for the intent extra "week start" */
+	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
 	
 	private static final int NEW_EVENT = 0;
 	private static final int EDIT_EVENT = 1;
@@ -60,6 +61,7 @@ public class EventListActivity extends ListActivity {
 	
 	private DAO dao = null;
 	
+	private String weekStart;
 	private Week week;
 	private List<Event> events = null;
 	
@@ -81,10 +83,10 @@ public class EventListActivity extends ListActivity {
 		parentActivity = WorkTimeTrackerActivity.getInstance();
 		
 		dao = Basics.getInstance().getDao();
-		int weekId = getIntent().getIntExtra(WEEK_ID_EXTRA_KEY, -1);
-		week = dao.getWeek(weekId);
-		if (week == null) {
-			throw new IllegalStateException("no week found with ID " + weekId);
+		weekStart = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
+		week = dao.getWeek(weekStart);
+		if (weekStart != null && week == null) {
+			week = new WeekPlaceholder(weekStart);
 		}
 		events = dao.getEventsInWeek(week);
 		eventsAdapter =
@@ -127,7 +129,7 @@ public class EventListActivity extends ListActivity {
 			case NEW_EVENT:
 				Logger.debug("starting to enter a new event");
 				Intent i = new Intent(this, EventEditActivity.class);
-				i.putExtra(EventEditActivity.WEEK_ID_EXTRA_KEY, week.getId());
+				i.putExtra(EventEditActivity.WEEK_START_EXTRA_KEY, weekStart);
 				startActivity(i);
 				return true;
 			default:

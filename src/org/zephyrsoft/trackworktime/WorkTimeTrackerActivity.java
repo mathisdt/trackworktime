@@ -47,6 +47,7 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -207,8 +208,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		DateTime targetWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart()).plusDays(interval * 7);
 		Week targetWeek = dao.getWeek(DateTimeUtil.dateTimeToString(targetWeekStart));
 		if (targetWeek == null) {
-			// TODO don't insert a new week but only some non-persistent placeholder as long as no event exists
-			targetWeek = dao.insertWeek(new Week(null, DateTimeUtil.dateTimeToString(targetWeekStart), null));
+			// don't insert a new week into the DB but only use a placeholder
+			targetWeek = new WeekPlaceholder(DateTimeUtil.dateTimeToString(targetWeekStart));
 		}
 		
 		// display a Toast indicating the change interval (helps the user for more than one week difference)
@@ -298,7 +299,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		DateTime saturday, DateTime sunday) {
 		if (currentlyShownWeek != null) {
 			TimeSum flexiBalance = null;
-			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+			if (!(currentlyShownWeek instanceof WeekPlaceholder)
+				&& preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(currentlyShownWeek.getStart());
 			}
 			List<Event> events = fetchEventsForDay(monday);
@@ -544,7 +546,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_sort_by_size);
 		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -569,7 +571,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private void showEventList() {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
-		i.putExtra(EventListActivity.WEEK_ID_EXTRA_KEY, currentlyShownWeek.getId());
+		i.putExtra(EventListActivity.WEEK_START_EXTRA_KEY, currentlyShownWeek.getStart());
 		startActivity(i);
 	}
 	
@@ -596,8 +598,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		String weekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 		currentlyShownWeek = dao.getWeek(weekStart);
 		if (currentlyShownWeek == null) {
-			// TODO don't insert a new week but only some non-persistent placeholder as long as no event exists
-			currentlyShownWeek = dao.insertWeek(new Week(null, weekStart, null));
+			// don't insert a new week into the DB but only use a placeholder
+			currentlyShownWeek = new WeekPlaceholder(weekStart);
 		}
 		
 		refreshView();

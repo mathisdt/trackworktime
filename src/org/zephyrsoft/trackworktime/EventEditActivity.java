@@ -38,6 +38,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
@@ -52,8 +53,8 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  */
 public class EventEditActivity extends Activity implements OnDateChangedListener, OnTimeChangedListener {
 	
-	/** key for the intent extra "week id" */
-	public static final String WEEK_ID_EXTRA_KEY = "WEEK_ID_EXTRA_KEY";
+	/** key for the intent extra "week start" */
+	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
 	/** key for the intent extra "event id" */
 	public static final String EVENT_ID_EXTRA_KEY = "EVENT_ID_EXTRA_KEY";
 	
@@ -181,21 +182,22 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		// one of the following options
 		int eventId = getIntent().getIntExtra(EVENT_ID_EXTRA_KEY, -1);
-		int weekId = getIntent().getIntExtra(WEEK_ID_EXTRA_KEY, -1);
-		if (eventId != -1) {
-			// load event
+		String weekStartString = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
+		
+		if (eventId == -1 && weekStartString == null) {
+			throw new IllegalArgumentException("either event ID or week start must be given");
+		} else if (eventId != -1) {
 			editedEvent = dao.getEvent(eventId);
+			weekStartString = DateTimeUtil.getWeekStartAsString(DateTimeUtil.stringToDateTime(editedEvent.getTime()));
 		}
-		if (weekId == -1) {
-			if (eventId == -1) {
-				throw new IllegalArgumentException("event ID must be given when week ID is missing");
-			}
-			// get week through event
-			weekId = editedEvent.getWeek();
+		weekStart = DateTimeUtil.stringToDateTime(weekStartString);
+		week = dao.getWeek(DateTimeUtil.dateTimeToString(weekStart));
+		if (week == null) {
+			week = new WeekPlaceholder(weekStartString);
 		}
-		week = dao.getWeek(weekId);
-		weekStart = DateTimeUtil.stringToDateTime(week.getStart());
 		weekEnd = weekStart.plus(0, 0, 6, 23, 59, 0, DayOverflow.Spillover);
 		if (eventId == -1) {
 			newEvent = true;
