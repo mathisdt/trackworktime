@@ -330,7 +330,7 @@ public class TimerManager {
 		String time = DateTimeUtil.dateTimeToString(dateTime);
 		Week currentWeek = dao.getWeek(weekStart);
 		if (currentWeek == null) {
-			currentWeek = dao.insertWeek(new Week(null, weekStart, 0));
+			currentWeek = createPersistentWeek(weekStart);
 		}
 		
 		if (type == TypeEnum.CLOCK_OUT) {
@@ -372,9 +372,10 @@ public class TimerManager {
 	 */
 	public Event createClockOutNowEvent() {
 		DateTime now = DateTimeUtil.getCurrentDateTime();
-		Week currentWeek = dao.getWeek(DateTimeUtil.getWeekStartAsString(now));
-		return new Event(null, currentWeek.getId(), null, TypeEnum.CLOCK_OUT_NOW.getValue(),
-			DateTimeUtil.dateTimeToString(now), null);
+		String weekStart = DateTimeUtil.getWeekStartAsString(now);
+		Week currentWeek = dao.getWeek(weekStart);
+		return new Event(null, (currentWeek == null ? null : currentWeek.getId()), null,
+			TypeEnum.CLOCK_OUT_NOW.getValue(), DateTimeUtil.dateTimeToString(now), null);
 	}
 	
 	private void tryToInsertAutoPause(DateTime dateTime) {

@@ -17,6 +17,7 @@
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+import java.util.ArrayList;
 import java.util.List;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -84,11 +85,8 @@ public class EventListActivity extends ListActivity {
 		
 		dao = Basics.getInstance().getDao();
 		weekStart = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
-		week = dao.getWeek(weekStart);
-		if (weekStart != null && week == null) {
-			week = new WeekPlaceholder(weekStart);
-		}
-		events = dao.getEventsInWeek(week);
+		events = new ArrayList<Event>();
+		refreshView();
 		eventsAdapter =
 			new FlexibleArrayAdapter<Event>(this, android.R.layout.simple_list_item_1, events,
 				new StringExtractionMethod<Event>() {
@@ -206,9 +204,18 @@ public class EventListActivity extends ListActivity {
 	 */
 	public void refreshView() {
 		events.clear();
+		// re-read the week in case the first event for a week was just created
+		// (then the week would have been created just now)
+		week = dao.getWeek(weekStart);
+		if (weekStart != null && week == null) {
+			week = new WeekPlaceholder(weekStart);
+		}
 		events.addAll(dao.getEventsInWeek(week));
-		eventsAdapter.notifyDataSetChanged();
-		parentActivity.refreshView();
+		if (eventsAdapter != null) {
+			// only do this if not called from onCreate()
+			eventsAdapter.notifyDataSetChanged();
+			parentActivity.refreshView();
+		}
 	}
 	
 	/**
