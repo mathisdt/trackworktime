@@ -29,14 +29,16 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
- * tracking is enabled). Also schedules periodic intents for {@link ServiceWatchdogReceiver} which in turn checks if
+ * tracking is enabled). Also schedules periodic intents for {@link Watchdog} which in turn checks if
  * {@link LocationTrackerService} needs to be (re-)started.
  * 
  * @author Mathis Dirksen-Thedens
@@ -45,6 +47,12 @@ public class Basics extends BroadcastReceiver {
 	
 	// check once every minute
 	private static final long REPEAT_TIME = 1000 * 60;
+	
+	// notification IDs
+	/** used for the message about ACCESS_COARSE_LOCATION */
+	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;
+	/** used for the status notification when clocked in */
+	public static final int PERSISTENT_STATUS_ID = 2;
 	
 	private Context context = null;
 	private SharedPreferences preferences = null;
@@ -107,7 +115,7 @@ public class Basics extends BroadcastReceiver {
 	
 	private void schedulePeriodicIntents() {
 		AlarmManager service = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		Intent intentToSchedule = new Intent(context, ServiceWatchdogReceiver.class);
+		Intent intentToSchedule = new Intent(context, Watchdog.class);
 		PendingIntent pendingIntent =
 			PendingIntent.getBroadcast(context, 0, intentToSchedule, PendingIntent.FLAG_CANCEL_CURRENT);
 		
@@ -117,6 +125,36 @@ public class Basics extends BroadcastReceiver {
 		
 		// schedule once every minute
 		service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), REPEAT_TIME, pendingIntent);
+	}
+	
+	/**
+	 * Hook method which gets called approx. once a minute.
+	 */
+	public void periodicHook() {
+		Logger.debug("executing periodic hook");
+		checkLocationBasedTracking();
+		checkPersistentNotification();
+	}
+	
+	/**
+	 * Check if persistent notification has to be displayed/updated/removed.
+	 */
+	public void checkPersistentNotification() {
+		Logger.debug("checking persistent notification");
+		if (timerManager.isTracking()) {
+			// display/update
+			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
+			String timeSoFar =
+				timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY).toString();
+			String targetTime = DateTimeUtil.dateTimeToHourMinuteString(timerManager.getFinishingTime());
+			showNotification(null, "worked " + timeSoFar + " so far", "possible finishing time: " + targetTime, intent,
+				PERSISTENT_STATUS_ID, true);
+		} else {
+			// try to remove
+			NotificationManager notificationManager =
+				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.cancel(PERSISTENT_STATUS_ID);
+		}
 	}
 	
 	/**
@@ -164,20 +202,35 @@ public class Basics extends BroadcastReceiver {
 	
 	/**
 	 * Show a notification.
+	 * 
+	 * @param scrollingText the text which appears in the status line when the notification is first displayed
+	 * @param notificationTitle the title line of the notification
+	 * @param notificationSubtitle the smaller line of text below the title
+	 * @param intent the intent to be executed when the notification is clicked
+	 * @param notificationId a unique number to identify the notification
 	 */
-	public void showNotification(String scrollingText, String notificationTitle, String detailText) {
+	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
+		Intent intent, Integer notificationId, boolean persistent) {
 		NotificationManager notificationManager =
 			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new Notification(R.drawable.ic_launcher, scrollingText, System.currentTimeMillis());
-		Intent messageIntent =
-			createMessageIntent(detailText, MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
-		notification.setLatestEventInfo(context, notificationTitle, "(open to see details)",
-			PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_CANCEL_CURRENT));
-		notificationManager.notify(MessageActivity.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, notification);
+		if (persistent) {
+			notification.flags = Notification.FLAG_ONGOING_EVENT;
+		}
+		notification.setLatestEventInfo(
+			context,
+			notificationTitle,
+			notificationSubtitle,
+			PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
+				| (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
+		notificationManager.notify(notificationId, notification);
 	}
 	
 	/**
 	 * Create an intent which shows a message dialog.
+	 * 
+	 * @param text the message to display
+	 * @param id the unique number, should correspond to the source notification (if any)
 	 */
 	public Intent createMessageIntent(String text, Integer id) {
 		Intent messageIntent = new Intent(context, MessageActivity.class);

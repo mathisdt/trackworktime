@@ -37,9 +37,6 @@ public class MessageActivity extends Activity implements OnClickListener {
 	/** used to transport the notification' ID via an intent's extended data */
 	public static final String ID_EXTRA_KEY = "notificationId";
 	
-	/** used for the message about ACCESS_COARSE_LOCATION */
-	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;
-	
 	private TextView textView = null;
 	private int id = -1;
 	

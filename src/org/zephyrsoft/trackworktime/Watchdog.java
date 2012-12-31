@@ -22,16 +22,15 @@ import android.content.Intent;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 
 /**
- * Service watchdog which checks for {@link LocationTrackerService}. It gets periodic intents scheduled by
- * {@link Basics}.
+ * Watchdog, e.g. for {@link LocationTrackerService}. It gets periodic intents scheduled by {@link Basics}.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class ServiceWatchdogReceiver extends BroadcastReceiver {
+public class Watchdog extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Basics.getOrCreateInstance(context).checkLocationBasedTracking();
+		Basics.getOrCreateInstance(context).periodicHook();
 	}
 	
 }

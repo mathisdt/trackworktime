@@ -17,11 +17,13 @@
 package org.zephyrsoft.trackworktime.timer;
 
 import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
 import android.content.SharedPreferences;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
@@ -51,7 +53,6 @@ public class TimerManager {
 	public TimerManager(DAO dao, SharedPreferences preferences) {
 		this.dao = dao;
 		this.preferences = preferences;
-		
 	}
 	
 	/**
@@ -84,6 +85,7 @@ public class TimerManager {
 	 */
 	public void startTracking(Task selectedTask, String text) {
 		createEvent((selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
+		Basics.getInstance().checkPersistentNotification();
 	}
 	
 	/**
@@ -91,6 +93,7 @@ public class TimerManager {
 	 */
 	public void stopTracking() {
 		createEvent(null, TypeEnum.CLOCK_OUT, null);
+		Basics.getInstance().checkPersistentNotification();
 	}
 	
 	/**
@@ -137,6 +140,16 @@ public class TimerManager {
 			clockedInSince = beginOfPeriod;
 		}
 		
+		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
+		DateTime lastEventTime = (lastEvent == null ? null : DateTimeUtil.stringToDateTime(lastEvent.getTime()));
+		
+		// insert CLOCK_OUT_NOW event if applicable
+		if (isClockInEvent(lastEvent) && DateTimeUtil.isInPast(lastEventTime) && DateTimeUtil.isInFuture(endOfPeriod)) {
+			Event clockOutNowEvent = createClockOutNowEvent();
+			events.add(clockOutNowEvent);
+			lastEvent = clockOutNowEvent;
+		}
+		
 		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
 			Logger.debug("handling event: " + event.toString());
@@ -155,23 +168,10 @@ public class TimerManager {
 			}
 		}
 		
-		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
-		DateTime lastEventTime = (lastEvent == null ? null : DateTimeUtil.stringToDateTime(lastEvent.getTime()));
-		
-		// insert CLOCK_OUT_NOW event if applicable
-		if (isClockInEvent(lastEvent) && DateTimeUtil.isInPast(lastEventTime) && DateTimeUtil.isInFuture(endOfPeriod)) {
-			Event clockOutNowEvent = createClockOutNowEvent();
-			events.add(clockOutNowEvent);
-			lastEvent = clockOutNowEvent;
-			clockedInSince = null;
-			
-		}
-		
 		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-			// try to substract the auto-pause for today because it is not counted in the database yet
+			// try to substract the auto-pause for today because it might be not counted in the database yet
 			DateTime eventTime = DateTimeUtil.stringToDateTime(lastEvent.getTime());
-			boolean canApplyAutoPause = isAutoPauseEnabled() && isAutoPauseApplicable(eventTime);
-			if (canApplyAutoPause) {
+			if (isAutoPauseEnabled() && isAutoPauseApplicable(eventTime)) {
 				DateTime autoPauseBegin = getAutoPauseBegin(eventTime);
 				DateTime autoPauseEnd = getAutoPauseEnd(eventTime);
 				ret.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
@@ -194,6 +194,46 @@ public class TimerManager {
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * Get the possible finishing time for today. Takes into account the target work time for the week and also if this
+	 * is the last day in the working week.
+	 */
+	public DateTime getFinishingTime() {
+		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
+		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
+		if (isWorkDay(weekDay) && isTracking()) {
+			TimeSum alreadyWorked = null;
+			TimeSum target = null;
+			if (isFollowedByWorkDay(weekDay)) {
+				// not the last work day of the week, only calculate the rest of the daily working time
+				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.DAY);
+				int targetMinutes = getNormalWorkDurationFor(weekDay);
+				target = new TimeSum();
+				target.add(0, targetMinutes);
+			} else {
+				// the last work day: calculate the rest of the weekly working time
+				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.WEEK);
+				String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
+				target = parseHoursMinutesString(targetValueString);
+			}
+			if (isAutoPauseEnabled() && isAutoPauseApplicable(dateTime)) {
+				DateTime autoPauseBegin = getAutoPauseBegin(dateTime);
+				DateTime autoPauseEnd = getAutoPauseEnd(dateTime);
+				alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
+				alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
+			}
+			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
+			
+			if (minutesRemaining >= 0) {
+				return dateTime.plus(0, 0, 0, 0, minutesRemaining, 0, DayOverflow.Spillover);
+			} else {
+				return dateTime.minus(0, 0, 0, 0, -1 * minutesRemaining, 0, DayOverflow.Spillover);
+			}
+		} else {
+			return null;
+		}
 	}
 	
 	/**
@@ -264,6 +304,21 @@ public class TimerManager {
 			}
 		}
 		return ret;
+	}
+	
+	/**
+	 * Is there a day in the week after the given day which is also marked as work day? That means, is the given day NOT
+	 * the last work day in the week?
+	 */
+	private boolean isFollowedByWorkDay(WeekDayEnum day) {
+		WeekDayEnum nextDay = day.getNextWeekDay();
+		while (nextDay != null) {
+			if (isWorkDay(nextDay)) {
+				return true;
+			}
+			nextDay = nextDay.getNextWeekDay();
+		}
+		return false;
 	}
 	
 	/**
@@ -342,6 +397,7 @@ public class TimerManager {
 		event = dao.insertEvent(event);
 		
 		updateWeekSum(currentWeek);
+		Basics.getInstance().checkPersistentNotification();
 	}
 	
 	/**

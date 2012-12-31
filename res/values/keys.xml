@@ -25,5 +25,7 @@
     <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
     <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>
     <string name="keyAutoPauseEnd">keyAutoPauseEnd</string>
+    <string name="keyNotificationCategory">keyNotificationCategory</string>
+    <string name="keyNotificationEnabled">keyNotificationEnabled</string>
 
 </resources>

@@ -24,7 +24,7 @@
                 <action android:name="android.intent.action.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".ServiceWatchdogReceiver" >
+        <receiver android:name="org.zephyrsoft.trackworktime.Watchdog" >
         </receiver>
 
         <service

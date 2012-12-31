@@ -97,5 +97,13 @@
             android:summary="@string/trackingToleranceDescription"
             android:title="@string/trackingTolerance" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyNotificationCategory"
+        android:title="@string/notification" >
+        <CheckBoxPreference
+            android:key="@string/keyNotificationEnabled"
+            android:summary="@string/notificationDescription"
+            android:title="@string/notificationEnabled" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

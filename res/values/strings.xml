@@ -81,5 +81,9 @@
     <string name="type">Type</string>
     <string name="time">Time</string>
     <string name="saveChanges">Save Changes</string>
+    <string name="optional">(optional)</string>
+    <string name="notification">Notification</string>
+    <string name="notificationEnabled">Notification enabled</string>
+    <string name="notificationDescription">only shown when clocked in</string>
 
 </resources>

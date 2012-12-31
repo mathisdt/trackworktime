@@ -56,7 +56,9 @@ public enum Key {
 	
 	AUTO_PAUSE_ENABLED("keyAutoPauseEnabled", DataType.BOOLEAN, null, R.string.autoPauseEnabled),
 	AUTO_PAUSE_BEGIN("keyAutoPauseBegin", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseBegin),
-	AUTO_PAUSE_END("keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd);
+	AUTO_PAUSE_END("keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd),
+	
+	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled);
 	
 	private final String name;
 	private final DataType dataType;

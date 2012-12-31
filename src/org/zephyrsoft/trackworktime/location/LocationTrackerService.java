@@ -93,7 +93,12 @@ public class LocationTrackerService extends Service {
 				.showNotification(
 					"Disabling the location-based tracking because of missing privileges!",
 					"Disabled location-based tracking!",
-					"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.");
+					"(open to see details)",
+					basics
+						.createMessageIntent(
+							"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.",
+							Basics.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+					Basics.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, false);
 		}
 		
 		return Service.START_NOT_STICKY;
