@@ -142,6 +142,10 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// commit all edit fields
+				date.clearFocus();
+				time.clearFocus();
+				text.clearFocus();
 				// save the event
 				TypeEnum typeEnum = ((TypeEnum) type.getSelectedItem());
 				DateTime dateTime = getCurrentlySetDateAndTime();
