@@ -61,7 +61,7 @@ public class TimerManager {
 	 * @return {@code true} if currently clocked in, {@code false} otherwise
 	 */
 	public boolean isTracking() {
-		Event latestEvent = dao.getLatestEvent();
+		Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
 		return latestEvent == null ? false : latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
 	}
 	
@@ -69,7 +69,7 @@ public class TimerManager {
 	 * Returns the currently active task or {@code null} if tracking is disabled at the moment.
 	 */
 	public Task getCurrentTask() {
-		Event latestEvent = dao.getLatestEvent();
+		Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
 		if (latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
 			return dao.getTask(latestEvent.getTask());
 		} else {

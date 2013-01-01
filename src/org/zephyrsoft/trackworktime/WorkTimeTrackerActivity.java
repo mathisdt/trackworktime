@@ -227,7 +227,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		// update task and text from current tracking period (if currently
 		// tracking)
 		if (timerManager.isTracking()) {
-			Event latestEvent = dao.getLatestEvent();
+			Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
 			Task latestTask = dao.getTask(latestEvent.getTask());
 			Integer index = tasks.indexOf(latestTask);
 			task.setSelection(index);
@@ -601,6 +601,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			// don't insert a new week into the DB but only use a placeholder
 			currentlyShownWeek = new WeekPlaceholder(weekStart);
 		}
+		Basics.getInstance().checkPersistentNotification();
 		
 		refreshView();
 		super.onResume();

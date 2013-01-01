@@ -39,6 +39,7 @@ import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -61,6 +62,7 @@ public class EventListActivity extends ListActivity {
 	private static EventListActivity instance = null;
 	
 	private DAO dao = null;
+	private TimerManager timerManager = null;
 	
 	private String weekStart;
 	private Week week;
@@ -84,6 +86,7 @@ public class EventListActivity extends ListActivity {
 		parentActivity = WorkTimeTrackerActivity.getInstance();
 		
 		dao = Basics.getInstance().getDao();
+		timerManager = Basics.getInstance().getTimerManager();
 		weekStart = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
 		events = new ArrayList<Event>();
 		refreshView();
@@ -169,6 +172,9 @@ public class EventListActivity extends ListActivity {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// delete event in DB
 						boolean success = dao.deleteEvent(oldEvent);
+						// we have to call this manually when using the DAO directly:
+						timerManager.updateWeekSum(week);
+						Basics.getInstance().checkPersistentNotification();
 						refreshView();
 						if (success) {
 							Logger.debug("deleted event with ID " + oldEvent.getId());
