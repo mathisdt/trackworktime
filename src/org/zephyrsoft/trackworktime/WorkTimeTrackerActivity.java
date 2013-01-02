@@ -130,6 +130,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private OnClickListener clockInOut = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			// commit text field
+			text.clearFocus();
 			
 			if (timerManager.isTracking() && !taskOrTextChanged) {
 				timerManager.stopTracking();

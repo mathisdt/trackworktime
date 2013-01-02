@@ -221,8 +221,11 @@ public class TimerManager {
 			if (isAutoPauseEnabled() && isAutoPauseApplicable(dateTime)) {
 				DateTime autoPauseBegin = getAutoPauseBegin(dateTime);
 				DateTime autoPauseEnd = getAutoPauseEnd(dateTime);
-				alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
-				alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
+				if (autoPauseEnd.gt(dateTime)) {
+					// auto-pause was NOT already taken into account by calculateTimeSum():
+					alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
+					alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
+				}
 			}
 			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
 			
