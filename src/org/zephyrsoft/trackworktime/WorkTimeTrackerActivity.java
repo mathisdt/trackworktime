@@ -441,12 +441,16 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				timeWorked = "";
 				
 				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-				if (flexiBalance != null && DateTimeUtil.isInPast(day.getStartOfDay())
-					&& timerManager.isWorkDay(weekDay)) {
+				if (flexiBalance != null && timerManager.isWorkDay(weekDay)) {
 					// substract the "normal" work time for one day
 					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
 					flexiBalance.substract(0, normalWorkTimeInMinutes);
-					timeFlexi = flexiBalance.toString();
+					if (DateTimeUtil.isInPast(day.getStartOfDay())) {
+						// only show for days up to now, not for future days
+						timeFlexi = flexiBalance.toString();
+					} else {
+						timeFlexi = "";
+					}
 				} else {
 					timeFlexi = "";
 				}

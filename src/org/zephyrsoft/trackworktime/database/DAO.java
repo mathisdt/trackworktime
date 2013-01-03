@@ -57,6 +57,8 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
  */
 public class DAO {
 	
+	// TODO use prepared statements as described here: http://stackoverflow.com/questions/7255574
+	
 	private SQLiteDatabase db;
 	private MySQLiteHelper dbHelper;
 	
