@@ -32,8 +32,9 @@ public class Logger {
 	 * Log a debug message.
 	 */
 	public static void debug(String format, Object... arguments) {
-		if (Log.isLoggable(TAG, Log.DEBUG)) {
-			Log.d(TAG, composeMessage(format, arguments));
+		// TODO change back to Log.DEBUG and Log.d when released!
+		if (Log.isLoggable(TAG, Log.INFO)) {
+			Log.i(TAG, composeMessage(format, arguments));
 		}
 	}
 	

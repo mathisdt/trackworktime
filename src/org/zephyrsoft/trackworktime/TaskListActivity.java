@@ -105,7 +105,7 @@ public class TaskListActivity extends ListActivity {
 						String value = input.getText().toString();
 						// create new task in DB
 						Task newTask = dao.insertTask(new Task(null, value, 1, 0));
-						Logger.debug("inserted new task: " + newTask);
+						Logger.debug("inserted new task: {0}", newTask);
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
 						parentActivity.refreshTasks();
@@ -166,8 +166,8 @@ public class TaskListActivity extends ListActivity {
 						oldTask.setName(value);
 						// update task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID " + oldTask.getId() + " to have the new name: "
-							+ updatedTask.getName());
+						Logger.debug("updated task with ID {0} to have the new name: {1}", oldTask.getId(),
+							updatedTask.getName());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -203,8 +203,8 @@ public class TaskListActivity extends ListActivity {
 						}
 						// enable or disable task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID " + oldTask.getId() + " to have the new active value: "
-							+ updatedTask.getActive());
+						Logger.debug("updated task with ID {0} to have the new active value: {1}", oldTask.getId(),
+							updatedTask.getActive());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -247,12 +247,12 @@ public class TaskListActivity extends ListActivity {
 							// delete task in DB
 							boolean success = dao.deleteTask(oldTask);
 							if (success) {
-								Logger.debug("deleted task with ID " + oldTask.getId() + " and name "
-									+ oldTask.getName());
+								Logger.debug("deleted task with ID {0} and name {1}", oldTask.getId(),
+									oldTask.getName());
 								tasks.remove(taskPosition);
 							} else {
-								Logger.warn("could not delete task with ID " + oldTask.getId() + " and name "
-									+ oldTask.getName());
+								Logger.warn("could not delete task with ID {0} and name {1}", oldTask.getId(),
+									oldTask.getName());
 							}
 							tasksAdapter.notifyDataSetChanged();
 							parentActivity.refreshTasks();

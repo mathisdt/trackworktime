@@ -93,8 +93,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Logger.warn("Upgrading database from version " + oldVersion + " to " + newVersion
-			+ ", which destroys all old data!");
+		Logger.warn("Upgrading database from version {0} to {1}, which destroys all old data!", oldVersion, newVersion);
 		db.execSQL("drop table if exists " + TASK);
 		db.execSQL("drop table if exists " + WEEK);
 		db.execSQL("drop table if exists " + EVENT);

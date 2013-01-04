@@ -152,7 +152,7 @@ public class TimerManager {
 		
 		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-			Logger.debug("handling event: " + event.toString());
+			Logger.debug("handling event: {0}", event.toString());
 			
 			// clock-in event while not clocked in? => remember time
 			if (clockedInSince == null && isClockInEvent(event)) {
@@ -396,7 +396,7 @@ public class TimerManager {
 		}
 		
 		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
-		Logger.debug("TRACKING: " + type.name() + " @ " + time + " taskId=" + taskId + " text=" + text);
+		Logger.debug("TRACKING: {0} @ {1} taskId={2} text={3}", type.name(), time, taskId, text);
 		event = dao.insertEvent(event);
 		
 		updateWeekSum(currentWeek);

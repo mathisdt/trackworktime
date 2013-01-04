@@ -140,11 +140,12 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				String description = text.getText().toString();
 				if (timerManager.isTracking() && taskOrTextChanged) {
 					timerManager.startTracking(selectedTask, description);
-				} else if (!timerManager.isTracking()) {
+				} else {
 					timerManager.startTracking(selectedTask, description);
 				}
 			}
 			
+			Logger.debug("setting taskOrTextChanged to false");
 			taskOrTextChanged = false;
 			refreshView();
 		}
@@ -226,22 +227,22 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 	
 	protected void refreshView() {
-		// update task and text from current tracking period (if currently
-		// tracking)
-		if (timerManager.isTracking()) {
-			Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
-			Task latestTask = dao.getTask(latestEvent.getTask());
-			Integer index = tasks.indexOf(latestTask);
-			task.setSelection(index);
-			text.setText(latestEvent.getText());
-			taskOrTextChanged = false;
-		}
+		// TODO update task and text from current tracking period (if tracking)?
+		// ATTENTION: setting "taskOrTextChanged" interferes with the TaskAndTextListener!
+//		if (timerManager.isTracking()) {
+//			Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
+//			Task latestTask = dao.getTask(latestEvent.getTask());
+//			Integer index = tasks.indexOf(latestTask);
+//			task.setSelection(index);
+//			text.setText(latestEvent.getText());
+//			taskOrTextChanged = false;
+//		}
 		// button text
 		if (timerManager.isTracking() && !taskOrTextChanged) {
 			clockInOutButton.setText(R.string.clockOut);
 		} else if (timerManager.isTracking() && taskOrTextChanged) {
 			clockInOutButton.setText(R.string.clockInChange);
-		} else if (!timerManager.isTracking()) {
+		} else {
 			clockInOutButton.setText(R.string.clockIn);
 		}
 		if (currentlyShownWeek != null) {
@@ -339,7 +340,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 	
 	private List<Event> fetchEventsForDay(DateTime day) {
-		Logger.debug("fetchEventsForDay: " + DateTimeUtil.dateTimeToDateString(day));
+		Logger.debug("fetchEventsForDay: {0}", DateTimeUtil.dateTimeToDateString(day));
 		List<Event> ret = dao.getEventsOnDay(day);
 		DateTime now = DateTimeUtil.getCurrentDateTime();
 		Event lastEventBeforeNow = dao.getLastEventBefore(now);
@@ -636,6 +637,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private class TaskAndTextListener implements OnItemSelectedListener, OnKeyListener {
 		
 		private void valueChanged() {
+			Logger.debug("setting taskOrTextChanged to true");
 			taskOrTextChanged = true;
 			refreshView();
 		}

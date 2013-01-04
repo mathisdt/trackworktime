@@ -119,7 +119,8 @@ public class EventListActivity extends ListActivity {
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				startEditing((Event) lv.getItemAtPosition(position));
+				Event event = (Event) lv.getItemAtPosition(position);
+				startEditing(event);
 			}
 		});
 	}
@@ -177,9 +178,9 @@ public class EventListActivity extends ListActivity {
 						Basics.getInstance().checkPersistentNotification();
 						refreshView();
 						if (success) {
-							Logger.debug("deleted event with ID " + oldEvent.getId());
+							Logger.debug("deleted event with ID {0}", oldEvent.getId());
 						} else {
-							Logger.warn("could not delete event with ID " + oldEvent.getId());
+							Logger.warn("could not delete event with ID {0}", oldEvent.getId());
 						}
 						return;
 					}
@@ -199,7 +200,8 @@ public class EventListActivity extends ListActivity {
 	}
 	
 	private void startEditing(Event event) {
-		Logger.debug("starting to edit an existing event");
+		Logger.debug("starting to edit the existing event with ID {0} ({1} @ {2})", event.getId(),
+			TypeEnum.byValue(event.getType()).toString(), event.getTime());
 		Intent i = new Intent(this, EventEditActivity.class);
 		i.putExtra(EventEditActivity.EVENT_ID_EXTRA_KEY, event.getId());
 		startActivity(i);

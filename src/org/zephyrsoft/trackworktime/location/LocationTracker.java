@@ -74,7 +74,7 @@ public class LocationTracker implements LocationListener {
 	public Result startTrackingByLocation(double latitude, double longitude,
 		@SuppressWarnings("hiding") double toleranceInMeters, @SuppressWarnings("hiding") boolean vibrate) {
 		
-		Logger.info("preparing location-based tracking");
+		Logger.debug("preparing location-based tracking");
 		
 		targetLocation = new Location("");
 		targetLocation.setLatitude(latitude);
@@ -193,6 +193,13 @@ public class LocationTracker implements LocationListener {
 	 */
 	public Double getTolerance() {
 		return toleranceInMeters;
+	}
+	
+	/**
+	 * Get the vibration setting.
+	 */
+	public boolean shouldVibrate() {
+		return vibrate;
 	}
 	
 }

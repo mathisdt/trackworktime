@@ -78,12 +78,13 @@ public class LocationTrackerService extends Service {
 		if (isRunning.compareAndSet(false, true)) {
 			this.startId = startId;
 			result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
+		} else if (!latitude.equals(locationTracker.getLatitude()) || !longitude.equals(locationTracker.getLongitude())
+			|| !toleranceInMeters.equals(locationTracker.getTolerance())
+			|| !vibrate.equals(locationTracker.shouldVibrate())) {
+			// already running, but the data has to be updated
+			result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
 		} else {
-			// already running, but perhaps the target location has to be updated?
-			if (!latitude.equals(locationTracker.getLatitude()) || !longitude.equals(locationTracker.getLongitude())
-				|| !toleranceInMeters.equals(locationTracker.getTolerance())) {
-				result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
-			}
+			Logger.debug("service is already running and nothing has to be updated - no action");
 		}
 		
 		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {

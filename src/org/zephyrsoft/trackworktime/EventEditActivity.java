@@ -154,8 +154,11 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				Integer taskId = selectedTask == null ? null : selectedTask.getId();
 				String textString = text.getText().toString();
 				if (newEvent) {
+					Logger.debug("saving new event: {0} @ {1}", typeEnum.name(), timeString);
 					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
 				} else {
+					Logger.debug("saving changed event with ID {0}: {1} @ {2}", editedEvent.getId(), typeEnum.name(),
+						timeString);
 					editedEvent.setType(typeEnum.getValue());
 					editedEvent.setTime(timeString);
 					editedEvent.setTask(taskId);
@@ -174,6 +177,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		cancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Logger.debug("canceling EventEditActivity");
 				finish();
 			}
 		});
@@ -181,6 +185,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	
 	@Override
 	public void onBackPressed() {
+		Logger.debug("canceling EventEditActivity (back button pressed)");
 		finish();
 	}
 	

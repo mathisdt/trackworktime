@@ -147,6 +147,7 @@ public class Basics extends BroadcastReceiver {
 			String timeSoFar =
 				timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY).toString();
 			String targetTime = DateTimeUtil.dateTimeToHourMinuteString(timerManager.getFinishingTime());
+			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
 			showNotification(null, "worked " + timeSoFar + " so far", "possible finishing time: " + targetTime, intent,
 				PERSISTENT_STATUS_ID, true);
 		} else {
@@ -163,7 +164,6 @@ public class Basics extends BroadcastReceiver {
 	public void checkLocationBasedTracking() {
 		Logger.debug("checking location-based tracking");
 		if (preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)) {
-			Logger.debug("checking location-based tracking ENABLED");
 			String latitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), "0");
 			String longitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), "0");
 			String toleranceString = preferences.getString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), "0");
@@ -191,8 +191,8 @@ public class Basics extends BroadcastReceiver {
 			// onStartCommand(...) in LocationTrackerService won't do anything if the service
 			// is already running with the current parameters - if the location or the
 			// tolerance changed, then it will update the values for the service
+			Logger.debug("try to start location-based tracking service");
 			context.startService(startIntent);
-			Logger.debug("location-based tracking service started");
 		} else {
 			Intent stopIntent = buildServiceIntent(null, null, null, null);
 			context.stopService(stopIntent);
