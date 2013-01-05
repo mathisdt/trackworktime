@@ -16,6 +16,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import hirondelle.date4j.DateTime;
 import java.util.Calendar;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -146,10 +147,11 @@ public class Basics extends BroadcastReceiver {
 			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
 			String timeSoFar =
 				timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY).toString();
-			String targetTime = DateTimeUtil.dateTimeToHourMinuteString(timerManager.getFinishingTime());
+			DateTime finishingTime = timerManager.getFinishingTime();
+			String targetTime = (finishingTime == null ? null : DateTimeUtil.dateTimeToHourMinuteString(finishingTime));
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
-			showNotification(null, "worked " + timeSoFar + " so far", "possible finishing time: " + targetTime, intent,
-				PERSISTENT_STATUS_ID, true);
+			showNotification(null, "worked " + timeSoFar + " so far", (targetTime == null ? ""
+				: "possible finishing time: " + targetTime), intent, PERSISTENT_STATUS_ID, true);
 		} else {
 			// try to remove
 			NotificationManager notificationManager =
@@ -213,7 +215,7 @@ public class Basics extends BroadcastReceiver {
 		Intent intent, Integer notificationId, boolean persistent) {
 		NotificationManager notificationManager =
 			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = new Notification(R.drawable.ic_launcher, scrollingText, System.currentTimeMillis());
+		Notification notification = new Notification(R.drawable.ic_launcher, scrollingText, 0);
 		if (persistent) {
 			notification.flags = Notification.FLAG_ONGOING_EVENT;
 		}

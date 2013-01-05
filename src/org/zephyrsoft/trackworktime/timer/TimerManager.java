@@ -203,7 +203,7 @@ public class TimerManager {
 	public DateTime getFinishingTime() {
 		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
-		if (isWorkDay(weekDay) && isTracking()) {
+		if (isWorkDay(weekDay)) {
 			TimeSum alreadyWorked = null;
 			TimeSum target = null;
 			if (isFollowedByWorkDay(weekDay)) {
