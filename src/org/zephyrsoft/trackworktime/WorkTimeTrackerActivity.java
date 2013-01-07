@@ -28,16 +28,15 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -50,6 +49,8 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.BackListener;
+import org.zephyrsoft.trackworktime.util.BackSensitiveEditText;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
@@ -124,7 +125,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private TextView taskLabel = null;
 	private Spinner task = null;
 	private TextView textLabel = null;
-	private EditText text = null;
+	private BackSensitiveEditText text = null;
 	private Button clockInOutButton = null;
 	
 	private OnClickListener clockInOut = new OnClickListener() {
@@ -193,7 +194,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		// make the clock-in/clock-out button change its title when changing
 		// task and/or text
 		task.setOnItemSelectedListener(taskAndTextListener);
-		text.setOnKeyListener(taskAndTextListener);
+		text.setOnEditorActionListener(taskAndTextListener);
+		text.setBackListener(taskAndTextListener);
 		
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
@@ -539,7 +541,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		taskLabel = (TextView) findViewById(R.id.taskLabel);
 		task = (Spinner) findViewById(R.id.task);
 		textLabel = (TextView) findViewById(R.id.textLabel);
-		text = (EditText) findViewById(R.id.text);
+		text = (BackSensitiveEditText) findViewById(R.id.text);
 		clockInOutButton = (Button) findViewById(R.id.clockInOutButton);
 	}
 	
@@ -634,18 +636,28 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	/**
 	 * Listener for task dropdown field and text field. Triggers a refresh of the main activity.
 	 */
-	private class TaskAndTextListener implements OnItemSelectedListener, OnKeyListener {
+	private class TaskAndTextListener implements OnItemSelectedListener, OnEditorActionListener, BackListener {
 		
 		private void valueChanged() {
-			Logger.debug("setting taskOrTextChanged to true");
-			taskOrTextChanged = true;
-			refreshView();
-		}
-		
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			valueChanged();
-			return false;
+			Event toCompare = getLastEventIfClockIn();
+			if (toCompare != null) {
+				// is only null when clocked in via location:
+				Integer taskFromEvent = toCompare.getTask();
+				// is only null when all tasks have been removed:
+				Integer taskFromGUI = ((Task) task.getSelectedItem()).getId();
+				Logger.debug("task: from_event={0} from_gui={1}", taskFromEvent, taskFromGUI);
+				Logger.debug("text: from_event={0} from_gui={1}", toCompare.getText(), text.getText().toString());
+				if (equalsWithNullEqualsEmptyString(toCompare.getText(), text.getText().toString())
+					&& (taskFromGUI == null || taskFromEvent == null || taskFromEvent.equals(taskFromGUI))) {
+					Logger.debug("setting taskOrTextChanged to false");
+					taskOrTextChanged = false;
+					refreshView();
+				} else {
+					Logger.debug("setting taskOrTextChanged to true");
+					taskOrTextChanged = true;
+					refreshView();
+				}
+			}
 		}
 		
 		@Override
@@ -658,6 +670,36 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			valueChanged();
 		}
 		
+		@Override
+		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			text.clearFocus();
+			valueChanged();
+			return true;
+		}
+		
+		@Override
+		public void backKeyPressed() {
+			text.clearFocus();
+			Event toCompare = getLastEventIfClockIn();
+			text.setText(toCompare == null || toCompare.getText() == null ? "" : toCompare.getText());
+			valueChanged();
+		}
+		
+	}
+	
+	private Event getLastEventIfClockIn() {
+		Event event = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
+		if (event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+			return event;
+		} else {
+			return null;
+		}
+	}
+	
+	private static boolean equalsWithNullEqualsEmptyString(String one, String two) {
+		return (one == null && two == null) || (one != null && one.length() == 0 && two == null)
+			|| (one != null && one.length() == 0 && two == null) || (one == null && two != null && two.length() == 0)
+			|| (one != null && one.equals(two));
 	}
 	
 	@Override

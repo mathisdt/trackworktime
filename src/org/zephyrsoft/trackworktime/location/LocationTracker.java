@@ -124,6 +124,8 @@ public class LocationTracker implements LocationListener {
 	
 	private boolean isInRange(Location location, String descriptionForLog) {
 		float distance = location.distanceTo(targetLocation);
+		// round to whole meters
+		distance = (float) Math.floor(distance);
 		float actualTolerance = location.getAccuracy();
 		Logger
 			.info(
@@ -138,8 +140,10 @@ public class LocationTracker implements LocationListener {
 	 * Stop the periodic checks to track by location.
 	 */
 	public void stopTrackingByLocation() {
+		// execute this anyway to prevent confusion, e.g. after crashes:
+		locationManager.removeUpdates(this);
+		
 		if (isTrackingByLocation.compareAndSet(true, false)) {
-			locationManager.removeUpdates(this);
 			Logger.info("stopped location-based tracking");
 		}
 	}

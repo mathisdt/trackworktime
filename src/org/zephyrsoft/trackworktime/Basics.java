@@ -150,8 +150,18 @@ public class Basics extends BroadcastReceiver {
 			DateTime finishingTime = timerManager.getFinishingTime();
 			String targetTime = (finishingTime == null ? null : DateTimeUtil.dateTimeToHourMinuteString(finishingTime));
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
-			showNotification(null, "worked " + timeSoFar + " so far", (targetTime == null ? ""
-				: "possible finishing time: " + targetTime), intent, PERSISTENT_STATUS_ID, true);
+			String targetTimeString = null;
+			if (targetTime != null) {
+				// target time in future
+				targetTimeString = "possible finishing time: " + targetTime;
+			} else if (targetTime == null && timerManager.isTodayWorkDay()) {
+				// target time in past
+				targetTimeString = "regular work time is over";
+			} else {
+				// nothing to do, this is not a working day
+			}
+			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, intent, PERSISTENT_STATUS_ID,
+				true);
 		} else {
 			// try to remove
 			NotificationManager notificationManager =

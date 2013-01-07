@@ -116,6 +116,8 @@ public class TimerManager {
 	 * Calculate a time sum for a given period.
 	 */
 	public TimeSum calculateTimeSum(DateTime date, PeriodEnum periodEnum) {
+		Logger.debug("calculating time sum for {0} containing {1}", periodEnum.name(),
+			DateTimeUtil.dateTimeToString(date));
 		TimeSum ret = new TimeSum();
 		
 		DateTime beginOfPeriod = null;
@@ -152,16 +154,13 @@ public class TimerManager {
 		
 		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-			Logger.debug("handling event: {0}", event.toString());
 			
 			// clock-in event while not clocked in? => remember time
 			if (clockedInSince == null && isClockInEvent(event)) {
-				Logger.debug("remembering time");
 				clockedInSince = eventTime;
 			}
 			// clock-out event while clocked in? => add time since last clock-in to result
 			if (clockedInSince != null && isClockOutEvent(event)) {
-				Logger.debug("counting time");
 				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
 				ret.add(eventTime.getHour(), eventTime.getMinute());
 				clockedInSince = null;
@@ -199,6 +198,9 @@ public class TimerManager {
 	/**
 	 * Get the possible finishing time for today. Takes into account the target work time for the week and also if this
 	 * is the last day in the working week.
+	 * 
+	 * @return {@code null} either if today is not a work day (as defined in the options) or if the regular working time
+	 *         for today is already over
 	 */
 	public DateTime getFinishingTime() {
 		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
@@ -218,21 +220,28 @@ public class TimerManager {
 				String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
 				target = parseHoursMinutesString(targetValueString);
 			}
-			if (isAutoPauseEnabled() && isAutoPauseApplicable(dateTime)) {
+			Logger.debug("alreadyWorked={0}", alreadyWorked.toString());
+			Logger.debug("target={0}", target.toString());
+			
+			Logger.debug("isAutoPauseEnabled={0}", isAutoPauseEnabled());
+			Logger.debug("isAutoPauseTheoreticallyApplicable={0}", isAutoPauseTheoreticallyApplicable(dateTime));
+			Logger.debug("isAutoPauseApplicable={0}", isAutoPauseApplicable(dateTime));
+			if (isAutoPauseEnabled() && isAutoPauseTheoreticallyApplicable(dateTime)
+				&& !isAutoPauseApplicable(dateTime)) {
+				// auto-pause is necessary, but was NOT already taken into account by calculateTimeSum():
+				Logger.debug("auto-pause is necessary, but was NOT already taken into account by calculateTimeSum()");
 				DateTime autoPauseBegin = getAutoPauseBegin(dateTime);
 				DateTime autoPauseEnd = getAutoPauseEnd(dateTime);
-				if (autoPauseEnd.gt(dateTime)) {
-					// auto-pause was NOT already taken into account by calculateTimeSum():
-					alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
-					alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
-				}
+				alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
+				alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
 			}
 			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
+			Logger.debug("minutesRemaining={0}", minutesRemaining);
 			
 			if (minutesRemaining >= 0) {
 				return dateTime.plus(0, 0, 0, 0, minutesRemaining, 0, DayOverflow.Spillover);
 			} else {
-				return dateTime.minus(0, 0, 0, 0, -1 * minutesRemaining, 0, DayOverflow.Spillover);
+				return null;
 			}
 		} else {
 			return null;
@@ -322,6 +331,15 @@ public class TimerManager {
 			nextDay = nextDay.getNextWeekDay();
 		}
 		return false;
+	}
+	
+	/**
+	 * Is today a work day?
+	 */
+	public boolean isTodayWorkDay() {
+		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
+		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
+		return isWorkDay(weekDay);
 	}
 	
 	/**
@@ -463,6 +481,14 @@ public class TimerManager {
 	 * Determines if the auto-pause can be applied to the given day.
 	 */
 	public boolean isAutoPauseApplicable(DateTime dateTime) {
+		DateTime end = getAutoPauseEnd(dateTime);
+		// auto-pause is theoretically applicable
+		return isAutoPauseTheoreticallyApplicable(dateTime)
+		// given time is after auto-pause end, so auto-pause should really be applied
+			&& dateTime.gt(end);
+	}
+	
+	private boolean isAutoPauseTheoreticallyApplicable(DateTime dateTime) {
 		DateTime begin = getAutoPauseBegin(dateTime);
 		DateTime end = getAutoPauseEnd(dateTime);
 		if (begin.lt(end)) {
@@ -471,9 +497,7 @@ public class TimerManager {
 			// is clocked in before begin
 			return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
 			// no event is in auto-pause interval
-				&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId())
-				// given time is after auto-pause end
-				&& dateTime.gt(end);
+				&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId());
 		} else {
 			// begin is equal to end or (even worse) begin is after end => no auto-pause
 			return false;

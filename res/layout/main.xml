@@ -55,12 +55,13 @@
                 android:text="@string/text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
+            <org.zephyrsoft.trackworktime.util.BackSensitiveEditText
                 android:id="@+id/text"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/optional"
-                android:inputType="textMultiLine" />
+                android:imeOptions="actionDone"
+                android:inputType="text" />
         </LinearLayout>
 
         <Button
