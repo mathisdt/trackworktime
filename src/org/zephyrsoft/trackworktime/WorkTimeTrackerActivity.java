@@ -689,7 +689,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private Event getLastEventIfClockIn() {
 		Event event = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
-		if (event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
+		if (event != null && event.getType() != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
 			return event;
 		} else {
 			return null;
