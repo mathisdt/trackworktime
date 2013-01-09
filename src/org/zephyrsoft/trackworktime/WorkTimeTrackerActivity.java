@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -128,29 +129,6 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private BackSensitiveEditText text = null;
 	private Button clockInOutButton = null;
 	
-	private OnClickListener clockInOut = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// commit text field
-			text.clearFocus();
-			
-			if (timerManager.isTracking() && !taskOrTextChanged) {
-				timerManager.stopTracking();
-			} else {
-				Task selectedTask = (Task) task.getSelectedItem();
-				String description = text.getText().toString();
-				if (timerManager.isTracking() && taskOrTextChanged) {
-					timerManager.startTracking(selectedTask, description);
-				} else {
-					timerManager.startTracking(selectedTask, description);
-				}
-			}
-			
-			Logger.debug("setting taskOrTextChanged to false");
-			taskOrTextChanged = false;
-			refreshView();
-		}
-	};
 	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
 	
 	private static WorkTimeTrackerActivity instance = null;
@@ -189,7 +167,29 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			}
 		});
 		
-		clockInOutButton.setOnClickListener(clockInOut);
+		clockInOutButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				clockInOutAction(0);
+			}
+		});
+		clockInOutButton.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+				String typeString = null;
+				if (timerManager.isTracking() && !taskOrTextChanged) {
+					typeString = getString(R.string.clockOut);
+				} else if (timerManager.isTracking() && taskOrTextChanged) {
+					typeString = getString(R.string.clockInChange);
+				} else {
+					typeString = getString(R.string.clockIn);
+				}
+				i.putExtra(TimeAheadActivity.TYPE_EXTRA_KEY, typeString);
+				startActivity(i);
+				return true;
+			}
+		});
 		
 		// make the clock-in/clock-out button change its title when changing
 		// task and/or text
@@ -199,6 +199,31 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
+	}
+	
+	/**
+	 * The action of the clock-in / clock-out button.
+	 * 
+	 * @param minutesToPredate if greater than 0, predate the event this many minutes
+	 */
+	public void clockInOutAction(int minutesToPredate) {
+		if (minutesToPredate < 0) {
+			throw new IllegalArgumentException("no negative argument allowed");
+		}
+		// commit text field
+		text.clearFocus();
+		
+		if (timerManager.isTracking() && !taskOrTextChanged) {
+			timerManager.stopTracking(minutesToPredate);
+		} else {
+			Task selectedTask = (Task) task.getSelectedItem();
+			String description = text.getText().toString();
+			timerManager.startTracking(minutesToPredate, selectedTask, description);
+		}
+		
+		Logger.debug("setting taskOrTextChanged to false");
+		taskOrTextChanged = false;
+		refreshView();
 	}
 	
 	/**

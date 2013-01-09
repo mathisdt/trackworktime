@@ -80,19 +80,22 @@ public class TimerManager {
 	/**
 	 * Either starts tracking (from non-tracked time) or changes the task and/or text (from already tracked time).
 	 * 
+	 * @param minutesToPredate how many minutes in the future should the event be
 	 * @param selectedTask the task for which the time shall be tracked
 	 * @param text free text to describe in detail what was done
 	 */
-	public void startTracking(Task selectedTask, String text) {
-		createEvent((selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
+	public void startTracking(int minutesToPredate, Task selectedTask, String text) {
+		createEvent(minutesToPredate, (selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
 		Basics.getInstance().checkPersistentNotification();
 	}
 	
 	/**
 	 * Stops tracking time.
+	 * 
+	 * @param minutesToPredate how many minutes in the future should the event be
 	 */
-	public void stopTracking() {
-		createEvent(null, TypeEnum.CLOCK_OUT, null);
+	public void stopTracking(int minutesToPredate) {
+		createEvent(minutesToPredate, null, TypeEnum.CLOCK_OUT, null);
 		Basics.getInstance().checkPersistentNotification();
 	}
 	
@@ -376,15 +379,20 @@ public class TimerManager {
 	}
 	
 	/**
-	 * Create a new event at current time.
+	 * Create a new event at current time + the given minute amount.
 	 * 
+	 * @param minutesToPredate how many minutes to add to "now"
 	 * @param taskId the task id (may be {@code null})
 	 * @param type the type
 	 * @param text the text (may be {@code null})
 	 */
-	public void createEvent(Integer taskId, TypeEnum type, String text) {
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		createEvent(now, taskId, type, text);
+	public void createEvent(int minutesToPredate, Integer taskId, TypeEnum type, String text) {
+		if (minutesToPredate < 0) {
+			throw new IllegalArgumentException("no negative minute amount allowed");
+		}
+		DateTime targetTime = DateTimeUtil.getCurrentDateTime();
+		targetTime = targetTime.plus(0, 0, 0, 0, minutesToPredate, 0, DayOverflow.Spillover);
+		createEvent(targetTime, taskId, type, text);
 	}
 	
 	/**

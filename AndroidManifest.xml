@@ -43,6 +43,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="TimeAheadActivity"
+            android:label="@string/timeAheadTitle" >
+        </activity>
+        <activity
             android:name="EventListActivity"
             android:label="@string/edit_events" >
         </activity>

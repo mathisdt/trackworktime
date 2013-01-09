@@ -85,5 +85,10 @@
     <string name="notification">Notification</string>
     <string name="notificationEnabled">Notification enabled</string>
     <string name="notificationDescription">only shown when clocked in</string>
+    <string name="timeAheadTitle">File an event in advance</string>
+    <string name="timeAheadIntro">File an event of the type</string>
+    <string name="timeAheadOutro">in advance for in</string>
+    <string name="ten">10</string>
+    <string name="minutes">minutes</string>
 
 </resources>

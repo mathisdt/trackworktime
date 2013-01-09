@@ -107,14 +107,14 @@ public class LocationTracker implements LocationListener {
 		boolean locationIsInRange = isInRange(location, "current location");
 		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange
 			&& !timerManager.isTracking()) {
-			timerManager.startTracking(null, null);
+			timerManager.startTracking(0, null, null);
 			if (vibrate) {
 				vibrationManager.vibrate(vibrationPattern);
 			}
 			Logger.info("clocked in via location-based tracking");
 		} else if ((previousLocationWasInRange == null || previousLocationWasInRange.booleanValue())
 			&& !locationIsInRange && timerManager.isTracking()) {
-			timerManager.stopTracking();
+			timerManager.stopTracking(0);
 			if (vibrate) {
 				vibrationManager.vibrate(vibrationPattern);
 			}
