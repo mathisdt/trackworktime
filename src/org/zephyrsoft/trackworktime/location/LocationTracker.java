@@ -22,6 +22,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
@@ -108,6 +109,7 @@ public class LocationTracker implements LocationListener {
 		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange
 			&& !timerManager.isTracking()) {
 			timerManager.startTracking(0, null, null);
+			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate) {
 				vibrationManager.vibrate(vibrationPattern);
 			}
@@ -115,6 +117,7 @@ public class LocationTracker implements LocationListener {
 		} else if ((previousLocationWasInRange == null || previousLocationWasInRange.booleanValue())
 			&& !locationIsInRange && timerManager.isTracking()) {
 			timerManager.stopTracking(0);
+			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate) {
 				vibrationManager.vibrate(vibrationPattern);
 			}

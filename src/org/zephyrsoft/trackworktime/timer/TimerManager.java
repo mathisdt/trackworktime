@@ -155,6 +155,11 @@ public class TimerManager {
 			lastEvent = clockOutNowEvent;
 		}
 		
+		if (DateTimeUtil.isInFuture(beginOfPeriod)) {
+			// if the period is completely in the future, it has no work time
+			return ret;
+		}
+		
 		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
 			

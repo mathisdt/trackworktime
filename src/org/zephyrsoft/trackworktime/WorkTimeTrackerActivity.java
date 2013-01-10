@@ -133,6 +133,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private static WorkTimeTrackerActivity instance = null;
 	
+	private boolean visible = false;
+	
 	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
@@ -251,6 +253,16 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		
 		currentlyShownWeek = targetWeek;
 		refreshView();
+	}
+	
+	/**
+	 * Reloads the view's data if the view is currently shown.
+	 */
+	public static void refreshViewIfShown() {
+		if (instance != null && instance.visible) {
+			Logger.debug("refreshing main view (it is visible at the moment)");
+			instance.refreshView();
+		}
 	}
 	
 	protected void refreshView() {
@@ -624,6 +636,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	@Override
 	protected void onResume() {
 		Logger.debug("onResume called");
+		visible = true;
 		if (reloadTasksOnResume) {
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
@@ -645,6 +658,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	protected void onPause() {
 		Logger.debug("onPause called");
 		dao.close();
+		visible = false;
 		super.onPause();
 	}
 	
