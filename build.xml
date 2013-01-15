@@ -6,7 +6,7 @@
     <!--
          The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
-         Version Control Systems.
+         Version Control Systems!
     -->
 
     <property file="local.properties" />
