@@ -69,6 +69,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/clockIn" />
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/longClickHint"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
 </ScrollView>

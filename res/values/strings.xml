@@ -90,5 +90,6 @@
     <string name="timeAheadOutro">in advance for in</string>
     <string name="ten">10</string>
     <string name="minutes">minutes</string>
+    <string name="longClickHint">(long click to schedule an event)</string>
 
 </resources>
