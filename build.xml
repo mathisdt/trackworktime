@@ -3,6 +3,155 @@
     name="trackworktime"
     default="debug" >
 
+    <target name="increase-version" >
+
+        <propertyfile file="version.properties" >
+
+            <entry
+                key="app.version.code"
+                operation="+"
+                type="int"
+                value="1" />
+
+            <entry
+                key="app.version.buildnumber"
+                operation="+"
+                type="int"
+                value="1" />
+        </propertyfile>
+
+        <property file="version.properties" />
+
+        <echo>
+Version code: ${app.version.code}
+        </echo>
+
+        <echo>
+Version name: ${app.version.major}.${app.version.minor}.${app.version.buildnumber}
+        </echo>
+
+        <property
+            name="match.end"
+            value="&quot;" />
+
+        <property
+            name="matchVersionCode.start"
+            value="android:versionCode=\&quot;" />
+
+        <replaceregexp
+            file="AndroidManifest.xml"
+            match="${matchVersionCode.start}[^&quot;]*${match.end}"
+            replace="${matchVersionCode.start}${app.version.code}${match.end}" />
+
+        <property
+            name="matchVersionName.start"
+            value="android:versionName=\&quot;" />
+
+        <replaceregexp
+            file="AndroidManifest.xml"
+            match="${matchVersionName.start}[^&quot;]*${match.end}"
+            replace="${matchVersionName.start}${app.version.major}.${app.version.minor}.${app.version.buildnumber}${match.end}" />
+    </target>
+
+    <!-- taken from SDK's build.xml solely to modify the name of the resultink APK file: -->
+
+    <target
+        name="-set-release-mode"
+        depends="-set-mode-check" >
+
+        <!--
+        <property
+            name="out.packaged.file"
+            location="${out.absolute.dir}/${ant.project.name}-release-${formatted.version.number}-unsigned.apk" />
+
+        <property
+            name="out.final.file"
+            location="${out.absolute.dir}/${ant.project.name}-release-${formatted.version.number}.apk" />
+        -->
+
+        <property file="version.properties" />
+
+        <property
+            name="out.packaged.file"
+            location="${out.absolute.dir}/${ant.project.name}-release-${app.version.major}.${app.version.minor}.${app.version.buildnumber}-unsigned.apk" />
+
+        <property
+            name="out.final.file"
+            location="${out.absolute.dir}/${ant.project.name}-release-${app.version.major}.${app.version.minor}.${app.version.buildnumber}.apk" />
+
+        <property
+            name="build.is.mode.set"
+            value="true" />
+
+        <!-- record the current build target -->
+
+        <property
+            name="build.target"
+            value="release" />
+
+        <property
+            name="build.is.instrumented"
+            value="false" />
+
+        <!--
+             release mode is only valid if the manifest does not explicitly
+             set debuggable to true. default is false.
+        -->
+
+        <xpath
+            default="false"
+            expression="/manifest/application/@android:debuggable"
+            input="${manifest.abs.file}"
+            output="build.is.packaging.debug" />
+
+        <!-- signing mode: release -->
+
+        <property
+            name="build.is.signing.debug"
+            value="false" />
+
+        <!-- Renderscript optimization level: aggressive -->
+
+        <property
+            name="renderscript.opt.level"
+            value="${renderscript.release.opt.level}" />
+
+        <if condition="${build.is.packaging.debug}" >
+
+            <then>
+
+                <echo>
+*************************************************
+                </echo>
+
+                <echo>
+****  Android Manifest has debuggable=true   ****
+                </echo>
+
+                <echo>
+**** Doing DEBUG packaging with RELEASE keys ****
+                </echo>
+
+                <echo>
+*************************************************
+                </echo>
+            </then>
+
+            <else>
+
+                <!--
+                     property only set in release mode.
+                     Useful for if/unless attributes in target node
+                     when using Ant before 1.8
+                -->
+
+                <property
+                    name="build.is.mode.release"
+                    value="true" />
+            </else>
+        </if>
+    </target>
+
     <!--
          The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
