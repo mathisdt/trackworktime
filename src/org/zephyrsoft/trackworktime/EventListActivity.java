@@ -19,6 +19,7 @@ package org.zephyrsoft.trackworktime;
 import hirondelle.date4j.DateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -36,6 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
@@ -43,7 +45,9 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
 import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.SeparatorIdentificationMethod;
 import org.zephyrsoft.trackworktime.util.StringExtractionMethod;
+import org.zephyrsoft.trackworktime.util.WeekDayHelper;
 
 /**
  * Activity for managing the events of a week.
@@ -79,6 +83,17 @@ public class EventListActivity extends ListActivity {
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		getListView().post(new Runnable() {
+			@Override
+			public void run() {
+				getListView().setSelection(getListAdapter().getCount() - 1);
+			}
+		});
+	}
+	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -108,6 +123,16 @@ public class EventListActivity extends ListActivity {
 						return DateTimeUtil.dateTimeToDateString(dateTime) + " / "
 							+ DateTimeUtil.dateTimeToHourMinuteString(dateTime) + ": " + typeString;
 					}
+				}, R.layout.list_header, new SeparatorIdentificationMethod<Event>() {
+					@Override
+					public String extractText(Event object) {
+						return object.toString();
+					}
+					
+					@Override
+					public boolean isSeparator(Event object) {
+						return object instanceof EventSeparator;
+					}
 				});
 		eventsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		setListAdapter(eventsAdapter);
@@ -120,7 +145,9 @@ public class EventListActivity extends ListActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Event event = (Event) lv.getItemAtPosition(position);
-				startEditing(event);
+				if (!(event instanceof EventSeparator)) {
+					startEditing(event);
+				}
 			}
 		});
 	}
@@ -147,6 +174,7 @@ public class EventListActivity extends ListActivity {
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		menu.setHeaderTitle(R.string.availableActions);
 		menu.add(Menu.NONE, EDIT_EVENT, EDIT_EVENT, getString(R.string.edit_event)).setIcon(
 			R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, DELETE_EVENT, DELETE_EVENT, getString(R.string.delete_event)).setIcon(
@@ -219,11 +247,36 @@ public class EventListActivity extends ListActivity {
 			week = new WeekPlaceholder(weekStart);
 		}
 		events.addAll(dao.getEventsInWeek(week));
+		
+		insertSeparators(events);
+		
 		if (eventsAdapter != null) {
 			// only do this if not called from onCreate()
 			eventsAdapter.notifyDataSetChanged();
 			parentActivity.refreshView();
 		}
+	}
+	
+	private static void insertSeparators(List<Event> eventList) {
+		ListIterator<Event> iter = eventList.listIterator();
+		Event prev = null;
+		Event cur = null;
+		while (iter.hasNext()) {
+			cur = iter.next();
+			if (prev == null || !isOnSameDay(prev, cur)) {
+				iter.previous();
+				iter.add(new EventSeparator(WeekDayHelper.getWeekDayLongName(DateTimeUtil.stringToDateTime(cur
+					.getTime()))));
+				iter.next();
+			}
+			prev = cur;
+		}
+	}
+	
+	private static boolean isOnSameDay(Event e1, Event e2) {
+		DateTime d1 = DateTimeUtil.stringToDateTime(e1.getTime());
+		DateTime d2 = DateTimeUtil.stringToDateTime(e2.getTime());
+		return d1.isSameDayAs(d2);
 	}
 	
 	/**

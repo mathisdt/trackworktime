@@ -38,64 +38,84 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 	private int dropDownResource;
 	private final Context context;
 	private final int fieldId;
+	private final int separatorResource;
+	private final SeparatorIdentificationMethod<T> separatorMethod;
 	
 	public FlexibleArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects,
-		StringExtractionMethod<T> extractionMethod) {
+		StringExtractionMethod<T> extractionMethod, int separatorResource,
+		SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, resource, textViewResourceId, objects);
 		this.context = context;
 		this.resource = resource;
 		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
 	public FlexibleArrayAdapter(Context context, int resource, int textViewResourceId, T[] objects,
-		StringExtractionMethod<T> extractionMethod) {
+		StringExtractionMethod<T> extractionMethod, int separatorResource,
+		SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, resource, textViewResourceId, objects);
 		this.context = context;
 		this.resource = resource;
 		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
 	public FlexibleArrayAdapter(Context context, int resource, int textViewResourceId,
-		StringExtractionMethod<T> extractionMethod) {
+		StringExtractionMethod<T> extractionMethod, int separatorResource,
+		SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, resource, textViewResourceId);
 		this.context = context;
 		this.resource = resource;
 		this.dropDownResource = resource;
 		this.fieldId = textViewResourceId;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
 	public FlexibleArrayAdapter(Context context, int textViewResourceId, List<T> objects,
-		StringExtractionMethod<T> extractionMethod) {
+		StringExtractionMethod<T> extractionMethod, int separatorResource,
+		SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, textViewResourceId, objects);
 		this.context = context;
 		this.resource = textViewResourceId;
 		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
 	public FlexibleArrayAdapter(Context context, int textViewResourceId, T[] objects,
-		StringExtractionMethod<T> extractionMethod) {
+		StringExtractionMethod<T> extractionMethod, int separatorResource,
+		SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, textViewResourceId, objects);
 		this.context = context;
 		this.resource = textViewResourceId;
 		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
-	public FlexibleArrayAdapter(Context context, int textViewResourceId, StringExtractionMethod<T> extractionMethod) {
+	public FlexibleArrayAdapter(Context context, int textViewResourceId, StringExtractionMethod<T> extractionMethod,
+		int separatorResource, SeparatorIdentificationMethod<T> separatorMethod) {
 		super(context, textViewResourceId);
 		this.context = context;
 		this.resource = textViewResourceId;
 		this.dropDownResource = textViewResourceId;
 		this.fieldId = 0;
 		this.extractionMethod = extractionMethod;
+		this.separatorResource = separatorResource;
+		this.separatorMethod = separatorMethod;
 	}
 	
 	@Override
@@ -105,41 +125,46 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return createView(position, convertView, parent, resource);
+		T item = getItem(position);
+		return createView(item, parent, isSeparator(item) ? separatorResource : resource);
 	}
 	
 	@Override
 	public View getDropDownView(int position, View convertView, ViewGroup parent) {
-		return createView(position, convertView, parent, dropDownResource);
+		T item = getItem(position);
+		return createView(item, parent, dropDownResource);
 	}
 	
-	private View createView(int position, View convertView, ViewGroup parent, int resourceToUse) {
+	private View createView(T item, ViewGroup parent, int resourceToUse) {
 		View view;
 		TextView text;
 		
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = inflater.inflate(resourceToUse, parent, false);
-		} else {
-			view = convertView;
-		}
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		view = inflater.inflate(resourceToUse, parent, false);
 		
 		try {
-			if (fieldId == 0) {
-				// If no custom field is assigned, assume the whole resource is a TextView
+			if (isSeparator(item)) {
 				text = (TextView) view;
+				text.setText(separatorMethod.extractText(item));
 			} else {
-				// Otherwise, find the TextView field within the layout
-				text = (TextView) view.findViewById(fieldId);
+				if (fieldId == 0) {
+					// If no custom field is assigned, assume the whole resource is a TextView
+					text = (TextView) view;
+				} else {
+					// Otherwise, find the TextView field within the layout
+					text = (TextView) view.findViewById(fieldId);
+				}
+				text.setText(extractionMethod.extractText(item));
 			}
 		} catch (ClassCastException e) {
 			Log.e("ArrayAdapter", "You must supply a resource ID for a TextView");
 			throw new IllegalStateException("ArrayAdapter requires the resource ID to be a TextView", e);
 		}
 		
-		T item = getItem(position);
-		text.setText(extractionMethod.extractText(item));
-		
 		return view;
+	}
+	
+	private boolean isSeparator(T item) {
+		return separatorMethod != null && separatorMethod.isSeparator(item);
 	}
 }

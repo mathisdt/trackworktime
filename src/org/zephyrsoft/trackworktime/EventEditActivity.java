@@ -131,7 +131,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 						}
 					}
 					
-				});
+				}, 0, null);
 		typesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		type.setAdapter(typesAdapter);
 		tasks = dao.getActiveTasks();
