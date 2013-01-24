@@ -186,7 +186,10 @@ public class EventListActivity extends ListActivity {
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final int eventPosition = info.position;
-		final Event oldEvent = events.get(eventPosition);
+		final Event oldEvent = (Event) getListView().getItemAtPosition(eventPosition);
+		if (oldEvent instanceof EventSeparator) {
+			return true;
+		}
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		switch (item.getItemId()) {
 			case EDIT_EVENT:
