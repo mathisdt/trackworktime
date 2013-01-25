@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import org.acra.ACRA;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
@@ -133,8 +134,16 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public void periodicHook() {
 		Logger.debug("executing periodic hook");
-		checkLocationBasedTracking();
-		checkPersistentNotification();
+		try {
+			checkLocationBasedTracking();
+		} catch (Exception e) {
+			ACRA.getErrorReporter().handleException(e);
+		}
+		try {
+			checkPersistentNotification();
+		} catch (Exception e) {
+			ACRA.getErrorReporter().handleException(e);
+		}
 	}
 	
 	/**
