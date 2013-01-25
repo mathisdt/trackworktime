@@ -521,7 +521,7 @@ public class TimerManager {
 	 * Calculates the begin of the auto-pause for the given day.
 	 */
 	public DateTime getAutoPauseBegin(DateTime dateTime) {
-		return DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "24.00"));
+		return DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "23.59"));
 	}
 	
 	/**
