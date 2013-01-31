@@ -663,12 +663,19 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 	
 	/**
-	 * Get the instance of this activity.
+	 * Get the instance of this activity. If it was garbage-collected in the meantime, throw an exception.
 	 */
 	public static WorkTimeTrackerActivity getInstance() {
 		if (instance == null) {
-			throw new IllegalStateException("the WTT activity is not created yet");
+			throw new IllegalStateException("the main activity is not created yet or was dumped in the meantime");
 		}
+		return instance;
+	}
+	
+	/**
+	 * Get the instance of this activity. If it was garbage-collected in the meantime, return {@code null}.
+	 */
+	public static WorkTimeTrackerActivity getInstanceOrNull() {
 		return instance;
 	}
 	

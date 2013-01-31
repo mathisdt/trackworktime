@@ -98,7 +98,7 @@ public class EventListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		instance = this;
-		parentActivity = WorkTimeTrackerActivity.getInstance();
+		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 		
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
@@ -256,7 +256,9 @@ public class EventListActivity extends ListActivity {
 		if (eventsAdapter != null) {
 			// only do this if not called from onCreate()
 			eventsAdapter.notifyDataSetChanged();
-			parentActivity.refreshView();
+			if (parentActivity != null) {
+				parentActivity.refreshView();
+			}
 		}
 	}
 	

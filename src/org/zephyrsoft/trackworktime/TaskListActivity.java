@@ -67,7 +67,7 @@ public class TaskListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		parentActivity = WorkTimeTrackerActivity.getInstance();
+		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 		
 		dao = Basics.getInstance().getDao();
 		tasks = dao.getAllTasks();
@@ -85,6 +85,12 @@ public class TaskListActivity extends ListActivity {
 				openContextMenu(view);
 			}
 		});
+	}
+	
+	private void refreshTasksOnParent() {
+		if (parentActivity != null) {
+			parentActivity.refreshTasks();
+		}
 	}
 	
 	@Override
@@ -108,7 +114,7 @@ public class TaskListActivity extends ListActivity {
 						Logger.debug("inserted new task: {0}", newTask);
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
-						parentActivity.refreshTasks();
+						refreshTasksOnParent();
 						return;
 					}
 				});
@@ -172,7 +178,7 @@ public class TaskListActivity extends ListActivity {
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
-						parentActivity.refreshTasks();
+						refreshTasksOnParent();
 						return;
 					}
 				});
@@ -209,7 +215,7 @@ public class TaskListActivity extends ListActivity {
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
-						parentActivity.refreshTasks();
+						refreshTasksOnParent();
 						return;
 					}
 				});
@@ -256,7 +262,7 @@ public class TaskListActivity extends ListActivity {
 									oldTask.getName());
 							}
 							tasksAdapter.notifyDataSetChanged();
-							parentActivity.refreshTasks();
+							refreshTasksOnParent();
 							return;
 						}
 					});
