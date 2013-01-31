@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -37,11 +38,12 @@ public class LocationTracker implements LocationListener {
 	
 	private final int SECONDS_TO_SLEEP_BETWEEN_CHECKS = 60;
 	
-	private final long[] vibrationPattern = {0, 200, 200, 500, 200, 200};
+	private final long[] vibrationPattern = {0, 200, 250, 500, 250, 200};
 	
 	private final LocationManager locationManager;
 	private final TimerManager timerManager;
 	private final VibrationManager vibrationManager;
+	private final AudioManager audioManager;
 	private final AtomicBoolean isTrackingByLocation = new AtomicBoolean(false);
 	
 	private Location targetLocation;
@@ -54,7 +56,8 @@ public class LocationTracker implements LocationListener {
 	 * Creates a new location-based tracker. By only creating it, the tracking does not start yet - you have to call
 	 * {@link #startTrackingByLocation(double, double, double, boolean)} explicitly.
 	 */
-	public LocationTracker(LocationManager locationManager, TimerManager timerManager, VibrationManager vibrationManager) {
+	public LocationTracker(LocationManager locationManager, TimerManager timerManager,
+		VibrationManager vibrationManager, AudioManager audioManager) {
 		if (locationManager == null) {
 			throw new IllegalArgumentException("the LocationManager is null");
 		}
@@ -67,6 +70,7 @@ public class LocationTracker implements LocationListener {
 		this.locationManager = locationManager;
 		this.timerManager = timerManager;
 		this.vibrationManager = vibrationManager;
+		this.audioManager = audioManager;
 	}
 	
 	/**
@@ -110,7 +114,7 @@ public class LocationTracker implements LocationListener {
 			&& !timerManager.isTracking()) {
 			timerManager.startTracking(0, null, null);
 			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate) {
+			if (vibrate && isVibrationAllowed()) {
 				vibrationManager.vibrate(vibrationPattern);
 			}
 			Logger.info("clocked in via location-based tracking");
@@ -118,11 +122,15 @@ public class LocationTracker implements LocationListener {
 			&& !locationIsInRange && timerManager.isTracking()) {
 			timerManager.stopTracking(0);
 			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate) {
+			if (vibrate && isVibrationAllowed()) {
 				vibrationManager.vibrate(vibrationPattern);
 			}
 			Logger.info("clocked out via location-based tracking");
 		}
+	}
+	
+	private boolean isVibrationAllowed() {
+		return audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT;
 	}
 	
 	private boolean isInRange(Location location, String descriptionForLog) {

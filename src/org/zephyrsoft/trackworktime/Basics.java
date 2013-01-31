@@ -154,6 +154,8 @@ public class Basics extends BroadcastReceiver {
 		if (timerManager.isTracking()) {
 			// display/update
 			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
+			intent.setAction(Intent.ACTION_MAIN);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
 			String timeSoFar =
 				timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY).toString();
 			DateTime finishingTime = timerManager.getFinishingTime();

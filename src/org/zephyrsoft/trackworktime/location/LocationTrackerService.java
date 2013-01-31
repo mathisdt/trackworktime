@@ -21,6 +21,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -57,7 +58,7 @@ public class LocationTrackerService extends Service {
 		basics = Basics.getOrCreateInstance(getApplicationContext());
 		locationTracker =
 			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics.getTimerManager(),
-				basics.getVibrationManager());
+				basics.getVibrationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously
 		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
 	}

@@ -136,6 +136,7 @@ public class TaskListActivity extends ListActivity {
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		menu.setHeaderTitle(R.string.availableActions);
 		menu.add(Menu.NONE, RENAME_TASK, 0, getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, TOGGLE_ACTIVATION_STATE_OF_TASK, 1, getString(R.string.toggle_activation_state_of_task))
 			.setIcon(R.drawable.ic_menu_revert);
