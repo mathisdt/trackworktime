@@ -5,7 +5,7 @@
 
     <target name="increase-version" >
 
-        <propertyfile file="version.properties" >
+        <propertyfile file="res/raw/version.properties" >
 
             <entry
                 key="app.version.code"
@@ -69,7 +69,7 @@ Version name: ${app.version.major}.${app.version.minor}.${app.version.buildnumbe
             location="${out.absolute.dir}/${ant.project.name}-release-${formatted.version.number}.apk" />
         -->
 
-        <property file="version.properties" />
+        <property file="res/raw/version.properties" />
 
         <property
             name="out.packaged.file"

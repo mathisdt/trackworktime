@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">Track Work Time</string>
+    <string name="website">http://www.zephyrsoft.org</string>
+    <string name="email">android@zephyrsoft.org</string>
     <string name="in">IN</string>
     <string name="onespace">" "</string>
     <string name="out">OUT</string>
@@ -92,5 +94,7 @@
     <string name="minutes">minutes</string>
     <string name="longClickHint">(long click to schedule an event)</string>
     <string name="availableActions">Available Actions</string>
+    <string name="logo">Logo</string>
+    <string name="about">About</string>
 
 </resources>

@@ -67,6 +67,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private static final int EDIT_EVENTS = 0;
 	private static final int EDIT_TASKS = 1;
 	private static final int OPTIONS = 2;
+	private static final int ABOUT = 3;
 	
 	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
@@ -594,6 +595,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
 		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_sort_by_size);
 		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, ABOUT, ABOUT, R.string.about).setIcon(R.drawable.ic_menu_star);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
@@ -608,6 +610,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				return true;
 			case OPTIONS:
 				showOptions();
+				return true;
+			case ABOUT:
+				showAbout();
 				return true;
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");
@@ -630,6 +635,12 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private void showOptions() {
 		Logger.debug("showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
+		startActivity(i);
+	}
+	
+	private void showAbout() {
+		Logger.debug("showing About");
+		Intent i = new Intent(this, AboutActivity.class);
 		startActivity(i);
 	}
 	
