@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.Logger;
 
@@ -56,6 +57,7 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String keyName) {
 		Key key = Key.getKeyWithName(keyName);
+		// only two levels planned - either a pref is a parent or a child, it cannot be both!
 		boolean isParent = (key.getParent() == null);
 		
 		Key keyToDisableIfInvalid = null;
@@ -65,14 +67,17 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 			Set<Key> keysToCheck = Key.getChildKeys(key);
 			for (Key keyToCheck : keysToCheck) {
 				isValid =
-					keyToCheck.getDataType().validateFromSharedPreferences(sharedPreferences, keyToCheck.getName());
+					keyToCheck.getDataType().validateFromSharedPreferences(sharedPreferences, keyToCheck.getName())
+						&& Checks.executeFor(keyToCheck, sharedPreferences);
 				if (!isValid) {
 					break;
 				}
 			}
 		} else {
 			keyToDisableIfInvalid = key.getParent();
-			isValid = key.getDataType().validateFromSharedPreferences(sharedPreferences, keyName);
+			isValid =
+				key.getDataType().validateFromSharedPreferences(sharedPreferences, keyName)
+					&& Checks.executeFor(key, sharedPreferences);
 		}
 		
 		boolean isSectionEnabled = sharedPreferences.getBoolean(keyToDisableIfInvalid.getName(), false);

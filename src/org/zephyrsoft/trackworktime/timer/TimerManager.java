@@ -285,7 +285,10 @@ public class TimerManager {
 		return ret;
 	}
 	
-	private static TimeSum parseHoursMinutesString(String hoursMinutes) {
+	/**
+	 * Parse a value of hours and minutes (positive or negative).
+	 */
+	public static TimeSum parseHoursMinutesString(String hoursMinutes) {
 		TimeSum ret = new TimeSum();
 		if (hoursMinutes != null) {
 			String[] startValueArray = hoursMinutes.split(":");

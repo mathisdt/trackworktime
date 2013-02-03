@@ -56,7 +56,7 @@
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
     <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
-    <string name="smallestTimeUnitDescription">in minutes, e.g. 15 - flattening rounds to this amount of time</string>
+    <string name="smallestTimeUnitDescription">in minutes, e.g. 15 - flattening rounds to this amount of time (has to be a divisor of 60)</string>
     <string name="backward">jumped backward</string>
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
