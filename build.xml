@@ -20,7 +20,7 @@
                 value="1" />
         </propertyfile>
 
-        <property file="version.properties" />
+        <property file="res/raw/version.properties" />
 
         <echo>
 Version code: ${app.version.code}
