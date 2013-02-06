@@ -47,11 +47,13 @@ public class Checks {
 				if (beginString == null || beginString.trim().length() == 0) {
 					return false;
 				}
+				beginString = DateTimeUtil.refineTime(beginString);
 				DateTime begin = DateTimeUtil.parseTimeForToday(beginString);
 				String endString = prefs.getString(Key.AUTO_PAUSE_END.getName(), null);
 				if (endString == null || endString.trim().length() == 0) {
 					return false;
 				}
+				endString = DateTimeUtil.refineTime(endString);
 				DateTime end = DateTimeUtil.parseTimeForToday(endString);
 				try {
 					return begin.lt(end);
