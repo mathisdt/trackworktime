@@ -54,6 +54,7 @@ import org.zephyrsoft.trackworktime.util.BackListener;
 import org.zephyrsoft.trackworktime.util.BackSensitiveEditText;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
 import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
@@ -147,6 +148,33 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	
 	private SimpleGestureFilter detector;
 	
+	private void checkAllOptions() {
+		int disabledSections = 0;
+		for (String key : preferences.getAll().keySet()) {
+			Key sectionToDisable = PreferencesUtil.check(preferences, key);
+			if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
+				Logger.warn("option {0} is invalid => disabling option {1}", key, sectionToDisable.getName());
+				disabledSections++;
+				
+				// deactivate the section
+				PreferencesUtil.disablePreference(preferences, sectionToDisable);
+			}
+		}
+		
+		if (disabledSections > 0) {
+			// show message to user
+			Intent messageIntent =
+				Basics
+					.getInstance()
+					.createMessageIntent(
+						disabledSections == 1 ? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
+							: String.valueOf(disabledSections)
+								+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
+						null);
+			startActivity(messageIntent);
+		}
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -202,6 +230,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
+		
+		// check options for logical errors
+		checkAllOptions();
 	}
 	
 	/**

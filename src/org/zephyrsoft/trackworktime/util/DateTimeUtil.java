@@ -162,7 +162,7 @@ public class DateTimeUtil {
 		ret = ret.replaceAll("^(\\d):", "0$1:");
 		// only one digit as minute
 		ret = ret.replaceAll(":(\\d)$", ":0$1");
-		// append seconds
+		// append seconds (or minutes, if someone just entered e.g. "13" as time)
 		ret += ":00";
 		return ret;
 	}

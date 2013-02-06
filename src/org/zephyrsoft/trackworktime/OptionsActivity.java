@@ -16,15 +16,14 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.util.Set;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 /**
  * Activity to set the preferences of the application.
@@ -56,33 +55,9 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String keyName) {
-		Key key = Key.getKeyWithName(keyName);
-		// only two levels planned - either a pref is a parent or a child, it cannot be both!
-		boolean isParent = (key.getParent() == null);
-		
-		Key keyToDisableIfInvalid = null;
-		boolean isValid = true;
-		if (isParent) {
-			keyToDisableIfInvalid = key;
-			Set<Key> keysToCheck = Key.getChildKeys(key);
-			for (Key keyToCheck : keysToCheck) {
-				isValid =
-					keyToCheck.getDataType().validateFromSharedPreferences(sharedPreferences, keyToCheck.getName())
-						&& Checks.executeFor(keyToCheck, sharedPreferences);
-				if (!isValid) {
-					break;
-				}
-			}
-		} else {
-			keyToDisableIfInvalid = key.getParent();
-			isValid =
-				key.getDataType().validateFromSharedPreferences(sharedPreferences, keyName)
-					&& Checks.executeFor(key, sharedPreferences);
-		}
-		
-		boolean isSectionEnabled = sharedPreferences.getBoolean(keyToDisableIfInvalid.getName(), false);
-		if (!isValid && isSectionEnabled) {
-			Logger.warn("option {0} is invalid => disabling option {1}", keyName, keyToDisableIfInvalid.getName());
+		Key sectionToDisable = PreferencesUtil.check(sharedPreferences, keyName);
+		if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(sharedPreferences, sectionToDisable)) {
+			Logger.warn("option {0} is invalid => disabling option {1}", keyName, sectionToDisable.getName());
 			
 			// show message to user
 			Intent messageIntent =
@@ -90,15 +65,13 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 					.getInstance()
 					.createMessageIntent(
 						"The option \""
-							+ getString(keyToDisableIfInvalid.getReadableNameResourceId())
+							+ getString(sectionToDisable.getReadableNameResourceId())
 							+ "\" was disabled due to invalid settings.\n\nYou can re-enable it after you have checked the values you entered in that section.",
 						null);
 			startActivity(messageIntent);
 			
 			// deactivate the section
-			SharedPreferences.Editor editor = sharedPreferences.edit();
-			editor.putBoolean(keyToDisableIfInvalid.getName(), false);
-			editor.commit();
+			PreferencesUtil.disablePreference(sharedPreferences, sectionToDisable);
 			// reload data in options view
 			setPreferenceScreen(null);
 			addPreferencesFromResource(R.xml.options);

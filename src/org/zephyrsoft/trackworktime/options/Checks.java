@@ -56,6 +56,7 @@ public class Checks {
 				endString = DateTimeUtil.refineTime(endString);
 				DateTime end = DateTimeUtil.parseTimeForToday(endString);
 				try {
+					// the actual parsing of begin and end takes place here as this is the first access to fields
 					return begin.lt(end);
 				} catch (Exception e) {
 					return false;
