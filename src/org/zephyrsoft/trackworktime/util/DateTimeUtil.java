@@ -157,13 +157,21 @@ public class DateTimeUtil {
 	 * Prepare the a user-entered time string to suffice for {@link #parseTimeForToday}.
 	 */
 	public static String refineTime(String timeString) {
+		String ret = refineHourMinute(timeString);
+		// append seconds (or minutes, if someone just entered e.g. "13" as time)
+		ret += ":00";
+		return ret;
+	}
+	
+	/**
+	 * Prepare the a user-entered time string to represent "hours:minutes".
+	 */
+	public static String refineHourMinute(String timeString) {
 		String ret = timeString.replace('.', ':');
 		// only one digit as hour
 		ret = ret.replaceAll("^(\\d):", "0$1:");
 		// only one digit as minute
 		ret = ret.replaceAll(":(\\d)$", ":0$1");
-		// append seconds (or minutes, if someone just entered e.g. "13" as time)
-		ret += ":00";
 		return ret;
 	}
 	

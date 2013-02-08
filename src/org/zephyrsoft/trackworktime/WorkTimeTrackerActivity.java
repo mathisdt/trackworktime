@@ -690,7 +690,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			// don't insert a new week into the DB but only use a placeholder
 			currentlyShownWeek = new WeekPlaceholder(weekStart);
 		}
-		Basics.getInstance().checkPersistentNotification();
+		Basics.getInstance().safeCheckPersistentNotification();
 		
 		refreshView();
 		super.onResume();

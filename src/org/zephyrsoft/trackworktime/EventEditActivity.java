@@ -166,7 +166,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 					dao.updateEvent(editedEvent);
 					// we have to call this manually when using the DAO directly:
 					timerManager.updateWeekSum(week);
-					Basics.getInstance().checkPersistentNotification();
+					Basics.getInstance().safeCheckPersistentNotification();
 				}
 				
 				// refresh parents and close the event editor

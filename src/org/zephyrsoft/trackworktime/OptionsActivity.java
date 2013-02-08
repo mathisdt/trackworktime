@@ -50,7 +50,7 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 		
 		// make sure that location-based tracking gets enabled/disabled
-		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
+		Basics.getOrCreateInstance(getApplicationContext()).safeCheckLocationBasedTracking();
 	}
 	
 	@Override

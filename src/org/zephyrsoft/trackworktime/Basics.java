@@ -134,11 +134,25 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public void periodicHook() {
 		Logger.debug("executing periodic hook");
+		safeCheckLocationBasedTracking();
+		safeCheckPersistentNotification();
+	}
+	
+	/**
+	 * Wrapper for {@link #checkLocationBasedTracking()} that doesn't throw any exception.
+	 */
+	public void safeCheckLocationBasedTracking() {
 		try {
 			checkLocationBasedTracking();
 		} catch (Exception e) {
 			ACRA.getErrorReporter().handleException(e);
 		}
+	}
+	
+	/**
+	 * Wrapper for {@link #checkPersistentNotification()} that doesn't throw any exception.
+	 */
+	public void safeCheckPersistentNotification() {
 		try {
 			checkPersistentNotification();
 		} catch (Exception e) {

@@ -60,7 +60,7 @@ public class LocationTrackerService extends Service {
 			new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics.getTimerManager(),
 				basics.getVibrationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously
-		Basics.getOrCreateInstance(getApplicationContext()).checkLocationBasedTracking();
+		Basics.getOrCreateInstance(getApplicationContext()).safeCheckLocationBasedTracking();
 	}
 	
 	@Override

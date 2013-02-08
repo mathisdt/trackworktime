@@ -206,7 +206,7 @@ public class EventListActivity extends ListActivity {
 						boolean success = dao.deleteEvent(oldEvent);
 						// we have to call this manually when using the DAO directly:
 						timerManager.updateWeekSum(week);
-						Basics.getInstance().checkPersistentNotification();
+						Basics.getInstance().safeCheckPersistentNotification();
 						refreshView();
 						if (success) {
 							Logger.debug("deleted event with ID {0}", oldEvent.getId());

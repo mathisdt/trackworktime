@@ -86,7 +86,7 @@ public class TimerManager {
 	 */
 	public void startTracking(int minutesToPredate, Task selectedTask, String text) {
 		createEvent(minutesToPredate, (selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
-		Basics.getInstance().checkPersistentNotification();
+		Basics.getInstance().safeCheckPersistentNotification();
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class TimerManager {
 	 */
 	public void stopTracking(int minutesToPredate) {
 		createEvent(minutesToPredate, null, TypeEnum.CLOCK_OUT, null);
-		Basics.getInstance().checkPersistentNotification();
+		Basics.getInstance().safeCheckPersistentNotification();
 	}
 	
 	/**
@@ -293,7 +293,7 @@ public class TimerManager {
 		if (hoursMinutes != null) {
 			String[] startValueArray = hoursMinutes.split(":");
 			int hours = Integer.parseInt(startValueArray[0]);
-			int minutes = Integer.parseInt(startValueArray[1]);
+			int minutes = startValueArray.length > 1 ? Integer.parseInt(startValueArray[1]) : 0;
 			if (hoursMinutes.trim().startsWith("-")) {
 				ret.substract(-1 * hours, minutes);
 			} else {
@@ -309,6 +309,7 @@ public class TimerManager {
 	public int getNormalWorkDurationFor(WeekDayEnum weekDay) {
 		if (isWorkDay(weekDay)) {
 			String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
+			targetValueString = DateTimeUtil.refineHourMinute(targetValueString);
 			TimeSum targetValue = parseHoursMinutesString(targetValueString);
 			BigDecimal minutes = new BigDecimal(targetValue.getAsMinutes()).divide(new BigDecimal(countWorkDays()));
 			MathContext mc = new MathContext(1, RoundingMode.HALF_UP);
@@ -434,7 +435,7 @@ public class TimerManager {
 		event = dao.insertEvent(event);
 		
 		updateWeekSum(currentWeek);
-		Basics.getInstance().checkPersistentNotification();
+		Basics.getInstance().safeCheckPersistentNotification();
 	}
 	
 	/**
