@@ -19,6 +19,8 @@ package org.zephyrsoft.trackworktime;
 import hirondelle.date4j.DateTime;
 import java.util.List;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -68,7 +70,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private static final int EDIT_EVENTS = 0;
 	private static final int EDIT_TASKS = 1;
 	private static final int OPTIONS = 2;
-	private static final int ABOUT = 3;
+	private static final int USE_CURRENT_LOCATION = 3;
+	private static final int ABOUT = 4;
 	
 	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
@@ -626,6 +629,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
 		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_sort_by_size);
 		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, USE_CURRENT_LOCATION, USE_CURRENT_LOCATION, R.string.use_current_location).setIcon(
+			R.drawable.ic_menu_compass);
 		menu.add(Menu.NONE, ABOUT, ABOUT, R.string.about).setIcon(R.drawable.ic_menu_star);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -641,6 +646,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				return true;
 			case OPTIONS:
 				showOptions();
+				return true;
+			case USE_CURRENT_LOCATION:
+				useCurrentLocationAsWorkplace();
 				return true;
 			case ABOUT:
 				showAbout();
@@ -667,6 +675,26 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		Logger.debug("showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
+	}
+	
+	private void useCurrentLocationAsWorkplace() {
+		Logger.debug("use current location as work place");
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle(getString(R.string.use_current_location));
+		alert.setMessage(getString(R.string.really_use_current_location));
+		alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this);
+			}
+		});
+		alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				// do nothing
+			}
+		});
+		alert.show();
 	}
 	
 	private void showAbout() {

@@ -96,5 +96,7 @@
     <string name="availableActions">Available Actions</string>
     <string name="logo">Logo</string>
     <string name="about">About</string>
+    <string name="use_current_location">here = work</string>
+    <string name="really_use_current_location">Do you want to use your current location as work place? The work place coordinates you may have entered before will be overwritten! (It could take some seconds to find out your current location.)</string>
 
 </resources>

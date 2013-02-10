@@ -213,7 +213,6 @@ public class EventListActivity extends ListActivity {
 						} else {
 							Logger.warn("could not delete event with ID {0}", oldEvent.getId());
 						}
-						return;
 					}
 				});
 				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

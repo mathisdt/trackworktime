@@ -115,7 +115,6 @@ public class TaskListActivity extends ListActivity {
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
 						refreshTasksOnParent();
-						return;
 					}
 				});
 				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -179,7 +178,6 @@ public class TaskListActivity extends ListActivity {
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
 						refreshTasksOnParent();
-						return;
 					}
 				});
 				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -216,7 +214,6 @@ public class TaskListActivity extends ListActivity {
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
 						refreshTasksOnParent();
-						return;
 					}
 				});
 				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -263,7 +260,6 @@ public class TaskListActivity extends ListActivity {
 							}
 							tasksAdapter.notifyDataSetChanged();
 							refreshTasksOnParent();
-							return;
 						}
 					});
 					alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

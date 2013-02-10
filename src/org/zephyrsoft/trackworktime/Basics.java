@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 import java.util.Calendar;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -26,10 +27,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import org.acra.ACRA;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.CoordinateUtil;
+import org.zephyrsoft.trackworktime.location.LocationCallback;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.options.Key;
@@ -234,6 +241,99 @@ public class Basics extends BroadcastReceiver {
 			Intent stopIntent = buildServiceIntent(null, null, null, null);
 			context.stopService(stopIntent);
 			Logger.debug("location-based tracking service stopped");
+		}
+	}
+	
+	/**
+	 * Check the current device location and use that as work place.
+	 * 
+	 * @param reference an activity to use as reference for starting other activities
+	 */
+	public void useCurrentLocationAsWorkplace(final Activity reference) {
+		requestCurrentLocation(new LocationCallback() {
+			@Override
+			public void callback(double latitude, double longitude, int tolerance) {
+				boolean locationBasedTrackingEnabled =
+					preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
+				
+				Logger
+					.debug(
+						"received current device location: lat={0} long={1} tol={2} / location-based tracking already enabled = {3}",
+						latitude, longitude, tolerance, locationBasedTrackingEnabled);
+				
+				SharedPreferences.Editor editor = preferences.edit();
+				String roundedLatitude = CoordinateUtil.roundCoordinate(latitude);
+				editor.putString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), roundedLatitude);
+				String roundedLongitude = CoordinateUtil.roundCoordinate(longitude);
+				editor.putString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), roundedLongitude);
+				editor.putString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), String.valueOf(tolerance));
+				editor.commit();
+				
+				Intent i = new Intent(reference, OptionsActivity.class);
+				reference.startActivity(i);
+				
+				Intent messageIntent =
+					createMessageIntent(
+						"New values:\n\nLatitude = "
+							+ roundedLatitude
+							+ "\nLongitude = "
+							+ roundedLongitude
+							+ "\nTolerance = "
+							+ tolerance
+							+ "\n\nPlease review the settings in the options. "
+							+ (locationBasedTrackingEnabled ? "Location-based tracking was switched on already and is still enabled."
+								: "You can now enable location-based tracking, just check \""
+									+ reference.getText(R.string.enableLocationBasedTracking) + "\"."), null);
+				reference.startActivity(messageIntent);
+			}
+			
+			@Override
+			public void error(Throwable t) {
+				Logger.warn("error receiving the current device location: {0}", t);
+				Intent messageIntent =
+					createMessageIntent(
+						"Could not get the current location. Please ensure that this app can access the coarse location.",
+						null);
+				context.startActivity(messageIntent);
+			}
+		});
+	}
+	
+	/**
+	 * Queue a request for the current device location, determined by the network (not by GPS).
+	 * 
+	 * @param callback The callback which should be called when the position is found.
+	 */
+	public void requestCurrentLocation(final LocationCallback callback) {
+		final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		try {
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+				@Override
+				public void onLocationChanged(Location location) {
+					callback.callback(location.getLatitude(), location.getLongitude(),
+						Math.round(location.getAccuracy()));
+					// detach listener on first received location
+					locationManager.removeUpdates(this);
+				}
+				
+				@Override
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+					// nothing to do
+				}
+				
+				@Override
+				public void onProviderEnabled(String provider) {
+					// nothing to do
+					
+				}
+				
+				@Override
+				public void onProviderDisabled(String provider) {
+					callback.error(new IllegalAccessException("provider disabled"));
+				}
+			});
+		} catch (Throwable t) {
+			callback.error(t);
 		}
 	}
 	
