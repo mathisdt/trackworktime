@@ -53,6 +53,10 @@ public enum Key {
 		LOCATION_BASED_TRACKING_ENABLED, R.string.workplaceLongitude),
 	LOCATION_BASED_TRACKING_TOLERANCE("keyLocationBasedTrackingTolerance", DataType.INTEGER,
 		LOCATION_BASED_TRACKING_ENABLED, R.string.trackingTolerance),
+	LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS("keyLocationBasedTrackingIgnoreBeforeEvents",
+		DataType.INTEGER_OR_EMPTY, LOCATION_BASED_TRACKING_ENABLED, R.string.ignoreBefore),
+	LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS("keyLocationBasedTrackingIgnoreAfterEvents", DataType.INTEGER_OR_EMPTY,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.ignoreAfter),
 	
 	AUTO_PAUSE_ENABLED("keyAutoPauseEnabled", DataType.BOOLEAN, null, R.string.autoPauseEnabled),
 	AUTO_PAUSE_BEGIN("keyAutoPauseBegin", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseBegin),

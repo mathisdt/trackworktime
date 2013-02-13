@@ -70,6 +70,9 @@
     <string name="workplaceLatitudeLongitudeDescription">in degrees, e.g. 44.2</string>
     <string name="trackingTolerance">Tolerance</string>
     <string name="trackingToleranceDescription">in whole meters, e.g. 500</string>
+    <string name="ignoreBefore">Ignore before events</string>
+    <string name="ignoreAfter">Ignore after events</string>
+    <string name="ignoreBeforeAfterDescription">in minutes, e.g. 10</string>
     <string name="flexiTimeTarget">Flexi Time Target</string>
     <string name="flexiTimeTargetDescription">in hours:minutes per week, e.g. 38:30</string>
     <string name="locationBasedTrackingVibrate">Vibrate on Events</string>

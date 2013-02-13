@@ -61,6 +61,27 @@ public enum DataType {
 			return validate(value);
 		}
 	},
+	/** integer or empty string */
+	INTEGER_OR_EMPTY {
+		@Override
+		public boolean validate(String value) {
+			if (value == null || value.trim().length() == 0) {
+				return true;
+			}
+			try {
+				Integer.parseInt(value);
+				return true;
+			} catch (Exception nfe) {
+				return false;
+			}
+		}
+		
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			String value = sharedPreferences.getString(key, "0");
+			return validate(value);
+		}
+	},
 	/** double */
 	DOUBLE {
 		@Override

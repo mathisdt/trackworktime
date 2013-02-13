@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Container of all checks.
@@ -34,8 +35,7 @@ public class Checks {
 	private static final Set<Check> checks = new HashSet<Check>();
 	
 	static {
-		checks.add(new Check() {
-			// auto-pause begin has to be before auto-pause end (at least one minute)
+		checks.add(new Check("auto-pause begin has to be before auto-pause end (at least one minute)") {
 			@Override
 			public boolean usesPreference(Key key) {
 				return key == Key.AUTO_PAUSE_BEGIN || key == Key.AUTO_PAUSE_END;
@@ -64,8 +64,7 @@ public class Checks {
 			}
 		});
 		
-		checks.add(new Check() {
-			// weekly target working time has to be at least one minute (positive)
+		checks.add(new Check("weekly target working time has to be at least one minute (positive)") {
 			@Override
 			public boolean usesPreference(Key key) {
 				return key == Key.FLEXI_TIME_TARGET;
@@ -83,8 +82,7 @@ public class Checks {
 			}
 		});
 		
-		checks.add(new Check() {
-			// at least one working day has to be checked in the week
+		checks.add(new Check("at least one working day has to be checked in the week") {
 			@Override
 			public boolean usesPreference(Key key) {
 				return key == Key.FLEXI_TIME_DAY_MONDAY || key == Key.FLEXI_TIME_DAY_TUESDAY
@@ -107,8 +105,7 @@ public class Checks {
 			}
 		});
 		
-		checks.add(new Check() {
-			// latitude and longitude have to be provided
+		checks.add(new Check("latitude and longitude have to be provided") {
 			@Override
 			public boolean usesPreference(Key key) {
 				return key == Key.LOCATION_BASED_TRACKING_LATITUDE || key == Key.LOCATION_BASED_TRACKING_LONGITUDE;
@@ -140,8 +137,45 @@ public class Checks {
 			}
 		});
 		
-		checks.add(new Check() {
-			// the smallest time unit for flattening has to be a divisor of 60
+		checks.add(new Check(
+			"time to ignore location before/after events has to be 0 or more, if given at all (not necessary!)") {
+			@Override
+			public boolean usesPreference(Key key) {
+				return key == Key.LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS
+					|| key == Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS;
+			}
+			
+			@Override
+			public boolean check(SharedPreferences prefs) {
+				String ignoreBeforeString =
+					prefs.getString(Key.LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS.getName(), null);
+				if (ignoreBeforeString == null || ignoreBeforeString.trim().length() == 0) {
+					ignoreBeforeString = "0";
+				}
+				int ignoreBefore = -1;
+				try {
+					ignoreBefore = Integer.parseInt(ignoreBeforeString);
+				} catch (NumberFormatException nfe) {
+					ignoreBefore = -1;
+				}
+				
+				String ignoreAfterString =
+					prefs.getString(Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS.getName(), null);
+				if (ignoreAfterString == null || ignoreAfterString.trim().length() == 0) {
+					ignoreAfterString = "0";
+				}
+				int ignoreAfter = -1;
+				try {
+					ignoreAfter = Integer.parseInt(ignoreAfterString);
+				} catch (NumberFormatException nfe) {
+					ignoreAfter = -1;
+				}
+				
+				return ignoreBefore >= 0 && ignoreAfter >= 0;
+			}
+		});
+		
+		checks.add(new Check("the smallest time unit for flattening has to be a divisor of 60") {
 			@Override
 			public boolean usesPreference(Key key) {
 				return key == Key.SMALLEST_TIME_UNIT;
@@ -173,6 +207,7 @@ public class Checks {
 	public static boolean executeFor(Key key, SharedPreferences prefs) {
 		for (Check check : checks) {
 			if (check.usesPreference(key) && !check.check(prefs)) {
+				Logger.info("check \"{0}\" failed for option \"{1}\"", check.getDescription(), key.getName());
 				return false;
 			}
 		}

@@ -21,6 +21,8 @@
     <string name="keyLocationBasedTrackingLatitude">keyLocationBasedTrackingLatitude</string>
     <string name="keyLocationBasedTrackingLongitude">keyLocationBasedTrackingLongitude</string>
     <string name="keyLocationBasedTrackingTolerance">keyLocationBasedTrackingTolerance</string>
+    <string name="keyLocationBasedTrackingIgnoreBeforeEvents">keyLocationBasedTrackingIgnoreBeforeEvents</string>
+    <string name="keyLocationBasedTrackingIgnoreAfterEvents">keyLocationBasedTrackingIgnoreAfterEvents</string>
     <string name="keyAutoPause">keyAutoPause</string>
     <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
     <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>

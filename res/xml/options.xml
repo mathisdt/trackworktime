@@ -96,6 +96,14 @@
             android:key="@string/keyLocationBasedTrackingTolerance"
             android:summary="@string/trackingToleranceDescription"
             android:title="@string/trackingTolerance" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingIgnoreBeforeEvents"
+            android:summary="@string/ignoreBeforeAfterDescription"
+            android:title="@string/ignoreBefore" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingIgnoreAfterEvents"
+            android:summary="@string/ignoreBeforeAfterDescription"
+            android:title="@string/ignoreAfter" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyNotificationCategory"

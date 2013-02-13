@@ -23,18 +23,34 @@ import android.content.SharedPreferences;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public interface Check {
+public abstract class Check {
+	
+	private String description = null;
+	
+	/**
+	 * Constructor
+	 */
+	public Check(String description) {
+		this.description = description;
+	}
+	
+	/**
+	 * Gets the description.
+	 */
+	public String getDescription() {
+		return description;
+	}
 	
 	/**
 	 * Does this check use the value of the specified preference?
 	 */
-	boolean usesPreference(Key key);
+	public abstract boolean usesPreference(Key key);
 	
 	/**
 	 * Checks the constraint coded in this check.
 	 * 
 	 * @return {@code true} if the constraint holds
 	 */
-	boolean check(SharedPreferences prefs);
+	public abstract boolean check(SharedPreferences prefs);
 	
 }
