@@ -76,6 +76,9 @@ public enum Key {
 		this.readableNameResourceId = readableNameResourceId;
 	}
 	
+	/**
+	 * Get the name for use in SharedPreferences.getXXX(name, ...).
+	 */
 	public String getName() {
 		return name;
 	}

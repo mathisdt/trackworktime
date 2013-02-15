@@ -66,6 +66,35 @@ public class TimerManager {
 	}
 	
 	/**
+	 * Returns {@code true} if the options are set in a way that an event is in the defined time before/after an
+	 * existing event (not counting CLOCK_OUT_NOW).
+	 */
+	public boolean isInIgnorePeriodForLocationBasedTracking() {
+		DateTime now = DateTimeUtil.getCurrentDateTime();
+		
+		// get first event AFTER now, subtract the minutes to ignore before events and check if the result is BEFORE now
+		Event firstAfterNow = dao.getFirstEventAfter(now);
+		int ignoreBefore = preferences.getInt(Key.LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS.getName(), 0);
+		if (firstAfterNow != null) {
+			DateTime firstAfterNowTime = DateTimeUtil.stringToDateTime(firstAfterNow.getTime());
+			if (firstAfterNowTime.minus(0, 0, 0, 0, ignoreBefore, 0, DayOverflow.Spillover).lt(now)) {
+				return true;
+			}
+		}
+		// get the last event BEFORE now, add the minutes to ignore after events and check if the result is AFTER now
+		Event lastBeforeNow = dao.getLastEventBefore(now);
+		int ignoreAfter = preferences.getInt(Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS.getName(), 0);
+		if (lastBeforeNow != null) {
+			DateTime lastBeforeNowTime = DateTimeUtil.stringToDateTime(lastBeforeNow.getTime());
+			if (lastBeforeNowTime.plus(0, 0, 0, 0, ignoreAfter, 0, DayOverflow.Spillover).gt(now)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Returns the currently active task or {@code null} if tracking is disabled at the moment.
 	 */
 	public Task getCurrentTask() {

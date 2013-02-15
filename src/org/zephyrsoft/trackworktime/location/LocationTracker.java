@@ -112,20 +112,30 @@ public class LocationTracker implements LocationListener {
 		boolean locationIsInRange = isInRange(location, "current location");
 		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange
 			&& !timerManager.isTracking()) {
-			timerManager.startTracking(0, null, null);
-			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate && isVibrationAllowed()) {
-				vibrationManager.vibrate(vibrationPattern);
+			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
+				Logger
+					.info("NOT clocked in via location-based tracking - too close to an existing event (see options)");
+			} else {
+				timerManager.startTracking(0, null, null);
+				WorkTimeTrackerActivity.refreshViewIfShown();
+				if (vibrate && isVibrationAllowed()) {
+					vibrationManager.vibrate(vibrationPattern);
+				}
+				Logger.info("clocked in via location-based tracking");
 			}
-			Logger.info("clocked in via location-based tracking");
 		} else if ((previousLocationWasInRange == null || previousLocationWasInRange.booleanValue())
 			&& !locationIsInRange && timerManager.isTracking()) {
-			timerManager.stopTracking(0);
-			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate && isVibrationAllowed()) {
-				vibrationManager.vibrate(vibrationPattern);
+			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
+				Logger
+					.info("NOT clocked out via location-based tracking - too close to an existing event (see options)");
+			} else {
+				timerManager.stopTracking(0);
+				WorkTimeTrackerActivity.refreshViewIfShown();
+				if (vibrate && isVibrationAllowed()) {
+					vibrationManager.vibrate(vibrationPattern);
+				}
+				Logger.info("clocked out via location-based tracking");
 			}
-			Logger.info("clocked out via location-based tracking");
 		}
 	}
 	
