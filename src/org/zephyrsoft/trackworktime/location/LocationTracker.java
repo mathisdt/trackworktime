@@ -122,7 +122,7 @@ public class LocationTracker implements LocationListener {
 				timerManager.startTracking(0, null, null);
 				WorkTimeTrackerActivity.refreshViewIfShown();
 				if (vibrate && isVibrationAllowed()) {
-					vibrationManager.vibrate(vibrationPattern);
+					tryVibration();
 				}
 				Logger.info("clocked in via location-based tracking");
 			}
@@ -135,7 +135,7 @@ public class LocationTracker implements LocationListener {
 				timerManager.stopTracking(0);
 				WorkTimeTrackerActivity.refreshViewIfShown();
 				if (vibrate && isVibrationAllowed()) {
-					vibrationManager.vibrate(vibrationPattern);
+					tryVibration();
 				}
 				Logger.info("clocked out via location-based tracking");
 			}
@@ -144,6 +144,14 @@ public class LocationTracker implements LocationListener {
 	
 	private boolean isVibrationAllowed() {
 		return audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT;
+	}
+	
+	private void tryVibration() {
+		try {
+			vibrationManager.vibrate(vibrationPattern);
+		} catch (RuntimeException re) {
+			Logger.warn("vibration not allowed by permissions");
+		}
 	}
 	
 	private boolean isInRange(Location location, String descriptionForLog) {
