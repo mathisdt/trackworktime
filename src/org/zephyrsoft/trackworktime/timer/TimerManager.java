@@ -74,7 +74,14 @@ public class TimerManager {
 		
 		// get first event AFTER now, subtract the minutes to ignore before events and check if the result is BEFORE now
 		Event firstAfterNow = dao.getFirstEventAfter(now);
-		int ignoreBefore = preferences.getInt(Key.LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS.getName(), 0);
+		String ignoreBeforeString =
+			preferences.getString(Key.LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS.getName(), "0");
+		int ignoreBefore = 0;
+		try {
+			ignoreBefore = Integer.parseInt(ignoreBeforeString);
+		} catch (NumberFormatException nfe) {
+			Logger.warn("illegal value - ignore before events: {0}", ignoreBeforeString);
+		}
 		if (firstAfterNow != null) {
 			DateTime firstAfterNowTime = DateTimeUtil.stringToDateTime(firstAfterNow.getTime());
 			if (firstAfterNowTime.minus(0, 0, 0, 0, ignoreBefore, 0, DayOverflow.Spillover).lt(now)) {
@@ -83,7 +90,14 @@ public class TimerManager {
 		}
 		// get the last event BEFORE now, add the minutes to ignore after events and check if the result is AFTER now
 		Event lastBeforeNow = dao.getLastEventBefore(now);
-		int ignoreAfter = preferences.getInt(Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS.getName(), 0);
+		String ignoreAfterString =
+			preferences.getString(Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS.getName(), "0");
+		int ignoreAfter = 0;
+		try {
+			ignoreAfter = Integer.parseInt(ignoreAfterString);
+		} catch (NumberFormatException nfe) {
+			Logger.warn("illegal value - ignore after events: {0}", ignoreAfterString);
+		}
 		if (lastBeforeNow != null) {
 			DateTime lastBeforeNowTime = DateTimeUtil.stringToDateTime(lastBeforeNow.getTime());
 			if (lastBeforeNowTime.plus(0, 0, 0, 0, ignoreAfter, 0, DayOverflow.Spillover).gt(now)) {

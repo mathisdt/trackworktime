@@ -67,6 +67,9 @@ public class LocationTracker implements LocationListener {
 		if (vibrationManager == null) {
 			throw new IllegalArgumentException("the VibrationManager is null");
 		}
+		if (audioManager == null) {
+			throw new IllegalArgumentException("the AudioManager is null");
+		}
 		this.locationManager = locationManager;
 		this.timerManager = timerManager;
 		this.vibrationManager = vibrationManager;
