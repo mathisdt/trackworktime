@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import java.util.Set;
 import android.content.SharedPreferences;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
 
@@ -27,6 +28,28 @@ import org.zephyrsoft.trackworktime.options.Key;
  * @author Mathis Dirksen-Thedens
  */
 public class PreferencesUtil {
+	
+	/**
+	 * Execute all checks for the options and disable any sections that contain illegal options or option combinations.
+	 * 
+	 * @return the number of sections that were disabled because of failed checks
+	 */
+	public static int checkAllPreferenceSections() {
+		SharedPreferences preferences = Basics.getInstance().getPreferences();
+		int disabledSections = 0;
+		for (String key : preferences.getAll().keySet()) {
+			Key sectionToDisable = PreferencesUtil.check(preferences, key);
+			if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
+				Logger.warn("option {0} is invalid => disabling option {1}", key, sectionToDisable.getName());
+				disabledSections++;
+				
+				// deactivate the section
+				PreferencesUtil.disablePreference(preferences, sectionToDisable);
+			}
+		}
+		
+		return disabledSections;
+	}
 	
 	/**
 	 * Set a boolean preference to false. Used primarily to disable a section.

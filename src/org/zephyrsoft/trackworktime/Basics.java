@@ -43,6 +43,7 @@ import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
@@ -141,8 +142,22 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public void periodicHook() {
 		Logger.debug("executing periodic hook");
+		// first make sure that the options are consistent
+		safeCheckPreferences();
+		// then start the action
 		safeCheckLocationBasedTracking();
 		safeCheckPersistentNotification();
+	}
+	
+	/**
+	 * Wrapper for {@link PreferencesUtil#checkAllPreferenceSections()} that doesn't throw any exception.
+	 */
+	private void safeCheckPreferences() {
+		try {
+			PreferencesUtil.checkAllPreferenceSections();
+		} catch (Exception e) {
+			ACRA.getErrorReporter().handleException(e);
+		}
 	}
 	
 	/**

@@ -9,7 +9,6 @@ import static org.acra.ReportField.BUILD;
 import static org.acra.ReportField.CRASH_CONFIGURATION;
 import static org.acra.ReportField.DEVICE_FEATURES;
 import static org.acra.ReportField.DISPLAY;
-import static org.acra.ReportField.DUMPSYS_MEMINFO;
 import static org.acra.ReportField.ENVIRONMENT;
 import static org.acra.ReportField.FILE_PATH;
 import static org.acra.ReportField.INITIAL_CONFIGURATION;
@@ -18,8 +17,6 @@ import static org.acra.ReportField.PACKAGE_NAME;
 import static org.acra.ReportField.PHONE_MODEL;
 import static org.acra.ReportField.PRODUCT;
 import static org.acra.ReportField.REPORT_ID;
-import static org.acra.ReportField.SETTINGS_SECURE;
-import static org.acra.ReportField.SETTINGS_SYSTEM;
 import static org.acra.ReportField.SHARED_PREFERENCES;
 import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.TOTAL_MEM_SIZE;
@@ -40,10 +37,9 @@ import org.zephyrsoft.trackworktime.util.Logger;
  */
 @ReportsCrashes(formKey = "", formUri = "http://zephyrsoft.net/crashreport.jsp",
 	mode = ReportingInteractionMode.SILENT, customReportContent = {ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME,
-		AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION, DEVICE_FEATURES, DISPLAY, DUMPSYS_MEMINFO, ENVIRONMENT,
-		FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID,
-		SETTINGS_SECURE, SETTINGS_SYSTEM, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,
-		USER_CRASH_DATE})
+		AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION, DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH,
+		INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES,
+		STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE, USER_CRASH_DATE})
 public class WorkTimeTrackerApplication extends Application {
 	
 	@Override

@@ -152,17 +152,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private SimpleGestureFilter detector;
 	
 	private void checkAllOptions() {
-		int disabledSections = 0;
-		for (String key : preferences.getAll().keySet()) {
-			Key sectionToDisable = PreferencesUtil.check(preferences, key);
-			if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
-				Logger.warn("option {0} is invalid => disabling option {1}", key, sectionToDisable.getName());
-				disabledSections++;
-				
-				// deactivate the section
-				PreferencesUtil.disablePreference(preferences, sectionToDisable);
-			}
-		}
+		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
 		
 		if (disabledSections > 0) {
 			// show message to user
