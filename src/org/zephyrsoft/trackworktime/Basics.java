@@ -309,7 +309,7 @@ public class Basics extends BroadcastReceiver {
 					createMessageIntent(
 						"Could not get the current location. Please ensure that this app can access the coarse location.",
 						null);
-				context.startActivity(messageIntent);
+				reference.startActivity(messageIntent);
 			}
 		});
 	}
