@@ -183,11 +183,11 @@ public class Basics extends BroadcastReceiver {
 	}
 	
 	/**
-	 * Check if persistent notification has to be displayed/updated/removed.
+	 * Check if persistent notification has to be displayed/updated/removed. Only works when "flexi time" enabled!
 	 */
 	public void checkPersistentNotification() {
 		Logger.debug("checking persistent notification");
-		if (timerManager.isTracking()) {
+		if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false) && timerManager.isTracking()) {
 			// display/update
 			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
