@@ -87,6 +87,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	private Event editedEvent = null;
 	private boolean newEvent = false;
 	
+	private boolean noDateChangedReaction = false;
+	
 	@Override
 	protected void onPause() {
 		dao.close();
@@ -292,19 +294,35 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	
 	@Override
 	public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-		selectedYear = year;
-		selectedMonth = monthOfYear;
-		selectedDay = dayOfMonth;
-		
-		// restrict date range to the week we are editing right now
-		DateTime newDate = getCurrentlySetDateAndTime();
-		if (newDate.lt(weekStart)) {
-			date.updateDate(weekStart.getYear(), weekStart.getMonth() - 1, weekStart.getDay());
-		} else if (newDate.gt(weekEnd)) {
-			date.updateDate(weekEnd.getYear(), weekEnd.getMonth() - 1, weekEnd.getDay());
+		if (noDateChangedReaction) {
+			Logger.debug("date not changed - infinite loop protection");
+		} else {
+			selectedYear = year;
+			selectedMonth = monthOfYear;
+			selectedDay = dayOfMonth;
+			
+			// restrict date range to the week we are editing right now
+			DateTime newDate = getCurrentlySetDateAndTime();
+			try {
+				noDateChangedReaction = true;
+				if (newDate.lt(weekStart)) {
+					date.updateDate(weekStart.getYear(), weekStart.getMonth() - 1, weekStart.getDay());
+					selectedYear = weekStart.getYear();
+					selectedMonth = weekStart.getMonth() - 1;
+					selectedDay = weekStart.getDay();
+				} else if (newDate.gt(weekEnd)) {
+					date.updateDate(weekEnd.getYear(), weekEnd.getMonth() - 1, weekEnd.getDay());
+					selectedYear = weekEnd.getYear();
+					selectedMonth = weekEnd.getMonth() - 1;
+					selectedDay = weekEnd.getDay();
+				}
+			} finally {
+				noDateChangedReaction = false;
+			}
+			
+			setWeekday();
+			Logger.debug("date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
 		}
-		setWeekday();
-		Logger.debug("date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
 	}
 	
 	@Override
