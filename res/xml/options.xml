@@ -105,6 +105,21 @@
             android:summary="@string/ignoreBeforeAfterDescription"
             android:title="@string/ignoreAfter" />
     </PreferenceCategory>
+    <PreferenceCategory 
+        android:key="@string/keyWifiBasedTrackingCategory"
+        android:title="@string/wifiBasedTracking" >
+        <CheckBoxPreference
+            android:key="@string/keyWifiBasedTrackingEnabled"
+            android:summary="@string/enableWifiBasedTrackingDescription"
+            android:title="@string/enableWifiBasedTracking" />
+        <CheckBoxPreference
+            android:key="@string/keyWifiBasedTrackingVibrate"
+            android:title="@string/wifiBasedTrackingVibrate" />
+        <EditTextPreference
+            android:key="@string/keyWifiBasedTrackingSSID"
+            android:summary="@string/workplaceWifiSSIDDescription"
+            android:title="@string/workplaceWifiSSID" />
+    </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyNotificationCategory"
         android:title="@string/notification" >

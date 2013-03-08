@@ -18,6 +18,19 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 import java.util.Calendar;
+import org.acra.ACRA;
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.CoordinateUtil;
+import org.zephyrsoft.trackworktime.location.LocationCallback;
+import org.zephyrsoft.trackworktime.location.LocationTrackerService;
+import org.zephyrsoft.trackworktime.location.WifiTrackerService;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+import org.zephyrsoft.trackworktime.util.VibrationManager;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -33,23 +46,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import org.acra.ACRA;
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.location.CoordinateUtil;
-import org.zephyrsoft.trackworktime.location.LocationCallback;
-import org.zephyrsoft.trackworktime.location.LocationTrackerService;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
- * tracking is enabled). Also schedules periodic intents for {@link Watchdog} which in turn checks if
- * {@link LocationTrackerService} needs to be (re-)started.
+ * tracking is enabled) and/or the wifi-based tracking service. Also schedules periodic intents for {@link Watchdog}
+ * which in turn checks if {@link LocationTrackerService} needs to be (re-)started.
  * 
  * @author Mathis Dirksen-Thedens
  */
@@ -63,6 +64,8 @@ public class Basics extends BroadcastReceiver {
 	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;
 	/** used for the status notification when clocked in */
 	public static final int PERSISTENT_STATUS_ID = 2;
+	/** used for the message about ACCESS_WIFI_STATE */
+	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 3;
 	
 	private Context context = null;
 	private SharedPreferences preferences = null;
@@ -146,6 +149,7 @@ public class Basics extends BroadcastReceiver {
 		safeCheckPreferences();
 		// then start the action
 		safeCheckLocationBasedTracking();
+		safeCheckWifiBasedTracking();
 		safeCheckPersistentNotification();
 	}
 	
@@ -166,6 +170,17 @@ public class Basics extends BroadcastReceiver {
 	public void safeCheckLocationBasedTracking() {
 		try {
 			checkLocationBasedTracking();
+		} catch (Exception e) {
+			ACRA.getErrorReporter().handleException(e);
+		}
+	}
+	
+	/**
+	 * Wrapper for {@link #checkWifiBasedTracking()} that doesn't throw any exception.
+	 */
+	public void safeCheckWifiBasedTracking() {
+		try {
+			checkWifiBasedTracking();
 		} catch (Exception e) {
 			ACRA.getErrorReporter().handleException(e);
 		}
@@ -245,7 +260,7 @@ public class Basics extends BroadcastReceiver {
 				Logger.warn("could not parse tolerance: {0}", toleranceString);
 			}
 			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
-			Intent startIntent = buildServiceIntent(latitude, longitude, tolerance, vibrate);
+			Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
 			// we can start the service again even if it is already running because
 			// onStartCommand(...) in LocationTrackerService won't do anything if the service
 			// is already running with the current parameters - if the location or the
@@ -253,9 +268,28 @@ public class Basics extends BroadcastReceiver {
 			Logger.debug("try to start location-based tracking service");
 			context.startService(startIntent);
 		} else {
-			Intent stopIntent = buildServiceIntent(null, null, null, null);
+			Intent stopIntent = buildLocationTrackerServiceIntent(null, null, null, null);
 			context.stopService(stopIntent);
 			Logger.debug("location-based tracking service stopped");
+		}
+	}
+	
+	/**
+	 * Check if wifi-based tracking has to be en- or disabled and perfoem wifi-check
+	 */
+	public void checkWifiBasedTracking() {
+		Logger.debug("checking wifi-based tracking");
+		if (preferences.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
+			String ssid = preferences.getString(Key.WIFI_BASED_TRACKING_SSID.getName(), "unknown_ssid");
+			Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
+			Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
+			// changes to settings will be adopted & wifi-check will be performed
+			Logger.debug("try to start wifi-based tracking service");
+			context.startService(startIntent);
+		} else {
+			Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
+			context.stopService(stopIntent);
+			Logger.debug("wifi-based tracking service stopped");
 		}
 	}
 	
@@ -394,7 +428,7 @@ public class Basics extends BroadcastReceiver {
 	}
 	
 	/**
-	 * Disable the tracking.
+	 * Disable the location-based tracking.
 	 */
 	public void disableLocationBasedTracking() {
 		SharedPreferences.Editor editor = preferences.edit();
@@ -402,12 +436,29 @@ public class Basics extends BroadcastReceiver {
 		editor.commit();
 	}
 	
-	private Intent buildServiceIntent(Double latitude, Double longitude, Double tolerance, Boolean vibrate) {
+	/**
+	 * Disable the wifi-based tracking.
+	 */
+	public void disableWifiBasedTracking() {
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+		editor.commit();
+	}
+	
+	private Intent buildLocationTrackerServiceIntent(Double latitude, Double longitude, Double tolerance,
+		Boolean vibrate) {
 		Intent intent = new Intent(context, LocationTrackerService.class);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LATITUDE, latitude);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LONGITUDE, longitude);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_TOLERANCE, tolerance);
 		intent.putExtra(LocationTrackerService.INTENT_EXTRA_VIBRATE, vibrate);
+		return intent;
+	}
+	
+	private Intent buildWifiTrackerServiceIntent(String ssid, Boolean vibrate) {
+		Intent intent = new Intent(context, WifiTrackerService.class);
+		intent.putExtra(WifiTrackerService.INTENT_EXTRA_SSID, ssid);
+		intent.putExtra(WifiTrackerService.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
 	

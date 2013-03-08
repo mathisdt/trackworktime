@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <application
         android:name="WorkTimeTrackerApplication"
@@ -80,6 +81,7 @@
             android:label="@string/message"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <service android:name=".location.WifiTrackerService" android:enabled="true"></service>
     </application>
 
 </manifest>

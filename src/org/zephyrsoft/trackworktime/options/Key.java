@@ -62,7 +62,13 @@ public enum Key {
 	AUTO_PAUSE_BEGIN("keyAutoPauseBegin", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseBegin),
 	AUTO_PAUSE_END("keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd),
 	
-	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled);
+	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled),
+	
+	WIFI_BASED_TRACKING_ENABLED("keyWifiBasedTrackingEnabled", DataType.BOOLEAN, null, R.string.enableWifiBasedTracking),
+	WIFI_BASED_TRACKING_VIBRATE("keyWifiBasedTrackingVibrate", DataType.BOOLEAN, WIFI_BASED_TRACKING_ENABLED,
+		R.string.wifiBasedTrackingVibrate),
+	WIFI_BASED_TRACKING_SSID("keyWifiBasedTrackingSSID", DataType.SSID, WIFI_BASED_TRACKING_ENABLED,
+		R.string.workplaceWifiSSID);
 	
 	private final String name;
 	private final DataType dataType;

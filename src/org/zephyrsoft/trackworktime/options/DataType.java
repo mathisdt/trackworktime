@@ -18,8 +18,8 @@ package org.zephyrsoft.trackworktime.options;
 
 import hirondelle.date4j.DateTime;
 import java.util.regex.Pattern;
-import android.content.SharedPreferences;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import android.content.SharedPreferences;
 
 /**
  * Data types for the options.
@@ -125,6 +125,33 @@ public enum DataType {
 		@Override
 		public boolean validate(String value) {
 			return value != null && Pattern.matches("\\-?\\d+:\\d\\d", value);
+		}
+		
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			String value = sharedPreferences.getString(key, "0:00");
+			return validate(value);
+		}
+	},
+	/** string for a wi-fi ssid */
+	SSID {
+		
+		@Override
+		public boolean validate(String value) {
+			if (value != null && value.length() != 0 // not empty
+				&& value.trim().length() != 0) { // not only whitespaces
+			
+				for (int i = 0; i < value.length(); i++) {
+					// cointaining whitespaces?
+					if (Character.isWhitespace(value.charAt(i))) {
+						return false;
+					}
+				}
+				return true;
+				
+			} else {
+				return false;
+			}
 		}
 		
 		@Override

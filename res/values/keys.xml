@@ -23,6 +23,10 @@
     <string name="keyLocationBasedTrackingTolerance">keyLocationBasedTrackingTolerance</string>
     <string name="keyLocationBasedTrackingIgnoreBeforeEvents">keyLocationBasedTrackingIgnoreBeforeEvents</string>
     <string name="keyLocationBasedTrackingIgnoreAfterEvents">keyLocationBasedTrackingIgnoreAfterEvents</string>
+    <string name="keyWifiBasedTrackingCategory">keyWifiBasedTrackingCategory</string>
+    <string name="keyWifiBasedTrackingEnabled">keyWifiBasedTrackingEnabled</string>
+    <string name="keyWifiBasedTrackingSSID">keyWifiBasedTrackingSSID</string>
+    <string name="keyWifiBasedTrackingVibrate">keyWifiBasedTrackingVibrate</string>
     <string name="keyAutoPause">keyAutoPause</string>
     <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
     <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>
