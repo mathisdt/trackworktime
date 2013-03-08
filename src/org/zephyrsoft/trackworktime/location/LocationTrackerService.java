@@ -85,7 +85,7 @@ public class LocationTrackerService extends Service {
 			// already running, but the data has to be updated
 			result = locationTracker.startTrackingByLocation(latitude, longitude, toleranceInMeters, vibrate);
 		} else {
-			Logger.debug("service is already running and nothing has to be updated - no action");
+			Logger.debug("LocationTrackerService is already running and nothing has to be updated - no action");
 		}
 		
 		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {

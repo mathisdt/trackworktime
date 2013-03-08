@@ -18,13 +18,13 @@ package org.zephyrsoft.trackworktime.location;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
-import android.media.AudioManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
@@ -105,9 +105,9 @@ public class WifiTracker {
 	 * check if wifi-ssid is in range and start/stop tracking
 	 */
 	public void checkWifi() {
-		Logger.debug("checking wifi for ssid={0}", ssid);
+		Logger.debug("checking wifi for ssid \"{0}\"", ssid);
 		final boolean ssidInRange = isConfiguredSsidInRange();
-		Logger.debug("wifi-ssid={0} in range={1}", ssid, ssidInRange);
+		Logger.debug("wifi-ssid \"{0}\" in range: {1}", ssid, ssidInRange);
 		
 		if (timerManager.isTracking() && !ssidInRange) {
 			timerManager.stopTracking(0);
@@ -140,7 +140,7 @@ public class WifiTracker {
 				}
 			}
 		} else {
-			Logger.info("tracking by wifi, but wifi-radio is disabled.");
+			Logger.info("tracking by wifi, but wifi-radio is disabled");
 		}
 		return false;
 	}

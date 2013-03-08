@@ -17,14 +17,14 @@
 package org.zephyrsoft.trackworktime.location;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.util.Logger;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * The background service providing the wifi-based tracking without having the activity open.
@@ -75,7 +75,7 @@ public class WifiTrackerService extends Service {
 			// already running, but the data has to be updated
 			result = wifiTracker.startTrackingByWifi(ssid, vibrate);
 		} else {
-			Logger.debug("service is already running and nothing has to be updated - no action");
+			Logger.debug("WifiTrackerService is already running and nothing has to be updated - no action");
 		}
 		
 		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {

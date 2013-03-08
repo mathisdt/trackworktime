@@ -399,7 +399,7 @@ public class Basics extends BroadcastReceiver {
 		Intent intent, Integer notificationId, boolean persistent) {
 		NotificationManager notificationManager =
 			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = new Notification(R.drawable.ic_small, scrollingText, 0);
+		Notification notification = new Notification(R.drawable.ic_launcher_small, scrollingText, 0);
 		if (persistent) {
 			notification.flags = Notification.FLAG_ONGOING_EVENT;
 		}
