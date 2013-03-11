@@ -18,13 +18,13 @@ package org.zephyrsoft.trackworktime.location;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import android.media.AudioManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
+import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
@@ -47,6 +47,11 @@ public class WifiTracker {
 	
 	private String ssid = "";
 	private boolean vibrate = false;
+	
+	/**
+	 * store-flag of the previous state of the wifi-ssid occurance from last check
+	 */
+	private Boolean ssidWasPreviouslyInRange;
 	
 	/**
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
@@ -106,17 +111,22 @@ public class WifiTracker {
 	 */
 	public void checkWifi() {
 		Logger.debug("checking wifi for ssid \"{0}\"", ssid);
-		final boolean ssidInRange = isConfiguredSsidInRange();
-		Logger.debug("wifi-ssid \"{0}\" in range: {1}", ssid, ssidInRange);
+		final boolean ssidIsNowInRange = isConfiguredSsidInRange();
+		Logger.debug("wifi-ssid \"{0}\" in now range: {1}, previous state: {2}", ssid, ssidIsNowInRange,
+			ssidWasPreviouslyInRange);
 		
-		if (timerManager.isTracking() && !ssidInRange) {
+		if ((ssidWasPreviouslyInRange == null || ssidWasPreviouslyInRange.booleanValue()) && timerManager.isTracking()
+			&& !ssidIsNowInRange) {
+			
 			timerManager.stopTracking(0);
 			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate && isVibrationAllowed()) {
 				tryVibration();
 			}
 			Logger.info("clocked out via wifi-based tracking");
-		} else if (!timerManager.isTracking() && ssidInRange) {
+		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue())
+			&& !timerManager.isTracking() && ssidIsNowInRange) {
+			
 			timerManager.startTracking(0, null, null);
 			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate && isVibrationAllowed()) {
@@ -124,6 +134,8 @@ public class WifiTracker {
 			}
 			Logger.info("clocked in via wifi-based tracking");
 		}
+		// preserve the state of this wifi-check for the next call
+		ssidWasPreviouslyInRange = ssidIsNowInRange;
 	}
 	
 	/**
@@ -164,6 +176,7 @@ public class WifiTracker {
 		
 		if (isTrackingByWifi.compareAndSet(true, false)) {
 			Logger.info("stopped wifi-based tracking");
+			ssidWasPreviouslyInRange = null;
 		}
 	}
 	
