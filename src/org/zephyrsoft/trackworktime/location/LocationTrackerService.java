@@ -24,6 +24,7 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -32,18 +33,6 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * @author Mathis Dirksen-Thedens
  */
 public class LocationTrackerService extends Service {
-	
-	/** the key for the {@link Double} which determines the latitude */
-	public static String INTENT_EXTRA_LATITUDE = "LATITUDE";
-	
-	/** the key for the {@link Double} which determines the longitude */
-	public static String INTENT_EXTRA_LONGITUDE = "LONGITUDE";
-	
-	/** the key for the {@link Double} which determines the tolerance */
-	public static String INTENT_EXTRA_TOLERANCE = "TOLERANCE";
-	
-	/** the key for the {@link Boolean} which determines if vibration should be used */
-	public static String INTENT_EXTRA_VIBRATE = "VIBRATE";
 	
 	private static LocationTracker locationTracker = null;
 	private int startId;
@@ -71,10 +60,10 @@ public class LocationTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
-		Double latitude = (Double) intent.getExtras().get(INTENT_EXTRA_LATITUDE);
-		Double longitude = (Double) intent.getExtras().get(INTENT_EXTRA_LONGITUDE);
-		Double toleranceInMeters = (Double) intent.getExtras().get(INTENT_EXTRA_TOLERANCE);
-		Boolean vibrate = (Boolean) intent.getExtras().get(INTENT_EXTRA_VIBRATE);
+		Double latitude = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_LATITUDE);
+		Double longitude = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_LONGITUDE);
+		Double toleranceInMeters = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_TOLERANCE);
+		Boolean vibrate = (Boolean) intent.getExtras().get(Constants.INTENT_EXTRA_VIBRATE);
 		Result result = null;
 		if (isRunning.compareAndSet(false, true)) {
 			this.startId = startId;
@@ -99,8 +88,8 @@ public class LocationTrackerService extends Service {
 					basics
 						.createMessageIntent(
 							"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.",
-							Basics.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
-					Basics.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, false);
+							Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+					Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, false);
 		}
 		
 		return Service.START_NOT_STICKY;

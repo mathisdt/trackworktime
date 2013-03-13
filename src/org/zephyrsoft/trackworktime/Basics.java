@@ -18,19 +18,6 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 import java.util.Calendar;
-import org.acra.ACRA;
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.location.CoordinateUtil;
-import org.zephyrsoft.trackworktime.location.LocationCallback;
-import org.zephyrsoft.trackworktime.location.LocationTrackerService;
-import org.zephyrsoft.trackworktime.location.WifiTrackerService;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.util.VibrationManager;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -46,6 +33,19 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import org.acra.ACRA;
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.CoordinateUtil;
+import org.zephyrsoft.trackworktime.location.LocationCallback;
+import org.zephyrsoft.trackworktime.location.LocationTrackerService;
+import org.zephyrsoft.trackworktime.location.WifiTrackerService;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
@@ -55,17 +55,6 @@ import android.preference.PreferenceManager;
  * @author Mathis Dirksen-Thedens
  */
 public class Basics extends BroadcastReceiver {
-	
-	// check once every minute
-	private static final long REPEAT_TIME = 1000 * 60;
-	
-	// notification IDs
-	/** used for the message about ACCESS_COARSE_LOCATION */
-	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;
-	/** used for the status notification when clocked in */
-	public static final int PERSISTENT_STATUS_ID = 2;
-	/** used for the message about ACCESS_WIFI_STATE */
-	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 3;
 	
 	private Context context = null;
 	private SharedPreferences preferences = null;
@@ -137,7 +126,8 @@ public class Basics extends BroadcastReceiver {
 		cal.add(Calendar.MINUTE, 1);
 		
 		// schedule once every minute
-		service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), REPEAT_TIME, pendingIntent);
+		service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), Constants.REPEAT_TIME,
+			pendingIntent);
 	}
 	
 	/**
@@ -222,13 +212,13 @@ public class Basics extends BroadcastReceiver {
 			} else {
 				// nothing to do, this is not a working day
 			}
-			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, intent, PERSISTENT_STATUS_ID,
-				true);
+			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, intent,
+				Constants.PERSISTENT_STATUS_ID, true);
 		} else {
 			// try to remove
 			NotificationManager notificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.cancel(PERSISTENT_STATUS_ID);
+			notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
 		}
 	}
 	
@@ -280,12 +270,16 @@ public class Basics extends BroadcastReceiver {
 	public void checkWifiBasedTracking() {
 		Logger.debug("checking wifi-based tracking");
 		if (preferences.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
-			String ssid = preferences.getString(Key.WIFI_BASED_TRACKING_SSID.getName(), "unknown_ssid");
-			Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
-			Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
-			// changes to settings will be adopted & wifi-check will be performed
-			Logger.debug("try to start wifi-based tracking service");
-			context.startService(startIntent);
+			String ssid = preferences.getString(Key.WIFI_BASED_TRACKING_SSID.getName(), null);
+			Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), false);
+			if (ssid != null && ssid.length() > 0) {
+				Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
+				Logger.debug("try to start wifi-based tracking service");
+				// changes to settings will be adopted & wifi-check will be performed
+				context.startService(startIntent);
+			} else {
+				Logger.warn("NOT starting wifi-based tracking service, the configured SSID is empty");
+			}
 		} else {
 			Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
 			context.stopService(stopIntent);
@@ -420,9 +414,9 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public Intent createMessageIntent(String text, Integer id) {
 		Intent messageIntent = new Intent(context, MessageActivity.class);
-		messageIntent.putExtra(MessageActivity.MESSAGE_EXTRA_KEY, text);
+		messageIntent.putExtra(Constants.MESSAGE_EXTRA_KEY, text);
 		if (id != null) {
-			messageIntent.putExtra(MessageActivity.ID_EXTRA_KEY, id.intValue());
+			messageIntent.putExtra(Constants.ID_EXTRA_KEY, id.intValue());
 		}
 		return messageIntent;
 	}
@@ -448,17 +442,17 @@ public class Basics extends BroadcastReceiver {
 	private Intent buildLocationTrackerServiceIntent(Double latitude, Double longitude, Double tolerance,
 		Boolean vibrate) {
 		Intent intent = new Intent(context, LocationTrackerService.class);
-		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LATITUDE, latitude);
-		intent.putExtra(LocationTrackerService.INTENT_EXTRA_LONGITUDE, longitude);
-		intent.putExtra(LocationTrackerService.INTENT_EXTRA_TOLERANCE, tolerance);
-		intent.putExtra(LocationTrackerService.INTENT_EXTRA_VIBRATE, vibrate);
+		intent.putExtra(Constants.INTENT_EXTRA_LATITUDE, latitude);
+		intent.putExtra(Constants.INTENT_EXTRA_LONGITUDE, longitude);
+		intent.putExtra(Constants.INTENT_EXTRA_TOLERANCE, tolerance);
+		intent.putExtra(Constants.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
 	
 	private Intent buildWifiTrackerServiceIntent(String ssid, Boolean vibrate) {
 		Intent intent = new Intent(context, WifiTrackerService.class);
-		intent.putExtra(WifiTrackerService.INTENT_EXTRA_SSID, ssid);
-		intent.putExtra(WifiTrackerService.INTENT_EXTRA_VIBRATE, vibrate);
+		intent.putExtra(Constants.INTENT_EXTRA_SSID, ssid);
+		intent.putExtra(Constants.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
 	

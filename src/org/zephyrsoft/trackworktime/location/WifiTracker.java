@@ -18,13 +18,14 @@ package org.zephyrsoft.trackworktime.location;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.VibrationManager;
-import android.media.AudioManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
@@ -33,10 +34,6 @@ import android.net.wifi.WifiManager;
  * @author Christoph Loewe
  */
 public class WifiTracker {
-	
-	private final int SECONDS_TO_SLEEP_BETWEEN_CHECKS = 60;
-	
-	private final long[] vibrationPattern = {0, 200, 250, 500, 250, 200};
 	
 	private final WifiManager wifiManager;
 	private final TimerManager timerManager;
@@ -48,9 +45,7 @@ public class WifiTracker {
 	private String ssid = "";
 	private boolean vibrate = false;
 	
-	/**
-	 * store-flag of the previous state of the wifi-ssid occurance from last check
-	 */
+	/** previous state of the wifi-ssid occurence (from last check) */
 	private Boolean ssidWasPreviouslyInRange;
 	
 	/**
@@ -147,7 +142,7 @@ public class WifiTracker {
 		if (wifiManager.isWifiEnabled()) {
 			List<ScanResult> wifiNetworksInRange = wifiManager.getScanResults();
 			for (ScanResult network : wifiNetworksInRange) {
-				if (network.SSID.equalsIgnoreCase(this.ssid)) {
+				if (network.SSID.equalsIgnoreCase(ssid)) {
 					return true;
 				}
 			}
@@ -163,7 +158,7 @@ public class WifiTracker {
 	
 	private void tryVibration() {
 		try {
-			vibrationManager.vibrate(vibrationPattern);
+			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
 		} catch (RuntimeException re) {
 			Logger.warn("vibration not allowed by permissions");
 		}
@@ -181,7 +176,7 @@ public class WifiTracker {
 	}
 	
 	/**
-	 * Return the current ssid configured.
+	 * Get the currently configured ssid.
 	 */
 	public String getSSID() {
 		return ssid;

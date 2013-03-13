@@ -24,6 +24,7 @@ import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -32,12 +33,6 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * @author Christoph Loewe
  */
 public class WifiTrackerService extends Service {
-	
-	/** the key for the {@link String} which determines the ssid to look for */
-	public static String INTENT_EXTRA_SSID = "SSID";
-	
-	/** the key for the {@link Boolean} which determines if vibration should be used */
-	public static String INTENT_EXTRA_VIBRATE = "VIBRATE";
 	
 	private static WifiTracker wifiTracker = null;
 	private int startId;
@@ -65,8 +60,8 @@ public class WifiTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
-		String ssid = (String) intent.getExtras().get(INTENT_EXTRA_SSID);
-		Boolean vibrate = (Boolean) intent.getExtras().get(INTENT_EXTRA_VIBRATE);
+		String ssid = (String) intent.getExtras().get(Constants.INTENT_EXTRA_SSID);
+		Boolean vibrate = (Boolean) intent.getExtras().get(Constants.INTENT_EXTRA_VIBRATE);
 		Result result = null;
 		if (isRunning.compareAndSet(false, true)) {
 			this.startId = startId;
@@ -78,7 +73,7 @@ public class WifiTrackerService extends Service {
 			Logger.debug("WifiTrackerService is already running and nothing has to be updated - no action");
 		}
 		
-		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
+		if (result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
 			// disable the tracking and notify user of it
 			basics.disableWifiBasedTracking();
 			basics
@@ -88,16 +83,21 @@ public class WifiTrackerService extends Service {
 					"(open to see details)",
 					basics
 						.createMessageIntent(
-							"Track Work Time disabled the wifi-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.",
-							Basics.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID),
-					Basics.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false);
+							"Track Work Time disabled the wifi-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_WIFI_STATE is granted.",
+							Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID),
+					Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false);
 		}
 		
+		// the check for available wifi networks is done here (and thus needs the periodically sent intents):
+		checkWifiIfEnabled();
+		
+		return Service.START_NOT_STICKY;
+	}
+	
+	private void checkWifiIfEnabled() {
 		if (isRunning.get()) {
 			wifiTracker.checkWifi();
 		}
-		
-		return Service.START_NOT_STICKY;
 	}
 	
 	@Override

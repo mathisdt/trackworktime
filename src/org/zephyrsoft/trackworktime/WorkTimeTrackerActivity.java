@@ -209,7 +209,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				} else {
 					typeString = getString(R.string.clockIn);
 				}
-				i.putExtra(TimeAheadActivity.TYPE_EXTRA_KEY, typeString);
+				i.putExtra(Constants.TYPE_EXTRA_KEY, typeString);
 				startActivity(i);
 				return true;
 			}
@@ -651,7 +651,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private void showEventList() {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
-		i.putExtra(EventListActivity.WEEK_START_EXTRA_KEY, currentlyShownWeek.getStart());
+		i.putExtra(Constants.WEEK_START_EXTRA_KEY, currentlyShownWeek.getStart());
 		startActivity(i);
 	}
 	

@@ -31,9 +31,6 @@ import android.widget.TextView;
  */
 public class TimeAheadActivity extends Activity {
 	
-	/** used to transport the type via an intent's extended data */
-	public static final String TYPE_EXTRA_KEY = "type";
-	
 	private TextView type = null;
 	private EditText minutes = null;
 	private Button cancel = null;
@@ -67,7 +64,7 @@ public class TimeAheadActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		String typeString = getIntent().getStringExtra(TYPE_EXTRA_KEY);
+		String typeString = getIntent().getStringExtra(Constants.TYPE_EXTRA_KEY);
 		type.setText(typeString);
 	}
 	

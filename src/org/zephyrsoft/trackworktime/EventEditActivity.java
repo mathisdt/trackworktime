@@ -53,11 +53,6 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  */
 public class EventEditActivity extends Activity implements OnDateChangedListener, OnTimeChangedListener {
 	
-	/** key for the intent extra "week start" */
-	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
-	/** key for the intent extra "event id" */
-	public static final String EVENT_ID_EXTRA_KEY = "EVENT_ID_EXTRA_KEY";
-	
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	
@@ -196,8 +191,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		super.onResume();
 		
 		// one of the following options
-		int eventId = getIntent().getIntExtra(EVENT_ID_EXTRA_KEY, -1);
-		String weekStartString = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
+		int eventId = getIntent().getIntExtra(Constants.EVENT_ID_EXTRA_KEY, -1);
+		String weekStartString = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
 		
 		if (eventId == -1 && weekStartString == null) {
 			throw new IllegalArgumentException("either event ID or week start must be given");

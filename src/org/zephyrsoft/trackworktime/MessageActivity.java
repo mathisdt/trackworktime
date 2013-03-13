@@ -32,11 +32,6 @@ import android.widget.TextView;
  */
 public class MessageActivity extends Activity implements OnClickListener {
 	
-	/** used to transport the message via an intent's extended data */
-	public static final String MESSAGE_EXTRA_KEY = "message";
-	/** used to transport the notification' ID via an intent's extended data */
-	public static final String ID_EXTRA_KEY = "notificationId";
-	
 	private TextView textView = null;
 	private int id = -1;
 	
@@ -52,8 +47,8 @@ public class MessageActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		String message = getIntent().getStringExtra(MESSAGE_EXTRA_KEY);
-		id = getIntent().getIntExtra(ID_EXTRA_KEY, -1);
+		String message = getIntent().getStringExtra(Constants.MESSAGE_EXTRA_KEY);
+		id = getIntent().getIntExtra(Constants.ID_EXTRA_KEY, -1);
 		textView.setText(message);
 	}
 	

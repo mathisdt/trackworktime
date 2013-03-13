@@ -23,6 +23,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -35,10 +36,6 @@ import org.zephyrsoft.trackworktime.util.VibrationManager;
  * @author Mathis Dirksen-Thedens
  */
 public class LocationTracker implements LocationListener {
-	
-	private final int SECONDS_TO_SLEEP_BETWEEN_CHECKS = 60;
-	
-	private final long[] vibrationPattern = {0, 200, 250, 500, 250, 200};
 	
 	private final LocationManager locationManager;
 	private final TimerManager timerManager;
@@ -95,7 +92,8 @@ public class LocationTracker implements LocationListener {
 		
 		if (isTrackingByLocation.compareAndSet(false, true)) {
 			try {
-				locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, this);
+				locationManager
+					.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Constants.REPEAT_TIME, 0, this);
 				Logger.info("started location-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
@@ -148,7 +146,7 @@ public class LocationTracker implements LocationListener {
 	
 	private void tryVibration() {
 		try {
-			vibrationManager.vibrate(vibrationPattern);
+			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
 		} catch (RuntimeException re) {
 			Logger.warn("vibration not allowed by permissions");
 		}

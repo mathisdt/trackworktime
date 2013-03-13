@@ -56,9 +56,6 @@ import org.zephyrsoft.trackworktime.util.WeekDayHelper;
  */
 public class EventListActivity extends ListActivity {
 	
-	/** key for the intent extra "week start" */
-	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
-	
 	private static final int NEW_EVENT = 0;
 	private static final int EDIT_EVENT = 1;
 	private static final int DELETE_EVENT = 2;
@@ -102,7 +99,7 @@ public class EventListActivity extends ListActivity {
 		
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
-		weekStart = getIntent().getStringExtra(WEEK_START_EXTRA_KEY);
+		weekStart = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
 		events = new ArrayList<Event>();
 		refreshView();
 		eventsAdapter =
@@ -158,7 +155,7 @@ public class EventListActivity extends ListActivity {
 			case NEW_EVENT:
 				Logger.debug("starting to enter a new event");
 				Intent i = new Intent(this, EventEditActivity.class);
-				i.putExtra(EventEditActivity.WEEK_START_EXTRA_KEY, weekStart);
+				i.putExtra(Constants.WEEK_START_EXTRA_KEY, weekStart);
 				startActivity(i);
 				return true;
 			default:
@@ -233,7 +230,7 @@ public class EventListActivity extends ListActivity {
 		Logger.debug("starting to edit the existing event with ID {0} ({1} @ {2})", event.getId(),
 			TypeEnum.byValue(event.getType()).toString(), event.getTime());
 		Intent i = new Intent(this, EventEditActivity.class);
-		i.putExtra(EventEditActivity.EVENT_ID_EXTRA_KEY, event.getId());
+		i.putExtra(Constants.EVENT_ID_EXTRA_KEY, event.getId());
 		startActivity(i);
 	}
 	
