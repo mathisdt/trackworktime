@@ -190,7 +190,7 @@ public class Basics extends BroadcastReceiver {
 	/**
 	 * Check if persistent notification has to be displayed/updated/removed. Only works when "flexi time" enabled!
 	 */
-	public void checkPersistentNotification() {
+	private void checkPersistentNotification() {
 		Logger.debug("checking persistent notification");
 		if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false) && timerManager.isTracking()) {
 			// display/update
@@ -225,7 +225,7 @@ public class Basics extends BroadcastReceiver {
 	/**
 	 * Check if location-based tracking has to be en- or disabled.
 	 */
-	public void checkLocationBasedTracking() {
+	private void checkLocationBasedTracking() {
 		Logger.debug("checking location-based tracking");
 		if (preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)) {
 			String latitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), "0");
@@ -236,55 +236,100 @@ public class Basics extends BroadcastReceiver {
 				latitude = Double.parseDouble(latitudeString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse latitude: {0}", latitudeString);
+				// just in case
+				stopLocationTrackerService();
 			}
 			double longitude = 0.0;
 			try {
 				longitude = Double.parseDouble(longitudeString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse longitude: {0}", longitudeString);
+				// just in case
+				stopLocationTrackerService();
 			}
 			double tolerance = 0.0;
 			try {
 				tolerance = Double.parseDouble(toleranceString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse tolerance: {0}", toleranceString);
+				// just in case
+				stopLocationTrackerService();
 			}
 			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
-			Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
-			// we can start the service again even if it is already running because
-			// onStartCommand(...) in LocationTrackerService won't do anything if the service
-			// is already running with the current parameters - if the location or the
-			// tolerance changed, then it will update the values for the service
-			Logger.debug("try to start location-based tracking service");
-			context.startService(startIntent);
+			
+			startLocationTrackerService(latitude, longitude, tolerance, vibrate);
 		} else {
-			Intent stopIntent = buildLocationTrackerServiceIntent(null, null, null, null);
-			context.stopService(stopIntent);
-			Logger.debug("location-based tracking service stopped");
+			stopLocationTrackerService();
 		}
 	}
 	
 	/**
-	 * Check if wifi-based tracking has to be en- or disabled and perfoem wifi-check
+	 * @param latitude
+	 * @param longitude
+	 * @param tolerance
+	 * @param vibrate
 	 */
-	public void checkWifiBasedTracking() {
+	private void startLocationTrackerService(double latitude, double longitude, double tolerance, Boolean vibrate) {
+		Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
+		// we can start the service again even if it is already running because
+		// onStartCommand(...) in LocationTrackerService won't do anything if the service
+		// is already running with the current parameters - if the location or the
+		// tolerance changed, then it will update the values for the service
+		Logger.debug("try to start location-based tracking service");
+		context.startService(startIntent);
+		Logger.debug("location-based tracking service started");
+	}
+	
+	/**
+	 * stop the location-based tracking service by serviceIntent
+	 */
+	private void stopLocationTrackerService() {
+		Intent stopIntent = buildLocationTrackerServiceIntent(null, null, null, null);
+		context.stopService(stopIntent);
+		Logger.debug("location-based tracking service stopped");
+	}
+	
+	/**
+	 * Check if wifi-based tracking has to be en- or disabled and perform wifi-check
+	 */
+	private void checkWifiBasedTracking() {
 		Logger.debug("checking wifi-based tracking");
 		if (preferences.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
 			String ssid = preferences.getString(Key.WIFI_BASED_TRACKING_SSID.getName(), null);
-			Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), false);
+			Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
 			if (ssid != null && ssid.length() > 0) {
-				Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
-				Logger.debug("try to start wifi-based tracking service");
-				// changes to settings will be adopted & wifi-check will be performed
-				context.startService(startIntent);
+				startWifiTrackerService(ssid, vibrate);
 			} else {
 				Logger.warn("NOT starting wifi-based tracking service, the configured SSID is empty");
+				// just in case
+				stopWifiTrackerService();
 			}
 		} else {
-			Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
-			context.stopService(stopIntent);
-			Logger.debug("wifi-based tracking service stopped");
+			stopWifiTrackerService();
 		}
+	}
+	
+	/**
+	 * start the wifi-based tracking service by serviceIntent
+	 * 
+	 * @param ssid
+	 * @param vibrate
+	 */
+	private void startWifiTrackerService(String ssid, Boolean vibrate) {
+		Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
+		Logger.debug("try to start wifi-based tracking service");
+		// changes to settings will be adopted & wifi-check will be performed
+		context.startService(startIntent);
+		Logger.debug("wifi-based tracking service started");
+	}
+	
+	/**
+	 * stop the wifi-based tracking service by serviceIntent
+	 */
+	private void stopWifiTrackerService() {
+		Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
+		context.stopService(stopIntent);
+		Logger.debug("wifi-based tracking service stopped");
 	}
 	
 	/**
