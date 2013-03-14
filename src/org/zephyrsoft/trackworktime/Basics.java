@@ -232,38 +232,44 @@ public class Basics extends BroadcastReceiver {
 			String longitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), "0");
 			String toleranceString = preferences.getString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), "0");
 			double latitude = 0.0;
+			boolean valuesParsable = true;
+			
 			try {
 				latitude = Double.parseDouble(latitudeString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse latitude: {0}", latitudeString);
-				// just in case
-				stopLocationTrackerService();
+				valuesParsable = false;
 			}
 			double longitude = 0.0;
 			try {
 				longitude = Double.parseDouble(longitudeString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse longitude: {0}", longitudeString);
-				// just in case
-				stopLocationTrackerService();
+				valuesParsable = false;
 			}
 			double tolerance = 0.0;
 			try {
 				tolerance = Double.parseDouble(toleranceString);
 			} catch (NumberFormatException nfe) {
 				Logger.warn("could not parse tolerance: {0}", toleranceString);
-				// just in case
-				stopLocationTrackerService();
+				valuesParsable = false;
 			}
 			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
 			
-			startLocationTrackerService(latitude, longitude, tolerance, vibrate);
+			if (valuesParsable) {
+				startLocationTrackerService(latitude, longitude, tolerance, vibrate);
+			} else {
+				// just in case
+				stopWifiTrackerService();
+			}
 		} else {
 			stopLocationTrackerService();
 		}
 	}
 	
 	/**
+	 * start the location-based tracking service by serviceIntent
+	 * 
 	 * @param latitude
 	 * @param longitude
 	 * @param tolerance
