@@ -269,11 +269,6 @@ public class Basics extends BroadcastReceiver {
 	
 	/**
 	 * start the location-based tracking service by serviceIntent
-	 * 
-	 * @param latitude
-	 * @param longitude
-	 * @param tolerance
-	 * @param vibrate
 	 */
 	private void startLocationTrackerService(double latitude, double longitude, double tolerance, Boolean vibrate) {
 		Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
@@ -317,9 +312,6 @@ public class Basics extends BroadcastReceiver {
 	
 	/**
 	 * start the wifi-based tracking service by serviceIntent
-	 * 
-	 * @param ssid
-	 * @param vibrate
 	 */
 	private void startWifiTrackerService(String ssid, Boolean vibrate) {
 		Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
