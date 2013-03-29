@@ -19,7 +19,6 @@ package org.zephyrsoft.trackworktime.timer;
 import hirondelle.date4j.DateTime;
 import hirondelle.date4j.DateTime.DayOverflow;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
 import android.content.SharedPreferences;
@@ -354,9 +353,9 @@ public class TimerManager {
 			String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
 			targetValueString = DateTimeUtil.refineHourMinute(targetValueString);
 			TimeSum targetValue = parseHoursMinutesString(targetValueString);
-			BigDecimal minutes = new BigDecimal(targetValue.getAsMinutes()).divide(new BigDecimal(countWorkDays()));
-			MathContext mc = new MathContext(1, RoundingMode.HALF_UP);
-			minutes.round(mc);
+			BigDecimal minutes =
+				new BigDecimal(targetValue.getAsMinutes())
+					.divide(new BigDecimal(countWorkDays()), RoundingMode.HALF_UP);
 			return minutes.intValue();
 		} else {
 			return 0;
