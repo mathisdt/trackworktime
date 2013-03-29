@@ -141,10 +141,14 @@ public class WifiTracker {
 	private boolean isConfiguredSsidInRange() {
 		if (wifiManager.isWifiEnabled()) {
 			List<ScanResult> wifiNetworksInRange = wifiManager.getScanResults();
-			for (ScanResult network : wifiNetworksInRange) {
-				if (network.SSID.equalsIgnoreCase(ssid)) {
-					return true;
+			if (wifiNetworksInRange != null) {
+				for (ScanResult network : wifiNetworksInRange) {
+					if (network.SSID.equalsIgnoreCase(ssid)) {
+						return true;
+					}
 				}
+			} else {
+				Logger.info("tracking by wifi, but wifi network list is unavailable");
 			}
 		} else {
 			Logger.info("tracking by wifi, but wifi-radio is disabled");
