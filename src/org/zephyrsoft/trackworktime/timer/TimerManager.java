@@ -161,6 +161,7 @@ public class TimerManager {
 	 * Calculate a time sum for a given period.
 	 */
 	public TimeSum calculateTimeSum(DateTime date, PeriodEnum periodEnum) {
+		// TODO restructure to clarify!
 		Logger.debug("calculating time sum for {0} containing {1}", periodEnum.name(),
 			DateTimeUtil.dateTimeToString(date));
 		TimeSum ret = new TimeSum();
@@ -181,9 +182,18 @@ public class TimerManager {
 			throw new IllegalArgumentException("unknown period type");
 		}
 		Event lastEventBefore = dao.getLastEventBefore(beginOfPeriod);
+		DateTime lastEventBeforeTime = DateTimeUtil.stringToDateTime(lastEventBefore.getTime());
+		Event firstEventAfterNow = dao.getFirstEventAfter(DateTimeUtil.getCurrentDateTime());
+		DateTime firstEventAfterNowTime =
+			(firstEventAfterNow == null ? null : DateTimeUtil.stringToDateTime(firstEventAfterNow.getTime()));
 		
 		DateTime clockedInSince = null;
-		if (isClockInEvent(lastEventBefore)) {
+		if (isClockInEvent(lastEventBefore)
+			// but only if no CLOCK_OUT_NOW would be in between:
+			&& !(DateTimeUtil.isInPast(lastEventBeforeTime) && ((events.isEmpty() && (firstEventAfterNow == null || DateTimeUtil
+				.isInFuture(firstEventAfterNowTime))) || (!events.isEmpty()
+				&& DateTimeUtil.isInFuture(DateTimeUtil.stringToDateTime(events.get(0).getTime())) && isClockInEvent(events
+					.get(0)))))) {
 			clockedInSince = beginOfPeriod;
 		}
 		
@@ -195,11 +205,6 @@ public class TimerManager {
 			Event clockOutNowEvent = createClockOutNowEvent();
 			events.add(clockOutNowEvent);
 			lastEvent = clockOutNowEvent;
-		}
-		
-		if (DateTimeUtil.isInFuture(beginOfPeriod)) {
-			// if the period is completely in the future, it has no work time
-			return ret;
 		}
 		
 		for (Event event : events) {
@@ -234,7 +239,7 @@ public class TimerManager {
 			ret.add(24, 0);
 			if (periodEnum == PeriodEnum.WEEK) {
 				// calculating for week: also count days
-				DateTime counting = clockedInSince.minusDays(1);
+				DateTime counting = clockedInSince.plusDays(1);
 				while (counting.lt(endOfPeriod)) {
 					ret.add(24, 0);
 					counting = counting.plusDays(1);

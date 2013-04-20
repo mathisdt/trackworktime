@@ -424,6 +424,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		TimeSum flexiBalance = flexiBalanceAtDayStart;
 		
 		Event lastEventBeforeToday = dao.getLastEventBefore(day);
+		DateTime lastEventBeforeTodayTime =
+			(lastEventBeforeToday != null ? DateTimeUtil.stringToDateTime(lastEventBeforeToday.getTime()) : null);
 		if (!events.isEmpty()) {
 			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
 			Event firstClockInEvent = null;
@@ -444,7 +446,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				}
 			}
 			
-			if (TimerManager.isClockInEvent(lastEventBeforeToday)) {
+			if (TimerManager.isClockInEvent(lastEventBeforeToday) && lastEventBeforeTodayTime != null
+				&& DateTimeUtil.isInPast(lastEventBeforeTodayTime) && !TimerManager.isClockInEvent(events.get(0))) {
 				// clocked in since begin of day
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
 			} else if (firstClockInEvent != null) {
@@ -482,8 +485,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			}
 			
 		} else {
-			DateTime now = DateTimeUtil.getCurrentDateTime();
-			if (TimerManager.isClockInEvent(lastEventBeforeToday) && day.getStartOfDay().lt(now)) {
+			if (TimerManager.isClockInEvent(lastEventBeforeToday) && DateTimeUtil.isInPast(day.getStartOfDay())) {
 				// although there are no events on this day, the user is clocked in all day long - else there would be a
 				// CLOCK_OUT_NOW event!
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
