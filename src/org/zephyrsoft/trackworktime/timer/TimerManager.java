@@ -182,7 +182,8 @@ public class TimerManager {
 			throw new IllegalArgumentException("unknown period type");
 		}
 		Event lastEventBefore = dao.getLastEventBefore(beginOfPeriod);
-		DateTime lastEventBeforeTime = DateTimeUtil.stringToDateTime(lastEventBefore.getTime());
+		DateTime lastEventBeforeTime =
+			(lastEventBefore == null ? null : DateTimeUtil.stringToDateTime(lastEventBefore.getTime()));
 		Event firstEventAfterNow = dao.getFirstEventAfter(DateTimeUtil.getCurrentDateTime());
 		DateTime firstEventAfterNowTime =
 			(firstEventAfterNow == null ? null : DateTimeUtil.stringToDateTime(firstEventAfterNow.getTime()));
@@ -190,7 +191,7 @@ public class TimerManager {
 		DateTime clockedInSince = null;
 		if (isClockInEvent(lastEventBefore)
 			// but only if no CLOCK_OUT_NOW would be in between:
-			&& !(DateTimeUtil.isInPast(lastEventBeforeTime) && ((events.isEmpty() && (firstEventAfterNow == null || DateTimeUtil
+			&& !(lastEventBeforeTime != null && DateTimeUtil.isInPast(lastEventBeforeTime) && ((events.isEmpty() && (firstEventAfterNow == null || DateTimeUtil
 				.isInFuture(firstEventAfterNowTime))) || (!events.isEmpty()
 				&& DateTimeUtil.isInFuture(DateTimeUtil.stringToDateTime(events.get(0).getTime())) && isClockInEvent(events
 					.get(0)))))) {
