@@ -60,6 +60,11 @@ public class WifiTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
+		if (intent == null || intent.getExtras() == null) {
+			// something went wrong, quit here
+			return Service.START_NOT_STICKY;
+		}
+		
 		String ssid = (String) intent.getExtras().get(Constants.INTENT_EXTRA_SSID);
 		Boolean vibrate = (Boolean) intent.getExtras().get(Constants.INTENT_EXTRA_VIBRATE);
 		Result result = null;

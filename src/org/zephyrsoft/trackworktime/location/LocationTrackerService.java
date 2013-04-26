@@ -60,6 +60,11 @@ public class LocationTrackerService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
+		if (intent == null || intent.getExtras() == null) {
+			// something went wrong, quit here
+			return Service.START_NOT_STICKY;
+		}
+		
 		Double latitude = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_LATITUDE);
 		Double longitude = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_LONGITUDE);
 		Double toleranceInMeters = (Double) intent.getExtras().get(Constants.INTENT_EXTRA_TOLERANCE);
