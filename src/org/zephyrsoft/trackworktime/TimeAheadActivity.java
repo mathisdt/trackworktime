@@ -23,6 +23,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Activity for querying the amount of time which the new event should be pre-dated.
@@ -54,7 +55,12 @@ public class TimeAheadActivity extends Activity {
 		ok.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				int minutesValue = Integer.parseInt(minutes.getText().toString());
+				int minutesValue = 0;
+				try {
+					minutesValue = Integer.parseInt(minutes.getText().toString());
+				} catch (NumberFormatException nfe) {
+					Logger.warn("could not convert \"{0}\" to int", minutes.getText().toString());
+				}
 				WorkTimeTrackerActivity.getInstance().clockInOutAction(minutesValue);
 				finish();
 			}
