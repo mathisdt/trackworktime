@@ -357,7 +357,11 @@ public class DAO {
 		long insertId = db.insert(EVENT, null, args);
 		// now fetch the newly created row and return it as Event object
 		List<Event> created = getEventsWithConstraint(EVENT_ID + "=" + insertId);
-		return created.get(0);
+		if (created.size() > 0) {
+			return created.get(0);
+		} else {
+			return null;
+		}
 	}
 	
 	/**
