@@ -62,4 +62,8 @@ public class Constants {
 	/** the key for the {@link Double} which determines the tolerance */
 	public static final String INTENT_EXTRA_TOLERANCE = "TOLERANCE";
 	
+	/** the key for the new event's task (used for third-party events) */
+	public static final String INTENT_EXTRA_TASK = "task";
+	/** the key for the new event's text (used for third-party events) */
+	public static final String INTENT_EXTRA_TEXT = "text";
 }

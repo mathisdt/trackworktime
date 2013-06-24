@@ -19,6 +19,8 @@ package org.zephyrsoft.trackworktime;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -33,17 +35,51 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
+		Bundle extras = intent.getExtras();
+		
 		if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockIn")) {
-			Logger.info("TRACKING: clock-in via broadcast");
+			Integer taskId = getTaskId(context, extras);
+			String text = getText(extras);
+			Logger.info("TRACKING: clock-in via broadcast / taskId={0} / text={1}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager()
-				.createEvent(DateTimeUtil.getCurrentDateTime(), null, TypeEnum.CLOCK_IN, null);
+				.createEvent(DateTimeUtil.getCurrentDateTime(), taskId, TypeEnum.CLOCK_IN, text);
 		} else if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockOut")) {
-			Logger.info("TRACKING: clock-out via broadcast");
+			Integer taskId = getTaskId(context, extras);
+			String text = getText(extras);
+			Logger.info("TRACKING: clock-out via broadcast / taskId={0} / text={1}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager()
-				.createEvent(DateTimeUtil.getCurrentDateTime(), null, TypeEnum.CLOCK_OUT, null);
+				.createEvent(DateTimeUtil.getCurrentDateTime(), taskId, TypeEnum.CLOCK_OUT, text);
 		} else {
 			Logger.warn("TRACKING: unknown intent action");
 		}
+	}
+	
+	private static Integer getTaskId(Context context, Bundle extras) {
+		int taskId = extras.getInt(Constants.INTENT_EXTRA_TASK, -1);
+		String task = extras.getString(Constants.INTENT_EXTRA_TASK);
+		if (taskId < 0 && task != null) {
+			try {
+				// try to extract the ID
+				Integer parsedTaskId = Integer.parseInt(task);
+				Task taskInstance = Basics.getOrCreateInstance(context).getDao().getTask(parsedTaskId);
+				if (taskInstance != null && !taskInstance.getActive().equals(0)) {
+					return parsedTaskId;
+				}
+			} catch (NumberFormatException nfe) {
+				// apparently it isn't an ID, try to look up the task name
+				Task taskInstance = Basics.getOrCreateInstance(context).getDao().getTask(task);
+				if (taskInstance != null && !taskInstance.getActive().equals(0)) {
+					return taskInstance.getId();
+				}
+			}
+		} else if (taskId >= 0) {
+			return Integer.valueOf(taskId);
+		}
+		return null;
+	}
+	
+	private static String getText(Bundle extras) {
+		return extras.getString(Constants.INTENT_EXTRA_TEXT);
 	}
 	
 }

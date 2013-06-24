@@ -149,6 +149,17 @@ public class DAO {
 	}
 	
 	/**
+	 * Get the first task with a specific name.
+	 * 
+	 * @param name the name
+	 * @return the task (first if more than one exist) or {@code null} if the specified name does not exist at all
+	 */
+	public Task getTask(String name) {
+		List<Task> tasks = getTasksWithConstraint(TASK_NAME + "=\"" + name + "\"");
+		return tasks.isEmpty() ? null : tasks.get(0);
+	}
+	
+	/**
 	 * Return if the task with the given ID is used in an event.
 	 */
 	public boolean isTaskUsed(Integer id) {
