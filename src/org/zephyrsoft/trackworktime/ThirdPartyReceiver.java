@@ -55,6 +55,9 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 	}
 	
 	private static Integer getTaskId(Context context, Bundle extras) {
+		if (extras == null) {
+			return null;
+		}
 		int taskId = extras.getInt(Constants.INTENT_EXTRA_TASK, -1);
 		String task = extras.getString(Constants.INTENT_EXTRA_TASK);
 		if (taskId < 0 && task != null) {
@@ -79,6 +82,9 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 	}
 	
 	private static String getText(Bundle extras) {
+		if (extras == null) {
+			return null;
+		}
 		return extras.getString(Constants.INTENT_EXTRA_TEXT);
 	}
 	
