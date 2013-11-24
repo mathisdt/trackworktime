@@ -1,23 +1,25 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+
 import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -41,6 +43,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
@@ -66,13 +69,14 @@ import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
  * @author Mathis Dirksen-Thedens
  */
 public class WorkTimeTrackerActivity extends Activity implements SimpleGestureListener {
-	
+
 	private static final int EDIT_EVENTS = 0;
 	private static final int EDIT_TASKS = 1;
-	private static final int OPTIONS = 2;
-	private static final int USE_CURRENT_LOCATION = 3;
-	private static final int ABOUT = 4;
-	
+	private static final int INSERT_DEFAULT_TIMES = 2;
+	private static final int OPTIONS = 3;
+	private static final int USE_CURRENT_LOCATION = 4;
+	private static final int ABOUT = 5;
+
 	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
 	private TextView topLeftCorner = null;
@@ -133,13 +137,13 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private TextView textLabel = null;
 	private BackSensitiveEditText text = null;
 	private Button clockInOutButton = null;
-	
+
 	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
-	
+
 	private static WorkTimeTrackerActivity instance = null;
-	
+
 	private boolean visible = false;
-	
+
 	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
@@ -148,41 +152,40 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private List<Task> tasks;
 	private boolean taskOrTextChanged = false;
 	private Week currentlyShownWeek;
-	
+
 	private SimpleGestureFilter detector;
-	
+
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
-		
+
 		if (disabledSections > 0) {
 			// show message to user
-			Intent messageIntent =
-				Basics
-					.getInstance()
-					.createMessageIntent(
-						disabledSections == 1 ? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
-							: String.valueOf(disabledSections)
-								+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
-						null);
+			Intent messageIntent = Basics
+				.getInstance()
+				.createMessageIntent(
+					disabledSections == 1 ? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
+						: String.valueOf(disabledSections)
+							+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
+					null);
 			startActivity(messageIntent);
 		}
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		instance = this;
 		Basics basics = Basics.getOrCreateInstance(getApplicationContext());
 		// fill basic data from central structures
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
 		timerManager = basics.getTimerManager();
-		
+
 		setContentView(R.layout.main);
-		
+
 		findAllViewsById();
-		
+
 		detector = new SimpleGestureFilter(this, this);
 		weekTable.setOnClickListener(new OnClickListener() {
 			@Override
@@ -190,7 +193,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				showEventList();
 			}
 		});
-		
+
 		clockInOutButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -214,24 +217,25 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				return true;
 			}
 		});
-		
+
 		// make the clock-in/clock-out button change its title when changing
 		// task and/or text
 		task.setOnItemSelectedListener(taskAndTextListener);
 		text.setOnEditorActionListener(taskAndTextListener);
 		text.setBackListener(taskAndTextListener);
-		
+
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
-		
+
 		// check options for logical errors
 		checkAllOptions();
 	}
-	
+
 	/**
 	 * The action of the clock-in / clock-out button.
 	 * 
-	 * @param minutesToPredate if greater than 0, predate the event this many minutes
+	 * @param minutesToPredate
+	 *            if greater than 0, predate the event this many minutes
 	 */
 	public void clockInOutAction(int minutesToPredate) {
 		if (minutesToPredate < 0) {
@@ -239,7 +243,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		}
 		// commit text field
 		text.clearFocus();
-		
+
 		if (timerManager.isTracking() && !taskOrTextChanged) {
 			timerManager.stopTracking(minutesToPredate);
 		} else {
@@ -247,39 +251,40 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			String description = text.getText().toString();
 			timerManager.startTracking(minutesToPredate, selectedTask, description);
 		}
-		
+
 		Logger.debug("setting taskOrTextChanged to false");
 		taskOrTextChanged = false;
 		refreshView();
 	}
-	
+
 	/**
-	 * @param interval position of the week relative to the currently displayed week, e.g. -2 for two weeks before the
+	 * @param interval
+	 *            position of the week relative to the currently displayed week, e.g. -2 for two weeks before the
 	 *            currently displayed week
 	 */
 	private void changeDisplayedWeek(int interval) {
 		if (interval == 0) {
 			return;
 		}
-		
+
 		DateTime targetWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart()).plusDays(interval * 7);
 		Week targetWeek = dao.getWeek(DateTimeUtil.dateTimeToString(targetWeekStart));
 		if (targetWeek == null) {
 			// don't insert a new week into the DB but only use a placeholder
 			targetWeek = new WeekPlaceholder(DateTimeUtil.dateTimeToString(targetWeekStart));
 		}
-		
+
 		// display a Toast indicating the change interval (helps the user for more than one week difference)
 		if (Math.abs(interval) > 1) {
 			CharSequence backwardOrForward = interval < 0 ? getText(R.string.backward) : getText(R.string.forward);
 			Toast.makeText(this, backwardOrForward + " " + Math.abs(interval) + " " + getText(R.string.weeks),
 				Toast.LENGTH_SHORT).show();
 		}
-		
+
 		currentlyShownWeek = targetWeek;
 		refreshView();
 	}
-	
+
 	/**
 	 * Reloads the view's data if the view is currently shown.
 	 */
@@ -289,18 +294,18 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			instance.refreshView();
 		}
 	}
-	
+
 	protected void refreshView() {
 		// TODO update task and text from current tracking period (if tracking)?
 		// ATTENTION: setting "taskOrTextChanged" interferes with the TaskAndTextListener!
-//		if (timerManager.isTracking()) {
-//			Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
-//			Task latestTask = dao.getTask(latestEvent.getTask());
-//			Integer index = tasks.indexOf(latestTask);
-//			task.setSelection(index);
-//			text.setText(latestEvent.getText());
-//			taskOrTextChanged = false;
-//		}
+		// if (timerManager.isTracking()) {
+		// Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
+		// Task latestTask = dao.getTask(latestEvent.getTask());
+		// Integer index = tasks.indexOf(latestTask);
+		// task.setSelection(index);
+		// text.setText(latestEvent.getText());
+		// taskOrTextChanged = false;
+		// }
 		// button text
 		if (timerManager.isTracking() && !taskOrTextChanged) {
 			clockInOutButton.setText(R.string.clockOut);
@@ -326,7 +331,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			showTimes(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
 		}
 	}
-	
+
 	private void refreshRowHighlighting(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
 		DateTime friday, DateTime saturday, DateTime sunday) {
 		DateTime today = DateTimeUtil.getCurrentDateTime();
@@ -342,7 +347,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		sundayRow.setBackgroundResource(today.isSameDayAs(sunday) ? R.drawable.table_row_highlighting
 			: R.drawable.table_row);
 	}
-	
+
 	private void showActualDates(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
 		DateTime friday, DateTime saturday, DateTime sunday) {
 		topLeftCorner.setText("W " + thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear())));
@@ -361,7 +366,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		sundayLabel.setText(getString(R.string.sunday) + getString(R.string.onespace)
 			+ sunday.format(getString(R.string.shortDateFormat)));
 	}
-	
+
 	private void showTimes(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday, DateTime friday,
 		DateTime saturday, DateTime sunday) {
 		if (currentlyShownWeek != null) {
@@ -371,38 +376,33 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(currentlyShownWeek.getStart());
 			}
 			List<Event> events = fetchEventsForDay(monday);
-			flexiBalance =
-				showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked, mondayFlexi);
+			flexiBalance = showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked,
+				mondayFlexi);
 			events = fetchEventsForDay(tuesday);
-			flexiBalance =
-				showTimesForSingleDay(tuesday, events, flexiBalance, tuesdayIn, tuesdayOut, tuesdayWorked, tuesdayFlexi);
+			flexiBalance = showTimesForSingleDay(tuesday, events, flexiBalance, tuesdayIn, tuesdayOut, tuesdayWorked,
+				tuesdayFlexi);
 			events = fetchEventsForDay(wednesday);
-			flexiBalance =
-				showTimesForSingleDay(wednesday, events, flexiBalance, wednesdayIn, wednesdayOut, wednesdayWorked,
-					wednesdayFlexi);
+			flexiBalance = showTimesForSingleDay(wednesday, events, flexiBalance, wednesdayIn, wednesdayOut,
+				wednesdayWorked, wednesdayFlexi);
 			events = fetchEventsForDay(thursday);
-			flexiBalance =
-				showTimesForSingleDay(thursday, events, flexiBalance, thursdayIn, thursdayOut, thursdayWorked,
-					thursdayFlexi);
+			flexiBalance = showTimesForSingleDay(thursday, events, flexiBalance, thursdayIn, thursdayOut,
+				thursdayWorked, thursdayFlexi);
 			events = fetchEventsForDay(friday);
-			flexiBalance =
-				showTimesForSingleDay(friday, events, flexiBalance, fridayIn, fridayOut, fridayWorked, fridayFlexi);
+			flexiBalance = showTimesForSingleDay(friday, events, flexiBalance, fridayIn, fridayOut, fridayWorked,
+				fridayFlexi);
 			events = fetchEventsForDay(saturday);
-			flexiBalance =
-				showTimesForSingleDay(saturday, events, flexiBalance, saturdayIn, saturdayOut, saturdayWorked,
-					saturdayFlexi);
+			flexiBalance = showTimesForSingleDay(saturday, events, flexiBalance, saturdayIn, saturdayOut,
+				saturdayWorked, saturdayFlexi);
 			events = fetchEventsForDay(sunday);
-			flexiBalance =
-				showTimesForSingleDay(sunday, events, flexiBalance, sundayIn, sundayOut, sundayWorked, sundayFlexi);
-			
-			TimeSum amountWorked =
-				timerManager.calculateTimeSum(
-					DateTimeUtil.getWeekStart(DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart())),
-					PeriodEnum.WEEK);
+			flexiBalance = showTimesForSingleDay(sunday, events, flexiBalance, sundayIn, sundayOut, sundayWorked,
+				sundayFlexi);
+
+			TimeSum amountWorked = timerManager.calculateTimeSum(DateTimeUtil.getWeekStart(DateTimeUtil
+				.stringToDateTime(currentlyShownWeek.getStart())), PeriodEnum.WEEK);
 			showSummaryLine(amountWorked, flexiBalance);
 		}
 	}
-	
+
 	private List<Event> fetchEventsForDay(DateTime day) {
 		Logger.debug("fetchEventsForDay: {0}", DateTimeUtil.dateTimeToDateString(day));
 		List<Event> ret = dao.getEventsOnDay(day);
@@ -414,7 +414,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		}
 		return ret;
 	}
-	
+
 	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
 		TextView in, TextView out, TextView worked, TextView flexi) {
 		CharSequence timeIn = null;
@@ -422,10 +422,10 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		CharSequence timeWorked = null;
 		CharSequence timeFlexi = null;
 		TimeSum flexiBalance = flexiBalanceAtDayStart;
-		
+
 		Event lastEventBeforeToday = dao.getLastEventBefore(day);
-		DateTime lastEventBeforeTodayTime =
-			(lastEventBeforeToday != null ? DateTimeUtil.stringToDateTime(lastEventBeforeToday.getTime()) : null);
+		DateTime lastEventBeforeTodayTime = (lastEventBeforeToday != null ? DateTimeUtil
+			.stringToDateTime(lastEventBeforeToday.getTime()) : null);
 		if (!events.isEmpty()) {
 			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
 			Event firstClockInEvent = null;
@@ -445,23 +445,22 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 					break;
 				}
 			}
-			
+
 			if (TimerManager.isClockInEvent(lastEventBeforeToday) && lastEventBeforeTodayTime != null
 				&& DateTimeUtil.isInPast(lastEventBeforeTodayTime) && !TimerManager.isClockInEvent(events.get(0))) {
 				// clocked in since begin of day
 				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
 			} else if (firstClockInEvent != null) {
-				timeIn =
-					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstClockInEvent.getTime()));
+				timeIn = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstClockInEvent
+					.getTime()));
 			} else {
 				// apparently not clocked in before begin of day and no clock-in event
 				timeIn = "";
 			}
-			
+
 			if (effectiveClockOutEvent != null) {
-				timeOut =
-					DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(effectiveClockOutEvent
-						.getTime()));
+				timeOut = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(effectiveClockOutEvent
+					.getTime()));
 				// replace time with NOW if applicable
 				if (effectiveClockOutEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
 					timeOut = getText(R.string.now);
@@ -469,10 +468,10 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			} else {
 				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
 			}
-			
+
 			TimeSum amountWorked = timerManager.calculateTimeSum(day, PeriodEnum.DAY);
 			timeWorked = amountWorked.toString();
-			
+
 			if (flexiBalance != null) {
 				flexiBalance.addOrSubstract(amountWorked);
 				// substract the "normal" work time for one day
@@ -483,7 +482,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			} else {
 				timeFlexi = "";
 			}
-			
+
 		} else {
 			if (TimerManager.isClockInEvent(lastEventBeforeToday) && DateTimeUtil.isInPast(day.getStartOfDay())) {
 				// although there are no events on this day, the user is clocked in all day long - else there would be a
@@ -506,7 +505,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				timeIn = "";
 				timeOut = "";
 				timeWorked = "";
-				
+
 				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
 				if (flexiBalance != null && timerManager.isWorkDay(weekDay)) {
 					// substract the "normal" work time for one day
@@ -523,29 +522,29 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				}
 			}
 		}
-		
+
 		in.setText(timeIn);
 		out.setText(timeOut);
 		worked.setText(timeWorked);
 		flexi.setText(timeFlexi);
-		
+
 		return flexiBalance;
 	}
-	
+
 	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance) {
 		totalWorked.setText(amountWorked.toString());
 		if (flexiBalance != null) {
 			totalFlexi.setText(flexiBalance.toString());
 		}
 	}
-	
+
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 	}
-	
+
 	private void findAllViewsById() {
 		weekTable = (TableLayout) findViewById(R.id.week_table);
 		titleRow = (TableRow) findViewById(R.id.titleRow);
@@ -608,25 +607,27 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		text = (BackSensitiveEditText) findViewById(R.id.text);
 		clockInOutButton = (Button) findViewById(R.id.clockInOutButton);
 	}
-	
+
 	/**
 	 * Mark task list as changed so it will be re-read from the database the next time the GUI is refreshed.
 	 */
 	public void refreshTasks() {
 		reloadTasksOnResume = true;
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
 		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_sort_by_size);
+		menu.add(Menu.NONE, INSERT_DEFAULT_TIMES, INSERT_DEFAULT_TIMES, R.string.insert_default_times).setIcon(
+			R.drawable.ic_menu_mark);
 		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
 		menu.add(Menu.NONE, USE_CURRENT_LOCATION, USE_CURRENT_LOCATION, R.string.use_current_location).setIcon(
 			R.drawable.ic_menu_compass);
 		menu.add(Menu.NONE, ABOUT, ABOUT, R.string.about).setIcon(R.drawable.ic_menu_star);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -635,6 +636,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				return true;
 			case EDIT_TASKS:
 				showTaskList();
+				return true;
+			case INSERT_DEFAULT_TIMES:
+				showInsertDefaultTimes();
 				return true;
 			case OPTIONS:
 				showOptions();
@@ -649,26 +653,32 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				throw new IllegalArgumentException("options menu: unknown item selected");
 		}
 	}
-	
+
 	private void showEventList() {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
 		i.putExtra(Constants.WEEK_START_EXTRA_KEY, currentlyShownWeek.getStart());
 		startActivity(i);
 	}
-	
+
 	private void showTaskList() {
 		Logger.debug("showing TaskList");
 		Intent i = new Intent(this, TaskListActivity.class);
 		startActivity(i);
 	}
-	
+
+	private void showInsertDefaultTimes() {
+		Logger.debug("showing InsertDefaultTimes");
+		Intent i = new Intent(this, InsertDefaultTimesActivity.class);
+		startActivity(i);
+	}
+
 	private void showOptions() {
 		Logger.debug("showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
 	}
-	
+
 	private void useCurrentLocationAsWorkplace() {
 		Logger.debug("use current location as work place");
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -688,13 +698,13 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		});
 		alert.show();
 	}
-	
+
 	private void showAbout() {
 		Logger.debug("showing About");
 		Intent i = new Intent(this, AboutActivity.class);
 		startActivity(i);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		Logger.debug("onResume called");
@@ -703,7 +713,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			reloadTasksOnResume = false;
 			setupTasksAdapter();
 		}
-		
+
 		String weekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 		currentlyShownWeek = dao.getWeek(weekStart);
 		if (currentlyShownWeek == null) {
@@ -711,11 +721,11 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			currentlyShownWeek = new WeekPlaceholder(weekStart);
 		}
 		Basics.getInstance().safeCheckPersistentNotification();
-		
+
 		refreshView();
 		super.onResume();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		Logger.debug("onPause called");
@@ -723,7 +733,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		visible = false;
 		super.onPause();
 	}
-	
+
 	/**
 	 * Get the instance of this activity. If it was garbage-collected in the meantime, throw an exception.
 	 */
@@ -733,19 +743,19 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Get the instance of this activity. If it was garbage-collected in the meantime, return {@code null}.
 	 */
 	public static WorkTimeTrackerActivity getInstanceOrNull() {
 		return instance;
 	}
-	
+
 	/**
 	 * Listener for task dropdown field and text field. Triggers a refresh of the main activity.
 	 */
 	private class TaskAndTextListener implements OnItemSelectedListener, OnEditorActionListener, BackListener {
-		
+
 		private void valueChanged() {
 			Event toCompare = getLastEventIfClockIn();
 			if (toCompare != null) {
@@ -767,24 +777,24 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 				}
 			}
 		}
-		
+
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 			valueChanged();
 		}
-		
+
 		@Override
 		public void onNothingSelected(AdapterView<?> parent) {
 			valueChanged();
 		}
-		
+
 		@Override
 		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 			text.clearFocus();
 			valueChanged();
 			return true;
 		}
-		
+
 		@Override
 		public void backKeyPressed() {
 			text.clearFocus();
@@ -792,9 +802,9 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			text.setText(toCompare == null || toCompare.getText() == null ? "" : toCompare.getText());
 			valueChanged();
 		}
-		
+
 	}
-	
+
 	private Event getLastEventIfClockIn() {
 		Event event = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
 		if (event != null && event.getType() != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
@@ -803,13 +813,13 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			return null;
 		}
 	}
-	
+
 	private static boolean equalsWithNullEqualsEmptyString(String one, String two) {
 		return (one == null && two == null) || (one != null && one.length() == 0 && two == null)
 			|| (one != null && one.length() == 0 && two == null) || (one == null && two != null && two.length() == 0)
 			|| (one != null && one.equals(two));
 	}
-	
+
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent me) {
 		// first pass the events to the SimpleGestureFilter
@@ -817,7 +827,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		// then process them normally
 		return super.dispatchTouchEvent(me);
 	}
-	
+
 	@Override
 	public void onSwipe(int direction) {
 		switch (direction) {
@@ -827,22 +837,22 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			case SimpleGestureFilter.SWIPE_LEFT:
 				changeDisplayedWeek(1);
 				break;
-//			case SimpleGestureFilter.SWIPE_DOWN:
-//				// display 4 weeks before
-//				changeDisplayedWeek(-4);
-//				break;
-//			case SimpleGestureFilter.SWIPE_UP:
-//				// display 4 weeks after
-//				changeDisplayedWeek(4);
-//				break;
+			// case SimpleGestureFilter.SWIPE_DOWN:
+			// // display 4 weeks before
+			// changeDisplayedWeek(-4);
+			// break;
+			// case SimpleGestureFilter.SWIPE_UP:
+			// // display 4 weeks after
+			// changeDisplayedWeek(4);
+			// break;
 			default:
 				// do nothing
 		}
 	}
-	
+
 	@Override
 	public void onDoubleTap() {
 		// do nothing
 	}
-	
+
 }

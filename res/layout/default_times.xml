@@ -23,7 +23,7 @@
             android:layout_width="1dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/saveChanges" />
+            android:text="@string/insert_default_times" />
     </LinearLayout>
 
     <ScrollView
@@ -40,31 +40,26 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/typeLabel"
+                android:id="@+id/timeRangeLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/type"
+                android:text="@string/timeRange"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Spinner
-                android:id="@+id/type"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
 
             <TextView
-                android:id="@+id/dateTimeLabel"
+                android:id="@+id/timeRangeFromLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/time"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/from"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <LinearLayout
-                android:id="@+id/dateLayout"
+                android:id="@+id/fromDateLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/weekday"
+                    android:id="@+id/fromWeekday"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_weight="1.0"
@@ -73,17 +68,41 @@
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <DatePicker
-                    android:id="@+id/date"
+                    android:id="@+id/fromDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0.0" />
             </LinearLayout>
 
-            <TimePicker
-                android:id="@+id/time"
+            <TextView
+                android:id="@+id/timeRangeToLabel"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/to"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <LinearLayout
+                android:id="@+id/toDateLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/toWeekday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="@string/monday"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <DatePicker
+                    android:id="@+id/toDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_weight="0.0" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/taskLabel"

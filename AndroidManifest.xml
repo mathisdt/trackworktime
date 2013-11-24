@@ -76,6 +76,11 @@
             android:label="@string/edit_tasks" >
         </activity>
         <activity
+            android:name="InsertDefaultTimesActivity"
+            android:exported="false"
+            android:label="@string/insert_default_times" >
+        </activity>
+        <activity
             android:name="OptionsActivity"
             android:exported="false"
             android:label="@string/preferences" >
