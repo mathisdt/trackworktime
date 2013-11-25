@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,7 +18,9 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 import hirondelle.date4j.DateTime.DayOverflow;
+
 import java.util.List;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -32,6 +34,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
+
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -52,10 +55,10 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  * @author Mathis Dirksen-Thedens
  */
 public class EventEditActivity extends Activity implements OnDateChangedListener, OnTimeChangedListener {
-	
+
 	private DAO dao = null;
 	private TimerManager timerManager = null;
-	
+
 	private Button save = null;
 	private Button cancel = null;
 	private List<TypeEnum> types;
@@ -74,31 +77,31 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 	private ArrayAdapter<Task> tasksAdapter;
 	private Spinner task = null;
 	private EditText text = null;
-	
+
 	private Week week = null;
 	private DateTime weekStart;
 	private DateTime weekEnd;
 	/** only filled if an existing event is edited! blank for new events! */
 	private Event editedEvent = null;
 	private boolean newEvent = false;
-	
+
 	private boolean noDateChangedReaction = false;
-	
+
 	@Override
 	protected void onPause() {
 		dao.close();
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
-		
+
 		setContentView(R.layout.event);
-		
+
 		save = (Button) findViewById(R.id.save);
 		cancel = (Button) findViewById(R.id.cancel);
 		type = (Spinner) findViewById(R.id.type);
@@ -107,35 +110,34 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		time = (TimePicker) findViewById(R.id.time);
 		task = (Spinner) findViewById(R.id.task);
 		text = (EditText) findViewById(R.id.text);
-		
+
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
-		
+
 		// bind lists to spinners
 		types = TypeEnum.getDefaultTypes();
-		typesAdapter =
-			new FlexibleArrayAdapter<TypeEnum>(this, android.R.layout.simple_list_item_1, types,
-				new StringExtractionMethod<TypeEnum>() {
-					@Override
-					public String extractText(TypeEnum object) {
-						switch (object) {
-							case CLOCK_IN:
-								return getString(R.string.clockIn);
-							case CLOCK_OUT:
-								return getString(R.string.clockOut);
-							default:
-								throw new IllegalArgumentException("unrecognized TypeEnum value");
-						}
+		typesAdapter = new FlexibleArrayAdapter<TypeEnum>(this, android.R.layout.simple_list_item_1, types,
+			new StringExtractionMethod<TypeEnum>() {
+				@Override
+				public String extractText(TypeEnum object) {
+					switch (object) {
+						case CLOCK_IN:
+							return getString(R.string.clockIn);
+						case CLOCK_OUT:
+							return getString(R.string.clockOut);
+						default:
+							throw new IllegalArgumentException("unrecognized TypeEnum value");
 					}
-					
-				}, 0, null);
+				}
+
+			}, 0, null);
 		typesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		type.setAdapter(typesAdapter);
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
-		
+
 		save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -165,7 +167,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 					timerManager.updateWeekSum(week);
 					Basics.getInstance().safeCheckPersistentNotification();
 				}
-				
+
 				// refresh parents and close the event editor
 				EventListActivity.getInstance().refreshView();
 				finish();
@@ -179,21 +181,21 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			}
 		});
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		Logger.debug("canceling EventEditActivity (back button pressed)");
 		finish();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		// one of the following options
 		int eventId = getIntent().getIntExtra(Constants.EVENT_ID_EXTRA_KEY, -1);
 		String weekStartString = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
-		
+
 		if (eventId == -1 && weekStartString == null) {
 			throw new IllegalArgumentException("either event ID or week start must be given");
 		} else if (eventId != -1) {
@@ -237,7 +239,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			text.setText(editedEvent.getText());
 		}
 	}
-	
+
 	private void updateDateAndTimePickers(DateTime dateTime) {
 		time.setCurrentHour(dateTime.getHour());
 		time.setCurrentMinute(dateTime.getMinute());
@@ -256,7 +258,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			setWeekday();
 		}
 	}
-	
+
 	private void setWeekday() {
 		DateTime currentlySelected = getCurrentlySetDateAndTime();
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(currentlySelected.getWeekDay());
@@ -286,7 +288,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				throw new IllegalStateException("unknown weekday");
 		}
 	}
-	
+
 	@Override
 	public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 		if (noDateChangedReaction) {
@@ -295,7 +297,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			selectedYear = year;
 			selectedMonth = monthOfYear;
 			selectedDay = dayOfMonth;
-			
+
 			// restrict date range to the week we are editing right now
 			DateTime newDate = getCurrentlySetDateAndTime();
 			try {
@@ -314,28 +316,27 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			} finally {
 				noDateChangedReaction = false;
 			}
-			
+
 			setWeekday();
 			Logger.debug("date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
 		}
 	}
-	
+
 	@Override
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 		selectedHour = hourOfDay;
 		selectedMinute = minute;
 		Logger.debug("time changed to {0}:{1}", hourOfDay, minute);
 	}
-	
+
 	private DateTime getCurrentlySetDateAndTime() {
 		// DON'T get the numbers directly from the date and time controls, but from the private variables!
-		String datePartString =
-			String.valueOf(selectedYear) + "-" + DateTimeUtil.padToTwoDigits(selectedMonth + 1) + "-"
-				+ DateTimeUtil.padToTwoDigits(selectedDay);
-		String timePartString =
-			DateTimeUtil.padToTwoDigits(selectedHour) + ":" + DateTimeUtil.padToTwoDigits(selectedMinute) + ":00";
+		String datePartString = String.valueOf(selectedYear) + "-" + DateTimeUtil.padToTwoDigits(selectedMonth + 1)
+			+ "-" + DateTimeUtil.padToTwoDigits(selectedDay);
+		String timePartString = DateTimeUtil.padToTwoDigits(selectedHour) + ":"
+			+ DateTimeUtil.padToTwoDigits(selectedMinute) + ":00";
 		DateTime dateTime = new DateTime(datePartString + " " + timePartString);
 		return dateTime;
 	}
-	
+
 }

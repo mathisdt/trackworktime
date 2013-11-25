@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,6 +39,7 @@ import static org.acra.ReportField.TOTAL_MEM_SIZE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
 import android.app.Application;
+
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
@@ -51,38 +52,38 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-@ReportsCrashes(formKey = "", formUri = "http://zephyrsoft.net/crashreport.jsp",
-	mode = ReportingInteractionMode.SILENT, customReportContent = {ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME,
-		AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION, DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH,
-		INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES,
-		STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE, USER_CRASH_DATE})
+@ReportsCrashes(formKey = "", formUri = "http://zephyrsoft.net/crashreport.jsp", mode = ReportingInteractionMode.SILENT, customReportContent = {
+	ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION,
+	DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME,
+	PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,
+	USER_CRASH_DATE })
 public class WorkTimeTrackerApplication extends Application {
-	
+
 	@Override
 	public void onCreate() {
 		Logger.info("creating application");
 		ACRA.init(this);
 		Basics.getOrCreateInstance(getApplicationContext());
-		
+
 		Logger.info("running self-tests");
 		TimeSum.test();
 		DataType.test();
-		
+
 		Logger.info("handing off to super");
 		super.onCreate();
 	}
-	
+
 	@Override
 	public void onTerminate() {
 		Logger.info("terminating application");
 		Basics.getOrCreateInstance(getApplicationContext()).getDao().close();
 		super.onTerminate();
 	}
-	
+
 	@Override
 	public void onLowMemory() {
 		Logger.info("low memory for application");
 		super.onLowMemory();
 	}
-	
+
 }

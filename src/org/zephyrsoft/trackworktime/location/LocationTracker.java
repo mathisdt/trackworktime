@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,11 +18,13 @@ package org.zephyrsoft.trackworktime.location;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Bundle;
+
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -36,19 +38,19 @@ import org.zephyrsoft.trackworktime.util.VibrationManager;
  * @author Mathis Dirksen-Thedens
  */
 public class LocationTracker implements LocationListener {
-	
+
 	private final LocationManager locationManager;
 	private final TimerManager timerManager;
 	private final VibrationManager vibrationManager;
 	private final AudioManager audioManager;
 	private final AtomicBoolean isTrackingByLocation = new AtomicBoolean(false);
-	
+
 	private Location targetLocation;
 	private double toleranceInMeters;
 	private boolean vibrate = false;
-	
+
 	private Location previousLocation = null;
-	
+
 	/**
 	 * Creates a new location-based tracker. By only creating it, the tracking does not start yet - you have to call
 	 * {@link #startTrackingByLocation(double, double, double, boolean)} explicitly.
@@ -72,24 +74,24 @@ public class LocationTracker implements LocationListener {
 		this.vibrationManager = vibrationManager;
 		this.audioManager = audioManager;
 	}
-	
+
 	/**
 	 * Start the periodic checks to track by location.
 	 */
 	public Result startTrackingByLocation(double latitude, double longitude,
 		@SuppressWarnings("hiding") double toleranceInMeters, @SuppressWarnings("hiding") boolean vibrate) {
-		
+
 		Logger.debug("preparing location-based tracking");
-		
+
 		targetLocation = new Location("");
 		targetLocation.setLatitude(latitude);
 		targetLocation.setLongitude(longitude);
 		this.toleranceInMeters = toleranceInMeters;
 		this.vibrate = vibrate;
-		
+
 		// just in case:
 		stopTrackingByLocation();
-		
+
 		if (isTrackingByLocation.compareAndSet(false, true)) {
 			try {
 				locationManager
@@ -106,10 +108,10 @@ public class LocationTracker implements LocationListener {
 			return Result.FAILURE_ALREADY_RUNNING;
 		}
 	}
-	
+
 	private void checkLocation(Location location) {
-		Boolean previousLocationWasInRange =
-			(previousLocation == null ? null : isInRange(previousLocation, "previous location"));
+		Boolean previousLocationWasInRange = (previousLocation == null ? null : isInRange(previousLocation,
+			"previous location"));
 		boolean locationIsInRange = isInRange(location, "current location");
 		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange
 			&& !timerManager.isTracking()) {
@@ -139,11 +141,11 @@ public class LocationTracker implements LocationListener {
 			}
 		}
 	}
-	
+
 	private boolean isVibrationAllowed() {
 		return audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT;
 	}
-	
+
 	private void tryVibration() {
 		try {
 			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
@@ -151,7 +153,7 @@ public class LocationTracker implements LocationListener {
 			Logger.warn("vibration not allowed by permissions");
 		}
 	}
-	
+
 	private boolean isInRange(Location location, String descriptionForLog) {
 		float distance = location.distanceTo(targetLocation);
 		// round to whole meters
@@ -165,19 +167,19 @@ public class LocationTracker implements LocationListener {
 				distance, actualTolerance + toleranceInMeters, actualTolerance, toleranceInMeters);
 		return distance <= toleranceInMeters + actualTolerance;
 	}
-	
+
 	/**
 	 * Stop the periodic checks to track by location.
 	 */
 	public void stopTrackingByLocation() {
 		// execute this anyway to prevent confusion, e.g. after crashes:
 		locationManager.removeUpdates(this);
-		
+
 		if (isTrackingByLocation.compareAndSet(true, false)) {
 			Logger.info("stopped location-based tracking");
 		}
 	}
-	
+
 	@Override
 	public void onLocationChanged(Location location) {
 		if (location != null) {
@@ -192,48 +194,48 @@ public class LocationTracker implements LocationListener {
 			Logger.info("last known location is null");
 		}
 	}
-	
+
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// nothing to do
 	}
-	
+
 	@Override
 	public void onProviderEnabled(String provider) {
 		// nothing to do
 	}
-	
+
 	@Override
 	public void onProviderDisabled(String provider) {
 		// nothing to do
 	}
-	
+
 	/**
 	 * Return the current target's latitude.
 	 */
 	public Double getLatitude() {
 		return (targetLocation == null ? null : targetLocation.getLatitude());
 	}
-	
+
 	/**
 	 * Return the current target's longitude.
 	 */
 	public Double getLongitude() {
 		return (targetLocation == null ? null : targetLocation.getLongitude());
 	}
-	
+
 	/**
 	 * Return the current tolerance.
 	 */
 	public Double getTolerance() {
 		return toleranceInMeters;
 	}
-	
+
 	/**
 	 * Get the vibration setting.
 	 */
 	public boolean shouldVibrate() {
 		return vibrate;
 	}
-	
+
 }

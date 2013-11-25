@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,9 +18,11 @@ package org.zephyrsoft.trackworktime.location;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -34,20 +36,20 @@ import org.zephyrsoft.trackworktime.util.VibrationManager;
  * @author Christoph Loewe
  */
 public class WifiTracker {
-	
+
 	private final WifiManager wifiManager;
 	private final TimerManager timerManager;
 	private final VibrationManager vibrationManager;
 	private final AudioManager audioManager;
-	
+
 	private final AtomicBoolean isTrackingByWifi = new AtomicBoolean(false);
-	
+
 	private String ssid = "";
 	private boolean vibrate = false;
-	
+
 	/** previous state of the wifi-ssid occurence (from last check) */
 	private Boolean ssidWasPreviouslyInRange;
-	
+
 	/**
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
 	 * {@link #startTrackingByWifi(String, boolean)} explicitly.
@@ -71,21 +73,21 @@ public class WifiTracker {
 		this.vibrationManager = vibrationManager;
 		this.audioManager = audioManager;
 	}
-	
+
 	/**
 	 * Start the periodic checks to track by wifi.
 	 */
 	public Result startTrackingByWifi(@SuppressWarnings("hiding") String ssid,
 		@SuppressWarnings("hiding") boolean vibrate) {
-		
+
 		Logger.debug("preparing wifi-based tracking");
-		
+
 		this.ssid = ssid;
 		this.vibrate = vibrate;
-		
+
 		// just in case:
 		stopTrackingByWifi();
-		
+
 		if (isTrackingByWifi.compareAndSet(false, true)) {
 			try {
 				Logger.info("started wifi-based tracking");
@@ -100,7 +102,7 @@ public class WifiTracker {
 			return Result.FAILURE_ALREADY_RUNNING;
 		}
 	}
-	
+
 	/**
 	 * check if wifi-ssid is in range and start/stop tracking
 	 */
@@ -109,10 +111,10 @@ public class WifiTracker {
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange();
 		Logger.debug("wifi-ssid \"{0}\" in now range: {1}, previous state: {2}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
-		
+
 		if ((ssidWasPreviouslyInRange == null || ssidWasPreviouslyInRange.booleanValue()) && timerManager.isTracking()
 			&& !ssidIsNowInRange) {
-			
+
 			timerManager.stopTracking(0);
 			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate && isVibrationAllowed()) {
@@ -121,7 +123,7 @@ public class WifiTracker {
 			Logger.info("clocked out via wifi-based tracking");
 		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue())
 			&& !timerManager.isTracking() && ssidIsNowInRange) {
-			
+
 			timerManager.startTracking(0, null, null);
 			WorkTimeTrackerActivity.refreshViewIfShown();
 			if (vibrate && isVibrationAllowed()) {
@@ -132,7 +134,7 @@ public class WifiTracker {
 		// preserve the state of this wifi-check for the next call
 		ssidWasPreviouslyInRange = ssidIsNowInRange;
 	}
-	
+
 	/**
 	 * look for networks in range if wifi-radio is activated
 	 * 
@@ -155,11 +157,11 @@ public class WifiTracker {
 		}
 		return false;
 	}
-	
+
 	private boolean isVibrationAllowed() {
 		return audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT;
 	}
-	
+
 	private void tryVibration() {
 		try {
 			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
@@ -167,30 +169,30 @@ public class WifiTracker {
 			Logger.warn("vibration not allowed by permissions");
 		}
 	}
-	
+
 	/**
 	 * Stop the periodic checks to track by wifi.
 	 */
 	public void stopTrackingByWifi() {
-		
+
 		if (isTrackingByWifi.compareAndSet(true, false)) {
 			Logger.info("stopped wifi-based tracking");
 			ssidWasPreviouslyInRange = null;
 		}
 	}
-	
+
 	/**
 	 * Get the currently configured ssid.
 	 */
 	public String getSSID() {
 		return ssid;
 	}
-	
+
 	/**
 	 * Get the vibration setting.
 	 */
 	public boolean shouldVibrate() {
 		return vibrate;
 	}
-	
+
 }

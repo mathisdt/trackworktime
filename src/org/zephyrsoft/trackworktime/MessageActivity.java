@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,10 @@ import android.widget.TextView;
  * @author Mathis Dirksen-Thedens
  */
 public class MessageActivity extends Activity implements OnClickListener {
-	
+
 	private TextView textView = null;
 	private int id = -1;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,7 +43,7 @@ public class MessageActivity extends Activity implements OnClickListener {
 		textView = (TextView) findViewById(R.id.dialogMessage);
 		textView.setOnClickListener(this);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -51,17 +51,17 @@ public class MessageActivity extends Activity implements OnClickListener {
 		id = getIntent().getIntExtra(Constants.ID_EXTRA_KEY, -1);
 		textView.setText(message);
 	}
-	
+
 	@Override
 	public void onClick(View view) {
 		closeNotificationAndDialog();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		closeNotificationAndDialog();
 	}
-	
+
 	private void closeNotificationAndDialog() {
 		if (id != -1) {
 			NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -69,5 +69,5 @@ public class MessageActivity extends Activity implements OnClickListener {
 		}
 		finish();
 	}
-	
+
 }

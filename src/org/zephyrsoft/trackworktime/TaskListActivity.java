@@ -1,22 +1,23 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime;
 
 import java.util.List;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -32,6 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -43,41 +45,41 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * @author Mathis Dirksen-Thedens
  */
 public class TaskListActivity extends ListActivity {
-	
+
 	private static final int NEW_TASK = 0;
 	private static final int RENAME_TASK = 1;
 	private static final int TOGGLE_ACTIVATION_STATE_OF_TASK = 2;
 	private static final int DELETE_TASK = 3;
-	
+
 	private DAO dao = null;
-	
+
 	private List<Task> tasks = null;
-	
+
 	private WorkTimeTrackerActivity parentActivity = null;
-	
+
 	private ArrayAdapter<Task> tasksAdapter;
-	
+
 	@Override
 	protected void onPause() {
 		dao.close();
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
-		
+
 		dao = Basics.getInstance().getDao();
 		tasks = dao.getAllTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		setListAdapter(tasksAdapter);
-		
+
 		ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
-		
+
 		registerForContextMenu(lv);
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -86,13 +88,13 @@ public class TaskListActivity extends ListActivity {
 			}
 		});
 	}
-	
+
 	private void refreshTasksOnParent() {
 		if (parentActivity != null) {
 			parentActivity.refreshTasks();
 		}
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -100,11 +102,11 @@ public class TaskListActivity extends ListActivity {
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 				alert.setTitle(getString(R.string.new_task));
 				alert.setMessage(getString(R.string.enter_new_task_name));
-				
+
 				// Set an EditText view to get user input
 				final EditText input = new EditText(this);
 				alert.setView(input);
-				
+
 				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -123,22 +125,22 @@ public class TaskListActivity extends ListActivity {
 						// do nothing
 					}
 				});
-				
+
 				alert.show();
-				
+
 				return true;
 			default:
 				Logger.warn("options menu: unknown item selected");
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, NEW_TASK, 0, getString(R.string.new_task)).setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.setHeaderTitle(R.string.availableActions);
@@ -148,7 +150,7 @@ public class TaskListActivity extends ListActivity {
 		menu.add(Menu.NONE, DELETE_TASK, 2, getString(R.string.delete_task)).setIcon(R.drawable.ic_menu_delete);
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
-	
+
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
@@ -159,12 +161,12 @@ public class TaskListActivity extends ListActivity {
 			case RENAME_TASK:
 				alert.setTitle(getString(R.string.rename_task));
 				alert.setMessage(getString(R.string.enter_new_task_name));
-				
+
 				// Set an EditText view to get user input
 				final EditText input = new EditText(this);
 				alert.setView(input);
 				input.setText(oldTask.getName());
-				
+
 				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -172,8 +174,8 @@ public class TaskListActivity extends ListActivity {
 						oldTask.setName(value);
 						// update task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID {0} to have the new name: {1}", oldTask.getId(),
-							updatedTask.getName());
+						Logger.debug("updated task with ID {0} to have the new name: {1}", oldTask.getId(), updatedTask
+							.getName());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -186,9 +188,9 @@ public class TaskListActivity extends ListActivity {
 						// do nothing
 					}
 				});
-				
+
 				alert.show();
-				
+
 				return true;
 			case TOGGLE_ACTIVATION_STATE_OF_TASK:
 				alert.setTitle(getString(R.string.toggle_activation_state_of_task));
@@ -197,7 +199,7 @@ public class TaskListActivity extends ListActivity {
 				} else {
 					alert.setMessage(getString(R.string.really_disable_task));
 				}
-				
+
 				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -222,9 +224,9 @@ public class TaskListActivity extends ListActivity {
 						// do nothing
 					}
 				});
-				
+
 				alert.show();
-				
+
 				return true;
 			case DELETE_TASK:
 				if (dao.isTaskUsed(oldTask.getId())) {
@@ -238,25 +240,25 @@ public class TaskListActivity extends ListActivity {
 							// do nothing
 						}
 					});
-					
+
 					alert.show();
 				} else {
 					// delete task after confirmation
 					alert.setTitle(getString(R.string.delete_task));
 					alert.setMessage(getString(R.string.really_delete_task));
-					
+
 					alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int whichButton) {
 							// delete task in DB
 							boolean success = dao.deleteTask(oldTask);
 							if (success) {
-								Logger.debug("deleted task with ID {0} and name {1}", oldTask.getId(),
-									oldTask.getName());
+								Logger.debug("deleted task with ID {0} and name {1}", oldTask.getId(), oldTask
+									.getName());
 								tasks.remove(taskPosition);
 							} else {
-								Logger.warn("could not delete task with ID {0} and name {1}", oldTask.getId(),
-									oldTask.getName());
+								Logger.warn("could not delete task with ID {0} and name {1}", oldTask.getId(), oldTask
+									.getName());
 							}
 							tasksAdapter.notifyDataSetChanged();
 							refreshTasksOnParent();
@@ -268,10 +270,10 @@ public class TaskListActivity extends ListActivity {
 							// do nothing
 						}
 					});
-					
+
 					alert.show();
 				}
-				
+
 				return true;
 		}
 		return super.onContextItemSelected(item);

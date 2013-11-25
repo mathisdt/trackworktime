@@ -1,23 +1,25 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+
 import java.util.Calendar;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -33,6 +35,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+
 import org.acra.ACRA;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.CoordinateUtil;
@@ -55,15 +58,15 @@ import org.zephyrsoft.trackworktime.util.VibrationManager;
  * @author Mathis Dirksen-Thedens
  */
 public class Basics extends BroadcastReceiver {
-	
+
 	private Context context = null;
 	private SharedPreferences preferences = null;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private VibrationManager vibrationManager = null;
-	
+
 	private static Basics instance = null;
-	
+
 	/**
 	 * Creates an instance of this class.
 	 */
@@ -72,14 +75,14 @@ public class Basics extends BroadcastReceiver {
 			instance = this;
 		}
 	}
-	
+
 	/**
 	 * Fetches the singleton.
 	 */
 	public static Basics getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Creates the singleton if not already created.
 	 */
@@ -90,14 +93,14 @@ public class Basics extends BroadcastReceiver {
 		}
 		return instance;
 	}
-	
+
 	@Override
 	public void onReceive(Context androidContext, Intent intent) {
 		// always only use the one instance
 		instance.receivedIntent(androidContext);
-		
+
 	}
-	
+
 	/**
 	 * Forwarding from {@link #onReceive(Context, Intent)}, but this method is only called on the singleton instance -
 	 * no matter how many instances Android might choose to create of this class.
@@ -107,29 +110,29 @@ public class Basics extends BroadcastReceiver {
 		init();
 		schedulePeriodicIntents();
 	}
-	
+
 	private void init() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		dao = new DAO(context);
 		timerManager = new TimerManager(dao, preferences);
 		vibrationManager = new VibrationManager(context);
 	}
-	
+
 	private void schedulePeriodicIntents() {
 		AlarmManager service = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intentToSchedule = new Intent(context, Watchdog.class);
-		PendingIntent pendingIntent =
-			PendingIntent.getBroadcast(context, 0, intentToSchedule, PendingIntent.FLAG_CANCEL_CURRENT);
-		
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intentToSchedule,
+			PendingIntent.FLAG_CANCEL_CURRENT);
+
 		Calendar cal = Calendar.getInstance();
 		// start one minute after boot completed
 		cal.add(Calendar.MINUTE, 1);
-		
+
 		// schedule once every minute
 		service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), Constants.REPEAT_TIME,
 			pendingIntent);
 	}
-	
+
 	/**
 	 * Hook method which gets called approx. once a minute.
 	 */
@@ -142,7 +145,7 @@ public class Basics extends BroadcastReceiver {
 		safeCheckWifiBasedTracking();
 		safeCheckPersistentNotification();
 	}
-	
+
 	/**
 	 * Wrapper for {@link PreferencesUtil#checkAllPreferenceSections()} that doesn't throw any exception.
 	 */
@@ -153,7 +156,7 @@ public class Basics extends BroadcastReceiver {
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
-	
+
 	/**
 	 * Wrapper for {@link #checkLocationBasedTracking()} that doesn't throw any exception.
 	 */
@@ -164,7 +167,7 @@ public class Basics extends BroadcastReceiver {
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
-	
+
 	/**
 	 * Wrapper for {@link #checkWifiBasedTracking()} that doesn't throw any exception.
 	 */
@@ -175,7 +178,7 @@ public class Basics extends BroadcastReceiver {
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
-	
+
 	/**
 	 * Wrapper for {@link #checkPersistentNotification()} that doesn't throw any exception.
 	 */
@@ -186,7 +189,7 @@ public class Basics extends BroadcastReceiver {
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
-	
+
 	/**
 	 * Check if persistent notification has to be displayed/updated/removed. Only works when "flexi time" enabled!
 	 */
@@ -197,8 +200,8 @@ public class Basics extends BroadcastReceiver {
 			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
-			String timeSoFar =
-				timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY).toString();
+			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
+				.toString();
 			DateTime finishingTime = timerManager.getFinishingTime();
 			String targetTime = (finishingTime == null ? null : DateTimeUtil.dateTimeToHourMinuteString(finishingTime));
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
@@ -216,12 +219,12 @@ public class Basics extends BroadcastReceiver {
 				Constants.PERSISTENT_STATUS_ID, true);
 		} else {
 			// try to remove
-			NotificationManager notificationManager =
-				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			NotificationManager notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
 		}
 	}
-	
+
 	/**
 	 * Check if location-based tracking has to be en- or disabled.
 	 */
@@ -233,7 +236,7 @@ public class Basics extends BroadcastReceiver {
 			String toleranceString = preferences.getString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), "0");
 			double latitude = 0.0;
 			boolean valuesParsable = true;
-			
+
 			try {
 				latitude = Double.parseDouble(latitudeString);
 			} catch (NumberFormatException nfe) {
@@ -255,7 +258,7 @@ public class Basics extends BroadcastReceiver {
 				valuesParsable = false;
 			}
 			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
-			
+
 			if (valuesParsable) {
 				startLocationTrackerService(latitude, longitude, tolerance, vibrate);
 			} else {
@@ -266,7 +269,7 @@ public class Basics extends BroadcastReceiver {
 			stopLocationTrackerService();
 		}
 	}
-	
+
 	/**
 	 * start the location-based tracking service by serviceIntent
 	 */
@@ -280,7 +283,7 @@ public class Basics extends BroadcastReceiver {
 		context.startService(startIntent);
 		Logger.debug("location-based tracking service started");
 	}
-	
+
 	/**
 	 * stop the location-based tracking service by serviceIntent
 	 */
@@ -289,7 +292,7 @@ public class Basics extends BroadcastReceiver {
 		context.stopService(stopIntent);
 		Logger.debug("location-based tracking service stopped");
 	}
-	
+
 	/**
 	 * Check if wifi-based tracking has to be en- or disabled and perform wifi-check
 	 */
@@ -309,7 +312,7 @@ public class Basics extends BroadcastReceiver {
 			stopWifiTrackerService();
 		}
 	}
-	
+
 	/**
 	 * start the wifi-based tracking service by serviceIntent
 	 */
@@ -320,7 +323,7 @@ public class Basics extends BroadcastReceiver {
 		context.startService(startIntent);
 		Logger.debug("wifi-based tracking service started");
 	}
-	
+
 	/**
 	 * stop the wifi-based tracking service by serviceIntent
 	 */
@@ -329,24 +332,25 @@ public class Basics extends BroadcastReceiver {
 		context.stopService(stopIntent);
 		Logger.debug("wifi-based tracking service stopped");
 	}
-	
+
 	/**
 	 * Check the current device location and use that as work place.
 	 * 
-	 * @param reference an activity to use as reference for starting other activities
+	 * @param reference
+	 *            an activity to use as reference for starting other activities
 	 */
 	public void useCurrentLocationAsWorkplace(final Activity reference) {
 		requestCurrentLocation(new LocationCallback() {
 			@Override
 			public void callback(double latitude, double longitude, int tolerance) {
-				boolean locationBasedTrackingEnabled =
-					preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
-				
+				boolean locationBasedTrackingEnabled = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED
+					.getName(), false);
+
 				Logger
 					.debug(
 						"received current device location: lat={0} long={1} tol={2} / location-based tracking already enabled = {3}",
 						latitude, longitude, tolerance, locationBasedTrackingEnabled);
-				
+
 				SharedPreferences.Editor editor = preferences.edit();
 				String roundedLatitude = CoordinateUtil.roundCoordinate(latitude);
 				editor.putString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), roundedLatitude);
@@ -354,41 +358,40 @@ public class Basics extends BroadcastReceiver {
 				editor.putString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), roundedLongitude);
 				editor.putString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), String.valueOf(tolerance));
 				editor.commit();
-				
+
 				Intent i = new Intent(reference, OptionsActivity.class);
 				reference.startActivity(i);
-				
-				Intent messageIntent =
-					createMessageIntent(
-						"New values:\n\nLatitude = "
-							+ roundedLatitude
-							+ "\nLongitude = "
-							+ roundedLongitude
-							+ "\nTolerance = "
-							+ tolerance
-							+ "\n\nPlease review the settings in the options. "
-							+ (locationBasedTrackingEnabled ? "Location-based tracking was switched on already and is still enabled."
-								: "You can now enable location-based tracking, just check \""
-									+ reference.getText(R.string.enableLocationBasedTracking) + "\"."), null);
+
+				Intent messageIntent = createMessageIntent(
+					"New values:\n\nLatitude = "
+						+ roundedLatitude
+						+ "\nLongitude = "
+						+ roundedLongitude
+						+ "\nTolerance = "
+						+ tolerance
+						+ "\n\nPlease review the settings in the options. "
+						+ (locationBasedTrackingEnabled ? "Location-based tracking was switched on already and is still enabled."
+							: "You can now enable location-based tracking, just check \""
+								+ reference.getText(R.string.enableLocationBasedTracking) + "\"."), null);
 				reference.startActivity(messageIntent);
 			}
-			
+
 			@Override
 			public void error(Throwable t) {
 				Logger.warn("error receiving the current device location: {0}", t);
-				Intent messageIntent =
-					createMessageIntent(
-						"Could not get the current location. Please ensure that this app can access the coarse location.",
-						null);
+				Intent messageIntent = createMessageIntent(
+					"Could not get the current location. Please ensure that this app can access the coarse location.",
+					null);
 				reference.startActivity(messageIntent);
 			}
 		});
 	}
-	
+
 	/**
 	 * Queue a request for the current device location, determined by the network (not by GPS).
 	 * 
-	 * @param callback The callback which should be called when the position is found.
+	 * @param callback
+	 *            The callback which should be called when the position is found.
 	 */
 	public void requestCurrentLocation(final LocationCallback callback) {
 		final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -396,23 +399,23 @@ public class Basics extends BroadcastReceiver {
 			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
 				@Override
 				public void onLocationChanged(Location location) {
-					callback.callback(location.getLatitude(), location.getLongitude(),
-						Math.round(location.getAccuracy()));
+					callback.callback(location.getLatitude(), location.getLongitude(), Math.round(location
+						.getAccuracy()));
 					// detach listener on first received location
 					locationManager.removeUpdates(this);
 				}
-				
+
 				@Override
 				public void onStatusChanged(String provider, int status, Bundle extras) {
 					// nothing to do
 				}
-				
+
 				@Override
 				public void onProviderEnabled(String provider) {
 					// nothing to do
-					
+
 				}
-				
+
 				@Override
 				public void onProviderDisabled(String provider) {
 					callback.error(new IllegalAccessException("provider disabled"));
@@ -422,38 +425,42 @@ public class Basics extends BroadcastReceiver {
 			callback.error(t);
 		}
 	}
-	
+
 	/**
 	 * Show a notification.
 	 * 
-	 * @param scrollingText the text which appears in the status line when the notification is first displayed
-	 * @param notificationTitle the title line of the notification
-	 * @param notificationSubtitle the smaller line of text below the title
-	 * @param intent the intent to be executed when the notification is clicked
-	 * @param notificationId a unique number to identify the notification
+	 * @param scrollingText
+	 *            the text which appears in the status line when the notification is first displayed
+	 * @param notificationTitle
+	 *            the title line of the notification
+	 * @param notificationSubtitle
+	 *            the smaller line of text below the title
+	 * @param intent
+	 *            the intent to be executed when the notification is clicked
+	 * @param notificationId
+	 *            a unique number to identify the notification
 	 */
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
 		Intent intent, Integer notificationId, boolean persistent) {
-		NotificationManager notificationManager =
-			(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationManager notificationManager = (NotificationManager) context
+			.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new Notification(R.drawable.ic_launcher_small, scrollingText, 0);
 		if (persistent) {
 			notification.flags = Notification.FLAG_ONGOING_EVENT;
 		}
-		notification.setLatestEventInfo(
-			context,
-			notificationTitle,
-			notificationSubtitle,
-			PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT
-				| (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
+		notification
+			.setLatestEventInfo(context, notificationTitle, notificationSubtitle, PendingIntent.getActivity(context, 0,
+				intent, PendingIntent.FLAG_CANCEL_CURRENT | (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
 		notificationManager.notify(notificationId, notification);
 	}
-	
+
 	/**
 	 * Create an intent which shows a message dialog.
 	 * 
-	 * @param text the message to display
-	 * @param id the unique number, should correspond to the source notification (if any)
+	 * @param text
+	 *            the message to display
+	 * @param id
+	 *            the unique number, should correspond to the source notification (if any)
 	 */
 	public Intent createMessageIntent(String text, Integer id) {
 		Intent messageIntent = new Intent(context, MessageActivity.class);
@@ -463,7 +470,7 @@ public class Basics extends BroadcastReceiver {
 		}
 		return messageIntent;
 	}
-	
+
 	/**
 	 * Disable the location-based tracking.
 	 */
@@ -472,7 +479,7 @@ public class Basics extends BroadcastReceiver {
 		editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
 		editor.commit();
 	}
-	
+
 	/**
 	 * Disable the wifi-based tracking.
 	 */
@@ -481,7 +488,7 @@ public class Basics extends BroadcastReceiver {
 		editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
 		editor.commit();
 	}
-	
+
 	private Intent buildLocationTrackerServiceIntent(Double latitude, Double longitude, Double tolerance,
 		Boolean vibrate) {
 		Intent intent = new Intent(context, LocationTrackerService.class);
@@ -491,47 +498,47 @@ public class Basics extends BroadcastReceiver {
 		intent.putExtra(Constants.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
-	
+
 	private Intent buildWifiTrackerServiceIntent(String ssid, Boolean vibrate) {
 		Intent intent = new Intent(context, WifiTrackerService.class);
 		intent.putExtra(Constants.INTENT_EXTRA_SSID, ssid);
 		intent.putExtra(Constants.INTENT_EXTRA_VIBRATE, vibrate);
 		return intent;
 	}
-	
+
 	/**
 	 * The app's preferences.
 	 */
 	public SharedPreferences getPreferences() {
 		return preferences;
 	}
-	
+
 	/**
 	 * The app's DAO.
 	 */
 	public DAO getDao() {
 		return dao;
 	}
-	
+
 	/**
 	 * The app's timer manager.
 	 */
 	public TimerManager getTimerManager() {
 		return timerManager;
 	}
-	
+
 	/**
 	 * The wrapper for Android's {@link Vibrator}.
 	 */
 	public VibrationManager getVibrationManager() {
 		return vibrationManager;
 	}
-	
+
 	/**
 	 * Get the context.
 	 */
 	public Context getContext() {
 		return context;
 	}
-	
+
 }

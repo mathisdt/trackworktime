@@ -1,24 +1,27 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- *
+ * 
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime.options;
 
 import hirondelle.date4j.DateTime;
+
 import java.util.regex.Pattern;
+
 import android.content.SharedPreferences;
+
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
@@ -28,7 +31,7 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
  * @author Mathis Dirksen-Thedens
  */
 public enum DataType {
-	
+
 	/** boolean */
 	BOOLEAN {
 		@Override
@@ -36,7 +39,7 @@ public enum DataType {
 			// method will not be used as boolean options don't have input fields
 			return true;
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			// method will not be used as boolean options don't have input fields
@@ -54,7 +57,7 @@ public enum DataType {
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "0");
@@ -75,7 +78,7 @@ public enum DataType {
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "0");
@@ -93,7 +96,7 @@ public enum DataType {
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "0.0");
@@ -113,7 +116,7 @@ public enum DataType {
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "00:00");
@@ -126,7 +129,7 @@ public enum DataType {
 		public boolean validate(String value) {
 			return value != null && Pattern.matches("\\-?\\d+:\\d\\d", value);
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "0:00");
@@ -139,7 +142,7 @@ public enum DataType {
 		public boolean validate(String value) {
 			if (value != null && value.length() != 0 // not empty
 				&& value.trim().length() != 0) { // not only whitespaces
-			
+
 				for (int i = 0; i < value.length(); i++) {
 					// cointaining whitespaces?
 					if (Character.isWhitespace(value.charAt(i))) {
@@ -147,29 +150,29 @@ public enum DataType {
 					}
 				}
 				return true;
-				
+
 			} else {
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "");
 			return validate(value);
 		}
 	};
-	
+
 	/**
 	 * Validate that a value is correct for this data type.
 	 */
 	public abstract boolean validate(String value);
-	
+
 	/**
 	 * Validate that the value found under "key" in "sharedPreferences" is correct for this data type.
 	 */
 	public abstract boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key);
-	
+
 	/** Run some internal self-tests. */
 	public static void test() {
 		boolean valid = HOUR_MINUTE.validate("-1:55");
