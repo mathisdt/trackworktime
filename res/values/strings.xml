@@ -111,5 +111,7 @@
     <string name="timeRange">Time Range</string>
     <string name="from">From</string>
     <string name="to">To</string>
+    <string name="previous">&lt; prev</string>
+    <string name="next">next ></string>
 
 </resources>

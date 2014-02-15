@@ -14,6 +14,36 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical" >
 
+        <LinearLayout
+            android:id="@+id/LinearLayout2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/previous"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/previous" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/onespace"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <Button
+                android:id="@+id/next"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/next" />
+            
+        </LinearLayout>
+        
         <include
             android:id="@+id/week_table"
             android:layout_width="fill_parent"
@@ -22,7 +52,7 @@
             layout="@layout/week_table" />
 
         <LinearLayout
-            android:id="@+id/LinearLayout2"
+            android:id="@+id/LinearLayout3"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -43,7 +73,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/LinearLayout3"
+            android:id="@+id/LinearLayout4"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp" >

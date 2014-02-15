@@ -137,6 +137,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private TextView textLabel = null;
 	private BackSensitiveEditText text = null;
 	private Button clockInOutButton = null;
+	private Button previousWeekButton = null;
+	private Button nextWeekButton = null;
 
 	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
 
@@ -191,6 +193,20 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			@Override
 			public void onClick(View v) {
 				showEventList();
+			}
+		});
+
+		previousWeekButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeDisplayedWeek(-1);
+			}
+		});
+
+		nextWeekButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				changeDisplayedWeek(1);
 			}
 		});
 
@@ -601,6 +617,8 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		totalOut = (TextView) findViewById(R.id.totalOut);
 		totalWorked = (TextView) findViewById(R.id.totalWorked);
 		totalFlexi = (TextView) findViewById(R.id.totalFlexi);
+		previousWeekButton = (Button) findViewById(R.id.previous);
+		nextWeekButton = (Button) findViewById(R.id.next);
 		taskLabel = (TextView) findViewById(R.id.taskLabel);
 		task = (Spinner) findViewById(R.id.task);
 		textLabel = (TextView) findViewById(R.id.textLabel);

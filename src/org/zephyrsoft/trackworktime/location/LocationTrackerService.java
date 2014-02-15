@@ -59,6 +59,12 @@ public class LocationTrackerService extends Service {
 		return null;
 	}
 
+	// START_STICKY : Using this return value, if the OS kills our Service it will recreate it but the Intent that was
+	// sent to the Service isn’t redelivered. In this way the Service is always running
+	// START_NOT_STICKY: If the SO kills the Service it won’t recreate it until the client calls explicitly onStart
+	// command
+	// START_REDELIVER_INTENT: It is similar to the START_STICKY and in this case the Intent will be redelivered to the
+	// service.
 	@Override
 	public int onStartCommand(Intent intent, int flags, @SuppressWarnings("hiding") int startId) {
 		if (intent == null || intent.getExtras() == null) {
