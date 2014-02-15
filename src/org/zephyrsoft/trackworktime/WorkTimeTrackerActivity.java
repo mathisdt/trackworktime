@@ -26,23 +26,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -55,20 +54,16 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.BackListener;
-import org.zephyrsoft.trackworktime.util.BackSensitiveEditText;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.util.SimpleGestureFilter;
-import org.zephyrsoft.trackworktime.util.SimpleGestureListener;
 
 /**
  * Main activity of the application.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends Activity implements SimpleGestureListener {
+public class WorkTimeTrackerActivity extends Activity {
 
 	private static final int EDIT_EVENTS = 0;
 	private static final int EDIT_TASKS = 1;
@@ -132,19 +127,20 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private TextView totalOut = null;
 	private TextView totalWorked = null;
 	private TextView totalFlexi = null;
-	private TextView taskLabel = null;
+	private ToggleButton taskTabButton = null;
 	private Spinner task = null;
-	private TextView textLabel = null;
-	private BackSensitiveEditText text = null;
-	private Button clockInOutButton = null;
+	private ToggleButton textTabButton = null;
+	private EditText text = null;
+	private Button clockInButton = null;
+	private Button clockOutButton = null;
 	private Button previousWeekButton = null;
 	private Button nextWeekButton = null;
-
-	private TaskAndTextListener taskAndTextListener = new TaskAndTextListener();
 
 	private static WorkTimeTrackerActivity instance = null;
 
 	private boolean visible = false;
+
+	private boolean tabsAreChanging = false;
 
 	private SharedPreferences preferences;
 	private DAO dao = null;
@@ -152,10 +148,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
-	private boolean taskOrTextChanged = false;
 	private Week currentlyShownWeek;
-
-	private SimpleGestureFilter detector;
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -188,7 +181,6 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 
 		findAllViewsById();
 
-		detector = new SimpleGestureFilter(this, this);
 		weekTable.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -210,35 +202,81 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			}
 		});
 
-		clockInOutButton.setOnClickListener(new OnClickListener() {
+		taskTabButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
-			public void onClick(View v) {
-				clockInOutAction(0);
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (!tabsAreChanging) {
+					tabsAreChanging = true;
+
+					taskTabButton.setChecked(isChecked);
+					setVisibility(task, isChecked);
+					textTabButton.setChecked(!isChecked);
+					setVisibility(text, !isChecked);
+
+					tabsAreChanging = false;
+				}
 			}
 		});
-		clockInOutButton.setOnLongClickListener(new OnLongClickListener() {
+
+		textTabButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (!tabsAreChanging) {
+					tabsAreChanging = true;
+
+					textTabButton.setChecked(isChecked);
+					setVisibility(text, isChecked);
+					taskTabButton.setChecked(!isChecked);
+					setVisibility(task, !isChecked);
+
+					tabsAreChanging = false;
+				}
+			}
+		});
+
+		clockInButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				clockInAction(0);
+			}
+		});
+		clockInButton.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
 				Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
 				String typeString = null;
-				if (timerManager.isTracking() && !taskOrTextChanged) {
-					typeString = getString(R.string.clockOut);
-				} else if (timerManager.isTracking() && taskOrTextChanged) {
+				if (timerManager.isTracking()) {
 					typeString = getString(R.string.clockInChange);
 				} else {
 					typeString = getString(R.string.clockIn);
 				}
-				i.putExtra(Constants.TYPE_EXTRA_KEY, typeString);
+				i.putExtra(Constants.TYPE_EXTRA_KEY, 0);
+				i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
 				startActivity(i);
 				return true;
 			}
 		});
 
-		// make the clock-in/clock-out button change its title when changing
-		// task and/or text
-		task.setOnItemSelectedListener(taskAndTextListener);
-		text.setOnEditorActionListener(taskAndTextListener);
-		text.setBackListener(taskAndTextListener);
+		clockOutButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				clockOutAction(0);
+			}
+		});
+		clockOutButton.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+				String typeString = null;
+				if (timerManager.isTracking()) {
+					typeString = getString(R.string.clockOut);
+					i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
+					i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
+					startActivity(i);
+				}
+				return true;
+			}
+		});
 
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
@@ -247,29 +285,41 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		checkAllOptions();
 	}
 
+	private static void setVisibility(View view, boolean visible) {
+		if (visible) {
+			view.setVisibility(View.VISIBLE);
+		} else {
+			view.setVisibility(View.GONE);
+		}
+	}
+
 	/**
-	 * The action of the clock-in / clock-out button.
-	 * 
 	 * @param minutesToPredate
 	 *            if greater than 0, predate the event this many minutes
 	 */
-	public void clockInOutAction(int minutesToPredate) {
+	public void clockInAction(int minutesToPredate) {
 		if (minutesToPredate < 0) {
 			throw new IllegalArgumentException("no negative argument allowed");
 		}
 		// commit text field
 		text.clearFocus();
 
-		if (timerManager.isTracking() && !taskOrTextChanged) {
-			timerManager.stopTracking(minutesToPredate);
-		} else {
-			Task selectedTask = (Task) task.getSelectedItem();
-			String description = text.getText().toString();
-			timerManager.startTracking(minutesToPredate, selectedTask, description);
+		Task selectedTask = (Task) task.getSelectedItem();
+		String description = text.getText().toString();
+		timerManager.startTracking(minutesToPredate, selectedTask, description);
+		refreshView();
+	}
+
+	/**
+	 * @param minutesToPredate
+	 *            if greater than 0, predate the event this many minutes
+	 */
+	public void clockOutAction(int minutesToPredate) {
+		if (minutesToPredate < 0) {
+			throw new IllegalArgumentException("no negative argument allowed");
 		}
 
-		Logger.debug("setting taskOrTextChanged to false");
-		taskOrTextChanged = false;
+		timerManager.stopTracking(minutesToPredate);
 		refreshView();
 	}
 
@@ -312,24 +362,13 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 	}
 
 	protected void refreshView() {
-		// TODO update task and text from current tracking period (if tracking)?
-		// ATTENTION: setting "taskOrTextChanged" interferes with the TaskAndTextListener!
-		// if (timerManager.isTracking()) {
-		// Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
-		// Task latestTask = dao.getTask(latestEvent.getTask());
-		// Integer index = tasks.indexOf(latestTask);
-		// task.setSelection(index);
-		// text.setText(latestEvent.getText());
-		// taskOrTextChanged = false;
-		// }
-		// button text
-		if (timerManager.isTracking() && !taskOrTextChanged) {
-			clockInOutButton.setText(R.string.clockOut);
-		} else if (timerManager.isTracking() && taskOrTextChanged) {
-			clockInOutButton.setText(R.string.clockInChange);
+		clockOutButton.setEnabled(timerManager.isTracking());
+		if (timerManager.isTracking()) {
+			clockInButton.setText(R.string.clockInChange);
 		} else {
-			clockInOutButton.setText(R.string.clockIn);
+			clockInButton.setText(R.string.clockIn);
 		}
+
 		if (currentlyShownWeek != null) {
 			DateTime monday = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart());
 			DateTime tuesday = monday.plusDays(1);
@@ -346,6 +385,7 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 			// display times
 			showTimes(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
 		}
+		taskTabButton.setChecked(true);
 	}
 
 	private void refreshRowHighlighting(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
@@ -619,11 +659,12 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		totalFlexi = (TextView) findViewById(R.id.totalFlexi);
 		previousWeekButton = (Button) findViewById(R.id.previous);
 		nextWeekButton = (Button) findViewById(R.id.next);
-		taskLabel = (TextView) findViewById(R.id.taskLabel);
+		taskTabButton = (ToggleButton) findViewById(R.id.taskTabButton);
 		task = (Spinner) findViewById(R.id.task);
-		textLabel = (TextView) findViewById(R.id.textLabel);
-		text = (BackSensitiveEditText) findViewById(R.id.text);
-		clockInOutButton = (Button) findViewById(R.id.clockInOutButton);
+		textTabButton = (ToggleButton) findViewById(R.id.textTabButton);
+		text = (EditText) findViewById(R.id.text);
+		clockInButton = (Button) findViewById(R.id.clockInButton);
+		clockOutButton = (Button) findViewById(R.id.clockOutButton);
 	}
 
 	/**
@@ -769,60 +810,6 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		return instance;
 	}
 
-	/**
-	 * Listener for task dropdown field and text field. Triggers a refresh of the main activity.
-	 */
-	private class TaskAndTextListener implements OnItemSelectedListener, OnEditorActionListener, BackListener {
-
-		private void valueChanged() {
-			Event toCompare = getLastEventIfClockIn();
-			if (toCompare != null) {
-				// is only null when clocked in via location:
-				Integer taskFromEvent = toCompare.getTask();
-				// is only null when all tasks have been removed:
-				Integer taskFromGUI = ((Task) task.getSelectedItem()).getId();
-				Logger.debug("task: from_event={0} from_gui={1}", taskFromEvent, taskFromGUI);
-				Logger.debug("text: from_event={0} from_gui={1}", toCompare.getText(), text.getText().toString());
-				if (equalsWithNullEqualsEmptyString(toCompare.getText(), text.getText().toString())
-					&& (taskFromGUI == null || taskFromEvent == null || taskFromEvent.equals(taskFromGUI))) {
-					Logger.debug("setting taskOrTextChanged to false");
-					taskOrTextChanged = false;
-					refreshView();
-				} else {
-					Logger.debug("setting taskOrTextChanged to true");
-					taskOrTextChanged = true;
-					refreshView();
-				}
-			}
-		}
-
-		@Override
-		public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-			valueChanged();
-		}
-
-		@Override
-		public void onNothingSelected(AdapterView<?> parent) {
-			valueChanged();
-		}
-
-		@Override
-		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-			text.clearFocus();
-			valueChanged();
-			return true;
-		}
-
-		@Override
-		public void backKeyPressed() {
-			text.clearFocus();
-			Event toCompare = getLastEventIfClockIn();
-			text.setText(toCompare == null || toCompare.getText() == null ? "" : toCompare.getText());
-			valueChanged();
-		}
-
-	}
-
 	private Event getLastEventIfClockIn() {
 		Event event = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
 		if (event != null && event.getType() != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
@@ -836,41 +823,6 @@ public class WorkTimeTrackerActivity extends Activity implements SimpleGestureLi
 		return (one == null && two == null) || (one != null && one.length() == 0 && two == null)
 			|| (one != null && one.length() == 0 && two == null) || (one == null && two != null && two.length() == 0)
 			|| (one != null && one.equals(two));
-	}
-
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent me) {
-		// first pass the events to the SimpleGestureFilter
-		this.detector.onTouchEvent(me);
-		// then process them normally
-		return super.dispatchTouchEvent(me);
-	}
-
-	@Override
-	public void onSwipe(int direction) {
-		switch (direction) {
-			case SimpleGestureFilter.SWIPE_RIGHT:
-				changeDisplayedWeek(-1);
-				break;
-			case SimpleGestureFilter.SWIPE_LEFT:
-				changeDisplayedWeek(1);
-				break;
-			// case SimpleGestureFilter.SWIPE_DOWN:
-			// // display 4 weeks before
-			// changeDisplayedWeek(-4);
-			// break;
-			// case SimpleGestureFilter.SWIPE_UP:
-			// // display 4 weeks after
-			// changeDisplayedWeek(4);
-			// break;
-			default:
-				// do nothing
-		}
-	}
-
-	@Override
-	public void onDoubleTap() {
-		// do nothing
 	}
 
 }

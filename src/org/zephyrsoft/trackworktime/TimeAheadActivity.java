@@ -38,6 +38,9 @@ public class TimeAheadActivity extends Activity {
 	private Button cancel = null;
 	private Button ok = null;
 
+	/** see {@link Constants#TYPE_EXTRA_KEY} for possible values **/
+	private int typeIndicator = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,7 +65,17 @@ public class TimeAheadActivity extends Activity {
 				} catch (NumberFormatException nfe) {
 					Logger.warn("could not convert \"{0}\" to int", minutes.getText().toString());
 				}
-				WorkTimeTrackerActivity.getInstance().clockInOutAction(minutesValue);
+				switch (typeIndicator) {
+					case 0:
+						WorkTimeTrackerActivity.getInstance().clockInAction(minutesValue);
+						break;
+					case 1:
+						WorkTimeTrackerActivity.getInstance().clockOutAction(minutesValue);
+						break;
+					default:
+						Logger.error("type {0} is unknown, doing nothing", typeIndicator);
+						break;
+				}
 				finish();
 			}
 		});
@@ -71,7 +84,8 @@ public class TimeAheadActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		String typeString = getIntent().getStringExtra(Constants.TYPE_EXTRA_KEY);
+		typeIndicator = getIntent().getIntExtra(Constants.TYPE_EXTRA_KEY, 0);
+		String typeString = getIntent().getStringExtra(Constants.TYPE_STRING_EXTRA_KEY);
 		type.setText(typeString);
 	}
 

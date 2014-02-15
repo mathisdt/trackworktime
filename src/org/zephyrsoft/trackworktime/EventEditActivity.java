@@ -231,7 +231,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			updateDateAndTimePickers(dateTime);
 			for (int i = 0; i < task.getCount(); i++) {
 				Task taskItem = (Task) task.getItemAtPosition(i);
-				if (taskItem.getId() != null && taskItem.getId().equals(editedEvent.getType())) {
+				if (taskItem.getId() != null && taskItem.getId().equals(editedEvent.getTask())) {
 					task.setSelection(i);
 					break;
 				}

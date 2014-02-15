@@ -447,6 +447,20 @@ public class DAO {
 	}
 
 	/**
+	 * Return the last event before a certain date and time (including the hour and minute given!) or {@code null} if
+	 * there is no such event.
+	 * 
+	 * @param dateTime
+	 *            the date and time before which the event is searched
+	 */
+	public Event getLastEventBeforeIncluding(DateTime dateTime) {
+		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " < \""
+			+ DateTimeUtil.dateTimeToString(dateTime) + "\"", true, true);
+		// if lastEvent is empty, then there is no such event in the database
+		return lastEvent.isEmpty() ? null : lastEvent.get(0);
+	}
+
+	/**
 	 * Return the first event after a certain date and time or {@code null} if there is no such event.
 	 * 
 	 * @param dateTime

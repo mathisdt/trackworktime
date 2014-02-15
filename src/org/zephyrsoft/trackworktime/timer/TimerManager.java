@@ -85,7 +85,7 @@ public class TimerManager {
 	 * @return {@code true} if currently clocked in, {@code false} otherwise
 	 */
 	public boolean isTracking() {
-		Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
+		Event latestEvent = dao.getLastEventBeforeIncluding(DateTimeUtil.getCurrentDateTime());
 		return latestEvent == null ? false : latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
 	}
 
@@ -562,8 +562,8 @@ public class TimerManager {
 			DateTime begin = getAutoPauseBegin(dateTime);
 			DateTime end = getAutoPauseEnd(dateTime);
 			Logger.debug("inserting auto-pause, begin={0}, end={1}", begin, end);
-			createEvent(begin, null, TypeEnum.CLOCK_OUT, null);
 			Event lastBeforePause = dao.getLastEventBefore(begin);
+			createEvent(begin, null, TypeEnum.CLOCK_OUT, null);
 			createEvent(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
 				(lastBeforePause == null ? null : lastBeforePause.getText()));
 		} else {

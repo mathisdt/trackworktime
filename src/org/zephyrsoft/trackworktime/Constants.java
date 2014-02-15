@@ -49,8 +49,10 @@ public class Constants {
 	public static final String MESSAGE_EXTRA_KEY = "message";
 	/** used to transport the notification' ID via an intent's extended data */
 	public static final String ID_EXTRA_KEY = "notificationId";
-	/** used to transport the type via an intent's extended data */
+	/** used to transport the type via an intent's extended data: 0 = clock in / 1 = clock out */
 	public static final String TYPE_EXTRA_KEY = "type";
+	/** used to transport the type string via an intent's extended data */
+	public static final String TYPE_STRING_EXTRA_KEY = "typeString";
 	/** the key for the {@link String} which determines the ssid to look for */
 	public static final String INTENT_EXTRA_SSID = "SSID";
 	/** the key for the {@link Boolean} which determines if vibration should be used */

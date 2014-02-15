@@ -29,6 +29,7 @@
     <string name="text">Text</string>
     <string name="choose_task">Choose a task</string>
     <string name="clockIn">Start Tracking</string>
+    <string name="clockInChange">Start New Period</string>
     <string name="clockOut">Stop Tracking</string>
     <string name="insert_default_times">Insert Default Times</string>
     <string name="edit_tasks">Edit Tasks</string>
@@ -53,7 +54,6 @@
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
     <string name="message">Message</string>
-    <string name="clockInChange">Start New Tracking Period</string>
     <string name="shortDateFormat">DD.MM.</string>
     <string name="timeFlattening">Time Flattening</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
@@ -113,5 +113,6 @@
     <string name="to">To</string>
     <string name="previous">&lt; prev</string>
     <string name="next">next ></string>
+    <string name="customize">Customize</string>
 
 </resources>
