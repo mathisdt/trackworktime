@@ -62,6 +62,7 @@
             android:summary="@string/flexiTimeDayDescription"
             android:title="@string/sundayLong" />
     </PreferenceCategory>
+<!--
     <PreferenceCategory
         android:key="@string/keyFlatteningCategory"
         android:title="@string/timeFlattening" >
@@ -74,6 +75,7 @@
             android:summary="@string/smallestTimeUnitDescription"
             android:title="@string/smallestTimeUnit" />
     </PreferenceCategory>
+-->
     <PreferenceCategory
         android:key="@string/keyLocationBasedTrackingCategory"
         android:title="@string/locationBasedTracking" >
