@@ -29,21 +29,23 @@ public enum TypeEnum {
 	/**
 	 * clock-in type of event
 	 */
-	CLOCK_IN(Values.CLOCK_IN_VALUE),
+	CLOCK_IN(Values.CLOCK_IN_VALUE, "in"),
 	/**
 	 * clock-out type of event
 	 */
-	CLOCK_OUT(Values.CLOCK_OUT_VALUE),
+	CLOCK_OUT(Values.CLOCK_OUT_VALUE, "out"),
 	/**
 	 * clock-out now type of event used to display correct amount of worked time on current day when currently clocked
 	 * in - THIS TYPE NEVER COMES FROM THE DATABASE
 	 */
-	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE);
+	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)");
 
 	private Integer value = null;
+	private String readableName = null;
 
-	private TypeEnum(Integer value) {
+	private TypeEnum(Integer value, String readableName) {
 		this.value = value;
+		this.readableName = readableName;
 	}
 
 	/**
@@ -51,6 +53,10 @@ public enum TypeEnum {
 	 */
 	public Integer getValue() {
 		return value;
+	}
+
+	public String getReadableName() {
+		return readableName;
 	}
 
 	@Override

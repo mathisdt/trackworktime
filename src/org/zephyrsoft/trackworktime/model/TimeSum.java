@@ -58,6 +58,9 @@ public class TimeSum {
 	 * Add or substract the value of the given time sum.
 	 */
 	public void addOrSubstract(TimeSum timeSum) {
+		if (timeSum == null) {
+			return;
+		}
 		hours += timeSum.hours;
 		minutes += timeSum.minutes;
 		balance();

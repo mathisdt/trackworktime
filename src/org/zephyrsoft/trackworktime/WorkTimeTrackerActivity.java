@@ -44,6 +44,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.model.DayLine;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -53,6 +54,8 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.report.CsvGenerator;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -145,6 +148,8 @@ public class WorkTimeTrackerActivity extends Activity {
 	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
+	private TimeCalculator timeCalculator = null;
+	private CsvGenerator csvGenerator = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
@@ -176,6 +181,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
 		timerManager = basics.getTimerManager();
+		timeCalculator = basics.getTimeCalculator();
+		csvGenerator = new CsvGenerator(dao);
 
 		setContentView(R.layout.main);
 
@@ -473,118 +480,70 @@ public class WorkTimeTrackerActivity extends Activity {
 
 	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
 		TextView in, TextView out, TextView worked, TextView flexi) {
-		CharSequence timeIn = null;
-		CharSequence timeOut = null;
-		CharSequence timeWorked = null;
-		CharSequence timeFlexi = null;
-		TimeSum flexiBalance = flexiBalanceAtDayStart;
 
-		Event lastEventBeforeToday = dao.getLastEventBefore(day);
-		DateTime lastEventBeforeTodayTime = (lastEventBeforeToday != null ? DateTimeUtil
-			.stringToDateTime(lastEventBeforeToday.getTime()) : null);
-		if (!events.isEmpty()) {
-			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
-			Event firstClockInEvent = null;
-			for (Event event : events) {
-				if (TimerManager.isClockInEvent(event)) {
-					firstClockInEvent = event;
-					break;
-				}
-			}
-			Event effectiveClockOutEvent = null;
-			for (int i = events.size() - 1; i >= 0; i--) {
-				Event event = events.get(i);
-				if (TimerManager.isClockOutEvent(event)) {
-					effectiveClockOutEvent = event;
-				}
-				if (TimerManager.isClockInEvent(event)) {
-					break;
-				}
-			}
+		DayLine dayLine = timeCalculator.calulateOneDay(events);
 
-			if (TimerManager.isClockInEvent(lastEventBeforeToday) && lastEventBeforeTodayTime != null
-				&& DateTimeUtil.isInPast(lastEventBeforeTodayTime) && !TimerManager.isClockInEvent(events.get(0))) {
-				// clocked in since begin of day
-				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
-			} else if (firstClockInEvent != null) {
-				timeIn = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(firstClockInEvent
-					.getTime()));
-			} else {
-				// apparently not clocked in before begin of day and no clock-in event
-				timeIn = "";
-			}
+		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
+		boolean isWorkDay = timerManager.isWorkDay(weekDay);
+		boolean isTodayOrEarlier = DateTimeUtil.isInPast(day.getStartOfDay());
+		boolean weekEndWithoutEvents = !isWorkDay && !containsEventsForDay(events, day);
+		// correct result by previous flexi time sum
+		dayLine.getTimeFlexi().addOrSubstract(flexiBalanceAtDayStart);
 
-			if (effectiveClockOutEvent != null) {
-				timeOut = DateTimeUtil.dateTimeToHourMinuteString(DateTimeUtil.stringToDateTime(effectiveClockOutEvent
-					.getTime()));
-				// replace time with NOW if applicable
-				if (effectiveClockOutEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-					timeOut = getText(R.string.now);
-				}
-			} else {
-				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
-			}
-
-			TimeSum amountWorked = timerManager.calculateTimeSum(day, PeriodEnum.DAY);
-			timeWorked = amountWorked.toString();
-
-			if (flexiBalance != null) {
-				flexiBalance.addOrSubstract(amountWorked);
-				// substract the "normal" work time for one day
-				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-				int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-				flexiBalance.substract(0, normalWorkTimeInMinutes);
-				timeFlexi = flexiBalance.toString();
-			} else {
-				timeFlexi = "";
-			}
-
+		in.setText(formatTime(dayLine.getTimeIn()));
+		if (isCurrentMinute(dayLine.getTimeOut()) && timerManager.isTracking()) {
+			out.setText("NOW");
 		} else {
-			if (TimerManager.isClockInEvent(lastEventBeforeToday) && DateTimeUtil.isInPast(day.getStartOfDay())) {
-				// although there are no events on this day, the user is clocked in all day long - else there would be a
-				// CLOCK_OUT_NOW event!
-				timeIn = DateTimeUtil.dateTimeToHourMinuteString(day.getStartOfDay());
-				timeOut = DateTimeUtil.dateTimeToHourMinuteString(day.getEndOfDay());
-				timeWorked = DateTimeUtil.getCompleteDayAsHourMinuteString();
-				if (flexiBalance != null) {
-					flexiBalance.add(24, 0);
-					// substract the "normal" work time for one day
-					WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-					flexiBalance.substract(0, normalWorkTimeInMinutes);
-					timeFlexi = flexiBalance.toString();
-				} else {
-					timeFlexi = "";
-				}
-			} else {
-				// clear all/most fields
-				timeIn = "";
-				timeOut = "";
-				timeWorked = "";
-
-				WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-				if (flexiBalance != null && timerManager.isWorkDay(weekDay)) {
-					// substract the "normal" work time for one day
-					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-					flexiBalance.substract(0, normalWorkTimeInMinutes);
-					if (DateTimeUtil.isInPast(day.getStartOfDay())) {
-						// only show for days up to now, not for future days
-						timeFlexi = flexiBalance.toString();
-					} else {
-						timeFlexi = "";
-					}
-				} else {
-					timeFlexi = "";
-				}
-			}
+			out.setText(formatTime(dayLine.getTimeOut()));
+		}
+		if (weekEndWithoutEvents) {
+			worked.setText("");
+		} else if (isWorkDay && isTodayOrEarlier) {
+			worked.setText(formatSum(dayLine.getTimeWorked(), null));
+		} else {
+			worked.setText(formatSum(dayLine.getTimeWorked(), ""));
+		}
+		if (weekEndWithoutEvents) {
+			flexi.setText("");
+		} else if (isWorkDay && isTodayOrEarlier) {
+			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));
+		} else {
+			flexi.setText(formatSum(dayLine.getTimeFlexi(), ""));
 		}
 
-		in.setText(timeIn);
-		out.setText(timeOut);
-		worked.setText(timeWorked);
-		flexi.setText(timeFlexi);
+		return dayLine.getTimeFlexi();
+	}
 
-		return flexiBalance;
+	private boolean containsEventsForDay(List<Event> events, DateTime day) {
+		for (Event event : events) {
+			if (DateTimeUtil.stringToDateTime(event.getTime()).isSameDayAs(day)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isCurrentMinute(DateTime dateTime) {
+		if (dateTime == null) {
+			return false;
+		}
+		DateTime now = DateTimeUtil.getCurrentDateTime();
+		return now.getYear().equals(dateTime.getYear())
+			&& now.getMonth().equals(dateTime.getMonth())
+			&& now.getDay().equals(dateTime.getDay())
+			&& now.getHour().equals(dateTime.getHour())
+			&& now.getMinute().equals(dateTime.getMinute());
+	}
+
+	private String formatTime(DateTime time) {
+		return time == null ? "" : DateTimeUtil.dateTimeToHourMinuteString(time);
+	}
+
+	private String formatSum(TimeSum sum, String valueForZero) {
+		if (sum != null && sum.getAsMinutes() == 0 && valueForZero != null) {
+			return valueForZero;
+		}
+		return sum == null ? "" : sum.toString();
 	}
 
 	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance) {

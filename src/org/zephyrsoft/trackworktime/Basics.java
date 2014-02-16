@@ -44,6 +44,7 @@ import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.location.WifiTrackerService;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -63,6 +64,7 @@ public class Basics extends BroadcastReceiver {
 	private SharedPreferences preferences = null;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
+	private TimeCalculator timeCalculator = null;
 	private VibrationManager vibrationManager = null;
 
 	private static Basics instance = null;
@@ -115,6 +117,7 @@ public class Basics extends BroadcastReceiver {
 		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		dao = new DAO(context);
 		timerManager = new TimerManager(dao, preferences);
+		timeCalculator = new TimeCalculator(dao, timerManager);
 		vibrationManager = new VibrationManager(context);
 	}
 
@@ -525,6 +528,13 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public TimerManager getTimerManager() {
 		return timerManager;
+	}
+
+	/**
+	 * The app's time calculator.
+	 */
+	public TimeCalculator getTimeCalculator() {
+		return timeCalculator;
 	}
 
 	/**
