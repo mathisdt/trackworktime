@@ -18,7 +18,6 @@
             android:id="@+id/LinearLayout2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
             android:layout_marginTop="3dp"
             android:orientation="horizontal" >
 
@@ -51,13 +50,13 @@
             android:id="@+id/week_table"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="22dp"
             layout="@layout/week_table" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="22dp"
             android:orientation="horizontal" >
 
             <Button
@@ -73,53 +72,45 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:text="@string/clockOut" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/customizeLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginBottom="3dp"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="10dp"
-                android:text="@string/customize" />
-
-            <ToggleButton
-                android:id="@+id/taskTabButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textOff="@string/task"
-                android:textOn="@string/task" />
-
-            <ToggleButton
-                android:id="@+id/textTabButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textOff="@string/text"
-                android:textOn="@string/text" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/LinearLayout3"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:orientation="vertical" >
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/taskLabel"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="3dp"
+                android:text="@string/task"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <Spinner
                 android:id="@+id/task"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:prompt="@string/choose_task" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/textLabel"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="3dp"
+                android:text="@string/text"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/text"

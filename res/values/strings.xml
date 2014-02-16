@@ -31,7 +31,7 @@
     <string name="clockIn">Start Tracking</string>
     <string name="clockInChange">Start New Period</string>
     <string name="clockOut">Stop Tracking</string>
-    <string name="insert_default_times">Insert Default Times</string>
+    <string name="insert_default_times">Multi-Insert</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="edit_events">Edit Events</string>
     <string name="options">Options</string>
@@ -106,7 +106,7 @@
     <string name="availableActions">Available Actions</string>
     <string name="logo">Logo</string>
     <string name="about">About</string>
-    <string name="use_current_location">here = work</string>
+    <string name="use_current_location">Here = Work</string>
     <string name="really_use_current_location">Do you want to use your current location as work place? The work place coordinates you may have entered before will be overwritten! (It could take some seconds to find out your current location.)</string>
     <string name="timeRange">Time Range</string>
     <string name="from">From</string>

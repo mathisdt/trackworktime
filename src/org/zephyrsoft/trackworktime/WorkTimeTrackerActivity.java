@@ -33,15 +33,12 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.DayLine;
@@ -130,9 +127,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	private TextView totalOut = null;
 	private TextView totalWorked = null;
 	private TextView totalFlexi = null;
-	private ToggleButton taskTabButton = null;
 	private Spinner task = null;
-	private ToggleButton textTabButton = null;
 	private EditText text = null;
 	private Button clockInButton = null;
 	private Button clockOutButton = null;
@@ -206,38 +201,6 @@ public class WorkTimeTrackerActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				changeDisplayedWeek(1);
-			}
-		});
-
-		taskTabButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (!tabsAreChanging) {
-					tabsAreChanging = true;
-
-					taskTabButton.setChecked(isChecked);
-					setVisibility(task, isChecked);
-					textTabButton.setChecked(!isChecked);
-					setVisibility(text, !isChecked);
-
-					tabsAreChanging = false;
-				}
-			}
-		});
-
-		textTabButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (!tabsAreChanging) {
-					tabsAreChanging = true;
-
-					textTabButton.setChecked(isChecked);
-					setVisibility(text, isChecked);
-					taskTabButton.setChecked(!isChecked);
-					setVisibility(task, !isChecked);
-
-					tabsAreChanging = false;
-				}
 			}
 		});
 
@@ -392,7 +355,6 @@ public class WorkTimeTrackerActivity extends Activity {
 			// display times
 			showTimes(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
 		}
-		taskTabButton.setChecked(true);
 	}
 
 	private void refreshRowHighlighting(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
@@ -618,9 +580,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		totalFlexi = (TextView) findViewById(R.id.totalFlexi);
 		previousWeekButton = (Button) findViewById(R.id.previous);
 		nextWeekButton = (Button) findViewById(R.id.next);
-		taskTabButton = (ToggleButton) findViewById(R.id.taskTabButton);
 		task = (Spinner) findViewById(R.id.task);
-		textTabButton = (ToggleButton) findViewById(R.id.textTabButton);
 		text = (EditText) findViewById(R.id.text);
 		clockInButton = (Button) findViewById(R.id.clockInButton);
 		clockOutButton = (Button) findViewById(R.id.clockOutButton);

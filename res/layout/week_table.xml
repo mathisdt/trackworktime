@@ -16,35 +16,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/inLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/in"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/outLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/out"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/workedLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/worked"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/flexiLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/flexi"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -59,35 +64,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/monday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/mondayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/mondayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/mondayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/mondayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -101,35 +111,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tuesday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/tuesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/tuesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/tuesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/tuesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -144,35 +159,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/wednesday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/wednesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/wednesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/wednesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/wednesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -186,35 +206,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/thursday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/thursdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/thursdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/thursdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/thursdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -229,35 +254,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/friday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/fridayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/fridayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/fridayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/fridayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -271,35 +301,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/saturday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/saturdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/saturdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/saturdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/saturdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -314,35 +349,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sunday"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/sundayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/sundayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/sundayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/sundayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <TableRow
@@ -356,35 +396,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/total"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/totalIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/totalOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/totalWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
         <TextView
             android:id="@+id/totalFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/onespace"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
 </TableLayout>
