@@ -56,7 +56,8 @@ public class AboutActivity extends Activity {
 			versionProps.load(getApplicationContext().getResources().openRawResource(R.raw.version));
 			version = versionProps.getProperty("app.version.major") + "."
 				+ versionProps.getProperty("app.version.minor") + "."
-				+ versionProps.getProperty("app.version.buildnumber");
+				+ versionProps.getProperty("app.version.buildnumber")
+				+ versionProps.getProperty("app.version.suffix");
 		} catch (Exception e) {
 			Logger.error("could not open version properties for reading");
 			version = "?";
@@ -66,12 +67,12 @@ public class AboutActivity extends Activity {
 		aboutText = MessageFormat.format(aboutText, name, version, website, email);
 		about.setText(Html.fromHtml(aboutText));
 		about.setLinkTextColor(Color.WHITE);
-		Linkify.addLinks(about, Linkify.ALL);
+		Linkify.addLinks(about, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 
 		TextView help = (TextView) findViewById(R.id.help_text);
 		help.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
 		help.setLinkTextColor(Color.WHITE);
-		Linkify.addLinks(help, Linkify.ALL);
+		Linkify.addLinks(help, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 	}
 
 	private String readRawTextFile(int id) {
