@@ -25,6 +25,7 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_TYPE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_WEEK;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ACTIVE;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_DEFAULT;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_NAME;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ORDERING;
@@ -88,7 +89,7 @@ public class DAO {
 
 	// =======================================================
 
-	private static final String[] TASK_FIELDS = { TASK_ID, TASK_NAME, TASK_ACTIVE, TASK_ORDERING };
+	private static final String[] TASK_FIELDS = { TASK_ID, TASK_NAME, TASK_ACTIVE, TASK_ORDERING, TASK_DEFAULT };
 
 	private Task cursorToTask(Cursor cursor) {
 		Task task = new Task();
@@ -96,6 +97,7 @@ public class DAO {
 		task.setName(cursor.getString(1));
 		task.setActive(cursor.getInt(2));
 		task.setOrdering(cursor.getInt(3));
+		task.setIsDefault(cursor.getInt(4));
 		return task;
 	}
 
@@ -104,6 +106,7 @@ public class DAO {
 		ret.put(TASK_NAME, task.getName());
 		ret.put(TASK_ACTIVE, task.getActive());
 		ret.put(TASK_ORDERING, task.getOrdering());
+		ret.put(TASK_DEFAULT, task.getIsDefault());
 		return ret;
 	}
 
@@ -139,6 +142,16 @@ public class DAO {
 	 */
 	public List<Task> getActiveTasks() {
 		return getTasksWithConstraint(TASK_ACTIVE + "!=0");
+	}
+
+	/**
+	 * Get the default task.
+	 * 
+	 * @return the default task or {@code null} (if no task was marked as default or if the default task is deactivated)
+	 */
+	public Task getDefaultTask() {
+		List<Task> tasks = getTasksWithConstraint(TASK_ACTIVE + "!=0 AND " + TASK_DEFAULT + "!=0");
+		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
 	/**
@@ -394,6 +407,14 @@ public class DAO {
 	 */
 	public List<Event> getAllEvents() {
 		return getEventsWithConstraint(null);
+	}
+
+	/**
+	 * Return the events that are in the specified time frame.
+	 */
+	public List<Event> getEvents(DateTime beginOfTimeFrame, DateTime endOfTimeFrame) {
+		return getEventsWithConstraint(EVENT_TIME + " >= \"" + DateTimeUtil.dateTimeToString(beginOfTimeFrame)
+			+ "\" AND " + EVENT_TIME + " < \"" + DateTimeUtil.dateTimeToString(endOfTimeFrame) + "\"");
 	}
 
 	/**

@@ -99,7 +99,7 @@ updated android manifest to version code ${update-android-manifest.app.version.c
         </echo>
     </target>
 
-    <!-- taken from SDK's build.xml solely to modify the name of the resultink APK file: -->
+    <!-- taken from SDK's build.xml solely to modify the name of the resulting APK file: -->
 
     <target
         name="-set-release-mode"

@@ -1,0 +1,85 @@
+/*
+ * This file is part of TrackWorkTime (TWT).
+ * 
+ * TWT is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * TWT is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with TWT. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.zephyrsoft.trackworktime.report;
+
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.zephyrsoft.trackworktime.model.TimeSum;
+
+/**
+ * Holds the data for reporting.
+ * 
+ * @author Mathis Dirksen-Thedens
+ */
+public class TimeSumsHolder implements Comparable<TimeSumsHolder> {
+
+	private String month;
+	private String week;
+	private String task;
+	private TimeSum spent;
+
+	public TimeSumsHolder(String month, String week, String task, TimeSum spent) {
+		this.month = month;
+		this.week = week;
+		this.task = task;
+		this.spent = spent;
+	}
+
+	public String getWeek() {
+		return week;
+	}
+
+	public void setWeek(String week) {
+		this.week = week;
+	}
+
+	public String getMonth() {
+		return month;
+	}
+
+	public void setMonth(String month) {
+		this.month = month;
+	}
+
+	public String getTask() {
+		return task;
+	}
+
+	public void setTask(String task) {
+		this.task = task;
+	}
+
+	public TimeSum getSpent() {
+		return spent;
+	}
+
+	public void setSpent(TimeSum spent) {
+		this.spent = spent;
+	}
+
+	@Override
+	public int compareTo(TimeSumsHolder another) {
+		if (another == null) {
+			return 1;
+		}
+		return new CompareToBuilder()
+			.append(getMonth(), another.getMonth())
+			.append(getWeek(), another.getWeek())
+			.append(getTask(), another.getTask())
+			.toComparison();
+	}
+
+}

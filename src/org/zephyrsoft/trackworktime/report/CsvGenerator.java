@@ -16,12 +16,19 @@
  */
 package org.zephyrsoft.trackworktime.report;
 
+import hirondelle.date4j.DateTime;
+
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
@@ -30,7 +37,10 @@ import org.supercsv.util.CsvContext;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Creates CSV reports from events.
@@ -46,7 +56,7 @@ public class CsvGenerator {
 	}
 
 	/** time, type, task, text */
-	private final CellProcessor[] processors = new CellProcessor[] {
+	private final CellProcessor[] eventProcessors = new CellProcessor[] {
 		new CellProcessorAdaptor() {
 			@Override
 			public Object execute(Object arg0, CsvContext arg1) {
@@ -81,7 +91,41 @@ public class CsvGenerator {
 		new Optional()
 	};
 
-	public String createCsv(List<Event> events) {
+	/** task, spent */
+	private final CellProcessor[] sumsProcessors = new CellProcessor[] {
+		new NotNull(),
+		new CellProcessorAdaptor() {
+			@Override
+			public Object execute(Object arg0, CsvContext arg1) {
+				if (arg0 == null) {
+					throw new IllegalStateException("time sum may not be null");
+				} else {
+					return ((TimeSum) arg0).toString();
+				}
+			}
+		}
+	};
+
+	/** (month|week), task, spent */
+	private final CellProcessor[] sumsPerRangeProcessors = new CellProcessor[] {
+		new NotNull(),
+		new NotNull(),
+		new CellProcessorAdaptor() {
+			@Override
+			public Object execute(Object arg0, CsvContext arg1) {
+				if (arg0 == null) {
+					throw new IllegalStateException("time sum may not be null");
+				} else {
+					return ((TimeSum) arg0).toString();
+				}
+			}
+		}
+	};
+
+	/**
+	 * Warning: could modify the provided event list!
+	 */
+	public String createEventCsv(List<Event> events) {
 		ICsvBeanWriter beanWriter = null;
 		StringWriter resultWriter = new StringWriter();
 		try {
@@ -93,11 +137,94 @@ public class CsvGenerator {
 			beanWriter.writeHeader(header);
 
 			for (Event event : events) {
-				beanWriter.write(event, header, processors);
+				// "clock out" events shouldn't have a task and text:
+				if (TypeEnum.byValue(event.getType()) == TypeEnum.CLOCK_OUT) {
+					event.setTask(null);
+					event.setText(null);
+				}
+				beanWriter.write(event, header, eventProcessors);
 			}
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.error("error while writing: {0}", e.getMessage());
+		} finally {
+			if (beanWriter != null) {
+				try {
+					beanWriter.close();
+				} catch (IOException e) {
+					// do nothing
+				}
+			}
+		}
+		return resultWriter.toString();
+	}
+
+	public String createSumsCsv(Map<Task, TimeSum> sums) {
+		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		for (Entry<Task, TimeSum> entry : sums.entrySet()) {
+			String task = "";
+			if (entry.getKey() != null) {
+				task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+			}
+			prepared.add(new TimeSumsHolder(null, null, task, entry.getValue()));
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "task", "spent" }, sumsProcessors);
+	}
+
+	public String createSumsPerWeekCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String week = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+			Map<Task, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
+				String task = "";
+				if (entry.getKey() != null) {
+					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+				}
+				prepared.add(new TimeSumsHolder(null, week, task, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "week", "task", "spent" }, sumsPerRangeProcessors);
+	}
+
+	public String createSumsPerMonthCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String month = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+			Map<Task, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
+				String task = "";
+				if (entry.getKey() != null) {
+					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+				}
+				prepared.add(new TimeSumsHolder(month, null, task, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "month", "task", "spent" }, sumsPerRangeProcessors);
+	}
+
+	/**
+	 * @param header
+	 *            the header elements are used to map the bean values to each column (names must match!)
+	 */
+	private String createCsv(List<TimeSumsHolder> dataToWrite, String[] header, CellProcessor[] processors) {
+		ICsvBeanWriter beanWriter = null;
+		StringWriter resultWriter = new StringWriter();
+		try {
+			beanWriter = new CsvBeanWriter(resultWriter, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE);
+
+			beanWriter.writeHeader(header);
+
+			for (TimeSumsHolder timeSumsHolder : dataToWrite) {
+				beanWriter.write(timeSumsHolder, header, processors);
+			}
+		} catch (IOException e) {
+			Logger.error("error while writing: {0}", e.getMessage());
 		} finally {
 			if (beanWriter != null) {
 				try {

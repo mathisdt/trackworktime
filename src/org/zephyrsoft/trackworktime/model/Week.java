@@ -30,60 +30,36 @@ public class Week extends Base implements Comparable<Week> {
 	/** amount of minutes worked in this week */
 	private Integer sum = null;
 
-	/**
-	 * Constructor
-	 */
 	public Week() {
 		// do nothing
 	}
 
-	/**
-	 * Constructor
-	 */
 	public Week(Integer id, String start, Integer sum) {
 		this.id = id;
 		this.start = start;
 		this.sum = sum;
 	}
 
-	/**
-	 * Getter
-	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/**
-	 * Getter
-	 */
 	public String getStart() {
 		return start;
 	}
 
-	/**
-	 * Getter
-	 */
 	public Integer getSum() {
 		return sum;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setStart(String start) {
 		this.start = start;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setSum(Integer sum) {
 		this.sum = sum;
 	}

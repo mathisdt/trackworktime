@@ -46,10 +46,17 @@ import org.zephyrsoft.trackworktime.util.Logger;
  */
 public class TaskListActivity extends ListActivity {
 
-	private static final int NEW_TASK = 0;
-	private static final int RENAME_TASK = 1;
-	private static final int TOGGLE_ACTIVATION_STATE_OF_TASK = 2;
-	private static final int DELETE_TASK = 3;
+	private static enum MenuAction {
+		NEW_TASK,
+		RENAME_TASK,
+		TOGGLE_DEFAULT,
+		TOGGLE_ACTIVATION_STATE_OF_TASK,
+		DELETE_TASK;
+
+		public static MenuAction byOrdinal(int ordinal) {
+			return values()[ordinal];
+		}
+	}
 
 	private DAO dao = null;
 
@@ -97,7 +104,7 @@ public class TaskListActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+		switch (MenuAction.byOrdinal(item.getItemId())) {
 			case NEW_TASK:
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 				alert.setTitle(getString(R.string.new_task));
@@ -112,7 +119,7 @@ public class TaskListActivity extends ListActivity {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						String value = input.getText().toString();
 						// create new task in DB
-						Task newTask = dao.insertTask(new Task(null, value, 1, 0));
+						Task newTask = dao.insertTask(new Task(null, value, 1, 0, 0));
 						Logger.debug("inserted new task: {0}", newTask);
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
@@ -137,17 +144,23 @@ public class TaskListActivity extends ListActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, NEW_TASK, 0, getString(R.string.new_task)).setIcon(R.drawable.ic_menu_add);
+		menu.add(Menu.NONE, MenuAction.NEW_TASK.ordinal(), MenuAction.NEW_TASK.ordinal(), getString(R.string.new_task))
+			.setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.setHeaderTitle(R.string.availableActions);
-		menu.add(Menu.NONE, RENAME_TASK, 0, getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
-		menu.add(Menu.NONE, TOGGLE_ACTIVATION_STATE_OF_TASK, 1, getString(R.string.toggle_activation_state_of_task))
+		menu.add(Menu.NONE, MenuAction.RENAME_TASK.ordinal(), MenuAction.RENAME_TASK.ordinal(),
+			getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
+		menu.add(Menu.NONE, MenuAction.TOGGLE_DEFAULT.ordinal(), MenuAction.TOGGLE_DEFAULT.ordinal(),
+			getString(R.string.toggle_default)).setIcon(R.drawable.ic_menu_revert);
+		menu.add(Menu.NONE, MenuAction.TOGGLE_ACTIVATION_STATE_OF_TASK.ordinal(),
+			MenuAction.TOGGLE_ACTIVATION_STATE_OF_TASK.ordinal(), getString(R.string.toggle_activation_state_of_task))
 			.setIcon(R.drawable.ic_menu_revert);
-		menu.add(Menu.NONE, DELETE_TASK, 2, getString(R.string.delete_task)).setIcon(R.drawable.ic_menu_delete);
+		menu.add(Menu.NONE, MenuAction.DELETE_TASK.ordinal(), MenuAction.DELETE_TASK.ordinal(),
+			getString(R.string.delete_task)).setIcon(R.drawable.ic_menu_delete);
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -157,7 +170,7 @@ public class TaskListActivity extends ListActivity {
 		final int taskPosition = info.position;
 		final Task oldTask = tasks.get(taskPosition);
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		switch (item.getItemId()) {
+		switch (MenuAction.byOrdinal(item.getItemId())) {
 			case RENAME_TASK:
 				alert.setTitle(getString(R.string.rename_task));
 				alert.setMessage(getString(R.string.enter_new_task_name));
@@ -192,9 +205,46 @@ public class TaskListActivity extends ListActivity {
 				alert.show();
 
 				return true;
+			case TOGGLE_DEFAULT:
+				Task previousDefault = null;
+				int previousDefaultPosition = -1;
+				if (oldTask.getIsDefault().equals(Integer.valueOf(0))) {
+					// scan for previous default
+					int i = 0;
+					for (Task task : tasks) {
+						if (task.getIsDefault().equals(Integer.valueOf(1))) {
+							previousDefault = task;
+							previousDefaultPosition = i;
+							previousDefault.setIsDefault(0);
+							break;
+						}
+						i++;
+					}
+					oldTask.setIsDefault(1);
+				} else {
+					oldTask.setIsDefault(0);
+				}
+				// toggle default in DB
+				if (previousDefault != null) {
+					// unset previous default
+					Task updatedPreviousDefault = dao.updateTask(previousDefault);
+					Logger.debug("updated task with ID {0} to have the new isDefault value: {1}",
+						previousDefault.getId(), updatedPreviousDefault.getIsDefault());
+					tasks.remove(previousDefaultPosition);
+					tasks.add(previousDefaultPosition, updatedPreviousDefault);
+				}
+				Task toggledTask = dao.updateTask(oldTask);
+				Logger.debug("updated task with ID {0} to have the new isDefault value: {1}", oldTask.getId(),
+					toggledTask.getIsDefault());
+				tasks.remove(taskPosition);
+				tasks.add(taskPosition, toggledTask);
+				tasksAdapter.notifyDataSetChanged();
+				refreshTasksOnParent();
+
+				return true;
 			case TOGGLE_ACTIVATION_STATE_OF_TASK:
 				alert.setTitle(getString(R.string.toggle_activation_state_of_task));
-				if (oldTask.getActive() == 0) {
+				if (oldTask.getActive().equals(Integer.valueOf(0))) {
 					alert.setMessage(getString(R.string.really_enable_task));
 				} else {
 					alert.setMessage(getString(R.string.really_disable_task));
@@ -275,6 +325,8 @@ public class TaskListActivity extends ListActivity {
 				}
 
 				return true;
+			default:
+				Logger.warn("context menu: unknown item selected");
 		}
 		return super.onContextItemSelected(item);
 	}

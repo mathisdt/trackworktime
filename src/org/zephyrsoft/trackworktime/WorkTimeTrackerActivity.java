@@ -51,7 +51,6 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -65,12 +64,19 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
  */
 public class WorkTimeTrackerActivity extends Activity {
 
-	private static final int EDIT_EVENTS = 0;
-	private static final int EDIT_TASKS = 1;
-	private static final int INSERT_DEFAULT_TIMES = 2;
-	private static final int OPTIONS = 3;
-	private static final int USE_CURRENT_LOCATION = 4;
-	private static final int ABOUT = 5;
+	private static enum MenuAction {
+		EDIT_EVENTS,
+		EDIT_TASKS,
+		INSERT_DEFAULT_TIMES,
+		OPTIONS,
+		USE_CURRENT_LOCATION,
+		REPORTS,
+		ABOUT;
+
+		public static MenuAction byOrdinal(int ordinal) {
+			return values()[ordinal];
+		}
+	}
 
 	private TableLayout weekTable = null;
 	private TableRow titleRow = null;
@@ -144,7 +150,6 @@ public class WorkTimeTrackerActivity extends Activity {
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private TimeCalculator timeCalculator = null;
-	private CsvGenerator csvGenerator = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
@@ -177,7 +182,6 @@ public class WorkTimeTrackerActivity extends Activity {
 		dao = basics.getDao();
 		timerManager = basics.getTimerManager();
 		timeCalculator = basics.getTimeCalculator();
-		csvGenerator = new CsvGenerator(dao);
 
 		setContentView(R.layout.main);
 
@@ -333,10 +337,23 @@ public class WorkTimeTrackerActivity extends Activity {
 
 	protected void refreshView() {
 		clockOutButton.setEnabled(timerManager.isTracking());
+		Task taskToSelect = null;
 		if (timerManager.isTracking()) {
 			clockInButton.setText(R.string.clockInChange);
+			taskToSelect = timerManager.getCurrentTask();
 		} else {
 			clockInButton.setText(R.string.clockIn);
+			taskToSelect = dao.getDefaultTask();
+		}
+		if (taskToSelect != null) {
+			int i = 0;
+			for (Task oneTask : tasks) {
+				if (oneTask.getId().equals(taskToSelect.getId())) {
+					task.setSelection(i);
+					break;
+				}
+				i++;
+			}
 		}
 
 		if (currentlyShownWeek != null) {
@@ -448,7 +465,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
 		boolean isWorkDay = timerManager.isWorkDay(weekDay);
 		boolean isTodayOrEarlier = DateTimeUtil.isInPast(day.getStartOfDay());
-		boolean weekEndWithoutEvents = !isWorkDay && !containsEventsForDay(events, day);
+		boolean containsEventsForDay = containsEventsForDay(events, day);
+		boolean weekEndWithoutEvents = !isWorkDay && !containsEventsForDay;
 		// correct result by previous flexi time sum
 		dayLine.getTimeFlexi().addOrSubstract(flexiBalanceAtDayStart);
 
@@ -469,8 +487,10 @@ public class WorkTimeTrackerActivity extends Activity {
 			flexi.setText("");
 		} else if (isWorkDay && isTodayOrEarlier) {
 			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));
-		} else {
+		} else if (containsEventsForDay) {
 			flexi.setText(formatSum(dayLine.getTimeFlexi(), ""));
+		} else {
+			flexi.setText("");
 		}
 
 		return dayLine.getTimeFlexi();
@@ -595,20 +615,26 @@ public class WorkTimeTrackerActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, EDIT_EVENTS, EDIT_EVENTS, R.string.edit_events).setIcon(R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, EDIT_TASKS, EDIT_TASKS, R.string.edit_tasks).setIcon(R.drawable.ic_menu_sort_by_size);
-		menu.add(Menu.NONE, INSERT_DEFAULT_TIMES, INSERT_DEFAULT_TIMES, R.string.insert_default_times).setIcon(
-			R.drawable.ic_menu_mark);
-		menu.add(Menu.NONE, OPTIONS, OPTIONS, R.string.options).setIcon(R.drawable.ic_menu_preferences);
-		menu.add(Menu.NONE, USE_CURRENT_LOCATION, USE_CURRENT_LOCATION, R.string.use_current_location).setIcon(
-			R.drawable.ic_menu_compass);
-		menu.add(Menu.NONE, ABOUT, ABOUT, R.string.about).setIcon(R.drawable.ic_menu_star);
+		menu.add(Menu.NONE, MenuAction.EDIT_EVENTS.ordinal(), MenuAction.EDIT_EVENTS.ordinal(), R.string.edit_events)
+			.setIcon(R.drawable.ic_menu_edit);
+		menu.add(Menu.NONE, MenuAction.EDIT_TASKS.ordinal(), MenuAction.EDIT_TASKS.ordinal(), R.string.edit_tasks)
+			.setIcon(R.drawable.ic_menu_sort_by_size);
+		menu.add(Menu.NONE, MenuAction.INSERT_DEFAULT_TIMES.ordinal(), MenuAction.INSERT_DEFAULT_TIMES.ordinal(),
+			R.string.insert_default_times).setIcon(R.drawable.ic_menu_mark);
+		menu.add(Menu.NONE, MenuAction.OPTIONS.ordinal(), MenuAction.OPTIONS.ordinal(), R.string.options).setIcon(
+			R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, MenuAction.USE_CURRENT_LOCATION.ordinal(), MenuAction.USE_CURRENT_LOCATION.ordinal(),
+			R.string.use_current_location).setIcon(R.drawable.ic_menu_compass);
+		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports).setIcon(
+			R.drawable.ic_menu_agenda);
+		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about).setIcon(
+			R.drawable.ic_menu_star);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+		switch (MenuAction.byOrdinal(item.getItemId())) {
 			case EDIT_EVENTS:
 				showEventList();
 				return true;
@@ -623,6 +649,9 @@ public class WorkTimeTrackerActivity extends Activity {
 				return true;
 			case USE_CURRENT_LOCATION:
 				useCurrentLocationAsWorkplace();
+				return true;
+			case REPORTS:
+				showReports();
 				return true;
 			case ABOUT:
 				showAbout();
@@ -675,6 +704,12 @@ public class WorkTimeTrackerActivity extends Activity {
 			}
 		});
 		alert.show();
+	}
+
+	private void showReports() {
+		Logger.debug("showing Reports");
+		Intent i = new Intent(this, ReportsActivity.class);
+		startActivity(i);
 	}
 
 	private void showAbout() {

@@ -29,78 +29,58 @@ public class Task extends Base implements Comparable<Task> {
 	private String name = null;
 	private Integer active = null;
 	private Integer ordering = null;
+	private Integer isDefault = null;
 
-	/**
-	 * Constructor
-	 */
 	public Task() {
 		// do nothing
 	}
 
-	/**
-	 * Constructor
-	 */
-	public Task(Integer id, String name, Integer active, Integer ordering) {
+	public Task(Integer id, String name, Integer active, Integer ordering, Integer isDefault) {
 		this.id = id;
 		this.name = name;
 		this.active = active;
 		this.ordering = ordering;
+		this.isDefault = isDefault;
 	}
 
-	/**
-	 * Getter
-	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/**
-	 * Getter
-	 */
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * Getter
-	 */
 	public Integer getActive() {
 		return active;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setActive(Integer active) {
 		this.active = active;
 	}
 
-	/**
-	 * Getter
-	 */
 	public Integer getOrdering() {
 		return ordering;
 	}
 
-	/**
-	 * Setter
-	 */
 	public void setOrdering(Integer ordering) {
 		this.ordering = ordering;
+	}
+
+	public Integer getIsDefault() {
+		return isDefault;
+	}
+
+	public void setIsDefault(Integer isDefault) {
+		this.isDefault = isDefault;
 	}
 
 	@Override
@@ -115,6 +95,31 @@ public class Task extends Base implements Comparable<Task> {
 	 */
 	@Override
 	public String toString() {
-		return getName();
+		return getName() + (isDefault != null && isDefault.equals(1) ? " *" : "");
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Task other = (Task) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 }

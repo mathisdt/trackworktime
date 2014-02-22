@@ -45,6 +45,7 @@
     <string name="delete_task">Delete Task</string>
     <string name="delete_event">Delete Event</string>
     <string name="toggle_activation_state_of_task">Toggle Activation State</string>
+    <string name="toggle_default">Toggle Default</string>
     <string name="really_enable_task">Really enable the task?</string>
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
@@ -114,5 +115,17 @@
     <string name="previous">&lt; prev</string>
     <string name="next">next ></string>
     <string name="customize">Customize</string>
-
+    <string name="reports">Reports</string>
+    <string name="current">current</string>
+    <string name="last">last</string>
+    <string name="week">week</string>
+    <string name="month">month</string>
+    <string name="year">year</string>
+    <string name="last_and_current">last + current</string>
+    <string name="eventsReport">All Events</string>
+    <string name="timesByTaskReport">Times by Task</string>
+    <string name="chooseReport">Choose Report</string>
+    <string name="timesByTaskPerWeek">Times by Task (weekly)</string>
+    <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
+    
 </resources>

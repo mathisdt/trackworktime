@@ -146,6 +146,7 @@ public class TimerManager {
 
 	/**
 	 * Either starts tracking (from non-tracked time) or changes the task and/or text (from already tracked time).
+	 * If the task is {@code null}, the default task is taken. If there is no default task, no task will be taken.
 	 * 
 	 * @param minutesToPredate
 	 *            how many minutes in the future should the event be
@@ -155,7 +156,11 @@ public class TimerManager {
 	 *            free text to describe in detail what was done
 	 */
 	public void startTracking(int minutesToPredate, Task selectedTask, String text) {
-		createEvent(minutesToPredate, (selectedTask == null ? null : selectedTask.getId()), TypeEnum.CLOCK_IN, text);
+		Task taskToLink = selectedTask == null ? null : selectedTask;
+		if (taskToLink == null) {
+			taskToLink = dao.getDefaultTask();
+		}
+		createEvent(minutesToPredate, taskToLink.getId(), TypeEnum.CLOCK_IN, text);
 		Basics.getInstance().safeCheckPersistentNotification();
 	}
 
@@ -219,7 +224,7 @@ public class TimerManager {
 
 		DateTime clockedInSince = null;
 		if (isClockInEvent(lastEventBefore)
-		// but only if no CLOCK_OUT_NOW would be in between:
+			// but only if no CLOCK_OUT_NOW would be in between:
 			&& !(lastEventBeforeTime != null && DateTimeUtil.isInPast(lastEventBeforeTime) && ((events.isEmpty() && (firstEventAfterNow == null || DateTimeUtil
 				.isInFuture(firstEventAfterNowTime))) || (!events.isEmpty()
 				&& DateTimeUtil.isInFuture(DateTimeUtil.stringToDateTime(events.get(0).getTime())) && isClockInEvent(events
@@ -585,7 +590,7 @@ public class TimerManager {
 		DateTime end = getAutoPauseEnd(dateTime);
 		// auto-pause is theoretically applicable
 		return isAutoPauseTheoreticallyApplicable(dateTime)
-		// given time is after auto-pause end, so auto-pause should really be applied
+			// given time is after auto-pause end, so auto-pause should really be applied
 			&& dateTime.gt(end);
 	}
 
@@ -597,7 +602,7 @@ public class TimerManager {
 			Event lastEventBeforeEnd = dao.getLastEventBefore(end);
 			// is clocked in before begin
 			return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
-			// no event is in auto-pause interval
+				// no event is in auto-pause interval
 				&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId());
 		} else {
 			// begin is equal to end or (even worse) begin is after end => no auto-pause
