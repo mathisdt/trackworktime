@@ -25,6 +25,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -133,6 +135,20 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			}, 0, null);
 		typesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		type.setAdapter(typesAdapter);
+		type.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				// on "clock out" events it makes no sense to edit a task and text so disable it
+				TypeEnum selectedType = types.get(position);
+				setTaskAndTextEditable(selectedType != TypeEnum.CLOCK_OUT);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// if in doubt: let the user edit all data
+				setTaskAndTextEditable(true);
+			}
+		});
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -180,6 +196,11 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				finish();
 			}
 		});
+	}
+
+	private void setTaskAndTextEditable(boolean shouldBeEditable) {
+		task.setEnabled(shouldBeEditable);
+		text.setEnabled(shouldBeEditable);
 	}
 
 	@Override
