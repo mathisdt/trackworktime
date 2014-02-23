@@ -33,5 +33,6 @@
     <string name="keyAutoPauseEnd">keyAutoPauseEnd</string>
     <string name="keyNotificationCategory">keyNotificationCategory</string>
     <string name="keyNotificationEnabled">keyNotificationEnabled</string>
+    <string name="keyNotificationUsesFlexiTimeAsTarget">keyNotificationUsesFlexiTimeAsTarget</string>
 
 </resources>

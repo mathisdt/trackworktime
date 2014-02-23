@@ -129,6 +129,10 @@
             android:key="@string/keyNotificationEnabled"
             android:summary="@string/notificationDescription"
             android:title="@string/notificationEnabled" />
+        <CheckBoxPreference
+            android:key="@string/keyNotificationUsesFlexiTimeAsTarget"
+            android:summary="@string/notificationFlexiTimeDescription"
+            android:title="@string/notificationUsesFlexiTimeAsTarget" />
     </PreferenceCategory>
 
 </PreferenceScreen>

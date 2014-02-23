@@ -28,42 +28,49 @@ import org.zephyrsoft.trackworktime.R;
  */
 public enum Key {
 
-	ENABLE_FLEXI_TIME("keyEnableFlexiTime", DataType.BOOLEAN, null, R.string.enableFlexiTime), FLEXI_TIME_START_VALUE(
-		"keyFlexiTimeStartValue", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME, R.string.flexiTimeStartValue), FLEXI_TIME_TARGET(
-		"keyFlexiTimeTarget", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME, R.string.flexiTimeTarget), FLEXI_TIME_DAY_MONDAY(
-		"keyFlexiTimeDayMonday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.mondayLong), FLEXI_TIME_DAY_TUESDAY(
-		"keyFlexiTimeDayTuesday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.tuesdayLong), FLEXI_TIME_DAY_WEDNESDAY(
-		"keyFlexiTimeDayWednesday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.wednesdayLong), FLEXI_TIME_DAY_THURSDAY(
-		"keyFlexiTimeDayThursday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.thursdayLong), FLEXI_TIME_DAY_FRIDAY(
-		"keyFlexiTimeDayFriday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.fridayLong), FLEXI_TIME_DAY_SATURDAY(
-		"keyFlexiTimeDaySaturday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.saturdayLong), FLEXI_TIME_DAY_SUNDAY(
-		"keyFlexiTimeDaySunday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.sundayLong),
+	ENABLE_FLEXI_TIME("keyEnableFlexiTime", DataType.BOOLEAN, null, R.string.enableFlexiTime),
+	FLEXI_TIME_START_VALUE("keyFlexiTimeStartValue", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME,
+		R.string.flexiTimeStartValue),
+	FLEXI_TIME_TARGET("keyFlexiTimeTarget", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME, R.string.flexiTimeTarget),
+	FLEXI_TIME_DAY_MONDAY("keyFlexiTimeDayMonday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.mondayLong),
+	FLEXI_TIME_DAY_TUESDAY("keyFlexiTimeDayTuesday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.tuesdayLong),
+	FLEXI_TIME_DAY_WEDNESDAY("keyFlexiTimeDayWednesday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.wednesdayLong),
+	FLEXI_TIME_DAY_THURSDAY("keyFlexiTimeDayThursday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.thursdayLong),
+	FLEXI_TIME_DAY_FRIDAY("keyFlexiTimeDayFriday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.fridayLong),
+	FLEXI_TIME_DAY_SATURDAY("keyFlexiTimeDaySaturday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.saturdayLong),
+	FLEXI_TIME_DAY_SUNDAY("keyFlexiTimeDaySunday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.sundayLong),
 
-	FLATTENING_ENABLED("keyFlatteningEnabled", DataType.BOOLEAN, null, R.string.flatteningEnabled), SMALLEST_TIME_UNIT(
-		"keySmallestTimeUnit", DataType.INTEGER, FLATTENING_ENABLED, R.string.smallestTimeUnit),
+	FLATTENING_ENABLED("keyFlatteningEnabled", DataType.BOOLEAN, null, R.string.flatteningEnabled),
+	SMALLEST_TIME_UNIT("keySmallestTimeUnit", DataType.INTEGER, FLATTENING_ENABLED, R.string.smallestTimeUnit),
 
 	LOCATION_BASED_TRACKING_ENABLED("keyLocationBasedTrackingEnabled", DataType.BOOLEAN, null,
-		R.string.enableLocationBasedTracking), LOCATION_BASED_TRACKING_VIBRATE("keyLocationBasedTrackingVibrate",
-		DataType.BOOLEAN, LOCATION_BASED_TRACKING_ENABLED, R.string.locationBasedTrackingVibrate), LOCATION_BASED_TRACKING_LATITUDE(
-		"keyLocationBasedTrackingLatitude", DataType.DOUBLE, LOCATION_BASED_TRACKING_ENABLED,
-		R.string.workplaceLatitude), LOCATION_BASED_TRACKING_LONGITUDE("keyLocationBasedTrackingLongitude",
-		DataType.DOUBLE, LOCATION_BASED_TRACKING_ENABLED, R.string.workplaceLongitude), LOCATION_BASED_TRACKING_TOLERANCE(
-		"keyLocationBasedTrackingTolerance", DataType.INTEGER, LOCATION_BASED_TRACKING_ENABLED,
-		R.string.trackingTolerance), LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS(
-		"keyLocationBasedTrackingIgnoreBeforeEvents", DataType.INTEGER_OR_EMPTY, LOCATION_BASED_TRACKING_ENABLED,
-		R.string.ignoreBefore), LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS(
-		"keyLocationBasedTrackingIgnoreAfterEvents", DataType.INTEGER_OR_EMPTY, LOCATION_BASED_TRACKING_ENABLED,
-		R.string.ignoreAfter),
+		R.string.enableLocationBasedTracking),
+	LOCATION_BASED_TRACKING_VIBRATE("keyLocationBasedTrackingVibrate", DataType.BOOLEAN,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.locationBasedTrackingVibrate),
+	LOCATION_BASED_TRACKING_LATITUDE("keyLocationBasedTrackingLatitude", DataType.DOUBLE,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.workplaceLatitude),
+	LOCATION_BASED_TRACKING_LONGITUDE("keyLocationBasedTrackingLongitude", DataType.DOUBLE,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.workplaceLongitude),
+	LOCATION_BASED_TRACKING_TOLERANCE("keyLocationBasedTrackingTolerance", DataType.INTEGER,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.trackingTolerance),
+	LOCATION_BASED_TRACKING_IGNORE_BEFORE_EVENTS("keyLocationBasedTrackingIgnoreBeforeEvents",
+		DataType.INTEGER_OR_EMPTY, LOCATION_BASED_TRACKING_ENABLED, R.string.ignoreBefore),
+	LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS("keyLocationBasedTrackingIgnoreAfterEvents", DataType.INTEGER_OR_EMPTY,
+		LOCATION_BASED_TRACKING_ENABLED, R.string.ignoreAfter),
 
-	AUTO_PAUSE_ENABLED("keyAutoPauseEnabled", DataType.BOOLEAN, null, R.string.autoPauseEnabled), AUTO_PAUSE_BEGIN(
-		"keyAutoPauseBegin", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseBegin), AUTO_PAUSE_END(
-		"keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd),
+	AUTO_PAUSE_ENABLED("keyAutoPauseEnabled", DataType.BOOLEAN, null, R.string.autoPauseEnabled),
+	AUTO_PAUSE_BEGIN("keyAutoPauseBegin", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseBegin),
+	AUTO_PAUSE_END("keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd),
 
 	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled),
+	NOTIFICATION_USES_FLEXI_TIME_AS_TARGET("keyNotificationUsesFlexiTimeAsTarget", DataType.BOOLEAN,
+		NOTIFICATION_ENABLED, R.string.notificationUsesFlexiTimeAsTarget),
 
-	WIFI_BASED_TRACKING_ENABLED("keyWifiBasedTrackingEnabled", DataType.BOOLEAN, null, R.string.enableWifiBasedTracking), WIFI_BASED_TRACKING_VIBRATE(
-		"keyWifiBasedTrackingVibrate", DataType.BOOLEAN, WIFI_BASED_TRACKING_ENABLED, R.string.wifiBasedTrackingVibrate), WIFI_BASED_TRACKING_SSID(
-		"keyWifiBasedTrackingSSID", DataType.SSID, WIFI_BASED_TRACKING_ENABLED, R.string.workplaceWifiSSID);
+	WIFI_BASED_TRACKING_ENABLED("keyWifiBasedTrackingEnabled", DataType.BOOLEAN, null, R.string.enableWifiBasedTracking),
+	WIFI_BASED_TRACKING_VIBRATE("keyWifiBasedTrackingVibrate", DataType.BOOLEAN, WIFI_BASED_TRACKING_ENABLED,
+		R.string.wifiBasedTrackingVibrate),
+	WIFI_BASED_TRACKING_SSID("keyWifiBasedTrackingSSID", DataType.SSID, WIFI_BASED_TRACKING_ENABLED,
+		R.string.workplaceWifiSSID);
 
 	private final String name;
 	private final DataType dataType;

@@ -289,10 +289,12 @@ public class TimerManager {
 	 * Get the possible finishing time for today. Takes into account the target work time for the week and also if this
 	 * is the last day in the working week.
 	 * 
+	 * @param includeFlexiTime
+	 *            use flexi overtime to reduce the working time - ONLY ON LAST WORKING DAY OF THE WEEK!
 	 * @return {@code null} either if today is not a work day (as defined in the options) or if the regular working time
 	 *         for today is already over
 	 */
-	public DateTime getFinishingTime() {
+	public DateTime getFinishingTime(boolean includeFlexiTime) {
 		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
 		if (isWorkDay(weekDay)) {
@@ -307,6 +309,11 @@ public class TimerManager {
 			} else {
 				// the last work day: calculate the rest of the weekly working time
 				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.WEEK);
+				if (includeFlexiTime) {
+					// add flexi balance from week start
+					TimeSum flexiBalance = getFlexiBalanceAtWeekStart(DateTimeUtil.getWeekStart(dateTime));
+					alreadyWorked.addOrSubstract(flexiBalance);
+				}
 				String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
 				target = parseHoursMinutesString(targetValueString);
 			}
@@ -341,7 +348,7 @@ public class TimerManager {
 	/**
 	 * Get the flexi-time balance which is effective at the given week start.
 	 */
-	public TimeSum getFlexiBalanceAtWeekStart(String weekStart) {
+	public TimeSum getFlexiBalanceAtWeekStart(DateTime weekStart) {
 		TimeSum ret = new TimeSum();
 		String startValueString = preferences.getString(Key.FLEXI_TIME_START_VALUE.getName(), "0:00");
 		String targetWorkTimeString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
@@ -349,7 +356,7 @@ public class TimerManager {
 		TimeSum targetWorkTime = parseHoursMinutesString(targetWorkTimeString);
 		ret.addOrSubstract(startValue);
 
-		DateTime upTo = DateTimeUtil.stringToDateTime(weekStart).minusDays(1);
+		DateTime upTo = weekStart.minusDays(1);
 		List<Week> weeksToCount = dao.getWeeksUpTo(DateTimeUtil.dateTimeToString(upTo));
 
 		for (Week week : weeksToCount) {

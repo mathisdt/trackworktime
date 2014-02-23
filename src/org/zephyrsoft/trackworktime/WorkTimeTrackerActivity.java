@@ -415,7 +415,8 @@ public class WorkTimeTrackerActivity extends Activity {
 			TimeSum flexiBalance = null;
 			if (!(currentlyShownWeek instanceof WeekPlaceholder)
 				&& preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(currentlyShownWeek.getStart());
+				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(DateTimeUtil.stringToDateTime(currentlyShownWeek
+					.getStart()));
 			}
 			List<Event> events = fetchEventsForDay(monday);
 			flexiBalance = showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked,

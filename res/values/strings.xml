@@ -127,5 +127,7 @@
     <string name="chooseReport">Choose Report</string>
     <string name="timesByTaskPerWeek">Times by Task (weekly)</string>
     <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
+    <string name="notificationUsesFlexiTimeAsTarget">use flexi time \"0:00\" as target</string>
+    <string name="notificationFlexiTimeDescription">reduce weekly target by flexi overtime</string>
     
 </resources>

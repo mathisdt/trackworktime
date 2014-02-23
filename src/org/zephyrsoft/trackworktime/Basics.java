@@ -205,7 +205,8 @@ public class Basics extends BroadcastReceiver {
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
 			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
 				.toString();
-			DateTime finishingTime = timerManager.getFinishingTime();
+			DateTime finishingTime = timerManager.getFinishingTime(preferences.getBoolean(
+				Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
 			String targetTime = (finishingTime == null ? null : DateTimeUtil.dateTimeToHourMinuteString(finishingTime));
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
 			String targetTimeString = null;
