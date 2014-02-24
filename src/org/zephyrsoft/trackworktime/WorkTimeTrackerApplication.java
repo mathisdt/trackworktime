@@ -52,7 +52,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-@ReportsCrashes(formKey = "", formUri = "http://zephyrsoft.net/crashreport.jsp", mode = ReportingInteractionMode.SILENT, customReportContent = {
+@ReportsCrashes(formKey = "", formUri = "http://zephyrsoft.org/crashreport.jsp", mode = ReportingInteractionMode.SILENT, customReportContent = {
 	ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION,
 	DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME,
 	PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,

@@ -198,27 +198,33 @@ public class Basics extends BroadcastReceiver {
 	 */
 	private void checkPersistentNotification() {
 		Logger.debug("checking persistent notification");
-		if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false) && timerManager.isTracking()) {
+		if (preferences.getBoolean(Key.NOTIFICATION_ENABLED.getName(), false)
+			&& timerManager.isTracking()) {
 			// display/update
 			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
 			intent.setAction(Intent.ACTION_MAIN);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
 			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
 				.toString();
-			DateTime finishingTime = timerManager.getFinishingTime(preferences.getBoolean(
-				Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
-			String targetTime = (finishingTime == null ? null : DateTimeUtil.dateTimeToHourMinuteString(finishingTime));
-			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTime);
-			String targetTimeString = null;
-			if (targetTime != null) {
-				// target time in future
-				targetTimeString = "possible finishing time: " + targetTime;
-			} else if (targetTime == null && timerManager.isTodayWorkDay()) {
-				// target time in past
-				targetTimeString = "regular work time is over";
+			String targetTimeString = "";
+			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+				DateTime finishingTime = timerManager.getFinishingTime(preferences.getBoolean(
+					Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
+				String targetTime = (finishingTime == null ? null : DateTimeUtil
+					.dateTimeToHourMinuteString(finishingTime));
+				if (targetTime != null) {
+					// target time in future
+					targetTimeString = "possible finishing time: " + targetTime;
+				} else if (targetTime == null && timerManager.isTodayWorkDay()) {
+					// target time in past
+					targetTimeString = "regular work time is over";
+				} else {
+					// nothing to do, this is not a working day
+				}
 			} else {
-				// nothing to do, this is not a working day
+				// no second line displayed because no flexi time can be calculated
 			}
+			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTimeString);
 			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, intent,
 				Constants.PERSISTENT_STATUS_ID, true);
 		} else {

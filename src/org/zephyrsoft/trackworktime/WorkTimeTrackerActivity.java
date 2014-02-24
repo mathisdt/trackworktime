@@ -484,7 +484,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		} else {
 			worked.setText(formatSum(dayLine.getTimeWorked(), ""));
 		}
-		if (weekEndWithoutEvents) {
+		if (weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 			flexi.setText("");
 		} else if (isWorkDay && isTodayOrEarlier) {
 			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));

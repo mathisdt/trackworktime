@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.DayLine;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -33,6 +34,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 
@@ -164,12 +166,13 @@ public class TimeCalculator {
 			TimeSum amountWorked = timerManager.calculateTimeSum(timeOfFirstEvent, PeriodEnum.DAY);
 			ret.setTimeWorked(amountWorked);
 
-			ret.getTimeFlexi().addOrSubstract(amountWorked);
-			// substract the "normal" work time for one day
-			WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-			int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-			ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
-
+			if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+				ret.getTimeFlexi().addOrSubstract(amountWorked);
+				// substract the "normal" work time for one day
+				WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
+				int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+				ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
+			}
 		} else {
 			if (TimerManager.isClockInEvent(lastEventBeforeToday)
 				&& DateTimeUtil.isInPast(timeOfFirstEvent.getStartOfDay())) {
@@ -178,14 +181,17 @@ public class TimeCalculator {
 				ret.setTimeIn(timeOfFirstEvent.getStartOfDay());
 				ret.setTimeOut(timeOfFirstEvent.getEndOfDay());
 				ret.getTimeWorked().add(24, 0);
-				ret.getTimeFlexi().add(24, 0);
-				// substract the "normal" work time for one day
-				WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-				int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-				ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
+				if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+					ret.getTimeFlexi().add(24, 0);
+					// substract the "normal" work time for one day
+					WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
+					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+					ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
+				}
 			} else {
 				WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-				if (timerManager.isWorkDay(weekDay)) {
+				if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
+					&& timerManager.isWorkDay(weekDay)) {
 					// substract the "normal" work time for one day
 					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
 					ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
