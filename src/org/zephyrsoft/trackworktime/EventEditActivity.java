@@ -166,8 +166,9 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				DateTime dateTime = getCurrentlySetDateAndTime();
 				String timeString = DateTimeUtil.dateTimeToString(dateTime);
 				Task selectedTask = (Task) task.getSelectedItem();
-				Integer taskId = selectedTask == null ? null : selectedTask.getId();
-				String textString = text.getText().toString();
+				Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
+					selectedTask.getId());
+				String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
 				if (newEvent) {
 					Logger.debug("saving new event: {0} @ {1}", typeEnum.name(), timeString);
 					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
