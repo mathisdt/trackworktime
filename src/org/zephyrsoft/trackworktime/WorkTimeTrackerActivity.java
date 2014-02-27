@@ -140,7 +140,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	private Button previousWeekButton = null;
 	private Button nextWeekButton = null;
 	private Button todayButton = null;
-	
+
 	private static WorkTimeTrackerActivity instance = null;
 
 	private boolean visible = false;
@@ -252,13 +252,13 @@ public class WorkTimeTrackerActivity extends Activity {
 				return true;
 			}
 		});
-		
-		todayButton.setOnClickListener(new OnClickListener(){
+
+		todayButton.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v){
+			public void onClick(View v) {
 				final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 				Week todaysWeek = dao.getWeek(todaysWeekStart);
-				if (todaysWeek == null){
+				if (todaysWeek == null) {
 					todaysWeek = new WeekPlaceholder(todaysWeekStart);
 				}
 				currentlyShownWeek = todaysWeek;
@@ -475,7 +475,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
 		TextView in, TextView out, TextView worked, TextView flexi) {
 
-		DayLine dayLine = timeCalculator.calulateOneDay(events);
+		DayLine dayLine = timeCalculator.calulateOneDay(day, events);
 
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
 		boolean isWorkDay = timerManager.isWorkDay(weekDay);

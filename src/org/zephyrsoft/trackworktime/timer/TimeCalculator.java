@@ -116,8 +116,17 @@ public class TimeCalculator {
 	/**
 	 * Calculate the time sum, flexi value and in/out times for one day.
 	 */
-	public DayLine calulateOneDay(List<Event> eventsOfOneDay) {
+	public DayLine calulateOneDay(DateTime day, List<Event> eventsOfOneDay) {
 		DayLine ret = new DayLine();
+
+		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
+		if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
+			&& timerManager.isWorkDay(weekDay)) {
+			// substract the "normal" work time for one day
+			int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
+			ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
+		}
+
 		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty()) {
 			return ret;
 		}
@@ -165,39 +174,16 @@ public class TimeCalculator {
 
 			TimeSum amountWorked = timerManager.calculateTimeSum(timeOfFirstEvent, PeriodEnum.DAY);
 			ret.setTimeWorked(amountWorked);
-
-			if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				ret.getTimeFlexi().addOrSubstract(amountWorked);
-				// substract the "normal" work time for one day
-				WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-				int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-				ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
-			}
-		} else {
-			if (TimerManager.isClockInEvent(lastEventBeforeToday)
-				&& DateTimeUtil.isInPast(timeOfFirstEvent.getStartOfDay())) {
-				// although there are no events on this day, the user is clocked in all day long - else there would be a
-				// CLOCK_OUT_NOW event!
-				ret.setTimeIn(timeOfFirstEvent.getStartOfDay());
-				ret.setTimeOut(timeOfFirstEvent.getEndOfDay());
-				ret.getTimeWorked().add(24, 0);
-				if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-					ret.getTimeFlexi().add(24, 0);
-					// substract the "normal" work time for one day
-					WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-					ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
-				}
-			} else {
-				WeekDayEnum weekDay = WeekDayEnum.getByValue(timeOfFirstEvent.getWeekDay());
-				if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
-					&& timerManager.isWorkDay(weekDay)) {
-					// substract the "normal" work time for one day
-					int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-					ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
-				}
-			}
+		} else if (TimerManager.isClockInEvent(lastEventBeforeToday)
+			&& DateTimeUtil.isInPast(timeOfFirstEvent.getStartOfDay())) {
+			// although there are no events on this day, the user is clocked in all day long - else there would be a
+			// CLOCK_OUT_NOW event!
+			ret.setTimeIn(timeOfFirstEvent.getStartOfDay());
+			ret.setTimeOut(timeOfFirstEvent.getEndOfDay());
+			ret.getTimeWorked().add(24, 0);
 		}
+
+		ret.getTimeFlexi().addOrSubstract(ret.getTimeWorked());
 
 		return ret;
 	}
