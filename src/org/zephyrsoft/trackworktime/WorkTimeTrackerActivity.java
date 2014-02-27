@@ -139,7 +139,8 @@ public class WorkTimeTrackerActivity extends Activity {
 	private Button clockOutButton = null;
 	private Button previousWeekButton = null;
 	private Button nextWeekButton = null;
-
+	private Button todayButton = null;
+	
 	private static WorkTimeTrackerActivity instance = null;
 
 	private boolean visible = false;
@@ -249,6 +250,19 @@ public class WorkTimeTrackerActivity extends Activity {
 					startActivity(i);
 				}
 				return true;
+			}
+		});
+		
+		todayButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
+				Week todaysWeek = dao.getWeek(todaysWeekStart);
+				if (todaysWeek == null){
+					todaysWeek = new WeekPlaceholder(todaysWeekStart);
+				}
+				currentlyShownWeek = todaysWeek;
+				refreshView();
 			}
 		});
 
@@ -605,6 +619,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		text = (EditText) findViewById(R.id.text);
 		clockInButton = (Button) findViewById(R.id.clockInButton);
 		clockOutButton = (Button) findViewById(R.id.clockOutButton);
+		todayButton = (Button) findViewById(R.id.todayButton);
 	}
 
 	/**

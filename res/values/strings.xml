@@ -64,7 +64,7 @@
     <string name="backward">jumped backward</string>
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
-    <string name="now">NOW</string>
+    <string name="now">now</string>
     <string name="locationBasedTracking">Location-based Tracking</string>
     <string name="enableLocationBasedTracking">Track by Location</string>
     <string name="workplaceLatitude">Latitude of Workplace</string>
@@ -114,6 +114,7 @@
     <string name="to">To</string>
     <string name="previous">&lt; prev</string>
     <string name="next">next ></string>
+	<string name="today">today</string>
     <string name="customize">Customize</string>
     <string name="reports">Reports</string>
     <string name="current">current</string>

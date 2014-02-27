@@ -29,13 +29,13 @@
                 android:layout_weight="1"
                 android:text="@string/previous" />
 
-            <TextView
-                android:id="@+id/textView2"
+            <Button
+                android:id="@+id/todayButton"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/onespace"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:text="@string/today" />
 
             <Button
                 android:id="@+id/next"
