@@ -427,36 +427,38 @@ public class WorkTimeTrackerActivity extends Activity {
 		DateTime saturday, DateTime sunday) {
 		if (currentlyShownWeek != null) {
 			TimeSum flexiBalance = null;
-			if (!(currentlyShownWeek instanceof WeekPlaceholder)
-				&& preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+			boolean hasRealData = !(currentlyShownWeek instanceof WeekPlaceholder);
+			if (hasRealData && preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(DateTimeUtil.stringToDateTime(currentlyShownWeek
 					.getStart()));
 			}
+			boolean earlierEventsExist = (dao.getLastEventBefore(monday.getStartOfDay()) != null);
+			boolean showFlexiTimes = hasRealData || earlierEventsExist;
 			List<Event> events = fetchEventsForDay(monday);
 			flexiBalance = showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked,
-				mondayFlexi);
+				mondayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(tuesday);
 			flexiBalance = showTimesForSingleDay(tuesday, events, flexiBalance, tuesdayIn, tuesdayOut, tuesdayWorked,
-				tuesdayFlexi);
+				tuesdayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(wednesday);
 			flexiBalance = showTimesForSingleDay(wednesday, events, flexiBalance, wednesdayIn, wednesdayOut,
-				wednesdayWorked, wednesdayFlexi);
+				wednesdayWorked, wednesdayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(thursday);
 			flexiBalance = showTimesForSingleDay(thursday, events, flexiBalance, thursdayIn, thursdayOut,
-				thursdayWorked, thursdayFlexi);
+				thursdayWorked, thursdayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(friday);
 			flexiBalance = showTimesForSingleDay(friday, events, flexiBalance, fridayIn, fridayOut, fridayWorked,
-				fridayFlexi);
+				fridayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(saturday);
 			flexiBalance = showTimesForSingleDay(saturday, events, flexiBalance, saturdayIn, saturdayOut,
-				saturdayWorked, saturdayFlexi);
+				saturdayWorked, saturdayFlexi, showFlexiTimes);
 			events = fetchEventsForDay(sunday);
 			flexiBalance = showTimesForSingleDay(sunday, events, flexiBalance, sundayIn, sundayOut, sundayWorked,
-				sundayFlexi);
+				sundayFlexi, showFlexiTimes);
 
 			TimeSum amountWorked = timerManager.calculateTimeSum(DateTimeUtil.getWeekStart(DateTimeUtil
 				.stringToDateTime(currentlyShownWeek.getStart())), PeriodEnum.WEEK);
-			showSummaryLine(amountWorked, flexiBalance);
+			showSummaryLine(amountWorked, flexiBalance, showFlexiTimes && DateTimeUtil.isInPast(monday.getStartOfDay()));
 		}
 	}
 
@@ -473,7 +475,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	}
 
 	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
-		TextView in, TextView out, TextView worked, TextView flexi) {
+		TextView in, TextView out, TextView worked, TextView flexi, boolean showFlexiTimes) {
 
 		DayLine dayLine = timeCalculator.calulateOneDay(day, events);
 
@@ -498,7 +500,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		} else {
 			worked.setText(formatSum(dayLine.getTimeWorked(), ""));
 		}
-		if (weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 			flexi.setText("");
 		} else if (isWorkDay && isTodayOrEarlier) {
 			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));
@@ -543,10 +545,12 @@ public class WorkTimeTrackerActivity extends Activity {
 		return sum == null ? "" : sum.toString();
 	}
 
-	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance) {
+	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance, boolean showFlexiTimes) {
 		totalWorked.setText(amountWorked.toString());
-		if (flexiBalance != null) {
+		if (flexiBalance != null && showFlexiTimes) {
 			totalFlexi.setText(flexiBalance.toString());
+		} else {
+			totalFlexi.setText("");
 		}
 	}
 
