@@ -25,13 +25,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -46,9 +47,7 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
 import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.StringExtractionMethod;
 import org.zephyrsoft.trackworktime.util.WeekUtil;
 
 /**
@@ -63,9 +62,9 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 
 	private Button save = null;
 	private Button cancel = null;
-	private List<TypeEnum> types;
 	private ArrayAdapter<TypeEnum> typesAdapter;
-	private Spinner type = null;
+	private RadioButton clockIn;
+	private RadioButton clockOut;
 	private TextView weekday = null;
 	private DatePicker date = null;
 	private int selectedYear = -1;
@@ -106,7 +105,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 
 		save = (Button) findViewById(R.id.save);
 		cancel = (Button) findViewById(R.id.cancel);
-		type = (Spinner) findViewById(R.id.type);
+		clockIn = (RadioButton) findViewById(R.id.radioClockIn);
+		clockOut = (RadioButton) findViewById(R.id.radioClockOut);
 		weekday = (TextView) findViewById(R.id.weekday);
 		date = (DatePicker) findViewById(R.id.date);
 		time = (TimePicker) findViewById(R.id.time);
@@ -116,41 +116,14 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
 
-		// bind lists to spinners
-		types = TypeEnum.getDefaultTypes();
-		typesAdapter = new FlexibleArrayAdapter<TypeEnum>(this, android.R.layout.simple_list_item_1, types,
-			new StringExtractionMethod<TypeEnum>() {
-				@Override
-				public String extractText(TypeEnum object) {
-					switch (object) {
-						case CLOCK_IN:
-							return getString(R.string.clockIn);
-						case CLOCK_OUT:
-							return getString(R.string.clockOut);
-						default:
-							throw new IllegalArgumentException("unrecognized TypeEnum value");
-					}
-				}
-
-			}, 0, null);
-		typesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		type.setAdapter(typesAdapter);
-		type.setOnItemSelectedListener(new OnItemSelectedListener() {
+		clockIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				// on "clock out" events it makes no sense to edit a task and text so disable it
-				TypeEnum selectedType = types.get(position);
-				setTaskAndTextEditable(selectedType != TypeEnum.CLOCK_OUT);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// if in doubt: let the user edit all data
-				setTaskAndTextEditable(true);
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				setTaskAndTextEditable(isChecked);
 			}
 		});
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 
@@ -162,7 +135,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				time.clearFocus();
 				text.clearFocus();
 				// save the event
-				TypeEnum typeEnum = ((TypeEnum) type.getSelectedItem());
+				TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
 				DateTime dateTime = getCurrentlySetDateAndTime();
 				String timeString = DateTimeUtil.dateTimeToString(dateTime);
 				Task selectedTask = (Task) task.getSelectedItem();
@@ -249,14 +222,8 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 			}
 		} else {
 			newEvent = false;
-			// editing an existing event
-			for (int i = 0; i < type.getCount(); i++) {
-				TypeEnum typeEnum = (TypeEnum) type.getItemAtPosition(i);
-				if (typeEnum.getValue() != null && typeEnum.getValue().equals(editedEvent.getType())) {
-					type.setSelection(i);
-					break;
-				}
-			}
+			clockIn.setChecked(TypeEnum.CLOCK_IN.getValue().equals(editedEvent.getType()));
+			clockOut.setChecked(TypeEnum.CLOCK_OUT.getValue().equals(editedEvent.getType()));
 			DateTime dateTime = DateTimeUtil.stringToDateTime(editedEvent.getTime());
 			updateDateAndTimePickers(dateTime);
 			for (int i = 0; i < task.getCount(); i++) {

@@ -144,8 +144,8 @@ public enum DataType {
 				&& value.trim().length() != 0) { // not only whitespaces
 
 				for (int i = 0; i < value.length(); i++) {
-					// cointaining whitespaces?
-					if (Character.isWhitespace(value.charAt(i))) {
+					// containing whitespaces? space is allowed
+					if (Character.isWhitespace(value.charAt(i)) && value.charAt(i) != ' ') {
 						return false;
 					}
 				}

@@ -98,7 +98,7 @@ public class InsertDefaultTimesActivity extends Activity {
 
 		// bind lists to spinners
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 

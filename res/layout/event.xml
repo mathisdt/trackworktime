@@ -43,22 +43,42 @@
                 android:id="@+id/typeLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="@string/type"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <Spinner
-                android:id="@+id/type"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-
+		    <RadioGroup
+		        android:id="@+id/radioType"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal" >
+		 
+		        <RadioButton
+		            android:id="@+id/radioClockIn"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:text="@string/clockIn" 
+		            android:checked="true" />
+		 
+		        <RadioButton
+		            android:id="@+id/radioClockOut"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginLeft="5dp"
+		            android:layout_weight="1"
+		            android:text="@string/clockOut" />
+		    </RadioGroup>
+			
             <TextView
                 android:id="@+id/dateTimeLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="@string/time"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/dateLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
@@ -67,7 +87,8 @@
                     android:id="@+id/weekday"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:layout_weight="1.0"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
                     android:gravity="center"
                     android:text="@string/monday"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -76,9 +97,8 @@
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_weight="0.0" />
-            </LinearLayout>
+                    android:layout_centerHorizontal="true" />
+            </RelativeLayout>
 
             <TimePicker
                 android:id="@+id/time"
@@ -89,6 +109,7 @@
                 android:id="@+id/taskLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="@string/task"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -101,6 +122,7 @@
                 android:id="@+id/textLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="@string/text"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 

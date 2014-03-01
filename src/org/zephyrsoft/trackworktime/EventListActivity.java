@@ -105,7 +105,7 @@ public class EventListActivity extends ListActivity {
 		weekStart = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
 		events = new ArrayList<Event>();
 		refreshView();
-		eventsAdapter = new FlexibleArrayAdapter<Event>(this, android.R.layout.simple_list_item_1, events,
+		eventsAdapter = new FlexibleArrayAdapter<Event>(this, R.layout.list_item, events,
 			new StringExtractionMethod<Event>() {
 				@Override
 				public String extractText(Event object) {

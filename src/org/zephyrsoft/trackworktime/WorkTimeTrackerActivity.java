@@ -556,7 +556,7 @@ public class WorkTimeTrackerActivity extends Activity {
 
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 	}
