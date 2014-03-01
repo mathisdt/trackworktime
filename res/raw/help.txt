@@ -8,6 +8,9 @@ If you prefer to use other apps like Llama or Tasker for tracking your movements
 <br>
 Otherwise you may provide a visible ssid at your work place the app can use to clock in automatically when this ssid is in range (you don't need to be connected to this network). In this case you should enable wifi-radio manually.<br>
 <br>
+Finally, the app can generate reports for you. The raw events report is the right thing if you want to import your data somewhere else, while year/month/week reports are fine if you want to keep track of your task progress.
+<br>
+<br>
 <b>This is an open source project</b>, so if there is something you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews, that doesn't work in both directions. Just write me an email, and I'll see what I can do - web site and email address as stated above.<br>
 <br>
 Important note: This app definitely won't send your personal data anywhere. It uses the INTERNET permission only to send crash reports, but those reports contain neither any times nor any coordinates you may have tracked.<br>
