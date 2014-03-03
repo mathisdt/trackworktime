@@ -213,11 +213,13 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				updateDateAndTimePickers(weekStart);
 			}
 			Task defaultTask = dao.getDefaultTask();
-			for (int i = 0; i < task.getCount(); i++) {
-				Task taskItem = (Task) task.getItemAtPosition(i);
-				if (taskItem != null && taskItem.getId() != null && taskItem.getId().equals(defaultTask.getId())) {
-					task.setSelection(i);
-					break;
+			if (defaultTask != null) {
+				for (int i = 0; i < task.getCount(); i++) {
+					Task taskItem = (Task) task.getItemAtPosition(i);
+					if (taskItem != null && taskItem.getId() != null && taskItem.getId().equals(defaultTask.getId())) {
+						task.setSelection(i);
+						break;
+					}
 				}
 			}
 		} else {

@@ -160,7 +160,7 @@ public class TimerManager {
 		if (taskToLink == null) {
 			taskToLink = dao.getDefaultTask();
 		}
-		createEvent(minutesToPredate, taskToLink.getId(), TypeEnum.CLOCK_IN, text);
+		createEvent(minutesToPredate, (taskToLink == null ? null : taskToLink.getId()), TypeEnum.CLOCK_IN, text);
 		Basics.getInstance().safeCheckPersistentNotification();
 	}
 
