@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.zephyrsoft.trackworktime.report;
+package org.zephyrsoft.trackworktime;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,26 +26,44 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
- * Can write files on external storage.
+ * Can manage directories and files on external storage.
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class FileStorage {
+public class ExternalStorage {
 
-	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent) {
+	public static File getDirectory(String subDirectory) {
 		File externalStorageDirectory = Environment.getExternalStorageDirectory();
 		if (!isExternalStorageWritable()) {
 			Logger.error("external storage {0} is not writable", externalStorageDirectory);
 			return null;
 		}
+		File twtDirectory = new File(externalStorageDirectory, "trackworktime");
+		if (!twtDirectory.isDirectory() && !twtDirectory.mkdirs()) {
+			Logger.error("directory {0} could not be created", twtDirectory);
+			return null;
+		}
 		File targetDirectory;
 		if (subDirectory != null && subDirectory.length() > 0) {
-			targetDirectory = new File(externalStorageDirectory, subDirectory);
+			targetDirectory = new File(twtDirectory, subDirectory);
 		} else {
-			targetDirectory = externalStorageDirectory;
+			targetDirectory = twtDirectory;
 		}
 		if (!targetDirectory.isDirectory() && !targetDirectory.mkdirs()) {
 			Logger.error("directory {0} could not be created", targetDirectory);
+			return null;
+		}
+		if (!targetDirectory.canWrite()) {
+			Logger.error("directory {0} is not writable", targetDirectory);
+			return null;
+		}
+		return targetDirectory;
+	}
+
+	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent) {
+		File targetDirectory = getDirectory(subDirectory);
+		if (targetDirectory == null) {
+			Logger.error("target {0} is not writable", targetDirectory);
 			return null;
 		}
 		String timeStamp = DateTimeUtil.getCurrentDateTime().format("YYYY-MM-DD-hh-mm-ss");

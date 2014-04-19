@@ -450,6 +450,7 @@ public class Basics extends BroadcastReceiver {
 	 * @param notificationId
 	 *            a unique number to identify the notification
 	 */
+	@SuppressWarnings("deprecation")
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
 		Intent intent, Integer notificationId, boolean persistent) {
 		NotificationManager notificationManager = (NotificationManager) context

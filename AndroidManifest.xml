@@ -19,10 +19,15 @@
 
     <application
         android:name="WorkTimeTrackerApplication"
-        android:allowBackup="false"
+        android:allowBackup="true"
+        android:backupAgent="org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupAgentHelper"
         android:hasCode="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIWuqWwAhfQ8Ygb9ZqAPzmXYh_WdSTh3Hjqm8hmg" />
+
         <receiver android:name="Basics" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

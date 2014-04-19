@@ -34,5 +34,9 @@
     <string name="keyNotificationCategory">keyNotificationCategory</string>
     <string name="keyNotificationEnabled">keyNotificationEnabled</string>
     <string name="keyNotificationUsesFlexiTimeAsTarget">keyNotificationUsesFlexiTimeAsTarget</string>
+    <string name="keyBackupCategory">keyBackupCategory</string>
+    <string name="keyBackupEnabled">keyBackupEnabled</string>
+    <string name="keyBackupLastModifiedTimestamp">keyBackupLastModifiedTimestamp</string>
+    <string name="keyBackupLastBackupTimestamp">keyBackupLastBackupTimestamp</string>
 
 </resources>

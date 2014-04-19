@@ -33,7 +33,7 @@ public class Logger {
 	 * Log a debug message.
 	 */
 	public static void debug(String format, Object... arguments) {
-		// TODO change back to Log.DEBUG and Log.d when released!
+		// TODO change back to Log.DEBUG and Log.d !?
 		if (Log.isLoggable(TAG, Log.INFO)) {
 			Log.i(TAG, composeMessage(format, arguments));
 		}

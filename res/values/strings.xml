@@ -117,6 +117,17 @@
 	<string name="today">today</string>
     <string name="customize">Customize</string>
     <string name="reports">Reports</string>
+    <string name="backup">Data Backup</string>
+    <string name="backup_to_google">Backup to Google Servers</string>
+    <string name="backup_enabled">Backup enabled</string>
+    <string name="lastModifiedTimestamp">Data Last Modified:</string>
+    <string name="lastBackupTimestamp">Last Backup:</string>
+    <string name="restore">Data Restore</string>
+    <string name="backup_failed">Backup failed.</string>
+    <string name="restore_failed">Restore failed.</string>
+    <string name="restore_failed_file_not_found">Restore failed, file not found.</string>
+    <string name="backup_overwrite">Overwrite existing file \"%1$s\"?</string>
+    <string name="restore_warning">Delete everything and replace it with the content of the restore file \"%1$s\"?</string>
     <string name="current">current</string>
     <string name="last">last</string>
     <string name="week">week</string>

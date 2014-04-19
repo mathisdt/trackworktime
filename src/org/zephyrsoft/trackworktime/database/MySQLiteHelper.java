@@ -72,7 +72,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	/** name of the customtext attribute of the event table */
 	public static final String EVENT_TEXT = "customtext";
 
-	private static final String DATABASE_NAME = "trackworktime.db";
+	static final String DATABASE_NAME = "trackworktime.db";
 	private static final int DATABASE_VERSION = 3;
 
 	private static final String DATABASE_CREATE_TASK = "create table " + TASK + " (" + TASK_ID

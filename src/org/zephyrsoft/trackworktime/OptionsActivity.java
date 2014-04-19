@@ -16,12 +16,20 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import java.text.DateFormat;
+import java.util.Date;
+
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
+import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
+import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
@@ -33,18 +41,40 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
  */
 public class OptionsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
+	private WorkTimeTrackerBackupManager backupManager;
+
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.options);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
+			// Backup to Google servers is not supported before Froyo
+			Preference backupEnabledPreference = findPreference(getString(R.string.keyBackupEnabled));
+			if (backupEnabledPreference != null) {
+				backupEnabledPreference.setEnabled(false);
+			} else {
+				Logger.warn("preference 'backup enabled' not found!");
+			}
+		}
+		backupManager = new WorkTimeTrackerBackupManager(this);
+		setTimestamps();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onResume() {
 		super.onResume();
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
 
+	@Override
+	protected void onStop() {
+		backupManager.checkIfBackupEnabledChanged();
+		super.onStop();
+	}
+
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -54,6 +84,7 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 		Basics.getOrCreateInstance(getApplicationContext()).safeCheckLocationBasedTracking();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String keyName) {
 		Key sectionToDisable = PreferencesUtil.check(sharedPreferences, keyName);
@@ -75,6 +106,51 @@ public class OptionsActivity extends PreferenceActivity implements OnSharedPrefe
 			// reload data in options view
 			setPreferenceScreen(null);
 			addPreferencesFromResource(R.xml.options);
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void setTimestamps() {
+		final Preference lastModifiedPref = findPreference(getString(R.string.keyBackupLastModifiedTimestamp));
+		final Preference lastBackupPref = findPreference(getString(R.string.keyBackupLastBackupTimestamp));
+		if (lastModifiedPref == null || lastBackupPref == null) {
+			Logger.warn("backup timestamps preference not found!");
+			return;
+		}
+		final DAO dao = new DAO(this);
+		final long lastDbModification = dao.getLastDbModification();
+
+		final DateFormat dateFormatUser = DateFormat.getDateInstance();
+		final DateFormat timeFormatUser = DateFormat.getTimeInstance();
+
+		final Date dateLocal = new Date(lastDbModification);
+		final String dateLocalStr = dateFormatUser.format(dateLocal) + " "
+			+ timeFormatUser.format(dateLocal);
+		lastModifiedPref.setSummary(dateLocalStr);
+
+		final long dateBackupLong = backupManager.getLastBackupTimestamp();
+		final String dateBackupStr;
+		if (dateBackupLong == 0) {
+			dateBackupStr = "-";
+		} else {
+			final Date dateBackup = new Date(dateBackupLong);
+			dateBackupStr = dateFormatUser.format(dateBackup) + " "
+				+ timeFormatUser.format(dateBackup);
+		}
+
+		lastBackupPref.setSummary(dateBackupStr);
+		showTimestampPrefIcon(lastBackupPref, dateLocalStr, dateBackupStr);
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void showTimestampPrefIcon(final Preference timestampPref, final String dateLocalStr,
+		final String dateBackupStr) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			if (dateLocalStr.equals(dateBackupStr)) {
+				timestampPref.setIcon(R.drawable.backup_ok);
+			} else {
+				timestampPref.setIcon(R.drawable.backup_not_ok);
+			}
 		}
 	}
 }

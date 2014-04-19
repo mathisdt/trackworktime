@@ -18,6 +18,15 @@ package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 import android.app.Activity;
@@ -25,6 +34,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +82,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		OPTIONS,
 		USE_CURRENT_LOCATION,
 		REPORTS,
+		BACKUP,
+		RESTORE,
 		ABOUT;
 
 		public static MenuAction byOrdinal(int ordinal) {
@@ -647,6 +660,8 @@ public class WorkTimeTrackerActivity extends Activity {
 			R.string.use_current_location).setIcon(R.drawable.ic_menu_compass);
 		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports).setIcon(
 			R.drawable.ic_menu_agenda);
+		menu.add(Menu.NONE, MenuAction.BACKUP.ordinal(), MenuAction.BACKUP.ordinal(), R.string.backup);
+		menu.add(Menu.NONE, MenuAction.RESTORE.ordinal(), MenuAction.RESTORE.ordinal(), R.string.restore);
 		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about).setIcon(
 			R.drawable.ic_menu_star);
 		return super.onCreateOptionsMenu(menu);
@@ -672,6 +687,12 @@ public class WorkTimeTrackerActivity extends Activity {
 				return true;
 			case REPORTS:
 				showReports();
+				return true;
+			case BACKUP:
+				backupToSd();
+				return true;
+			case RESTORE:
+				restoreFromSd();
 				return true;
 			case ABOUT:
 				showAbout();
@@ -799,4 +820,139 @@ public class WorkTimeTrackerActivity extends Activity {
 			|| (one != null && one.equals(two));
 	}
 
+	// ---------------------------------------------------------------------------------------------
+	// Backup, Restore
+	// ---------------------------------------------------------------------------------------------
+	private static final String BACKUP_FILE = "backup.csv";
+
+	/**
+	 * Check if file exists and ask user if so.
+	 */
+	private void backupToSd() {
+		final File backupDir = ExternalStorage.getDirectory(null);
+		final File backupFile = new File(backupDir, BACKUP_FILE);
+		if (backupDir == null) {
+			Toast.makeText(this, R.string.backup_failed, Toast.LENGTH_LONG).show();
+			return;
+		}
+		if (backupFile.exists()) {
+			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			final String msgBackupOverwrite = String.format(
+				getString(R.string.backup_overwrite), backupFile);
+			builder.setMessage(msgBackupOverwrite)
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						backup(backupFile);
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null).show();
+		} else {
+			backup(backupFile);
+		}
+	}
+
+	private void backup(final File backupFile) {
+		// do in background
+		new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Void... none) {
+				try {
+					backupFile.getParentFile().mkdirs();
+					final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+						new FileOutputStream(backupFile)));
+
+					dao.backupToWriter(writer);
+					writer.close();
+					return true;
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+					return false;
+				} catch (IOException e) {
+					e.printStackTrace();
+					return false;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Boolean successful) {
+				if (successful) {
+					refreshView();
+					Toast.makeText(WorkTimeTrackerActivity.this, backupFile.toString(), Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(WorkTimeTrackerActivity.this, R.string.backup_failed, Toast.LENGTH_LONG).show();
+				}
+			}
+
+		}.execute(null, null);
+	}
+
+	private void restoreFromSd() {
+		final File backupDir = ExternalStorage.getDirectory(null);
+		final File backupFile = new File(backupDir, BACKUP_FILE);
+		if (backupDir == null) {
+			final String msgBackupOverwrite = String.format(
+				getString(R.string.restore_failed_file_not_found),
+				backupFile);
+			Toast.makeText(this, msgBackupOverwrite, Toast.LENGTH_LONG).show();
+			return;
+		}
+		if (backupFile.exists()) {
+			final Cursor cur = dao.getAllEventsAndTasks();
+			final int medCount = cur.getCount();
+			cur.close();
+			if (medCount > 0) {
+				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				final String msgBackupOverwrite = String.format(
+					getString(R.string.restore_warning), backupFile);
+				builder.setMessage(msgBackupOverwrite)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							restore(backupFile);
+							dialog.dismiss();
+						}
+					})
+					.setNegativeButton(android.R.string.cancel, null).show();
+			} else {
+				// no entries, skip warning
+				restore(backupFile);
+			}
+		} else {
+			final String msgBackupOverwrite = String.format(
+				getString(R.string.restore_failed_file_not_found),
+				backupFile);
+			Toast.makeText(this, msgBackupOverwrite, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private void restore(final File backupFile) {
+		// do in background
+		new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Void... none) {
+				try {
+					final BufferedReader input = new BufferedReader(
+						new InputStreamReader(new FileInputStream(backupFile)));
+					dao.restoreFromReader(input);
+					return true;
+				} catch (IOException e) {
+					e.printStackTrace();
+					return false;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Boolean successful) {
+				if (successful) {
+					refreshView();
+					Toast.makeText(WorkTimeTrackerActivity.this, backupFile.toString(), Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(WorkTimeTrackerActivity.this, R.string.restore_failed, Toast.LENGTH_LONG).show();
+				}
+			}
+
+		}.execute(null, null);
+	}
 }

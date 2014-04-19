@@ -41,7 +41,6 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
-import org.zephyrsoft.trackworktime.report.FileStorage;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
@@ -105,7 +104,7 @@ public class ReportsActivity extends Activity {
 				}
 
 				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				File reportFile = FileStorage.writeFile("reports", "events-" +
+				File reportFile = ExternalStorage.writeFile("reports", "events-" +
 					reportName.replaceAll(" ", "-"),
 					".csv",
 					report.getBytes());
@@ -146,7 +145,7 @@ public class ReportsActivity extends Activity {
 				}
 
 				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				File reportFile = FileStorage.writeFile("reports", "sums-" +
+				File reportFile = ExternalStorage.writeFile("reports", "sums-" +
 					reportName.replaceAll(" ", "-"),
 					".csv",
 					report.getBytes());
@@ -272,7 +271,7 @@ public class ReportsActivity extends Activity {
 	}
 
 	private boolean saveAndSendReport(String reportName, String filePrefix, String report) {
-		File reportFile = FileStorage.writeFile("reports", filePrefix + "-" +
+		File reportFile = ExternalStorage.writeFile("reports", filePrefix + "-" +
 			reportName.replaceAll(" ", "-"), ".csv", report.getBytes());
 		if (reportFile == null) {
 			String errorMessage = "could not write report to external storage";

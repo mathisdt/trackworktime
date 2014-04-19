@@ -35,6 +35,10 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_START;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
 import hirondelle.date4j.DateTime;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,10 +49,14 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
@@ -64,13 +72,17 @@ public class DAO {
 	// TODO use prepared statements as described here: http://stackoverflow.com/questions/7255574
 
 	private SQLiteDatabase db;
-	private MySQLiteHelper dbHelper;
+	private final MySQLiteHelper dbHelper;
+	private final Context context;
+	private final WorkTimeTrackerBackupManager backupManager;
 
 	/**
 	 * Constructor
 	 */
 	public DAO(Context context) {
+		this.context = context;
 		dbHelper = new MySQLiteHelper(context);
+		backupManager = new WorkTimeTrackerBackupManager(context);
 	}
 
 	/**
@@ -123,6 +135,7 @@ public class DAO {
 		long insertId = db.insert(TASK, null, args);
 		// now fetch the newly inserted row and return it as Task object
 		List<Task> created = getTasksWithConstraint(TASK_ID + "=" + insertId);
+		dataChanged();
 		return created.get(0);
 	}
 
@@ -221,6 +234,7 @@ public class DAO {
 		db.update(TASK, args, TASK_ID + "=" + task.getId(), null);
 		// now fetch the newly updated row and return it as Task object
 		List<Task> updated = getTasksWithConstraint(TASK_ID + "=" + task.getId() + "");
+		dataChanged();
 		return updated.get(0);
 	}
 
@@ -233,7 +247,9 @@ public class DAO {
 	 */
 	public boolean deleteTask(Task task) {
 		open();
-		return db.delete(TASK, TASK_ID + "=" + task.getId(), null) > 0;
+		final boolean result = db.delete(TASK, TASK_ID + "=" + task.getId(), null) > 0;
+		dataChanged();
+		return result;
 	}
 
 	// =======================================================
@@ -268,6 +284,7 @@ public class DAO {
 		long insertId = db.insert(WEEK, null, args);
 		// now fetch the newly inserted row and return it as Week object
 		List<Week> created = getWeeksWithConstraint(WEEK_ID + "=" + insertId);
+		dataChanged();
 		return created.get(0);
 	}
 
@@ -339,6 +356,7 @@ public class DAO {
 		db.update(WEEK, args, WEEK_ID + "=" + week.getId(), null);
 		// now fetch the newly updated row and return it as Week object
 		List<Week> updated = getWeeksWithConstraint(WEEK_ID + "=" + week.getId());
+		dataChanged();
 		return updated.get(0);
 	}
 
@@ -351,7 +369,9 @@ public class DAO {
 	 */
 	public boolean deleteWeek(Week week) {
 		open();
-		return db.delete(WEEK, WEEK_ID + "=" + week.getId(), null) > 0;
+		final boolean result = db.delete(WEEK, WEEK_ID + "=" + week.getId(), null) > 0;
+		dataChanged();
+		return result;
 	}
 
 	// =======================================================
@@ -396,6 +416,7 @@ public class DAO {
 		// now fetch the newly created row and return it as Event object
 		List<Event> created = getEventsWithConstraint(EVENT_ID + "=" + insertId);
 		if (created.size() > 0) {
+			dataChanged();
 			return created.get(0);
 		} else {
 			return null;
@@ -537,6 +558,7 @@ public class DAO {
 		db.update(EVENT, args, EVENT_ID + "=" + event.getId(), null);
 		// now fetch the newly updated row and return it as Event object
 		List<Event> updated = getEventsWithConstraint(EVENT_ID + "=" + event.getId());
+		dataChanged();
 		return updated.get(0);
 	}
 
@@ -549,6 +571,197 @@ public class DAO {
 	 */
 	public boolean deleteEvent(Event event) {
 		open();
-		return db.delete(EVENT, EVENT_ID + "=" + event.getId(), null) > 0;
+		final boolean result = db.delete(EVENT, EVENT_ID + "=" + event.getId(), null) > 0;
+		dataChanged();
+		return result;
+	}
+
+	private boolean deleteAll() {
+		open();
+		boolean result = db.delete(TASK, null, null) > 0;
+		result |= db.delete(WEEK, null, null) > 0;
+		result |= db.delete(EVENT, null, null) > 0;
+		dataChanged();
+		return result;
+	}
+
+	public Cursor getAllEventsAndTasks() {
+		open();
+		final String querySelectPart = "SELECT"
+			+ " " + MySQLiteHelper.EVENT + "." + MySQLiteHelper.EVENT_ID + " AS eventId"
+			+ ", " + MySQLiteHelper.EVENT_TYPE
+			+ ", " + MySQLiteHelper.EVENT_TIME
+			+ ", " + MySQLiteHelper.EVENT_TASK
+			+ ", " + MySQLiteHelper.EVENT_TEXT
+			+ ", " + MySQLiteHelper.TASK + "." + MySQLiteHelper.TASK_ID + " AS taskId"
+			+ ", " + MySQLiteHelper.TASK_NAME
+			+ ", " + MySQLiteHelper.TASK_ACTIVE
+			+ ", " + MySQLiteHelper.TASK_ORDERING
+			+ ", " + MySQLiteHelper.TASK_DEFAULT;
+
+		// this is a FULL OUTER JOIN.
+		// see http://stackoverflow.com/questions/1923259/full-outer-join-with-sqlite
+		final String query = ""
+			+ querySelectPart
+			+ " FROM"
+			+ " " + MySQLiteHelper.EVENT
+			+ " LEFT JOIN"
+			+ " " + MySQLiteHelper.TASK
+			+ " ON "
+			+ " taskId = " + MySQLiteHelper.EVENT_TASK
+
+			+ " UNION ALL "
+
+			+ querySelectPart
+			+ " FROM"
+			+ " " + MySQLiteHelper.TASK
+			+ " LEFT JOIN"
+			+ " " + MySQLiteHelper.EVENT
+			+ " ON "
+			+ " taskId = " + MySQLiteHelper.EVENT_TASK
+
+			+ " WHERE"
+			+ " eventId IS NULL"
+
+			+ " ORDER BY"
+			+ " eventId";
+
+		return db.rawQuery(query, new String[] {});
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// backup/restore methods for Google servers
+	// ---------------------------------------------------------------------------------------------
+	public long getLastDbModification() {
+		final File dbFile = context.getDatabasePath(MySQLiteHelper.DATABASE_NAME);
+		return dbFile.lastModified();
+	}
+
+	/**
+	 * Called internally by the data base methods where data is changed.
+	 */
+	private void dataChanged() {
+		backupManager.dataChanged();
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// backup/restore methods
+	// ---------------------------------------------------------------------------------------------
+	public void backupToWriter(final Writer writer) throws IOException {
+		final String eol = System.getProperty("line.separator");
+		final Cursor cur = getAllEventsAndTasks();
+		cur.moveToFirst();
+		writer.write(
+			MySQLiteHelper.EVENT_TYPE
+				+ ";" + MySQLiteHelper.EVENT_TIME
+				+ ";" + MySQLiteHelper.EVENT_TASK
+				+ ";" + MySQLiteHelper.EVENT_TEXT
+				+ ";taskId"
+				+ ";" + MySQLiteHelper.TASK_NAME
+				+ ";" + MySQLiteHelper.TASK_ACTIVE
+				+ ";" + MySQLiteHelper.TASK_ORDERING
+				+ ";" + MySQLiteHelper.TASK_DEFAULT
+				+ eol);
+		final StringBuffer buf = new StringBuffer();
+		while (!cur.isAfterLast()) {
+			if (!cur.isNull(cur.getColumnIndex("eventId"))) {
+				buf.append(TypeEnum.byValue(cur.getInt(cur.getColumnIndex(MySQLiteHelper.EVENT_TYPE)))
+					.getReadableName());
+				buf.append(";");
+				buf.append(cur.getString(cur.getColumnIndex(MySQLiteHelper.EVENT_TIME)));
+				buf.append(";");
+				buf.append(cur.getInt(cur.getColumnIndex(MySQLiteHelper.EVENT_TASK)));
+				buf.append(";");
+				buf.append((cur.getString(cur.getColumnIndex(MySQLiteHelper.EVENT_TEXT)) == null
+					? "" : cur.getString(cur.getColumnIndex(MySQLiteHelper.EVENT_TEXT))));
+				buf.append(";");
+			} else {
+				// this is a task that has no events
+				buf.append(";;;;");
+			}
+			if (!cur.isNull(cur.getColumnIndex("taskId"))) {
+				buf.append(cur.getInt(cur.getColumnIndex("taskId")));
+				buf.append(";");
+				buf.append(cur.getString(cur.getColumnIndex(MySQLiteHelper.TASK_NAME)));
+				buf.append(";");
+				buf.append(cur.getInt(cur.getColumnIndex(MySQLiteHelper.TASK_ACTIVE)));
+				buf.append(";");
+				buf.append(cur.getInt(cur.getColumnIndex(MySQLiteHelper.TASK_ORDERING)));
+				buf.append(";");
+				buf.append(cur.getInt(cur.getColumnIndex(MySQLiteHelper.TASK_DEFAULT)));
+				buf.append(";");
+			} else {
+				// this is an event that has no task (TypeEnum.CLOCK_OUT)
+				buf.append(";;;;;");
+			}
+			buf.append(eol);
+			writer.write(buf.toString());
+			buf.setLength(0);
+			cur.moveToNext();
+		}
+		cur.close();
+	}
+
+	private static int INDEX_EVENT_TYPE = 0;
+	private static int INDEX_EVENT_TIME = 1;
+	private static int INDEX_EVENT_TASK = 2;
+	private static int INDEX_EVENT_TEXT = 3;
+	private static int INDEX_TASK_ID = 4;
+	private static int INDEX_TASK_NAME = 5;
+	private static int INDEX_TASK_ACTIVE = 6;
+	private static int INDEX_TASK_ORDERING = 7;
+	private static int INDEX_TASK_DEFAULT = 8;
+
+	public void restoreFromReader(final BufferedReader reader) throws IOException {
+		final String eol = System.getProperty("line.separator");
+		final TimerManager timerManager = Basics.getInstance().getTimerManager();
+
+		deleteAll();
+
+		String line;
+		final StringBuffer buffer = new StringBuffer();
+		// cache values
+		final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName();
+		final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
+		while ((line = reader.readLine()) != null) {
+			buffer.append(line + eol);
+			final String[] columns = line.split("[;\t]");
+			try {
+				if (columns.length > 8 && columns[INDEX_TASK_ID].length() > 0) {
+					final int taskId = Integer.parseInt(columns[INDEX_TASK_ID]);
+					if (getTask(taskId) == null) {
+						final Task task = new Task(
+							taskId,
+							columns[INDEX_TASK_NAME],
+							Integer.parseInt(columns[INDEX_TASK_ACTIVE]),
+							Integer.parseInt(columns[INDEX_TASK_ORDERING]),
+							Integer.parseInt(columns[INDEX_TASK_DEFAULT])
+							);
+						final ContentValues args = taskToContentValues(task);
+						args.put(MySQLiteHelper.TASK_ID, taskId);
+						db.insert(TASK, null, args);
+					}
+				}
+
+				if (columns.length > 2 && columns[INDEX_EVENT_TYPE].length() > 0) {
+					final DateTime dateTime = new DateTime(columns[INDEX_EVENT_TIME]);
+					final TypeEnum typeEnum;
+					if (clockInReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
+						typeEnum = TypeEnum.CLOCK_IN;
+					} else if (clockOutNowReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
+						typeEnum = TypeEnum.CLOCK_OUT_NOW;
+					} else {
+						typeEnum = TypeEnum.CLOCK_OUT;
+					}
+					timerManager.createEvent(dateTime,
+						Integer.parseInt(columns[INDEX_EVENT_TASK]),
+						typeEnum,
+						columns.length > INDEX_EVENT_TEXT ?
+							columns[INDEX_EVENT_TEXT] : "");
+				}
+			} catch (NumberFormatException e) {
+				// ignore rest of current row
+			}
+		}
 	}
 }
