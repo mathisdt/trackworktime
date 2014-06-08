@@ -24,10 +24,13 @@ import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
+import org.zephyrsoft.trackworktime.R;
+
 /**
  * @author Peter Rosenberg
  */
 public class WorkTimeTrackerBackupManager {
+	private final String prefKeyBackupEnabled;
 	private static final String TIMESTAMP_BACKUP_KEY = "timestamp_backup";
 	private final BackupManager backupManager;
 	private final SharedPreferences timestampPrefs;
@@ -36,6 +39,7 @@ public class WorkTimeTrackerBackupManager {
 
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	public WorkTimeTrackerBackupManager(final Context context) {
+		prefKeyBackupEnabled = context.getText(R.string.keyBackupEnabled) + "";
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 			backupManager = new BackupManager(context);
 		} else {
@@ -43,11 +47,11 @@ public class WorkTimeTrackerBackupManager {
 		}
 		timestampPrefs = context.getSharedPreferences("timestampPrefs", Context.MODE_PRIVATE);
 		defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		enabled = defaultPrefs.getBoolean("backup_enabled", true);
+		enabled = defaultPrefs.getBoolean(prefKeyBackupEnabled, true);
 	}
 
 	public void checkIfBackupEnabledChanged() {
-		final boolean newValue = defaultPrefs.getBoolean("backup_enabled", true);
+		final boolean newValue = defaultPrefs.getBoolean(prefKeyBackupEnabled, true);
 		if (enabled != newValue && backupManager != null) {
 			// trigger if changed
 			backupManager.dataChanged();

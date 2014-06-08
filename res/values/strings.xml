@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">Track Work Time</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string> 
     <string name="website">http://www.zephyrsoft.org</string>
     <string name="email">android@zephyrsoft.org</string>
     <string name="in">IN</string>
@@ -117,6 +119,7 @@
 	<string name="today">today</string>
     <string name="customize">Customize</string>
     <string name="reports">Reports</string>
+    <string name="backup_on_google_servers">Do you want to activate backup on Google servers? This setting can be changed anytime under options.</string>
     <string name="backup">Data Backup</string>
     <string name="backup_to_google">Backup to Google Servers</string>
     <string name="backup_enabled">Backup enabled</string>
@@ -128,6 +131,7 @@
     <string name="restore_failed_file_not_found">Restore failed, file not found.</string>
     <string name="backup_overwrite">Overwrite existing file \"%1$s\"?</string>
     <string name="restore_warning">Delete everything and replace it with the content of the restore file \"%1$s\"?</string>
+    <string name="please_wait">Please wait&#8230;</string>
     <string name="current">current</string>
     <string name="last">last</string>
     <string name="week">week</string>

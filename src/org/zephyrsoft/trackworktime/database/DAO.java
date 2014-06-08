@@ -757,7 +757,7 @@ public class DAO {
 						Integer.parseInt(columns[INDEX_EVENT_TASK]),
 						typeEnum,
 						columns.length > INDEX_EVENT_TEXT ?
-							columns[INDEX_EVENT_TEXT] : "");
+							columns[INDEX_EVENT_TEXT] : "", true);
 				}
 			} catch (NumberFormatException e) {
 				// ignore rest of current row

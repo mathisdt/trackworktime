@@ -31,9 +31,11 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -284,6 +286,30 @@ public class WorkTimeTrackerActivity extends Activity {
 
 		// check options for logical errors
 		checkAllOptions();
+
+		if (!preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
+			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					final Editor editor = preferences.edit();
+					switch (which) {
+						case DialogInterface.BUTTON_POSITIVE:
+							editor.putBoolean(getText(R.string.keyBackupEnabled) + "", true);
+							break;
+
+						case DialogInterface.BUTTON_NEGATIVE:
+							editor.putBoolean(getText(R.string.keyBackupEnabled) + "", false);
+							break;
+					}
+					editor.putBoolean(getString(R.string.keyBackupSettingAsked), true);
+					editor.commit();
+				}
+			};
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(R.string.backup_on_google_servers)
+				.setPositiveButton(R.string.yes, dialogClickListener)
+				.setNegativeButton(R.string.no, dialogClickListener).show();
+		}
 	}
 
 	private static void setVisibility(View view, boolean visible) {
@@ -856,6 +882,15 @@ public class WorkTimeTrackerActivity extends Activity {
 	private void backup(final File backupFile) {
 		// do in background
 		new AsyncTask<Void, Void, Boolean>() {
+			private ProgressDialog dialog;
+
+			@Override
+			protected void onPreExecute() {
+				dialog = ProgressDialog.show(WorkTimeTrackerActivity.this,
+					getString(R.string.backup), getString(R.string.please_wait), true);
+				dialog.show();
+			}
+
 			@Override
 			protected Boolean doInBackground(Void... none) {
 				try {
@@ -883,6 +918,7 @@ public class WorkTimeTrackerActivity extends Activity {
 				} else {
 					Toast.makeText(WorkTimeTrackerActivity.this, R.string.backup_failed, Toast.LENGTH_LONG).show();
 				}
+				dialog.dismiss();
 			}
 
 		}.execute(null, null);
@@ -930,6 +966,15 @@ public class WorkTimeTrackerActivity extends Activity {
 	private void restore(final File backupFile) {
 		// do in background
 		new AsyncTask<Void, Void, Boolean>() {
+			private ProgressDialog dialog;
+
+			@Override
+			protected void onPreExecute() {
+				dialog = ProgressDialog.show(WorkTimeTrackerActivity.this,
+					getString(R.string.restore), getString(R.string.please_wait), true);
+				dialog.show();
+			}
+
 			@Override
 			protected Boolean doInBackground(Void... none) {
 				try {
@@ -951,6 +996,7 @@ public class WorkTimeTrackerActivity extends Activity {
 				} else {
 					Toast.makeText(WorkTimeTrackerActivity.this, R.string.restore_failed, Toast.LENGTH_LONG).show();
 				}
+				dialog.dismiss();
 			}
 
 		}.execute(null, null);

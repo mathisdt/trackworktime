@@ -509,6 +509,25 @@ public class TimerManager {
 	 *            the text (may be {@code null})
 	 */
 	public void createEvent(DateTime dateTime, Integer taskId, TypeEnum type, String text) {
+		createEvent(dateTime, taskId, type, text, false);
+	}
+
+	/**
+	 * Create a new event at the given time.
+	 * 
+	 * @param dateTime
+	 *            the time for which the new event should be created
+	 * @param taskId
+	 *            the task id (may be {@code null})
+	 * @param type
+	 *            the type
+	 * @param text
+	 *            the text (may be {@code null})
+	 * @param insertedByRestore
+	 *            true if the event is inserted by a restore. In that case, auto pause and refresh of notifications are
+	 *            suppressed.
+	 */
+	public void createEvent(DateTime dateTime, Integer taskId, TypeEnum type, String text, boolean insertedByRestore) {
 		if (dateTime == null) {
 			throw new IllegalArgumentException("date/time has to be given");
 		}
@@ -522,7 +541,7 @@ public class TimerManager {
 			currentWeek = createPersistentWeek(weekStart);
 		}
 
-		if (type == TypeEnum.CLOCK_OUT) {
+		if (!insertedByRestore && type == TypeEnum.CLOCK_OUT) {
 			tryToInsertAutoPause(dateTime);
 		}
 
@@ -531,7 +550,9 @@ public class TimerManager {
 		event = dao.insertEvent(event);
 
 		updateWeekSum(currentWeek);
-		Basics.getInstance().safeCheckPersistentNotification();
+		if (!insertedByRestore) {
+			Basics.getInstance().safeCheckPersistentNotification();
+		}
 	}
 
 	/**

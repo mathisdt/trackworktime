@@ -112,7 +112,7 @@ public class WifiTracker {
 		Logger.debug("wifi-ssid \"{0}\" in now range: {1}, previous state: {2}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
 
-		if ((ssidWasPreviouslyInRange == null || ssidWasPreviouslyInRange.booleanValue()) && timerManager.isTracking()
+		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && timerManager.isTracking()
 			&& !ssidIsNowInRange) {
 
 			timerManager.stopTracking(0);
