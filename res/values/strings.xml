@@ -58,7 +58,8 @@
     <string name="preferences">Options</string>
     <string name="message">Message</string>
     <string name="shortDateFormat">DD.MM.</string>
-    <string name="timeFlattening">Time Flattening</string>
+    <string name="flexiTimeToZeroOnEveryDay">Countdown to 0:00 Every Day</string>
+    <string name="flexiTimeToZeroOnEveryDayDescription">Only on last working day if disabled</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
     <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>

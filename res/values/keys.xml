@@ -3,6 +3,7 @@
 
     <string name="keyFlexiTimeCategory">keyFlexiTimeCategory</string>
     <string name="keyEnableFlexiTime">keyEnableFlexiTime</string>
+    <string name="keyFlexiTimeToZeroOnEveryDay">keyFlexiTimeToZeroOnEveryDay</string>
     <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
     <string name="keyFlexiTimeTarget">keyFlexiTimeTarget</string>
     <string name="keyFlexiTimeDayMonday">keyFlexiTimeDayMonday</string>

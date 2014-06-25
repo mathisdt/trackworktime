@@ -300,23 +300,35 @@ public class TimerManager {
 		if (isWorkDay(weekDay)) {
 			TimeSum alreadyWorked = null;
 			TimeSum target = null;
-			if (isFollowedByWorkDay(weekDay)) {
-				// not the last work day of the week, only calculate the rest of the daily working time
-				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.DAY);
-				int targetMinutes = getNormalWorkDurationFor(weekDay);
-				target = new TimeSum();
-				target.add(0, targetMinutes);
-			} else {
-				// the last work day: calculate the rest of the weekly working time
+			boolean onEveryWorkingDayOfTheWeek = preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
+				false);
+			if (!isFollowedByWorkDay(weekDay) || onEveryWorkingDayOfTheWeek) {
 				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.WEEK);
 				if (includeFlexiTime) {
 					// add flexi balance from week start
 					TimeSum flexiBalance = getFlexiBalanceAtWeekStart(DateTimeUtil.getWeekStart(dateTime));
 					alreadyWorked.addOrSubstract(flexiBalance);
 				}
-				String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
-				target = parseHoursMinutesString(targetValueString);
+
+				final String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
+				final TimeSum targetTimePerWeek = parseHoursMinutesString(targetValueString);
+				final TimeSum targetTimePerDay = new TimeSum();
+				targetTimePerDay.add(0, targetTimePerWeek.getAsMinutes() / countWorkDays());
+				DateTime weekStart = DateTimeUtil.getWeekStart(dateTime);
+				target = new TimeSum();
+				target.addOrSubstract(targetTimePerDay); // add today as well
+				while (weekStart.getWeekDay() != dateTime.getWeekDay()) {
+					target.addOrSubstract(targetTimePerDay);
+					weekStart = weekStart.plusDays(1);
+				}
+			} else {
+				// not the last work day of the week, only calculate the rest of the daily working time
+				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.DAY);
+				int targetMinutes = getNormalWorkDurationFor(weekDay);
+				target = new TimeSum();
+				target.add(0, targetMinutes);
 			}
+
 			Logger.debug("alreadyWorked={0}", alreadyWorked.toString());
 			Logger.debug("target={0}", target.toString());
 

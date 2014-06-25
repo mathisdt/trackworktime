@@ -24,6 +24,11 @@
             android:key="@string/keyEnableFlexiTime"
             android:title="@string/enableFlexiTime" />
 
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeToZeroOnEveryDay"
+            android:title="@string/flexiTimeToZeroOnEveryDay"
+            android:summary="@string/flexiTimeToZeroOnEveryDayDescription" />
+        
         <EditTextPreference
             android:key="@string/keyFlexiTimeStartValue"
             android:summary="@string/flexiTimeStartValueDescription"
