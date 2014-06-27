@@ -116,7 +116,7 @@ public class Basics extends BroadcastReceiver {
 	private void init() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		dao = new DAO(context);
-		timerManager = new TimerManager(dao, preferences);
+		timerManager = new TimerManager(dao, preferences, context);
 		timeCalculator = new TimeCalculator(dao, timerManager);
 		vibrationManager = new VibrationManager(context);
 	}

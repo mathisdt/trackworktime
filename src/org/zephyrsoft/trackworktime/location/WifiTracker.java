@@ -90,6 +90,7 @@ public class WifiTracker {
 
 		if (isTrackingByWifi.compareAndSet(false, true)) {
 			try {
+				timerManager.activateTrackingMethod(TrackingMethod.WIFI);
 				Logger.info("started wifi-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
@@ -112,24 +113,26 @@ public class WifiTracker {
 		Logger.debug("wifi-ssid \"{0}\" in now range: {1}, previous state: {2}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
 
-		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && timerManager.isTracking()
-			&& !ssidIsNowInRange) {
+		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && !ssidIsNowInRange) {
 
-			timerManager.stopTracking(0);
-			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate && isVibrationAllowed()) {
-				tryVibration();
+			boolean globalStateChanged = timerManager.clockOutWithTrackingMethod(TrackingMethod.WIFI);
+			if (globalStateChanged) {
+				WorkTimeTrackerActivity.refreshViewIfShown();
+				if (vibrate && isVibrationAllowed()) {
+					tryVibration();
+				}
+				Logger.info("clocked out via wifi-based tracking");
 			}
-			Logger.info("clocked out via wifi-based tracking");
-		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue())
-			&& !timerManager.isTracking() && ssidIsNowInRange) {
+		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue()) && ssidIsNowInRange) {
 
-			timerManager.startTracking(0, null, null);
-			WorkTimeTrackerActivity.refreshViewIfShown();
-			if (vibrate && isVibrationAllowed()) {
-				tryVibration();
+			boolean globalStateChanged = timerManager.clockInWithTrackingMethod(TrackingMethod.WIFI);
+			if (globalStateChanged) {
+				WorkTimeTrackerActivity.refreshViewIfShown();
+				if (vibrate && isVibrationAllowed()) {
+					tryVibration();
+				}
+				Logger.info("clocked in via wifi-based tracking");
 			}
-			Logger.info("clocked in via wifi-based tracking");
 		}
 		// preserve the state of this wifi-check for the next call
 		ssidWasPreviouslyInRange = ssidIsNowInRange;
@@ -174,6 +177,7 @@ public class WifiTracker {
 	 * Stop the periodic checks to track by wifi.
 	 */
 	public void stopTrackingByWifi() {
+		timerManager.deactivateTrackingMethod(TrackingMethod.WIFI);
 
 		if (isTrackingByWifi.compareAndSet(true, false)) {
 			Logger.info("stopped wifi-based tracking");

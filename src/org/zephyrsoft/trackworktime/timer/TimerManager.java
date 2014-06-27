@@ -21,12 +21,19 @@ import hirondelle.date4j.DateTime.DayOverflow;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.TrackingMethod;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -48,13 +55,15 @@ public class TimerManager {
 
 	private final DAO dao;
 	private final SharedPreferences preferences;
+	private final Context context;
 
 	/**
 	 * Constructor
 	 */
-	public TimerManager(DAO dao, SharedPreferences preferences) {
+	public TimerManager(DAO dao, SharedPreferences preferences, Context context) {
 		this.dao = dao;
 		this.preferences = preferences;
+		this.context = context;
 	}
 
 	public void insertDefaultWorkTimes(DateTime from, DateTime to, Integer taskId, String text) {
@@ -680,4 +689,128 @@ public class TimerManager {
 		return ret;
 	}
 
+	// ======== registration of automatic work time tracking methods ========
+
+	public void activateTrackingMethod(TrackingMethod method) {
+		Collection<TrackingMethod> activeMethods = readCurrentlyActiveTrackingMethods();
+		if (!activeMethods.contains(method)) {
+			activeMethods.add(method);
+			writeCurrentlyActiveTrackingMethods(activeMethods);
+		}
+	}
+
+	public void deactivateTrackingMethod(TrackingMethod method) {
+		Collection<TrackingMethod> activeMethods = readCurrentlyActiveTrackingMethods();
+		if (activeMethods.contains(method)) {
+			activeMethods.remove(method);
+			writeCurrentlyActiveTrackingMethods(activeMethods);
+		}
+	}
+
+	private Collection<TrackingMethod> readCurrentlyActiveTrackingMethods() {
+		String activeMethodsString = preferences.getString(context.getString(R.string.keyActiveMethods), "");
+		String[] activeMethodsStrings = StringUtils.split(activeMethodsString, ',');
+		Collection<TrackingMethod> result = new ArrayList<TrackingMethod>(activeMethodsStrings.length);
+		for (String activeMethodString : activeMethodsStrings) {
+			result.add(TrackingMethod.valueOf(activeMethodString));
+		}
+		return result;
+	}
+
+	private void writeCurrentlyActiveTrackingMethods(Collection<TrackingMethod> methods) {
+		StringBuilder result = new StringBuilder();
+		for (TrackingMethod method : methods) {
+			if (result.length() > 0) {
+				result.append(",");
+			}
+			result.append(method.name());
+		}
+		final Editor editor = preferences.edit();
+		editor.putString(context.getString(R.string.keyActiveMethods), result.toString());
+		editor.commit();
+	}
+
+	private boolean isTrackingMethodCurrentlyActive(TrackingMethod method) {
+		Collection<TrackingMethod> activeMethods = readCurrentlyActiveTrackingMethods();
+		return activeMethods.contains(method);
+	}
+
+	public boolean clockInWithTrackingMethod(TrackingMethod method) {
+		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
+		if (currentlyClockedInWithMethod) {
+			Logger.debug("already clocked in with method {0}", method.name());
+			return false;
+		} else {
+			Logger.debug("clocking in with method {0}", method.name());
+			return setTrackingMethodClockInState(method, true);
+		}
+	}
+
+	public boolean clockOutWithTrackingMethod(TrackingMethod method) {
+		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
+		if (!currentlyClockedInWithMethod) {
+			Logger.debug("not clocked in with method {0}", method.name());
+			return false;
+		} else {
+			Logger.debug("clocking out with method {0}", method.name());
+			return setTrackingMethodClockInState(method, false);
+		}
+	}
+
+	private boolean getTrackingMethodClockInState(TrackingMethod method) {
+		return preferences.getBoolean(context.getString(method.getPreferenceKeyId()), false);
+	}
+
+	private boolean setTrackingMethodClockInState(TrackingMethod method, boolean state) {
+		final Editor editor = preferences.edit();
+		editor.putBoolean(context.getString(method.getPreferenceKeyId()), state);
+		editor.commit();
+		return createEventIfNecessary(method, state);
+	}
+
+	private boolean createEventIfNecessary(TrackingMethod method, boolean state) {
+		if (state) {
+			// method is clocked in now - should we generate a clock-in event?
+			if (!isClockedInWithAnyOtherTrackingMethod(method) && !isTracking()) {
+				// we are not clocked in already by hand or by another method, so generate an event (first method
+				// clocking in)
+				startTracking(0, null, null);
+				Logger.debug("method {0}: started tracking", method);
+				return true;
+			} else {
+				Logger.debug("method {0}: NOT started tracking (was not first method or already clocked in manually)",
+					method);
+				return false;
+			}
+		} else {
+			// method is clocked out now - should we generate a clock-out event?
+			if (!isClockedInWithAnyOtherTrackingMethod(method) && isTracking()) {
+				// we are not clocked in by hand or by another method, so generate an event (last method clocking out)
+				stopTracking(0);
+				Logger.debug("method {0}: stopped tracking", method);
+				return true;
+			} else {
+				Logger.debug("method {0}: NOT stopped tracking (was not last method or already clocked out manually)",
+					method);
+				return false;
+			}
+		}
+	}
+
+	private boolean isClockedInWithAnyOtherTrackingMethod(TrackingMethod methodToIgnore) {
+		Collection<TrackingMethod> activeMethods = readCurrentlyActiveTrackingMethods();
+		for (TrackingMethod method : activeMethods) {
+			if (method.equals(methodToIgnore)) {
+				continue;
+			}
+			if (isClockedInWithTrackingMethod(method)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isClockedInWithTrackingMethod(TrackingMethod method) {
+		return getTrackingMethodClockInState(method);
+	}
 }

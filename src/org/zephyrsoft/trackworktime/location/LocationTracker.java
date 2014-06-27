@@ -96,6 +96,7 @@ public class LocationTracker implements LocationListener {
 			try {
 				locationManager
 					.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Constants.REPEAT_TIME, 0, this);
+				timerManager.activateTrackingMethod(TrackingMethod.LOCATION);
 				Logger.info("started location-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
@@ -113,31 +114,34 @@ public class LocationTracker implements LocationListener {
 		Boolean previousLocationWasInRange = (previousLocation == null ? null : isInRange(previousLocation,
 			"previous location"));
 		boolean locationIsInRange = isInRange(location, "current location");
-		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange
-			&& !timerManager.isTracking()) {
+		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange) {
 			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
 				Logger
 					.info("NOT clocked in via location-based tracking - too close to an existing event (see options)");
 			} else {
-				timerManager.startTracking(0, null, null);
-				WorkTimeTrackerActivity.refreshViewIfShown();
-				if (vibrate && isVibrationAllowed()) {
-					tryVibration();
+				boolean globalStateChanged = timerManager.clockInWithTrackingMethod(TrackingMethod.LOCATION);
+				if (globalStateChanged) {
+					WorkTimeTrackerActivity.refreshViewIfShown();
+					if (vibrate && isVibrationAllowed()) {
+						tryVibration();
+					}
+					Logger.info("clocked in via location-based tracking");
 				}
-				Logger.info("clocked in via location-based tracking");
 			}
 		} else if ((previousLocationWasInRange == null || previousLocationWasInRange.booleanValue())
-			&& !locationIsInRange && timerManager.isTracking()) {
+			&& !locationIsInRange) {
 			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
 				Logger
 					.info("NOT clocked out via location-based tracking - too close to an existing event (see options)");
 			} else {
-				timerManager.stopTracking(0);
-				WorkTimeTrackerActivity.refreshViewIfShown();
-				if (vibrate && isVibrationAllowed()) {
-					tryVibration();
+				boolean globalStateChanged = timerManager.clockOutWithTrackingMethod(TrackingMethod.LOCATION);
+				if (globalStateChanged) {
+					WorkTimeTrackerActivity.refreshViewIfShown();
+					if (vibrate && isVibrationAllowed()) {
+						tryVibration();
+					}
+					Logger.info("clocked out via location-based tracking");
 				}
-				Logger.info("clocked out via location-based tracking");
 			}
 		}
 	}
@@ -174,6 +178,7 @@ public class LocationTracker implements LocationListener {
 	public void stopTrackingByLocation() {
 		// execute this anyway to prevent confusion, e.g. after crashes:
 		locationManager.removeUpdates(this);
+		timerManager.deactivateTrackingMethod(TrackingMethod.LOCATION);
 
 		if (isTrackingByLocation.compareAndSet(true, false)) {
 			Logger.info("stopped location-based tracking");

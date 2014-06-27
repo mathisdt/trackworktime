@@ -36,9 +36,12 @@
     <string name="keyNotificationEnabled">keyNotificationEnabled</string>
     <string name="keyNotificationUsesFlexiTimeAsTarget">keyNotificationUsesFlexiTimeAsTarget</string>
     <string name="keyBackupCategory">keyBackupCategory</string>
-    <string name="keyBackupSettingAsked">backupSettingAsked</string>
+    <string name="keyBackupSettingAsked">keyBackupSettingAsked</string>
     <string name="keyBackupEnabled">keyBackupEnabled</string>
     <string name="keyBackupLastModifiedTimestamp">keyBackupLastModifiedTimestamp</string>
     <string name="keyBackupLastBackupTimestamp">keyBackupLastBackupTimestamp</string>
+    <string name="keyActiveMethods">keyActiveMethods</string>
+    <string name="keyClockedInByLocation">keyClockedInByLocation</string>
+    <string name="keyClockedInByWifi">keyClockedInByWifi</string>
 
 </resources>
