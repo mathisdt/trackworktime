@@ -58,8 +58,8 @@
     <string name="preferences">Options</string>
     <string name="message">Message</string>
     <string name="shortDateFormat">DD.MM.</string>
-    <string name="flexiTimeToZeroOnEveryDay">Countdown to 0:00 Every Day</string>
-    <string name="flexiTimeToZeroOnEveryDayDescription">Only on last working day if disabled</string>
+    <string name="flexiTimeToZeroOnEveryDay">countdown to 0:00 every day</string>
+    <string name="flexiTimeToZeroOnEveryDayDescription">only on last working day if disabled</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
     <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
@@ -144,7 +144,7 @@
     <string name="chooseReport">Choose Report</string>
     <string name="timesByTaskPerWeek">Times by Task (weekly)</string>
     <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
-    <string name="notificationUsesFlexiTimeAsTarget">use flexi time \"0:00\" as target</string>
+    <string name="notificationUsesFlexiTimeAsTarget">use flexi time 0:00 as target</string>
     <string name="notificationFlexiTimeDescription">reduce weekly target by flexi overtime</string>
     
 </resources>

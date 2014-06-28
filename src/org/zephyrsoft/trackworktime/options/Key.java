@@ -29,8 +29,6 @@ import org.zephyrsoft.trackworktime.R;
 public enum Key {
 
 	ENABLE_FLEXI_TIME("keyEnableFlexiTime", DataType.BOOLEAN, null, R.string.enableFlexiTime),
-	FLEXI_TIME_TO_ZERO_ON_EVERY_DAY("keyFlexiTimeToZeroOnEveryDay", DataType.BOOLEAN, ENABLE_FLEXI_TIME,
-		R.string.flexiTimeToZeroOnEveryDay),
 	FLEXI_TIME_START_VALUE("keyFlexiTimeStartValue", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME,
 		R.string.flexiTimeStartValue),
 	FLEXI_TIME_TARGET("keyFlexiTimeTarget", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME, R.string.flexiTimeTarget),
@@ -67,6 +65,8 @@ public enum Key {
 	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled),
 	NOTIFICATION_USES_FLEXI_TIME_AS_TARGET("keyNotificationUsesFlexiTimeAsTarget", DataType.BOOLEAN,
 		NOTIFICATION_ENABLED, R.string.notificationUsesFlexiTimeAsTarget),
+	FLEXI_TIME_TO_ZERO_ON_EVERY_DAY("keyFlexiTimeToZeroOnEveryDay", DataType.BOOLEAN, NOTIFICATION_ENABLED,
+		R.string.flexiTimeToZeroOnEveryDay),
 
 	WIFI_BASED_TRACKING_ENABLED("keyWifiBasedTrackingEnabled", DataType.BOOLEAN, null, R.string.enableWifiBasedTracking),
 	WIFI_BASED_TRACKING_VIBRATE("keyWifiBasedTrackingVibrate", DataType.BOOLEAN, WIFI_BASED_TRACKING_ENABLED,
