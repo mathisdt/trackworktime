@@ -737,7 +737,10 @@ public class TimerManager {
 
 	public boolean clockInWithTrackingMethod(TrackingMethod method) {
 		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
-		if (currentlyClockedInWithMethod) {
+		if (getTrackingMethodsGenerateEventsSeparately()) {
+			Logger.debug("clocking in with method {0} forcibly", method.name());
+			return setTrackingMethodClockInStateForcibly(method, true);
+		} else if (currentlyClockedInWithMethod) {
 			Logger.debug("already clocked in with method {0}", method.name());
 			return false;
 		} else {
@@ -748,7 +751,10 @@ public class TimerManager {
 
 	public boolean clockOutWithTrackingMethod(TrackingMethod method) {
 		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
-		if (!currentlyClockedInWithMethod) {
+		if (getTrackingMethodsGenerateEventsSeparately()) {
+			Logger.debug("clocking out with method {0} forcibly", method.name());
+			return setTrackingMethodClockInStateForcibly(method, false);
+		} else if (!currentlyClockedInWithMethod) {
 			Logger.debug("not clocked in with method {0}", method.name());
 			return false;
 		} else {
@@ -761,11 +767,23 @@ public class TimerManager {
 		return preferences.getBoolean(context.getString(method.getPreferenceKeyId()), false);
 	}
 
+	private boolean getTrackingMethodsGenerateEventsSeparately() {
+		return preferences
+			.getBoolean(context.getString(R.string.keyEachTrackingMethodGeneratesEventsSeparately), false);
+	}
+
 	private boolean setTrackingMethodClockInState(TrackingMethod method, boolean state) {
 		final Editor editor = preferences.edit();
 		editor.putBoolean(context.getString(method.getPreferenceKeyId()), state);
 		editor.commit();
 		return createEventIfNecessary(method, state);
+	}
+
+	private boolean setTrackingMethodClockInStateForcibly(TrackingMethod method, boolean state) {
+		final Editor editor = preferences.edit();
+		editor.putBoolean(context.getString(method.getPreferenceKeyId()), state);
+		editor.commit();
+		return createEventForcibly(method, state);
 	}
 
 	private boolean createEventIfNecessary(TrackingMethod method, boolean state) {
@@ -791,6 +809,32 @@ public class TimerManager {
 				return true;
 			} else {
 				Logger.debug("method {0}: NOT stopped tracking (was not last method or already clocked out manually)",
+					method);
+				return false;
+			}
+		}
+	}
+
+	private boolean createEventForcibly(TrackingMethod method, boolean state) {
+		if (state) {
+			// method is clocked in now - should we generate a clock-in event?
+			if (!isTracking()) {
+				startTracking(0, null, null);
+				Logger.debug("method {0}: started tracking forcibly", method);
+				return true;
+			} else {
+				Logger.debug("method {0}: NOT started tracking forcibly (already clocked in)",
+					method);
+				return false;
+			}
+		} else {
+			// method is clocked out now - should we generate a clock-out event?
+			if (isTracking()) {
+				stopTracking(0);
+				Logger.debug("method {0}: stopped tracking forcibly", method);
+				return true;
+			} else {
+				Logger.debug("method {0}: NOT stopped tracking forcibly (already clocked out)",
 					method);
 				return false;
 			}

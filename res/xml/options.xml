@@ -123,7 +123,9 @@
             android:summary="@string/workplaceWifiSSIDDescription"
             android:title="@string/workplaceWifiSSID" />
     </PreferenceCategory>
-    <PreferenceCategory
+    <PreferenceCategory android:key="@string/keyAutomaticTrackingCategory" android:title="@string/automaticTracking">
+        <CheckBoxPreference android:key="@string/keyEachTrackingMethodGeneratesEventsSeparately" android:summary="@string/methodsGenerateEventsSeparatelyDescription" android:title="@string/methodsGenerateEventsSeparately"/>
+    </PreferenceCategory><PreferenceCategory
         android:key="@string/keyNotificationCategory"
         android:title="@string/notification" >
         <CheckBoxPreference
@@ -158,5 +160,6 @@
             android:summary="-"
             android:title="@string/lastBackupTimestamp" />
     </PreferenceCategory>
+    
 
 </PreferenceScreen>

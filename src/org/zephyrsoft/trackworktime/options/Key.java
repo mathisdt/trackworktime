@@ -72,7 +72,11 @@ public enum Key {
 	WIFI_BASED_TRACKING_VIBRATE("keyWifiBasedTrackingVibrate", DataType.BOOLEAN, WIFI_BASED_TRACKING_ENABLED,
 		R.string.wifiBasedTrackingVibrate),
 	WIFI_BASED_TRACKING_SSID("keyWifiBasedTrackingSSID", DataType.SSID, WIFI_BASED_TRACKING_ENABLED,
-		R.string.workplaceWifiSSID);
+		R.string.workplaceWifiSSID),
+
+	AUTOMATIC_TRACKING_METHODS_GENERATE_EVENTS_SEPARATELY(
+		"keyEachTrackingMethodGeneratesEventsSeparately", DataType.BOOLEAN, null,
+		R.string.methodsGenerateEventsSeparately);
 
 	private final String name;
 	private final DataType dataType;

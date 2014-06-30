@@ -43,5 +43,7 @@
     <string name="keyActiveMethods">keyActiveMethods</string>
     <string name="keyClockedInByLocation">keyClockedInByLocation</string>
     <string name="keyClockedInByWifi">keyClockedInByWifi</string>
+    <string name="keyAutomaticTrackingCategory">keyAutomaticTrackingCategory</string>
+    <string name="keyEachTrackingMethodGeneratesEventsSeparately">keyEachTrackingMethodGeneratesEventsSeparately</string>
 
 </resources>

@@ -146,5 +146,8 @@
     <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
     <string name="notificationUsesFlexiTimeAsTarget">use flexi time 0:00 as target</string>
     <string name="notificationFlexiTimeDescription">reduce weekly target by flexi overtime</string>
+    <string name="automaticTracking">Automatic Tracking</string>
+    <string name="methodsGenerateEventsSeparately">Handle methods separately</string>
+    <string name="methodsGenerateEventsSeparatelyDescription">if enabled, every tracking method (location, wifi) generates separate events - if disabled, only first clock-in and last clock-out counts</string>
     
 </resources>
