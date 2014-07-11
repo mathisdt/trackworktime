@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.zephyrsoft.trackworktime"
-    android:versionCode="18"
-    android:versionName="0.5.15-SNAPSHOT" >
+    android:versionCode="19"
+    android:versionName="0.5.16-SNAPSHOT" >
 
     <uses-sdk
         android:minSdkVersion="7"
