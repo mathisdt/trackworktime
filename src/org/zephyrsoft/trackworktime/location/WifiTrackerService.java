@@ -97,7 +97,7 @@ public class WifiTrackerService extends Service {
 						.createMessageIntent(
 							"Track Work Time disabled the wifi-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_WIFI_STATE is granted.",
 							Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID),
-					Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false);
+					Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false, null, null, null, null, null, null);
 		}
 
 		// the check for available wifi networks is done here (and thus needs the periodically sent intents):

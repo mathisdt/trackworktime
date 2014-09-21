@@ -20,6 +20,7 @@ import hirondelle.date4j.DateTime;
 
 import java.util.Calendar;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -32,6 +33,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -201,9 +203,13 @@ public class Basics extends BroadcastReceiver {
 		if (preferences.getBoolean(Key.NOTIFICATION_ENABLED.getName(), false)
 			&& timerManager.isTracking()) {
 			// display/update
-			Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
-			intent.setAction(Intent.ACTION_MAIN);
-			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+			Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
+			clickIntent.setAction(Intent.ACTION_MAIN);
+			clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+			Intent buttonOneIntent = new Intent("org.zephyrsoft.trackworktime.ClockIn");
+			Intent buttonTwoIntent = new Intent("org.zephyrsoft.trackworktime.ClockOut");
+
 			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
 				.toString();
 			String targetTimeString = "";
@@ -225,13 +231,17 @@ public class Basics extends BroadcastReceiver {
 				// no second line displayed because no flexi time can be calculated
 			}
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTimeString);
-			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, intent,
-				Constants.PERSISTENT_STATUS_ID, true);
+			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, clickIntent,
+				Constants.PERSISTENT_STATUS_ID, true,
+				buttonOneIntent, R.drawable.ic_menu_forward, context.getString(R.string.clockInChange),
+				buttonTwoIntent, R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOut));
+			Logger.debug("added persistent notification");
 		} else {
 			// try to remove
 			NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
+			Logger.debug("removed persistent notification");
 		}
 	}
 
@@ -445,23 +455,54 @@ public class Basics extends BroadcastReceiver {
 	 *            the title line of the notification
 	 * @param notificationSubtitle
 	 *            the smaller line of text below the title
-	 * @param intent
+	 * @param clickIntent
 	 *            the intent to be executed when the notification is clicked
 	 * @param notificationId
 	 *            a unique number to identify the notification
 	 */
 	@SuppressWarnings("deprecation")
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
-		Intent intent, Integer notificationId, boolean persistent) {
+		Intent clickIntent, Integer notificationId, boolean persistent, Intent buttonOneIntent, Integer buttonOneIcon,
+		String buttonOneText, Intent buttonTwoIntent, Integer buttonTwoIcon, String buttonTwoText) {
 		NotificationManager notificationManager = (NotificationManager) context
 			.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = new Notification(R.drawable.ic_launcher, scrollingText, 0);
-		if (persistent) {
-			notification.flags = Notification.FLAG_ONGOING_EVENT;
+		Notification notification = null;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			Notification.Builder notificationBuilder = new Notification.Builder(context)
+				.setContentTitle(notificationTitle)
+				.setContentText(notificationSubtitle)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setTicker(scrollingText)
+				.setOngoing(persistent)
+				.setContentIntent(
+					PendingIntent.getBroadcast(context, 0, clickIntent, PendingIntent.FLAG_CANCEL_CURRENT))
+				.setAutoCancel(false);
+			if (buttonOneIntent != null && buttonOneIcon != null) {
+				notificationBuilder.addAction(buttonOneIcon, buttonOneText, PendingIntent.getBroadcast(context, 0,
+					buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+			}
+			if (buttonTwoIntent != null && buttonTwoIcon != null) {
+				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, PendingIntent.getBroadcast(context, 0,
+					buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+			}
+			notification = notificationBuilder.build();
+			Logger.debug("prepared JellyBean+ notification {0} / {1} with button1={2} and button2={3}",
+				notificationTitle,
+				notificationSubtitle, buttonOneText, buttonTwoText);
+		} else {
+			notification = new Notification(R.drawable.ic_launcher, scrollingText, 0);
+			if (persistent) {
+				notification.flags = Notification.FLAG_ONGOING_EVENT;
+			}
+			notification
+				.setLatestEventInfo(context, notificationTitle, notificationSubtitle, PendingIntent
+					.getActivity(context, 0,
+						clickIntent, PendingIntent.FLAG_CANCEL_CURRENT
+							| (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
+			Logger.debug("prepared pre-JellyBean notification {0} / {1} with button1={2} and button2={3}",
+				notificationTitle, notificationSubtitle, buttonOneText, buttonTwoText);
 		}
-		notification
-			.setLatestEventInfo(context, notificationTitle, notificationSubtitle, PendingIntent.getActivity(context, 0,
-				intent, PendingIntent.FLAG_CANCEL_CURRENT | (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
 		notificationManager.notify(notificationId, notification);
 	}
 

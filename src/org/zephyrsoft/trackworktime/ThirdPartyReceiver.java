@@ -28,6 +28,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
+ * Also handles actions triggered directly from the notification of TWT.
  * 
  * @author Mathis Dirksen-Thedens
  */
@@ -44,12 +45,20 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			Logger.info("TRACKING: clock-in via broadcast / taskId={0} / text={1}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
 				taskId, TypeEnum.CLOCK_IN, text);
+			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
+			if (instanceOrNull != null) {
+				instanceOrNull.refreshView();
+			}
 		} else if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockOut")) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-out via broadcast / taskId={0} / text={1}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
 				taskId, TypeEnum.CLOCK_OUT, text);
+			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
+			if (instanceOrNull != null) {
+				instanceOrNull.refreshView();
+			}
 		} else {
 			Logger.warn("TRACKING: unknown intent action");
 		}
