@@ -94,7 +94,7 @@ public class WifiTrackerService extends Service {
 					"Disabled wifi-based tracking!",
 					"(open to see details)",
 					basics
-						.createMessageIntent(
+						.createMessagePendingIntent(
 							"Track Work Time disabled the wifi-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_WIFI_STATE is granted.",
 							Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID),
 					Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false, null, null, null, null, null, null);

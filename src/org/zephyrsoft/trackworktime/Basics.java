@@ -231,10 +231,13 @@ public class Basics extends BroadcastReceiver {
 				// no second line displayed because no flexi time can be calculated
 			}
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTimeString);
-			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString, clickIntent,
+			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString,
+				PendingIntent.getActivity(context, 0, clickIntent, Notification.FLAG_ONGOING_EVENT),
 				Constants.PERSISTENT_STATUS_ID, true,
-				buttonOneIntent, R.drawable.ic_menu_forward, context.getString(R.string.clockInChange),
-				buttonTwoIntent, R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOut));
+				PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT),
+				R.drawable.ic_menu_forward, context.getString(R.string.clockInChange),
+				PendingIntent.getBroadcast(context, 0, buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT),
+				R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOut));
 			Logger.debug("added persistent notification");
 		} else {
 			// try to remove
@@ -463,8 +466,9 @@ public class Basics extends BroadcastReceiver {
 	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
-		Intent clickIntent, Integer notificationId, boolean persistent, Intent buttonOneIntent, Integer buttonOneIcon,
-		String buttonOneText, Intent buttonTwoIntent, Integer buttonTwoIcon, String buttonTwoText) {
+		PendingIntent clickIntent, Integer notificationId, boolean persistent, PendingIntent buttonOneIntent,
+		Integer buttonOneIcon, String buttonOneText, PendingIntent buttonTwoIntent, Integer buttonTwoIcon,
+		String buttonTwoText) {
 		NotificationManager notificationManager = (NotificationManager) context
 			.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = null;
@@ -472,19 +476,15 @@ public class Basics extends BroadcastReceiver {
 			Notification.Builder notificationBuilder = new Notification.Builder(context)
 				.setContentTitle(notificationTitle)
 				.setContentText(notificationSubtitle)
+				.setContentIntent(clickIntent)
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setTicker(scrollingText)
-				.setOngoing(persistent)
-				.setContentIntent(
-					PendingIntent.getBroadcast(context, 0, clickIntent, PendingIntent.FLAG_CANCEL_CURRENT))
-				.setAutoCancel(false);
+				.setOngoing(persistent);
 			if (buttonOneIntent != null && buttonOneIcon != null) {
-				notificationBuilder.addAction(buttonOneIcon, buttonOneText, PendingIntent.getBroadcast(context, 0,
-					buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+				notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
 			}
 			if (buttonTwoIntent != null && buttonTwoIcon != null) {
-				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, PendingIntent.getBroadcast(context, 0,
-					buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
 			}
 			notification = notificationBuilder.build();
 			Logger.debug("prepared JellyBean+ notification {0} / {1} with button1={2} and button2={3}",
@@ -495,11 +495,7 @@ public class Basics extends BroadcastReceiver {
 			if (persistent) {
 				notification.flags = Notification.FLAG_ONGOING_EVENT;
 			}
-			notification
-				.setLatestEventInfo(context, notificationTitle, notificationSubtitle, PendingIntent
-					.getActivity(context, 0,
-						clickIntent, PendingIntent.FLAG_CANCEL_CURRENT
-							| (persistent ? Notification.FLAG_ONGOING_EVENT : 0)));
+			notification.setLatestEventInfo(context, notificationTitle, notificationSubtitle, clickIntent);
 			Logger.debug("prepared pre-JellyBean notification {0} / {1} with button1={2} and button2={3}",
 				notificationTitle, notificationSubtitle, buttonOneText, buttonTwoText);
 		}
@@ -521,6 +517,10 @@ public class Basics extends BroadcastReceiver {
 			messageIntent.putExtra(Constants.ID_EXTRA_KEY, id.intValue());
 		}
 		return messageIntent;
+	}
+
+	public PendingIntent createMessagePendingIntent(String text, Integer id) {
+		return PendingIntent.getActivity(context, 0, createMessageIntent(text, id), Notification.FLAG_ONGOING_EVENT);
 	}
 
 	/**
