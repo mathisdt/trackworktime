@@ -235,9 +235,9 @@ public class Basics extends BroadcastReceiver {
 				PendingIntent.getActivity(context, 0, clickIntent, Notification.FLAG_ONGOING_EVENT),
 				Constants.PERSISTENT_STATUS_ID, true,
 				PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT),
-				R.drawable.ic_menu_forward, context.getString(R.string.clockInChange),
+				R.drawable.ic_menu_forward, context.getString(R.string.clockInChangeShort),
 				PendingIntent.getBroadcast(context, 0, buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT),
-				R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOut));
+				R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOutShort));
 			Logger.debug("added persistent notification");
 		} else {
 			// try to remove
