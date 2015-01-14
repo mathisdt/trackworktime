@@ -5,9 +5,15 @@
     android:versionCode="19"
     android:versionName="0.5.16-SNAPSHOT" >
 
+	<!--
+	for menuButton/actionBar issues
+	http://android-developers.blogspot.de/2012/01/say-goodbye-to-menu-button.html?m=1
+	solution
+	android:targetSdkVersion="14" instead of "7"
+	-->
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="7"
+		android:minSdkVersion="7"
+        android:targetSdkVersion="14"
         tools:ignore="OldTargetApi" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

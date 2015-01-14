@@ -72,7 +72,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_weight="0.0" />
+                    android:layout_weight="0.0"
+					android:calendarViewShown="false" />
             </LinearLayout>
 
             <TextView
@@ -101,7 +102,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:layout_weight="0.0" />
+                    android:layout_weight="0.0"
+					android:calendarViewShown="false" />
             </LinearLayout>
 
             <TextView
