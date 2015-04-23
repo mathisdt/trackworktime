@@ -17,6 +17,7 @@
 package org.zephyrsoft.trackworktime;
 
 import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 import java.util.Calendar;
 
@@ -45,6 +46,7 @@ import org.zephyrsoft.trackworktime.location.LocationCallback;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.location.WifiTrackerService;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -214,19 +216,23 @@ public class Basics extends BroadcastReceiver {
 				.toString();
 			String targetTimeString = "";
 			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				DateTime finishingTime = timerManager.getFinishingTime(preferences.getBoolean(
+				final Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
 					Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
-				String targetTime = (finishingTime == null ? null : DateTimeUtil
-					.dateTimeToHourMinuteString(finishingTime));
-				if (targetTime != null) {
-					// target time in future
-					targetTimeString = "possible finishing time: " + targetTime;
-				} else if (targetTime == null && timerManager.isTodayWorkDay()) {
-					// target time in past
-					targetTimeString = "regular work time is over";
-				} else {
-					// nothing to do, this is not a working day
-				}
+				if (minutesRemaining != null) {
+					if (minutesRemaining >= 0) {
+						// target time in future
+						DateTime finishingTime = DateTimeUtil.getCurrentDateTime()
+							.plus(0, 0, 0, 0, minutesRemaining, 0, DayOverflow.Spillover);
+						String targetTime = (finishingTime == null ? null : DateTimeUtil
+							.dateTimeToHourMinuteString(finishingTime));
+						targetTimeString = "possible finishing time: " + targetTime;
+					} else {
+						// target time in past
+						TimeSum timeSum = new TimeSum();
+						timeSum.add(0, -minutesRemaining);
+						targetTimeString = "regular work time is over, flexi: " + timeSum.toString();
+					}
+				} // else not a working day
 			} else {
 				// no second line displayed because no flexi time can be calculated
 			}

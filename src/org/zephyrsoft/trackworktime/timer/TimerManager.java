@@ -295,7 +295,7 @@ public class TimerManager {
 	}
 
 	/**
-	 * Get the possible finishing time for today. Takes into account the target work time for the week and also if this
+	 * Get the remaining time for today (in minutes). Takes into account the target work time for the week and also if this
 	 * is the last day in the working week.
 	 * 
 	 * @param includeFlexiTime
@@ -303,7 +303,7 @@ public class TimerManager {
 	 * @return {@code null} either if today is not a work day (as defined in the options) or if the regular working time
 	 *         for today is already over
 	 */
-	public DateTime getFinishingTime(boolean includeFlexiTime) {
+	public Integer getMinutesRemaining(boolean includeFlexiTime) {
 		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
 		if (isWorkDay(weekDay)) {
@@ -356,11 +356,7 @@ public class TimerManager {
 			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
 			Logger.debug("minutesRemaining={0}", minutesRemaining);
 
-			if (minutesRemaining >= 0) {
-				return dateTime.plus(0, 0, 0, 0, minutesRemaining, 0, DayOverflow.Spillover);
-			} else {
-				return null;
-			}
+			return minutesRemaining;
 		} else {
 			return null;
 		}
