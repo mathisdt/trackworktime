@@ -37,6 +37,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
+import android.widget.Toast;
 
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -134,6 +135,12 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				date.clearFocus();
 				time.clearFocus();
 				text.clearFocus();
+
+				// call listener methods manually to make sure that even on buggy Andoid 5.0 the data is correct
+				// => https://code.google.com/p/android/issues/detail?id=78861
+				onDateChanged(date, date.getYear(), date.getMonth(), date.getDayOfMonth());
+				onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
+
 				// save the event
 				TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
 				DateTime dateTime = getCurrentlySetDateAndTime();
@@ -306,11 +313,17 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 					selectedYear = weekStart.getYear();
 					selectedMonth = weekStart.getMonth() - 1;
 					selectedDay = weekStart.getDay();
+					Toast.makeText(this,
+						"adjusted date to match first day of week - the event has to stay in the current week",
+						Toast.LENGTH_LONG).show();
 				} else if (newDate.gt(weekEnd)) {
 					date.updateDate(weekEnd.getYear(), weekEnd.getMonth() - 1, weekEnd.getDay());
 					selectedYear = weekEnd.getYear();
 					selectedMonth = weekEnd.getMonth() - 1;
 					selectedDay = weekEnd.getDay();
+					Toast.makeText(this,
+						"adjusted date to match last day of week - the event has to stay in the current week",
+						Toast.LENGTH_LONG).show();
 				}
 			} finally {
 				noDateChangedReaction = false;
