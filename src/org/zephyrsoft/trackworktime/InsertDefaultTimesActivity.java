@@ -31,6 +31,7 @@ import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -53,17 +54,11 @@ public class InsertDefaultTimesActivity extends Activity {
 	private Button cancel = null;
 	private TextView fromWeekday = null;
 	private DatePicker fromDate = null;
-	private int selectedFromYear = -1;
-	private int selectedFromMonth = -1;
-	private int selectedFromDay = -1;
 	private OnDateChangedListener fromDateListener = null;
 	private boolean noFromDateChangedReaction = false;
 	private boolean fromPickerIsInitialized = false;
 	private TextView toWeekday = null;
 	private DatePicker toDate = null;
-	private int selectedToYear = -1;
-	private int selectedToMonth = -1;
-	private int selectedToDay = -1;
 	private OnDateChangedListener toDateListener = null;
 	private boolean noToDateChangedReaction = false;
 	private boolean toPickerIsInitialized = false;
@@ -108,10 +103,6 @@ public class InsertDefaultTimesActivity extends Activity {
 				if (noFromDateChangedReaction) {
 					Logger.debug("from date not changed - infinite loop protection");
 				} else {
-					selectedFromYear = year;
-					selectedFromMonth = monthOfYear;
-					selectedFromDay = dayOfMonth;
-
 					DateTime newFromDate = getCurrentlySetFromDate();
 					DateTime newToDate = getCurrentlySetToDate();
 					try {
@@ -120,6 +111,9 @@ public class InsertDefaultTimesActivity extends Activity {
 						// correct to date if from date would be after to date
 						if (newFromDate.gt(newToDate)) {
 							updateToDatePicker(newFromDate);
+							Toast.makeText(InsertDefaultTimesActivity.this,
+								"adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
+								Toast.LENGTH_LONG).show();
 						}
 					} finally {
 						noFromDateChangedReaction = false;
@@ -136,10 +130,6 @@ public class InsertDefaultTimesActivity extends Activity {
 				if (noToDateChangedReaction) {
 					Logger.debug("to date not changed - infinite loop protection");
 				} else {
-					selectedToYear = year;
-					selectedToMonth = monthOfYear;
-					selectedToDay = dayOfMonth;
-
 					DateTime newFromDate = getCurrentlySetFromDate();
 					DateTime newToDate = getCurrentlySetToDate();
 					try {
@@ -148,6 +138,9 @@ public class InsertDefaultTimesActivity extends Activity {
 						// correct from date if to date would be before from date
 						if (newToDate.lt(newFromDate)) {
 							updateFromDatePicker(newToDate);
+							Toast.makeText(InsertDefaultTimesActivity.this,
+								"adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
+								Toast.LENGTH_LONG).show();
 						}
 					} finally {
 						noToDateChangedReaction = false;
@@ -164,7 +157,15 @@ public class InsertDefaultTimesActivity extends Activity {
 			public void onClick(View v) {
 				// commit all edit fields
 				fromDate.clearFocus();
+				toDate.clearFocus();
 				text.clearFocus();
+
+				// call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
+				// => https://code.google.com/p/android/issues/detail?id=78861
+				fromDateListener.onDateChanged(fromDate, fromDate.getYear(), fromDate.getMonth(), fromDate
+					.getDayOfMonth());
+				toDateListener.onDateChanged(toDate, toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
+
 				// fetch the data
 				DateTime from = getCurrentlySetFromDate();
 				DateTime to = getCurrentlySetToDate();
@@ -214,9 +215,6 @@ public class InsertDefaultTimesActivity extends Activity {
 			fromPickerIsInitialized = true;
 		}
 
-		selectedFromYear = dateTime.getYear();
-		selectedFromMonth = dateTime.getMonth() - 1;
-		selectedFromDay = dateTime.getDay();
 		setFromWeekday();
 	}
 
@@ -228,9 +226,6 @@ public class InsertDefaultTimesActivity extends Activity {
 			toPickerIsInitialized = true;
 		}
 
-		selectedToYear = dateTime.getYear();
-		selectedToMonth = dateTime.getMonth() - 1;
-		selectedToDay = dateTime.getDay();
 		setToWeekday();
 	}
 
@@ -274,13 +269,11 @@ public class InsertDefaultTimesActivity extends Activity {
 	}
 
 	private DateTime getCurrentlySetFromDate() {
-		// DON'T get the numbers directly from the date and time controls, but from the private variables!
-		return getCurrectlySelectedDate(selectedFromYear, selectedFromMonth, selectedFromDay);
+		return getCurrectlySelectedDate(fromDate.getYear(), fromDate.getMonth(), fromDate.getDayOfMonth());
 	}
 
 	private DateTime getCurrentlySetToDate() {
-		// DON'T get the numbers directly from the date and time controls, but from the private variables!
-		return getCurrectlySelectedDate(selectedToYear, selectedToMonth, selectedToDay);
+		return getCurrectlySelectedDate(toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
 	}
 
 	private DateTime getCurrectlySelectedDate(int year, int month, int day) {

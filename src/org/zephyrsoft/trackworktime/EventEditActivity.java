@@ -136,7 +136,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 				time.clearFocus();
 				text.clearFocus();
 
-				// call listener methods manually to make sure that even on buggy Andoid 5.0 the data is correct
+				// call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
 				// => https://code.google.com/p/android/issues/detail?id=78861
 				onDateChanged(date, date.getYear(), date.getMonth(), date.getDayOfMonth());
 				onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
