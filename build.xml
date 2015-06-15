@@ -255,6 +255,10 @@ updated android manifest to version code ${update-android-manifest.app.version.c
         message="sdk.dir is missing. Make sure to generate local.properties using &apos;android update project&apos; or to inject it through the ANDROID_HOME environment variable."
         unless="sdk.dir" />
 
+	<property name="aapt" value="${sdk.dir}/build-tools/current/aapt" />
+    <property name="dx" value="${sdk.dir}/build-tools/current/dx" />
+    <property name="zipalign" value="${sdk.dir}/build-tools/current/zipalign" />
+
     <!--
         Import per project custom build rules if present at the root of the project.
         This is the place to put custom intermediary targets such as:
