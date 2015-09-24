@@ -230,7 +230,7 @@ public class Basics extends BroadcastReceiver {
 						// target time in past
 						TimeSum timeSum = new TimeSum();
 						timeSum.add(0, -minutesRemaining);
-						targetTimeString = "regular work time is over, flexi: " + timeSum.toString();
+						targetTimeString = "regular work time is over since " + timeSum.toString();
 					}
 				} // else not a working day
 			} else {
