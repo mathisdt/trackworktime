@@ -209,7 +209,7 @@ public class EventEditActivity extends Activity implements OnDateChangedListener
 		if (week == null) {
 			week = new WeekPlaceholder(weekStartString);
 		}
-		weekEnd = weekStart.plus(0, 0, 6, 23, 59, 0, DayOverflow.Spillover);
+		weekEnd = weekStart.plus(0, 0, 6, 23, 59, 0, 0, DayOverflow.Spillover);
 		if (eventId == -1) {
 			newEvent = true;
 			// prepare for entering a new event: make sure the date is inside the currently selected week

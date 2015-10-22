@@ -203,13 +203,13 @@ public class TimeCalculator {
 			case MONTH:
 				beginOfTimeFrame = now.getStartOfMonth();
 				endOfTimeFrame = now.getEndOfMonth();
-				DateTime lastMonthBegin = beginOfTimeFrame.minus(0, 1, 0, 0, 0, 0, DayOverflow.Spillover);
+				DateTime lastMonthBegin = beginOfTimeFrame.minus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
 				daysInLastUnit = lastMonthBegin.numDaysFrom(beginOfTimeFrame);
 				break;
 			case YEAR:
 				beginOfTimeFrame = new DateTime(now.getYear(), 1, 1, 0, 0, 0, 0);
-				endOfTimeFrame = beginOfTimeFrame.plus(1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
-				DateTime lastYearBegin = beginOfTimeFrame.minus(1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
+				endOfTimeFrame = beginOfTimeFrame.plus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
+				DateTime lastYearBegin = beginOfTimeFrame.minus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
 				daysInLastUnit = lastYearBegin.numDaysFrom(beginOfTimeFrame);
 				break;
 			default:
@@ -251,17 +251,17 @@ public class TimeCalculator {
 				}
 				break;
 			case MONTH:
-				current = from.getStartOfMonth().plus(0, 1, 0, 0, 0, 0, DayOverflow.Spillover);
+				current = from.getStartOfMonth().plus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
 				while (current.lt(to)) {
 					ret.add(current);
-					current = current.plus(0, 1, 0, 0, 0, 0, DayOverflow.Spillover);
+					current = current.plus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
 				}
 				break;
 			case YEAR:
 				current = new DateTime(from.getYear() + 1, 1, 1, 0, 0, 0, 0);
 				while (current.lt(to)) {
 					ret.add(current);
-					current = current.plus(1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
+					current = current.plus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
 				}
 				break;
 			default:

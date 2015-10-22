@@ -76,10 +76,10 @@ public class TimerManager {
 			int workDuration = getNormalWorkDurationFor(weekDay);
 			if (workDuration > 0) {
 				createEvent(running, taskId, TypeEnum.CLOCK_IN, text);
-				DateTime clockOutTime = running.plus(0, 0, 0, 0, workDuration, 0, DayOverflow.Spillover);
+				DateTime clockOutTime = running.plus(0, 0, 0, 0, workDuration, 0, 0, DayOverflow.Spillover);
 				if (isAutoPauseApplicable(clockOutTime)) {
 					int pauseDuration = getAutoPauseDuration(clockOutTime);
-					clockOutTime = clockOutTime.plus(0, 0, 0, 0, pauseDuration, 0, DayOverflow.Spillover);
+					clockOutTime = clockOutTime.plus(0, 0, 0, 0, pauseDuration, 0, 0, DayOverflow.Spillover);
 				}
 				createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null);
 			}
@@ -117,7 +117,7 @@ public class TimerManager {
 		}
 		if (firstAfterNow != null) {
 			DateTime firstAfterNowTime = DateTimeUtil.stringToDateTime(firstAfterNow.getTime());
-			if (firstAfterNowTime.minus(0, 0, 0, 0, ignoreBefore, 0, DayOverflow.Spillover).lt(now)) {
+			if (firstAfterNowTime.minus(0, 0, 0, 0, ignoreBefore, 0, 0, DayOverflow.Spillover).lt(now)) {
 				return true;
 			}
 		}
@@ -133,7 +133,7 @@ public class TimerManager {
 		}
 		if (lastBeforeNow != null) {
 			DateTime lastBeforeNowTime = DateTimeUtil.stringToDateTime(lastBeforeNow.getTime());
-			if (lastBeforeNowTime.plus(0, 0, 0, 0, ignoreAfter, 0, DayOverflow.Spillover).gt(now)) {
+			if (lastBeforeNowTime.plus(0, 0, 0, 0, ignoreAfter, 0, 0, DayOverflow.Spillover).gt(now)) {
 				return true;
 			}
 		}
@@ -295,7 +295,8 @@ public class TimerManager {
 	}
 
 	/**
-	 * Get the remaining time for today (in minutes). Takes into account the target work time for the week and also if this
+	 * Get the remaining time for today (in minutes). Takes into account the target work time for the week and also if
+	 * this
 	 * is the last day in the working week.
 	 * 
 	 * @param includeFlexiTime
@@ -509,7 +510,7 @@ public class TimerManager {
 			throw new IllegalArgumentException("no negative minute amount allowed");
 		}
 		DateTime targetTime = DateTimeUtil.getCurrentDateTime();
-		targetTime = targetTime.plus(0, 0, 0, 0, minutesToPredate, 0, DayOverflow.Spillover);
+		targetTime = targetTime.plus(0, 0, 0, 0, minutesToPredate, 0, 0, DayOverflow.Spillover);
 		createEvent(targetTime, taskId, type, text);
 	}
 

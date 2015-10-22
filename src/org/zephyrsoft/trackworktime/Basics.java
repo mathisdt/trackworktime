@@ -222,7 +222,7 @@ public class Basics extends BroadcastReceiver {
 					if (minutesRemaining >= 0) {
 						// target time in future
 						DateTime finishingTime = DateTimeUtil.getCurrentDateTime()
-							.plus(0, 0, 0, 0, minutesRemaining, 0, DayOverflow.Spillover);
+							.plus(0, 0, 0, 0, minutesRemaining, 0, 0, DayOverflow.Spillover);
 						String targetTime = (finishingTime == null ? null : DateTimeUtil
 							.dateTimeToHourMinuteString(finishingTime));
 						targetTimeString = "possible finishing time: " + targetTime;
