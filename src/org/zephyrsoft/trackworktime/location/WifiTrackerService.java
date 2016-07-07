@@ -48,7 +48,7 @@ public class WifiTrackerService extends Service {
 		Logger.info("creating WifiTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
 		wifiTracker = new WifiTracker((WifiManager) getSystemService(Context.WIFI_SERVICE), basics.getTimerManager(),
-			basics.getVibrationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
+			basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously
 		Basics.getOrCreateInstance(getApplicationContext()).safeCheckWifiBasedTracking();
 	}

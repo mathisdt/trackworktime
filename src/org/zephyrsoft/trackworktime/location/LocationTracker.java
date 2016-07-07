@@ -19,17 +19,17 @@ package org.zephyrsoft.trackworktime.location;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.Logger;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Bundle;
-
-import org.zephyrsoft.trackworktime.Constants;
-import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.VibrationManager;
 
 /**
  * Enables the tracking of work time by presence at a specific location. This is an addition to the manual tracking, not
@@ -41,7 +41,7 @@ public class LocationTracker implements LocationListener {
 
 	private final LocationManager locationManager;
 	private final TimerManager timerManager;
-	private final VibrationManager vibrationManager;
+	private final ExternalNotificationManager externalNotificationManager;
 	private final AudioManager audioManager;
 	private final AtomicBoolean isTrackingByLocation = new AtomicBoolean(false);
 
@@ -56,22 +56,22 @@ public class LocationTracker implements LocationListener {
 	 * {@link #startTrackingByLocation(double, double, double, boolean)} explicitly.
 	 */
 	public LocationTracker(LocationManager locationManager, TimerManager timerManager,
-		VibrationManager vibrationManager, AudioManager audioManager) {
+		ExternalNotificationManager externalNotificationManager, AudioManager audioManager) {
 		if (locationManager == null) {
 			throw new IllegalArgumentException("the LocationManager is null");
 		}
 		if (timerManager == null) {
 			throw new IllegalArgumentException("the TimerManager is null");
 		}
-		if (vibrationManager == null) {
-			throw new IllegalArgumentException("the VibrationManager is null");
+		if (externalNotificationManager == null) {
+			throw new IllegalArgumentException("the ExternalNotificationManager is null");
 		}
 		if (audioManager == null) {
 			throw new IllegalArgumentException("the AudioManager is null");
 		}
 		this.locationManager = locationManager;
 		this.timerManager = timerManager;
-		this.vibrationManager = vibrationManager;
+		this.externalNotificationManager = externalNotificationManager;
 		this.audioManager = audioManager;
 	}
 
@@ -125,6 +125,7 @@ public class LocationTracker implements LocationListener {
 					if (vibrate && isVibrationAllowed()) {
 						tryVibration();
 					}
+					tryPebbleNotification("started tracking via location");
 					Logger.info("clocked in via location-based tracking");
 				}
 			}
@@ -140,6 +141,7 @@ public class LocationTracker implements LocationListener {
 					if (vibrate && isVibrationAllowed()) {
 						tryVibration();
 					}
+					tryPebbleNotification("stopped tracking via location");
 					Logger.info("clocked out via location-based tracking");
 				}
 			}
@@ -152,9 +154,17 @@ public class LocationTracker implements LocationListener {
 
 	private void tryVibration() {
 		try {
-			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
+			externalNotificationManager.vibrate(Constants.VIBRATION_PATTERN);
 		} catch (RuntimeException re) {
 			Logger.warn("vibration not allowed by permissions");
+		}
+	}
+
+	private void tryPebbleNotification(String message) {
+		try {
+			externalNotificationManager.notifyPebble(message);
+		} catch (Exception e) {
+			Logger.warn("Pebble notification failed");
 		}
 	}
 

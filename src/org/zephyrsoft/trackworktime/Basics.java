@@ -16,10 +16,23 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
-
 import java.util.Calendar;
+
+import org.acra.ACRA;
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.location.CoordinateUtil;
+import org.zephyrsoft.trackworktime.location.LocationCallback;
+import org.zephyrsoft.trackworktime.location.LocationTrackerService;
+import org.zephyrsoft.trackworktime.location.WifiTrackerService;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -38,22 +51,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-
-import org.acra.ACRA;
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.location.CoordinateUtil;
-import org.zephyrsoft.trackworktime.location.LocationCallback;
-import org.zephyrsoft.trackworktime.location.LocationTrackerService;
-import org.zephyrsoft.trackworktime.location.WifiTrackerService;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.TimeSum;
-import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimeCalculator;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.util.VibrationManager;
+import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
@@ -69,7 +68,7 @@ public class Basics extends BroadcastReceiver {
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private TimeCalculator timeCalculator = null;
-	private VibrationManager vibrationManager = null;
+	private ExternalNotificationManager externalNotificationManager = null;
 
 	private static Basics instance = null;
 
@@ -122,7 +121,7 @@ public class Basics extends BroadcastReceiver {
 		dao = new DAO(context);
 		timerManager = new TimerManager(dao, preferences, context);
 		timeCalculator = new TimeCalculator(dao, timerManager);
-		vibrationManager = new VibrationManager(context);
+		externalNotificationManager = new ExternalNotificationManager(context);
 	}
 
 	private void schedulePeriodicIntents() {
@@ -399,7 +398,8 @@ public class Basics extends BroadcastReceiver {
 						+ "\nTolerance = "
 						+ tolerance
 						+ "\n\nPlease review the settings in the options. "
-						+ (locationBasedTrackingEnabled ? "Location-based tracking was switched on already and is still enabled."
+						+ (locationBasedTrackingEnabled
+							? "Location-based tracking was switched on already and is still enabled."
 							: "You can now enable location-based tracking, just check \""
 								+ reference.getText(R.string.enableLocationBasedTracking) + "\"."), null);
 				reference.startActivity(messageIntent);
@@ -593,10 +593,10 @@ public class Basics extends BroadcastReceiver {
 	}
 
 	/**
-	 * The wrapper for Android's {@link Vibrator}.
+	 * The wrapper for Android's {@link Vibrator} and Pebble's Notification API.
 	 */
-	public VibrationManager getVibrationManager() {
-		return vibrationManager;
+	public ExternalNotificationManager getExternalNotificationManager() {
+		return externalNotificationManager;
 	}
 
 	/**

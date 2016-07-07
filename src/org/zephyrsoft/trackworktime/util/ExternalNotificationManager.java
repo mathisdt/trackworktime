@@ -16,7 +16,16 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.getpebble.android.kit.PebbleKit;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.content.Context;
+import android.content.Intent;
 import android.os.Vibrator;
 
 /**
@@ -24,14 +33,16 @@ import android.os.Vibrator;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class VibrationManager {
+public class ExternalNotificationManager {
 
 	private Vibrator vibratorService;
+	private Context context;
 
 	/**
 	 * Create the manager.
 	 */
-	public VibrationManager(Context context) {
+	public ExternalNotificationManager(Context context) {
+		this.context = context;
 		vibratorService = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
 
@@ -42,5 +53,22 @@ public class VibrationManager {
 	 */
 	public void vibrate(long[] pattern) {
 		vibratorService.vibrate(pattern, -1);
+	}
+
+	public void notifyPebble(String message) {
+		if (PebbleKit.isWatchConnected(context)) {
+			final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
+
+			final Map<String, String> data = new HashMap<String, String>();
+			data.put("title", "TWT");
+			data.put("body", message);
+			final JSONObject jsonData = new JSONObject(data);
+			final String notificationData = new JSONArray().put(jsonData).toString();
+
+			i.putExtra("messageType", "PEBBLE_ALERT");
+			i.putExtra("sender", "PebbleKit Android");
+			i.putExtra("notificationData", notificationData);
+			context.sendBroadcast(i);
+		}
 	}
 }

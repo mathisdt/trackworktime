@@ -16,8 +16,6 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,6 +26,24 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.List;
+
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.model.DayLine;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,23 +68,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.DayLine;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TimeSum;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimeCalculator;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+import hirondelle.date4j.DateTime;
 
 /**
  * Main activity of the application.
@@ -78,15 +78,7 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 public class WorkTimeTrackerActivity extends Activity {
 
 	private static enum MenuAction {
-		EDIT_EVENTS,
-		EDIT_TASKS,
-		INSERT_DEFAULT_TIMES,
-		OPTIONS,
-		USE_CURRENT_LOCATION,
-		REPORTS,
-		BACKUP,
-		RESTORE,
-		ABOUT;
+		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
@@ -165,6 +157,7 @@ public class WorkTimeTrackerActivity extends Activity {
 	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
+	private ExternalNotificationManager externalNotificationManager = null;
 	private TimeCalculator timeCalculator = null;
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
@@ -179,7 +172,8 @@ public class WorkTimeTrackerActivity extends Activity {
 			Intent messageIntent = Basics
 				.getInstance()
 				.createMessageIntent(
-					disabledSections == 1 ? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
+					disabledSections == 1
+						? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
 						: String.valueOf(disabledSections)
 							+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
 					null);
@@ -197,6 +191,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
 		timerManager = basics.getTimerManager();
+		externalNotificationManager = basics.getExternalNotificationManager();
 		timeCalculator = basics.getTimeCalculator();
 
 		setContentView(R.layout.main);
@@ -334,6 +329,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		Task selectedTask = (Task) task.getSelectedItem();
 		String description = text.getText().toString();
 		timerManager.startTracking(minutesToPredate, selectedTask, description);
+		externalNotificationManager.notifyPebble("started tracking");
 		refreshView();
 	}
 
@@ -347,6 +343,7 @@ public class WorkTimeTrackerActivity extends Activity {
 		}
 
 		timerManager.stopTracking(minutesToPredate);
+		externalNotificationManager.notifyPebble("stopped tracking");
 		refreshView();
 	}
 
@@ -497,7 +494,8 @@ public class WorkTimeTrackerActivity extends Activity {
 
 			TimeSum amountWorked = timerManager.calculateTimeSum(DateTimeUtil.getWeekStart(DateTimeUtil
 				.stringToDateTime(currentlyShownWeek.getStart())), PeriodEnum.WEEK);
-			showSummaryLine(amountWorked, flexiBalance, showFlexiTimes && DateTimeUtil.isInPast(monday.getStartOfDay()));
+			showSummaryLine(amountWorked, flexiBalance, showFlexiTimes && DateTimeUtil.isInPast(monday
+				.getStartOfDay()));
 		}
 	}
 
@@ -539,7 +537,8 @@ public class WorkTimeTrackerActivity extends Activity {
 		} else {
 			worked.setText(formatSum(dayLine.getTimeWorked(), ""));
 		}
-		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(),
+			false)) {
 			flexi.setText("");
 		} else if (isWorkDay && isTodayOrEarlier) {
 			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));

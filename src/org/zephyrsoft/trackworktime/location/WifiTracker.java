@@ -19,15 +19,15 @@ package org.zephyrsoft.trackworktime.location;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import android.media.AudioManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
-
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.VibrationManager;
+
+import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
@@ -39,7 +39,7 @@ public class WifiTracker {
 
 	private final WifiManager wifiManager;
 	private final TimerManager timerManager;
-	private final VibrationManager vibrationManager;
+	private final ExternalNotificationManager externalNotificationManager;
 	private final AudioManager audioManager;
 
 	private final AtomicBoolean isTrackingByWifi = new AtomicBoolean(false);
@@ -54,7 +54,8 @@ public class WifiTracker {
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
 	 * {@link #startTrackingByWifi(String, boolean)} explicitly.
 	 */
-	public WifiTracker(WifiManager wifiManager, TimerManager timerManager, VibrationManager vibrationManager,
+	public WifiTracker(WifiManager wifiManager, TimerManager timerManager,
+		ExternalNotificationManager externalNotificationManager,
 		AudioManager audioManager) {
 		if (wifiManager == null) {
 			throw new IllegalArgumentException("the WifiManager is null");
@@ -62,15 +63,15 @@ public class WifiTracker {
 		if (timerManager == null) {
 			throw new IllegalArgumentException("the TimerManager is null");
 		}
-		if (vibrationManager == null) {
-			throw new IllegalArgumentException("the VibrationManager is null");
+		if (externalNotificationManager == null) {
+			throw new IllegalArgumentException("the ExternalNotificationManager is null");
 		}
 		if (audioManager == null) {
 			throw new IllegalArgumentException("the AudioManager is null");
 		}
 		this.wifiManager = wifiManager;
 		this.timerManager = timerManager;
-		this.vibrationManager = vibrationManager;
+		this.externalNotificationManager = externalNotificationManager;
 		this.audioManager = audioManager;
 	}
 
@@ -121,6 +122,7 @@ public class WifiTracker {
 				if (vibrate && isVibrationAllowed()) {
 					tryVibration();
 				}
+				tryPebbleNotification("stopped tracking via WiFi");
 				Logger.info("clocked out via wifi-based tracking");
 			}
 		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue()) && ssidIsNowInRange) {
@@ -131,6 +133,7 @@ public class WifiTracker {
 				if (vibrate && isVibrationAllowed()) {
 					tryVibration();
 				}
+				tryPebbleNotification("started tracking via WiFi");
 				Logger.info("clocked in via wifi-based tracking");
 			}
 		}
@@ -167,9 +170,17 @@ public class WifiTracker {
 
 	private void tryVibration() {
 		try {
-			vibrationManager.vibrate(Constants.VIBRATION_PATTERN);
+			externalNotificationManager.vibrate(Constants.VIBRATION_PATTERN);
 		} catch (RuntimeException re) {
 			Logger.warn("vibration not allowed by permissions");
+		}
+	}
+
+	private void tryPebbleNotification(String message) {
+		try {
+			externalNotificationManager.notifyPebble(message);
+		} catch (Exception e) {
+			Logger.warn("Pebble notification failed");
 		}
 	}
 

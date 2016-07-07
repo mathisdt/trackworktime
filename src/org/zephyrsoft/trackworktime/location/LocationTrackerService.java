@@ -48,7 +48,7 @@ public class LocationTrackerService extends Service {
 		Logger.info("creating LocationTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
 		locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics
-			.getTimerManager(), basics.getVibrationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
+			.getTimerManager(), basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously
 		Basics.getOrCreateInstance(getApplicationContext()).safeCheckLocationBasedTracking();
 	}
