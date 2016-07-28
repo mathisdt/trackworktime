@@ -107,7 +107,7 @@ public class ReportsActivity extends Activity {
 				File reportFile = ExternalStorage.writeFile("reports", "events-" +
 					reportName.replaceAll(" ", "-"),
 					".csv",
-					report.getBytes());
+					report.getBytes(), ReportsActivity.this);
 				if (reportFile == null) {
 					String errorMessage = "could not write report to external storage";
 					Logger.error(errorMessage);
@@ -148,7 +148,7 @@ public class ReportsActivity extends Activity {
 				File reportFile = ExternalStorage.writeFile("reports", "sums-" +
 					reportName.replaceAll(" ", "-"),
 					".csv",
-					report.getBytes());
+					report.getBytes(), ReportsActivity.this);
 				if (reportFile == null) {
 					String errorMessage = "could not write report to external storage";
 					Logger.error(errorMessage);
@@ -272,7 +272,7 @@ public class ReportsActivity extends Activity {
 
 	private boolean saveAndSendReport(String reportName, String filePrefix, String report) {
 		File reportFile = ExternalStorage.writeFile("reports", filePrefix + "-" +
-			reportName.replaceAll(" ", "-"), ".csv", report.getBytes());
+			reportName.replaceAll(" ", "-"), ".csv", report.getBytes(), this);
 		if (reportFile == null) {
 			String errorMessage = "could not write report to external storage";
 			Logger.error(errorMessage);

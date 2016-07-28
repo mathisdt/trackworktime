@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.content.Context;
 import android.os.Environment;
 
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -32,8 +33,8 @@ import org.zephyrsoft.trackworktime.util.Logger;
  */
 public class ExternalStorage {
 
-	public static File getDirectory(String subDirectory) {
-		File externalStorageDirectory = Environment.getExternalStorageDirectory();
+	public static File getDirectory(String subDirectory, Context context) {
+		File externalStorageDirectory = context.getExternalFilesDir(null);
 		if (!isExternalStorageWritable()) {
 			Logger.error("external storage {0} is not writable", externalStorageDirectory);
 			return null;
@@ -60,8 +61,8 @@ public class ExternalStorage {
 		return targetDirectory;
 	}
 
-	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent) {
-		File targetDirectory = getDirectory(subDirectory);
+	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent, Context context) {
+		File targetDirectory = getDirectory(subDirectory, context);
 		if (targetDirectory == null) {
 			Logger.error("target {0} is not writable", targetDirectory);
 			return null;

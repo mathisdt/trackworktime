@@ -45,6 +45,7 @@ import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -52,9 +53,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,6 +80,8 @@ import hirondelle.date4j.DateTime;
  * @author Mathis Dirksen-Thedens
  */
 public class WorkTimeTrackerActivity extends Activity {
+	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
+	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 
 	private static enum MenuAction {
 		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT;
@@ -845,16 +851,41 @@ public class WorkTimeTrackerActivity extends Activity {
 			|| (one != null && one.equals(two));
 	}
 
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions,
+			int[] grantResults) {
+		switch (requestCode) {
+			case PERMISSION_REQUEST_CODE_BACKUP:
+				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					backupToSd();
+				}
+				break;
+			case PERMISSION_REQUEST_CODE_RESTORE:
+				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					restoreFromSd();
+				}
+				break;
+			default:
+				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		}
+	}
+
 	// ---------------------------------------------------------------------------------------------
 	// Backup, Restore
 	// ---------------------------------------------------------------------------------------------
+	private static final String BACKUP_DIR = "trackworktime";
 	private static final String BACKUP_FILE = "backup.csv";
 
 	/**
 	 * Check if file exists and ask user if so.
 	 */
 	private void backupToSd() {
-		final File backupDir = ExternalStorage.getDirectory(null);
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(this,
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_BACKUP);
+			return;
+		}
+		final File backupDir = new File(Environment.getExternalStorageDirectory(), BACKUP_DIR);
 		final File backupFile = new File(backupDir, BACKUP_FILE);
 		if (backupDir == null) {
 			Toast.makeText(this, R.string.backup_failed, Toast.LENGTH_LONG).show();
@@ -924,7 +955,12 @@ public class WorkTimeTrackerActivity extends Activity {
 	}
 
 	private void restoreFromSd() {
-		final File backupDir = ExternalStorage.getDirectory(null);
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(this,
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_RESTORE);
+			return;
+		}
+		final File backupDir = new File(Environment.getExternalStorageDirectory(), BACKUP_DIR);
 		final File backupFile = new File(backupDir, BACKUP_FILE);
 		if (backupDir == null) {
 			final String msgBackupOverwrite = String.format(

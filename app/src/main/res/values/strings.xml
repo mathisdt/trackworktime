@@ -131,7 +131,7 @@
     <string name="restore">Data Restore</string>
     <string name="backup_failed">Backup failed.</string>
     <string name="restore_failed">Restore failed.</string>
-    <string name="restore_failed_file_not_found">Restore failed, file not found.</string>
+    <string name="restore_failed_file_not_found">Restore failed, file not found: \"%1$s\"</string>
     <string name="backup_overwrite">Overwrite existing file \"%1$s\"?</string>
     <string name="restore_warning">Delete everything and replace it with the content of the restore file \"%1$s\"?</string>
     <string name="please_wait">Please wait&#8230;</string>
