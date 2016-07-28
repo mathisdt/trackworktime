@@ -11,10 +11,6 @@
 	solution
 	android:targetSdkVersion="14" instead of "7"
 	-->
-    <uses-sdk
-		android:minSdkVersion="7"
-        android:targetSdkVersion="14"
-        tools:ignore="OldTargetApi" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

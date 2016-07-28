@@ -159,6 +159,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			PreferencesUtil.checkAllPreferenceSections();
 		} catch (Exception e) {
+			e.printStackTrace();
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -170,6 +171,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkLocationBasedTracking();
 		} catch (Exception e) {
+			e.printStackTrace();
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -181,6 +183,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkWifiBasedTracking();
 		} catch (Exception e) {
+			e.printStackTrace();
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -192,6 +195,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkPersistentNotification();
 		} catch (Exception e) {
+			e.printStackTrace();
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -501,7 +505,7 @@ public class Basics extends BroadcastReceiver {
 			if (persistent) {
 				notification.flags = Notification.FLAG_ONGOING_EVENT;
 			}
-			notification.setLatestEventInfo(context, notificationTitle, notificationSubtitle, clickIntent);
+//			notification.setLatestEventInfo(context, notificationTitle, notificationSubtitle, clickIntent);
 			Logger.debug("prepared pre-JellyBean notification {0} / {1} with button1={2} and button2={3}",
 				notificationTitle, notificationSubtitle, buttonOneText, buttonTwoText);
 		}
