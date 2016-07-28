@@ -19,9 +19,9 @@ android {
 }
 
 dependencies {
-    compile files('libs/acra-4.6.2.jar')
-    compile files('libs/commons-lang3-3.4.jar')
-    compile files('libs/date4j-cadb47a4882859a558b58ee25483100525cac325.jar')
-    compile files('libs/pebblekit-3.1.0.jar')
-    compile files('libs/super-csv-2.3.1.jar')
+    compile 'ch.acra:acra:4.6.2'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'com.darwinsys', name: 'hirondelle-date4j', version: '1.5.1'
+    compile 'com.getpebble:pebblekit:3.1.0@aar'
+    compile 'net.sf.supercsv:super-csv:2.3.1'
 }
