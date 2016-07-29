@@ -11,7 +11,7 @@
                (but not Toolbar) background.
                 We specify the same color for the toolbar background in
                 toolbar.xml.. -->
-        <!--item name="colorPrimary">@color/actionbar_background</item-->
+        <item name="colorPrimary">@color/toolbar_bg</item>
 
         <!-- colorPrimaryDark is used for the status bar (with the
              battery, clock, etc). -->
@@ -19,9 +19,9 @@
 
         <!-- colorAccent is used as the default value for
              colorControlActivated which is used to tint widgets. -->
-        <!--item name="colorAccent">@color/color_accent</item-->
+        <item name="colorAccent">@color/accent</item>
 
-        <!--item name="android:colorBackground">@color/background</item-->
+        <item name="android:colorBackground">@color/background</item>
 
         <!--item name="android:textColor">@android:color/black</item-->
     </style>

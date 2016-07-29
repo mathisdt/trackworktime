@@ -71,7 +71,6 @@
         </activity>
         <activity
             android:name="EventListActivity"
-            android:theme="@style/Theme.holo.trackworktime"
             android:exported="false"
             android:label="@string/edit_events" >
         </activity>

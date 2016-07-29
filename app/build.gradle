@@ -25,4 +25,5 @@ dependencies {
     compile group: 'com.darwinsys', name: 'hirondelle-date4j', version: '1.5.1'
     compile 'com.getpebble:pebblekit:3.1.0@aar'
     compile 'net.sf.supercsv:super-csv:2.3.1'
+    compile 'com.bignerdranch.android:recyclerview-multiselect:0.2'
 }
