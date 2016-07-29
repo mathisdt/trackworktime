@@ -22,6 +22,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -45,7 +46,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class InsertDefaultTimesActivity extends Activity {
+public class InsertDefaultTimesActivity extends AppCompatActivity {
 
 	private DAO dao = null;
 	private TimerManager timerManager = null;

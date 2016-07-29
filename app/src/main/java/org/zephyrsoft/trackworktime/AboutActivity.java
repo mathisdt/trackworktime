@@ -26,6 +26,7 @@ import java.util.Properties;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.util.Linkify;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  *      href="http://www.techrepublic.com/blog/app-builder/a-reusable-about-dialog-for-your-android-apps/504">blog&nbsp;post</a>
  * @author Mathis Dirksen-Thedens
  */
-public class AboutActivity extends Activity {
+public class AboutActivity extends AppCompatActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

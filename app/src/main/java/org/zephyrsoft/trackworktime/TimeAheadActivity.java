@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,7 +32,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class TimeAheadActivity extends Activity {
+public class TimeAheadActivity extends AppCompatActivity {
 
 	private TextView type = null;
 	private EditText minutes = null;

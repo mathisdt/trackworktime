@@ -23,6 +23,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -56,7 +57,7 @@ import org.zephyrsoft.trackworktime.util.WeekUtil;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class EventEditActivity extends Activity implements OnDateChangedListener, OnTimeChangedListener {
+public class EventEditActivity extends AppCompatActivity implements OnDateChangedListener, OnTimeChangedListener {
 
 	private DAO dao = null;
 	private TimerManager timerManager = null;

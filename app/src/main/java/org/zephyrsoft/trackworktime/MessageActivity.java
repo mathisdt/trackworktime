@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -30,7 +31,7 @@ import android.widget.TextView;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class MessageActivity extends Activity implements OnClickListener {
+public class MessageActivity extends AppCompatActivity implements OnClickListener {
 
 	private TextView textView = null;
 	private int id = -1;

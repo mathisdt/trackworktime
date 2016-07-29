@@ -59,6 +59,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -79,7 +80,7 @@ import hirondelle.date4j.DateTime;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends Activity {
+public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 

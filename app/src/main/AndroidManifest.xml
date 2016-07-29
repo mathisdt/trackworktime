@@ -25,6 +25,7 @@
         android:backupAgent="org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupAgentHelper"
         android:hasCode="true"
         android:icon="@drawable/ic_launcher"
+        android:theme="@style/Theme.trackworktime"
         android:label="@string/app_name" >
         <meta-data
             android:name="com.google.android.backup.api_key"
@@ -70,6 +71,7 @@
         </activity>
         <activity
             android:name="EventListActivity"
+            android:theme="@style/Theme.holo.trackworktime"
             android:exported="false"
             android:label="@string/edit_events" >
         </activity>
@@ -80,6 +82,7 @@
         </activity>
         <activity
             android:name="TaskListActivity"
+            android:theme="@style/Theme.holo.trackworktime"
             android:exported="false"
             android:label="@string/edit_tasks" >
         </activity>

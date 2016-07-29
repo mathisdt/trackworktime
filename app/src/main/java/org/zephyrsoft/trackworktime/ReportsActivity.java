@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -50,7 +51,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class ReportsActivity extends Activity {
+public class ReportsActivity extends AppCompatActivity {
 
 	private RadioButton rangeLast;
 	private RadioButton rangeCurrent;
