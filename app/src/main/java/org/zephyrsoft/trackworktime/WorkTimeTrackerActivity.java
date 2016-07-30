@@ -58,6 +58,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -311,6 +312,22 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			builder.setMessage(R.string.backup_on_google_servers)
 				.setPositiveButton(R.string.yes, dialogClickListener)
 				.setNegativeButton(R.string.no, dialogClickListener).show();
+		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		// request location permission if it was removed in the meantime
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
+				|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)
+				) {
+			if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(this,
+						new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+			}
 		}
 	}
 

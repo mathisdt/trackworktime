@@ -19,14 +19,17 @@ package org.zephyrsoft.trackworktime;
 import java.text.DateFormat;
 import java.util.Date;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
@@ -108,7 +111,43 @@ public class OptionsActivity extends AppCompatPreferenceActivity implements OnSh
 			// reload data in options view
 			setPreferenceScreen(null);
 			addPreferencesFromResource(R.xml.options);
+		} else {
+			if (Key.LOCATION_BASED_TRACKING_ENABLED.getName().equals(keyName)
+					&& sharedPreferences.getBoolean(keyName, false)
+					||
+					Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName)
+							&& sharedPreferences.getBoolean(keyName, false)
+					) {
+				if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+					ActivityCompat.requestPermissions(this,
+							new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+				}
+
+			}
 		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		for (int i = 0; i < permissions.length; i++) {
+			if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(permissions[i])) {
+				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+					final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
+					editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
+					editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+					editor.apply();
+
+					Intent messageIntent = Basics.getInstance()
+							.createMessageIntent("This option needs location permission.", null);
+					startActivity(messageIntent);
+
+					// reload data in options view
+					setPreferenceScreen(null);
+					addPreferencesFromResource(R.xml.options);
+				}
+			}
+		}
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
 	@SuppressWarnings("deprecation")

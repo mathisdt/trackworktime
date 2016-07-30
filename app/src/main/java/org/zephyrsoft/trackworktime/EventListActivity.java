@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
@@ -349,7 +350,8 @@ public class EventListActivity extends AppCompatActivity {
 					+ DateTimeUtil.dateTimeToHourMinuteString(dateTime) + ": " + typeString;
 		}
 		private Drawable getSelectedStateDrawable() {
-			Drawable colorDrawable = new ColorDrawable(getColor(R.color.selected_background));
+			Drawable colorDrawable = new ColorDrawable(
+					ContextCompat.getColor(EventListActivity.this, R.color.selected_background));
 
 			StateListDrawable stateListDrawable = new StateListDrawable();
 			stateListDrawable.addState(new int[]{android.R.attr.state_activated}, colorDrawable);
