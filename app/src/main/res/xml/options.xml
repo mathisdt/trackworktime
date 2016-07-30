@@ -8,11 +8,11 @@
             android:key="@string/keyAutoPauseEnabled"
             android:title="@string/autoPauseEnabled" />
 
-        <EditTextPreference
+        <org.zephyrsoft.trackworktime.options.TimePreference
             android:key="@string/keyAutoPauseBegin"
             android:summary="@string/autoPauseBeginDescription"
             android:title="@string/autoPauseBegin" />
-        <EditTextPreference
+        <org.zephyrsoft.trackworktime.options.TimePreference
             android:key="@string/keyAutoPauseEnd"
             android:summary="@string/autoPauseEndDescription"
             android:title="@string/autoPauseEnd" />
@@ -24,11 +24,11 @@
             android:key="@string/keyEnableFlexiTime"
             android:title="@string/enableFlexiTime" />
 
-        <EditTextPreference
+        <org.zephyrsoft.trackworktime.options.DurationPreference
             android:key="@string/keyFlexiTimeStartValue"
             android:summary="@string/flexiTimeStartValueDescription"
             android:title="@string/flexiTimeStartValue" />
-        <EditTextPreference
+        <org.zephyrsoft.trackworktime.options.DurationPreference
             android:key="@string/keyFlexiTimeTarget"
             android:summary="@string/flexiTimeTargetDescription"
             android:title="@string/flexiTimeTarget" />

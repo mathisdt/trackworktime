@@ -27,9 +27,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.options.AppCompatPreferenceActivity;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
@@ -39,7 +41,7 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class OptionsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class OptionsActivity extends AppCompatPreferenceActivity implements OnSharedPreferenceChangeListener {
 
 	private WorkTimeTrackerBackupManager backupManager;
 

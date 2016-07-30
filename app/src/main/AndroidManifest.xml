@@ -110,7 +110,7 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:label="@string/message"
-            android:theme="@android:style/Theme.Dialog" >
+            android:theme="@style/Theme.AppCompat.Dialog" >
         </activity>
 
         <service
