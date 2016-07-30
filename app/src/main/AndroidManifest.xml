@@ -19,6 +19,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- allows to use libraries that request newer minSdkVersion, not recommended -->
+    <!--uses-sdk tools:overrideLibrary="com.getpebble.android.kit,com.bignerdranch.android.multiselector"/-->
+
     <application
         android:name="WorkTimeTrackerApplication"
         android:allowBackup="true"
@@ -81,7 +84,6 @@
         </activity>
         <activity
             android:name="TaskListActivity"
-            android:theme="@style/Theme.holo.trackworktime"
             android:exported="false"
             android:label="@string/edit_tasks" >
         </activity>

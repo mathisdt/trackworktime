@@ -57,14 +57,4 @@
     <style name="Theme.trackworktime.toolbar.popup" parent="ThemeOverlay.AppCompat.Dark">
         <!--item name="android:textColor">@color/actionbar_textcolor</item-->
     </style>
-
-    <!-- old styles, to be removed -->
-    <style name="Theme.holo.trackworktime" parent="android:Theme.Holo">
-        <item name="android:actionBarStyle">@style/Theme.holo.ActionBar</item>
-        <item name="android:background">@drawable/abc_action_bar_item_background_material</item>
-    </style>
-
-    <style name="Theme.holo.ActionBar" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@drawable/abc_action_bar_item_background_material</item>
-    </style>
 </resources>

@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -44,7 +45,7 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-public class TaskListActivity extends ListActivity {
+public class TaskListActivity extends AppCompatActivity {
 
 	private static enum MenuAction {
 		NEW_TASK,
@@ -64,6 +65,7 @@ public class TaskListActivity extends ListActivity {
 
 	private WorkTimeTrackerActivity parentActivity = null;
 
+	private ListView listView;
 	private ArrayAdapter<Task> tasksAdapter;
 
 	@Override
@@ -76,19 +78,21 @@ public class TaskListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		setContentView(R.layout.tasks_activity);
+		listView = (ListView) findViewById(R.id.list_view);
+
 		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 
 		dao = Basics.getInstance().getDao();
 		tasks = dao.getAllTasks();
 		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		setListAdapter(tasksAdapter);
+		listView.setAdapter(tasksAdapter);
 
-		ListView lv = getListView();
-		lv.setTextFilterEnabled(true);
+		listView.setTextFilterEnabled(true);
 
-		registerForContextMenu(lv);
-		lv.setOnItemClickListener(new OnItemClickListener() {
+		registerForContextMenu(listView);
+		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				openContextMenu(view);
