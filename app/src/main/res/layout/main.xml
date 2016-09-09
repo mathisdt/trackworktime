@@ -23,7 +23,6 @@
 
             <Button
                 android:id="@+id/previous"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -31,7 +30,6 @@
 
             <Button
                 android:id="@+id/todayButton"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -39,7 +37,6 @@
 
             <Button
                 android:id="@+id/next"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
