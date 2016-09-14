@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="light_gray">#d0d0d0</color>
+    <color name="background">#2b2b2b</color>
+    <color name="toolbar_bg">#151515</color>
+    <color name="accent">#ffffff</color>
+    <color name="selected_background">#4c4b4d</color>
+
+</resources>

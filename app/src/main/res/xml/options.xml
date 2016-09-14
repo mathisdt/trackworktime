@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="@string/keyAutoPause"
+        android:title="@string/autoPause" >
+        <CheckBoxPreference
+            android:key="@string/keyAutoPauseEnabled"
+            android:title="@string/autoPauseEnabled" />
+
+        <org.zephyrsoft.trackworktime.options.TimePreference
+            android:key="@string/keyAutoPauseBegin"
+            android:summary="@string/autoPauseBeginDescription"
+            android:title="@string/autoPauseBegin" />
+        <org.zephyrsoft.trackworktime.options.TimePreference
+            android:key="@string/keyAutoPauseEnd"
+            android:summary="@string/autoPauseEndDescription"
+            android:title="@string/autoPauseEnd" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyFlexiTimeCategory"
+        android:title="@string/flexiTimeBalancing" >
+        <CheckBoxPreference
+            android:key="@string/keyEnableFlexiTime"
+            android:title="@string/enableFlexiTime" />
+
+        <org.zephyrsoft.trackworktime.options.DurationPreference
+            android:key="@string/keyFlexiTimeStartValue"
+            android:summary="@string/flexiTimeStartValueDescription"
+            android:title="@string/flexiTimeStartValue" />
+        <org.zephyrsoft.trackworktime.options.DurationPreference
+            android:key="@string/keyFlexiTimeTarget"
+            android:summary="@string/flexiTimeTargetDescription"
+            android:title="@string/flexiTimeTarget" />
+
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayMonday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/mondayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayTuesday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/tuesdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayWednesday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/wednesdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayThursday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/thursdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDayFriday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/fridayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDaySaturday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/saturdayLong" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeDaySunday"
+            android:summary="@string/flexiTimeDayDescription"
+            android:title="@string/sundayLong" />
+    </PreferenceCategory>
+    <!--
+    <PreferenceCategory
+        android:key="@string/keyFlatteningCategory"
+        android:title="@string/timeFlattening" >
+        <CheckBoxPreference
+            android:key="@string/keyFlatteningEnabled"
+            android:title="@string/flatteningEnabled" />
+
+        <EditTextPreference
+            android:key="@string/keySmallestTimeUnit"
+            android:summary="@string/smallestTimeUnitDescription"
+            android:title="@string/smallestTimeUnit" />
+    </PreferenceCategory>
+    -->
+    <PreferenceCategory
+        android:key="@string/keyLocationBasedTrackingCategory"
+        android:title="@string/locationBasedTracking" >
+        <CheckBoxPreference
+            android:key="@string/keyLocationBasedTrackingEnabled"
+            android:title="@string/enableLocationBasedTracking" />
+        <CheckBoxPreference
+            android:key="@string/keyLocationBasedTrackingVibrate"
+            android:title="@string/locationBasedTrackingVibrate" />
+
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingLatitude"
+            android:summary="@string/workplaceLatitudeLongitudeDescription"
+            android:title="@string/workplaceLatitude" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingLongitude"
+            android:summary="@string/workplaceLatitudeLongitudeDescription"
+            android:title="@string/workplaceLongitude" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingTolerance"
+            android:summary="@string/trackingToleranceDescription"
+            android:title="@string/trackingTolerance" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingIgnoreBeforeEvents"
+            android:summary="@string/ignoreBeforeAfterDescription"
+            android:title="@string/ignoreBefore" />
+        <EditTextPreference
+            android:key="@string/keyLocationBasedTrackingIgnoreAfterEvents"
+            android:summary="@string/ignoreBeforeAfterDescription"
+            android:title="@string/ignoreAfter" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyWifiBasedTrackingCategory"
+        android:title="@string/wifiBasedTracking" >
+        <CheckBoxPreference
+            android:key="@string/keyWifiBasedTrackingEnabled"
+            android:summary="@string/enableWifiBasedTrackingDescription"
+            android:title="@string/enableWifiBasedTracking" />
+        <CheckBoxPreference
+            android:key="@string/keyWifiBasedTrackingVibrate"
+            android:title="@string/wifiBasedTrackingVibrate" />
+
+        <EditTextPreference
+            android:key="@string/keyWifiBasedTrackingSSID"
+            android:summary="@string/workplaceWifiSSIDDescription"
+            android:title="@string/workplaceWifiSSID" />
+    </PreferenceCategory>
+    <PreferenceCategory android:key="@string/keyAutomaticTrackingCategory" android:title="@string/automaticTracking">
+        <CheckBoxPreference android:key="@string/keyEachTrackingMethodGeneratesEventsSeparately" android:summary="@string/methodsGenerateEventsSeparatelyDescription" android:title="@string/methodsGenerateEventsSeparately"/>
+    </PreferenceCategory><PreferenceCategory
+        android:key="@string/keyNotificationCategory"
+        android:title="@string/notification" >
+        <CheckBoxPreference
+            android:key="@string/keyNotificationEnabled"
+            android:summary="@string/notificationDescription"
+            android:title="@string/notificationEnabled" />
+        <CheckBoxPreference
+            android:key="@string/keyNotificationUsesFlexiTimeAsTarget"
+            android:summary="@string/notificationFlexiTimeDescription"
+            android:title="@string/notificationUsesFlexiTimeAsTarget" />
+        <CheckBoxPreference
+            android:key="@string/keyFlexiTimeToZeroOnEveryDay"
+            android:title="@string/flexiTimeToZeroOnEveryDay"
+            android:summary="@string/flexiTimeToZeroOnEveryDayDescription" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyBackupCategory"
+        android:title="@string/backup_to_google" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/keyBackupEnabled"
+            android:title="@string/backup_enabled" />
+
+        <EditTextPreference
+            android:enabled="false"
+            android:key="@string/keyBackupLastModifiedTimestamp"
+            android:summary="-"
+            android:title="@string/lastModifiedTimestamp" />
+        <EditTextPreference
+            android:enabled="false"
+            android:key="@string/keyBackupLastBackupTimestamp"
+            android:summary="-"
+            android:title="@string/lastBackupTimestamp" />
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>
