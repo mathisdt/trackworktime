@@ -1,0 +1,27 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 16
+    buildToolsVersion "24.0.0"
+
+    defaultConfig {
+        applicationId "org.zephyrsoft.trackworktime"
+        minSdkVersion 7
+        targetSdkVersion 14
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile files('libs/acra-4.6.2.jar')
+    compile files('libs/commons-lang3-3.4.jar')
+    compile files('libs/date4j-cadb47a4882859a558b58ee25483100525cac325.jar')
+    compile files('libs/pebblekit-3.1.0.jar')
+    compile files('libs/super-csv-2.3.1.jar')
+}
