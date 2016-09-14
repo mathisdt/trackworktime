@@ -12,7 +12,7 @@ If you prefer to use other apps like Llama or Tasker for tracking your movements
   
 The latest version even can notify you via your Pebble smart watch on clock-in and clock-out events!  
   
-This is an open source project, so if there is something you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews on Google Play or AndroidPit, that doesn't work in both directions. Just write me an email, and I'll see what I can do.  
+This is an open source project, so if there is something you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews on Google Play or AndroidPit, that doesn't work in both directions. Just [write me an email](http://zephyrsoft.org/contact-about-me), and I'll see what I can do.
   
 Important note: **This app definitely won't send your personal data anywhere.** It uses the INTERNET permission only to send crash reports, but those reports contain neither any times nor any coordinates you may have tracked.  
   
