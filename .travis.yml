@@ -1,0 +1,32 @@
+sudo: false
+
+language: android
+
+machine:
+  environment:
+    _JAVA_OPTIONS: "-Xms512m -Xmx1024m"
+    GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"
+
+android:
+  components:
+  - tools
+  - build-tools-24.0.2
+  - android-24
+  - extra-android-support
+  - extra-android-m2repository
+
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -rf $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+
+branches:
+  only:
+  - develop
+  - master
+  - "/^v[0-9].*/"
+
+script: "./gradlew assemble"
