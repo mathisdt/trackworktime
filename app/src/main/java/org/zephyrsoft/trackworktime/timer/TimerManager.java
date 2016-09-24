@@ -398,7 +398,7 @@ public class TimerManager {
 	public static TimeSum parseHoursMinutesString(String hoursMinutes) {
 		TimeSum ret = new TimeSum();
 		if (hoursMinutes != null) {
-			String[] startValueArray = hoursMinutes.split(":");
+			String[] startValueArray = hoursMinutes.split("[:\\.]");
 			int hours = Integer.parseInt(startValueArray[0]);
 			int minutes = startValueArray.length > 1 ? Integer.parseInt(startValueArray[1]) : 0;
 			if (hoursMinutes.trim().startsWith("-")) {

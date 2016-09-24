@@ -111,7 +111,7 @@ public class WifiTracker {
 	public void checkWifi() {
 		Logger.debug("checking wifi for ssid \"{0}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange();
-		Logger.debug("wifi-ssid \"{0}\" in now range: {1}, previous state: {2}", ssid, ssidIsNowInRange,
+		Logger.debug("wifi-ssid \"{0}\" in range now: {1}, previous state: {2}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
 
 		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && !ssidIsNowInRange) {

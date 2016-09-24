@@ -45,6 +45,7 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
@@ -68,6 +69,7 @@ public class WorkTimeTrackerApplication extends Application {
 		Logger.info("running self-tests");
 		TimeSum.test();
 		DataType.test();
+		DateTimeUtil.test();
 
 		Logger.info("handing off to super");
 		super.onCreate();

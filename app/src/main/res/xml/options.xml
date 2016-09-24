@@ -10,11 +10,9 @@
 
         <org.zephyrsoft.trackworktime.options.TimePreference
             android:key="@string/keyAutoPauseBegin"
-            android:summary="@string/autoPauseBeginDescription"
             android:title="@string/autoPauseBegin" />
         <org.zephyrsoft.trackworktime.options.TimePreference
             android:key="@string/keyAutoPauseEnd"
-            android:summary="@string/autoPauseEndDescription"
             android:title="@string/autoPauseEnd" />
     </PreferenceCategory>
     <PreferenceCategory

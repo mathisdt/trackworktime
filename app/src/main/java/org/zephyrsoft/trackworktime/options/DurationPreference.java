@@ -1,8 +1,20 @@
-package org.zephyrsoft.trackworktime.options;
-
-/**
- * Created by peterrosenberg on 30/07/2016.
+/*
+ * This file is part of TrackWorkTime (TWT).
+ *
+ * TWT is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TWT is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
+package org.zephyrsoft.trackworktime.options;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,6 +31,9 @@ import android.widget.EditText;
 
 import org.zephyrsoft.trackworktime.R;
 
+/**
+ * @author Peter Rosenberg
+ */
 public class DurationPreference extends DialogPreference {
     private String myDuration = "0:00";
     private EditText myEditText;
@@ -79,7 +94,7 @@ public class DurationPreference extends DialogPreference {
     }
 
     private boolean isDurationValid(String duration) {
-        String[] pieces = duration.split(":");
+        String[] pieces = duration.split("[:\\.]");
         if (pieces.length == 2){
             try {
                 Integer.parseInt(pieces[0]);

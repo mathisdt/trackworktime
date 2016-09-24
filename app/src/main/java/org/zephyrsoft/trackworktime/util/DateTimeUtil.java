@@ -152,7 +152,8 @@ public class DateTimeUtil {
 	 * @return a DateTime which represents the given time on the given day
 	 */
 	public static DateTime parseTimeFor(DateTime day, String timeString) {
-		DateTime ret = new DateTime(dateTimeToDateString(day) + " " + timeString);
+		DateTime ret = new DateTime(dateTimeToDateString(day) + " " + refineTime(timeString));
+		ret.truncate(DateTime.Unit.MINUTE);
 		return ret;
 	}
 
@@ -169,7 +170,7 @@ public class DateTimeUtil {
 	 */
 	public static String refineTime(String timeString) {
 		String ret = refineHourMinute(timeString);
-		// append seconds (or minutes, if someone just entered e.g. "13" as time)
+		// append seconds
 		ret += ":00";
 		return ret;
 	}
@@ -178,10 +179,16 @@ public class DateTimeUtil {
 	 * Prepare the a user-entered time string to represent "hours:minutes".
 	 */
 	public static String refineHourMinute(String timeString) {
+		if (timeString == null || timeString.isEmpty()) {
+			// empty means midnight
+			return "00:00";
+		}
 		String ret = timeString.replace('.', ':');
-		// only one digit as hour
+		// cut off seconds if present
+		ret = ret.replaceAll("^(\\d\\d?):(\\d\\d?):.*$", "$1:$2");
+		// fix only one digit as hour
 		ret = ret.replaceAll("^(\\d):", "0$1:");
-		// only one digit as minute
+		// fix only one digit as minute
 		ret = ret.replaceAll(":(\\d)$", ":0$1");
 		return ret;
 	}
@@ -211,4 +218,18 @@ public class DateTimeUtil {
 		return date;
 	}
 
+	public static void test() {
+		boolean valid = false;
+		try {
+			DateTime toTest = parseTimeForToday("");
+			valid = toTest != null
+				&& toTest.getHour().intValue() == 0
+				&& toTest.getMinute().intValue() == 0;
+		} catch (Exception e) {
+			throw new AssertionError(": " + e.getMessage());
+		}
+		if (!valid) {
+			throw new AssertionError("parseTimeForToday");
+		}
+	}
 }

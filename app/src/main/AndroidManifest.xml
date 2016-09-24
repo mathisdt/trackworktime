@@ -5,22 +5,12 @@
     android:versionCode="21"
     android:versionName="0.5.18-SNAPSHOT" >
 
-	<!--
-	for menuButton/actionBar issues
-	http://android-developers.blogspot.de/2012/01/say-goodbye-to-menu-button.html?m=1
-	solution
-	android:targetSdkVersion="14" instead of "7"
-	-->
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <!-- allows to use libraries that request newer minSdkVersion, not recommended -->
-    <!--uses-sdk tools:overrideLibrary="com.getpebble.android.kit,com.bignerdranch.android.multiselector"/-->
 
     <application
         android:name="WorkTimeTrackerApplication"

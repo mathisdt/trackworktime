@@ -1,8 +1,20 @@
-package org.zephyrsoft.trackworktime.options;
-
-/**
- * Created by peterrosenberg on 30/07/2016.
+/*
+ * This file is part of TrackWorkTime (TWT).
+ *
+ * TWT is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TWT is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
+package org.zephyrsoft.trackworktime.options;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11,22 +23,13 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TimePicker;
 
+/**
+ * @author Peter Rosenberg
+ */
 public class TimePreference extends DialogPreference {
     private int lastHour = 0;
     private int lastMinute = 0;
     private TimePicker picker = null;
-
-    public static int getHour(String time) {
-        String[] pieces = time.split(":");
-
-        return (Integer.parseInt(pieces[0]));
-    }
-
-    public static int getMinute(String time) {
-        String[] pieces = time.split(":");
-
-        return (Integer.parseInt(pieces[1]));
-    }
 
     public TimePreference(Context ctxt, AttributeSet attrs) {
         super(ctxt, attrs);
@@ -35,9 +38,22 @@ public class TimePreference extends DialogPreference {
         setNegativeButtonText("Cancel");
     }
 
+    public static int getHour(String time) {
+        String[] pieces = time.split("[:\\.]");
+
+        return (Integer.parseInt(pieces[0]));
+    }
+
+    public static int getMinute(String time) {
+        String[] pieces = time.split("[:\\.]");
+
+        return (Integer.parseInt(pieces[1]));
+    }
+
     @Override
     protected View onCreateDialogView() {
         picker = new TimePicker(getContext());
+        picker.setIs24HourView(true);
 
         return (picker);
     }
