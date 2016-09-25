@@ -34,9 +34,6 @@ branches:
 
 script: "./gradlew assemble"
 
-before_deploy:
-- "./timestamp-apks.sh"
-
 deploy:
   provider: releases
   api_key:

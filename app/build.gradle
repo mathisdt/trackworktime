@@ -1,4 +1,12 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
+
+def buildTime() {
+    def df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    df.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"))
+    return df.format(new Date())
+}
 
 android {
     compileSdkVersion 24
@@ -14,6 +22,15 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    // rename final APK files
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(
+                    output.outputFile.parent,
+                    "TrackWorkTime_${variant.versionName}_${buildTime()}_${variant.buildType.name}${variant.signingReady ? "" : "-unsigned"}.apk")
         }
     }
 }
