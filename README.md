@@ -16,7 +16,7 @@ This is an open source project, so if there is something you don't like, you are
   
 Important note: **This app definitely won't send your personal data anywhere.** It uses the INTERNET permission only to send crash reports, but those reports contain neither any times nor any coordinates you may have tracked.  
   
-[Project Tracker (JIRA)](https://dev.zephyrsoft.org/jira/browse/TWT)  
+[Project Tracker (GitHub Issues)](https://github.com/mathisdt/trackworktime/issues)  
 [Continuous Integration (Travis)](https://travis-ci.org/mathisdt/trackworktime) [![Build Status](https://travis-ci.org/mathisdt/trackworktime.svg?branch=master)](https://travis-ci.org/mathisdt/trackworktime)  
 You can track the past development by looking at the [version history](http://www.zephyrsoft.org/trackworktime/history).  
   
