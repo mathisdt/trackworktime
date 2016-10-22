@@ -51,18 +51,8 @@ public class AboutActivity extends AppCompatActivity {
 		TextView about = (TextView) findViewById(R.id.about_text);
 		String aboutText = readRawTextFile(R.raw.about);
 		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
-		Properties versionProps = new Properties();
-		CharSequence version = "";
-		try {
-			versionProps.load(getApplicationContext().getResources().openRawResource(R.raw.version));
-			version = versionProps.getProperty("app.version.major") + "."
-				+ versionProps.getProperty("app.version.minor") + "."
-				+ versionProps.getProperty("app.version.buildnumber")
-				+ versionProps.getProperty("app.version.suffix");
-		} catch (Exception e) {
-			Logger.error("could not open version properties for reading");
-			version = "?";
-		}
+		CharSequence version = Basics.getInstance().getVersionName();
+
 		CharSequence website = getApplicationContext().getResources().getText(R.string.website);
 		CharSequence email = getApplicationContext().getResources().getText(R.string.email);
 		aboutText = MessageFormat.format(aboutText, name, version, website, email);

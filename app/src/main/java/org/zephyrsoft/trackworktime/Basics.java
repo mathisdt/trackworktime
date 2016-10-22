@@ -44,6 +44,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -433,9 +434,13 @@ public class Basics extends BroadcastReceiver {
 				@Override
 				public void onLocationChanged(Location location) {
 					callback.callback(location.getLatitude(), location.getLongitude(), Math.round(location
-						.getAccuracy()));
-					// detach listener on first received location
-					locationManager.removeUpdates(this);
+							.getAccuracy()));
+					try {
+						// detach listener on first received location
+						locationManager.removeUpdates(this);
+					} catch (SecurityException se) {
+						Logger.error("could not remove updates because of missing rights");
+					}
 				}
 
 				@Override
@@ -454,6 +459,8 @@ public class Basics extends BroadcastReceiver {
 					callback.error(new IllegalAccessException("provider disabled"));
 				}
 			});
+		} catch (SecurityException se) {
+			callback.error(se);
 		} catch (Throwable t) {
 			callback.error(t);
 		}
@@ -610,4 +617,12 @@ public class Basics extends BroadcastReceiver {
 		return context;
 	}
 
+	public String getVersionName() {
+		try {
+			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+		} catch (PackageManager.NameNotFoundException nnfe) {
+			Logger.error("could not get version name from manifest: {0}", nnfe.getMessage());
+			return "?";
+		}
+	}
 }
