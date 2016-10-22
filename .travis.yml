@@ -26,12 +26,6 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
-branches:
-  only:
-  - develop
-  - master
-  - "/^v[0-9].*/"
-
 script: "./gradlew assemble"
 
 deploy:
@@ -43,3 +37,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: mathisdt/trackworktime
+    tags: true
