@@ -73,7 +73,6 @@ public class AboutActivity extends AppCompatActivity {
 		TextView help = (TextView) findViewById(R.id.help_text);
 		help.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
 		help.setLinkTextColor(Color.WHITE);
-		Linkify.addLinks(help, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 	}
 
 	private String readRawTextFile(int id) {
