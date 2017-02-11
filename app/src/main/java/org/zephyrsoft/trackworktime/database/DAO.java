@@ -279,6 +279,9 @@ public class DAO {
 	 * @return the newly created week as read from the database (complete with ID)
 	 */
 	public Week insertWeek(Week week) {
+		if (week.getSum()==null || week.getSum()<0) {
+			throw new IllegalArgumentException("sum of a week may not be negative");
+		}
 		open();
 		ContentValues args = weekToContentValues(week);
 		long insertId = db.insert(WEEK, null, args);
