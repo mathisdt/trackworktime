@@ -251,6 +251,7 @@ public class TimerManager {
 			lastEvent = clockOutNowEvent;
 		}
 
+		Event eventBefore = null;
 		for (Event event : events) {
 			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
 
@@ -262,8 +263,18 @@ public class TimerManager {
 			if (clockedInSince != null && isClockOutEvent(event)) {
 				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
 				ret.add(eventTime.getHour(), eventTime.getMinute());
+				if (eventBefore != null) {
+					DateTime eventBeforeTime = DateTimeUtil.stringToDateTime(eventBefore.getTime());
+					// handle events which are on different days
+					int differenceInDays = eventTime.getDay() - eventBeforeTime.getDay();
+					if (differenceInDays > 0) {
+						ret.add(24 * differenceInDays, 0);
+						Logger.info("events on different days: {0} => {1}", eventBefore, event);
+					}
+				}
 				clockedInSince = null;
 			}
+			eventBefore = event;
 		}
 
 		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
