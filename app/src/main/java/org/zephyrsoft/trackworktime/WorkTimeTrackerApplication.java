@@ -43,6 +43,7 @@ import android.app.Application;
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
+import org.acra.sender.HttpSender;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -53,11 +54,14 @@ import org.zephyrsoft.trackworktime.util.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
-@ReportsCrashes(formUri = "http://zephyrsoft.org/crashreport.jsp", mode = ReportingInteractionMode.SILENT, customReportContent = {
-	ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION,
-	DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME,
-	PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,
-	USER_CRASH_DATE })
+@ReportsCrashes(formUri = "https://crashreport.zephyrsoft.org/",
+		reportType = HttpSender.Type.JSON,
+		mode = ReportingInteractionMode.SILENT,
+		customReportContent = {
+				ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION,
+				DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME,
+				PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,
+				USER_CRASH_DATE})
 public class WorkTimeTrackerApplication extends Application {
 
 	@Override
