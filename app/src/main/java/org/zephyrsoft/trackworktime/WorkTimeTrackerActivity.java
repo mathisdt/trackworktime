@@ -86,7 +86,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 
 	private static enum MenuAction {
-		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT;
+		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, RAISE_EXCEPTION;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
@@ -713,6 +713,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		menu.add(Menu.NONE, MenuAction.RESTORE.ordinal(), MenuAction.RESTORE.ordinal(), R.string.restore);
 		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about).setIcon(
 			R.drawable.ic_menu_star);
+		if (Basics.getOrCreateInstance(this).isDevelopmentVersion()) {
+			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception").setIcon(
+					R.drawable.ic_menu_star);
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -746,6 +750,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			case ABOUT:
 				showAbout();
 				return true;
+			case RAISE_EXCEPTION:
+				throw new IllegalStateException("this exception is for testing purposes only");
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");
 		}

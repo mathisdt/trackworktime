@@ -617,6 +617,11 @@ public class Basics extends BroadcastReceiver {
 		return context;
 	}
 
+	public boolean isDevelopmentVersion() {
+		String versionName = getVersionName();
+		return versionName != null && versionName.contains("-SNAPSHOT");
+	}
+
 	public String getVersionName() {
 		try {
 			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
