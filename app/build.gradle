@@ -10,7 +10,7 @@ def buildTime() {
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion '25.0.0'
     
     lintOptions {
         abortOnError false
