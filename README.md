@@ -8,7 +8,7 @@ Additionally, if you wish, your **flexible time account is taken care of**: you 
   
 You even may provide the **geo-coordinates** or the **Wi-Fi network name** of your work place and the app can **automatically clock you in** while you are at work. This is done **without using GPS**, so your battery won't be emptied by this app. (You don't have to be connected to the WiFi network at work, it just has to be visible.)
   
-If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - TWT can be triggered from these apps and just do the book-keeping of your work time. In this case, you have to create broadcast intents called **org.zephyrsoft.trackworktime.ClockIn** or **org.zephyrsoft.trackworktime.ClockOut**. When using ClockIn, you can also set the parameters **task=...** and **text=...** in the "extra" section of the intent so your events are more meaningful. Here are some screenshots to point out how it can be done: Llama: [Overview](http://www.zephyrsoft.org/files/llama-1.png), [Detail 1](http://www.zephyrsoft.org/files/llama-2-detail-1.png), [Detail 2](http://www.zephyrsoft.org/files/llama-3-detail-2.png) / Tasker: [Detail 1](http://www.zephyrsoft.org/files/tasker-1.png), [Detail 2](http://www.zephyrsoft.org/files/tasker-2.png).  
+If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - TWT can be triggered from these apps and just do the book-keeping of your work time. In this case, you have to create broadcast intents called **org.zephyrsoft.trackworktime.ClockIn** or **org.zephyrsoft.trackworktime.ClockOut**. When using ClockIn, you can also set the parameters **task=...** and **text=...** in the "extra" section of the intent so your events are more meaningful. Here are some screenshots to point out how it can be done: Llama: [Overview](https://zephyrsoft.org/files/llama-1.png), [Detail 1](https://zephyrsoft.org/files/llama-2-detail-1.png), [Detail 2](https://zephyrsoft.org/files/llama-3-detail-2.png) / Tasker: [Detail 1](https://zephyrsoft.org/files/tasker-1.png), [Detail 2](https://zephyrsoft.org/files/tasker-2.png).  
   
 The latest version even can notify you via your Pebble smart watch on clock-in and clock-out events!  
   
@@ -20,7 +20,7 @@ Important note: **This app definitely won't send your personal data anywhere.** 
   
 [Project Tracker (GitHub Issues)](https://github.com/mathisdt/trackworktime/issues)  
 [Continuous Integration (Travis)](https://travis-ci.org/mathisdt/trackworktime) [![Build Status](https://travis-ci.org/mathisdt/trackworktime.svg?branch=master)](https://travis-ci.org/mathisdt/trackworktime)  
-You can track the past development by looking at the [version history](http://www.zephyrsoft.org/trackworktime/history).  
+You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
 Links to binary distribution points:  
 [TWT @ Google Play Store](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)  
