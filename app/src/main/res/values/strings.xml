@@ -35,6 +35,8 @@
     <string name="clockInChangeShort">New Period</string>
     <string name="clockOut">Stop Tracking</string>
     <string name="clockOutShort">Stop</string>
+    <string name="clockSickLeave">Sick leave</string>
+    <string name="clockHoliday">Holiday</string>
     <string name="insert_default_times">Multi-Insert</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="edit_events">Edit Events</string>

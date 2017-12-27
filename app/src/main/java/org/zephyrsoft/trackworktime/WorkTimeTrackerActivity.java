@@ -16,38 +16,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.DayLine;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TimeSum;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimeCalculator;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
-import org.zephyrsoft.trackworktime.util.Logger;
-import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -75,6 +44,37 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.model.DayLine;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.Logger;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.TimeZone;
+
 import hirondelle.date4j.DateTime;
 
 /**
@@ -154,6 +154,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private EditText text = null;
 	private Button clockInButton = null;
 	private Button clockOutButton = null;
+	private Button clockSickLeaveButton = null;
+	private Button clockHolidayButton = null;
 	private Button previousWeekButton = null;
 	private Button nextWeekButton = null;
 	private Button todayButton = null;
@@ -274,6 +276,30 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				return true;
 			}
 		});
+        clockHolidayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task selectedTask = (Task) task.getSelectedItem();
+                DateTime today = DateTimeUtil.getCurrentDateTime().getStartOfDay();
+                DateTime start = today.plus(0,0,0,9,0,0,0, DateTime.DayOverflow.Spillover);
+                DateTime end = today.plus(0,0,0,17,0,0,0, DateTime.DayOverflow.Spillover);
+                timerManager.createEvent(start, selectedTask.getId(), TypeEnum.CLOCK_IN,"Holiday");
+                timerManager.createEvent(end, selectedTask.getId(), TypeEnum.CLOCK_OUT, "Holiday");
+                refreshView();
+            }
+        });
+        clockSickLeaveButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task selectedTask = (Task) task.getSelectedItem();
+                DateTime today = DateTimeUtil.getCurrentDateTime().getStartOfDay();
+                DateTime start = today.plus(0,0,0,9,0,0,0, DateTime.DayOverflow.Spillover);
+                DateTime end = today.plus(0,0,0,17,0,0,0, DateTime.DayOverflow.Spillover);
+                timerManager.createEvent(start, selectedTask.getId(), TypeEnum.CLOCK_IN,"Sick Leave");
+                timerManager.createEvent(end, selectedTask.getId(), TypeEnum.CLOCK_OUT, "Sick Leave");
+                refreshView();
+            }
+        });
 
 		todayButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -689,6 +715,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		text = (EditText) findViewById(R.id.text);
 		clockInButton = (Button) findViewById(R.id.clockInButton);
 		clockOutButton = (Button) findViewById(R.id.clockOutButton);
+		clockHolidayButton = (Button) findViewById(R.id.clockHoliday);
+		clockSickLeaveButton = (Button) findViewById(R.id.clockSickLeave);
 		todayButton = (Button) findViewById(R.id.todayButton);
 	}
 
