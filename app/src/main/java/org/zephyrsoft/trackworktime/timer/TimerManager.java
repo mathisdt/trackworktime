@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -865,4 +865,39 @@ public class TimerManager {
 	private boolean isClockedInWithTrackingMethod(TrackingMethod method) {
 		return getTrackingMethodClockInState(method);
 	}
+
+    public void createOrCompleteEventOn(Task selectedTask, Week currentlyShownWeek, String message) {
+        DateTime currentWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart());
+        DateTime desiredDate = DateTimeUtil.getCurrentDateTime();
+        if (currentWeekStart.gt(DateTimeUtil.getCurrentDateTime()))
+            desiredDate = currentWeekStart;
+
+        Event latestEvent = dao.getLastEventBeforeIncluding(desiredDate);
+        DateTime start;
+        boolean clockInRequired=true;
+
+        if (isClockInEvent(latestEvent) && !clockedOutAfter(desiredDate)) {
+            start = DateTimeUtil.stringToDateTime(latestEvent.getTime());
+            clockInRequired = false;
+        }
+        else {
+            while (clockedOutAfter(desiredDate)) { // corresponding clock out exists?
+                desiredDate = desiredDate.plusDays(1);
+            }
+            start = desiredDate.getStartOfDay().plus(0, 0, 0, 9, 0, 0, 0, DateTime.DayOverflow.Spillover);
+        }
+
+        int workDuration = getNormalWorkDurationFor(WeekDayEnum.getByValue(start.getWeekDay()));
+        DateTime end = start.plus(0, 0, 0, 0, workDuration, 0, 0, DateTime.DayOverflow.Spillover);
+
+        if (workDuration > 0) {
+            if (clockInRequired)
+                createEvent(start, selectedTask.getId(), TypeEnum.CLOCK_IN, message);
+            createEvent(end, selectedTask.getId(), TypeEnum.CLOCK_OUT, message);
+        }
+    }
+
+    private boolean clockedOutAfter(DateTime desiredDate) {
+        return dao.getFirstClockOutEventAfter(desiredDate) != null;
+    }
 }

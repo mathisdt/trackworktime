@@ -279,24 +279,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
         clockHolidayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Task selectedTask = (Task) task.getSelectedItem();
-                DateTime today = DateTimeUtil.getCurrentDateTime().getStartOfDay();
-                DateTime start = today.plus(0,0,0,9,0,0,0, DateTime.DayOverflow.Spillover);
-                DateTime end = today.plus(0,0,0,17,0,0,0, DateTime.DayOverflow.Spillover);
-                timerManager.createEvent(start, selectedTask.getId(), TypeEnum.CLOCK_IN,"Holiday");
-                timerManager.createEvent(end, selectedTask.getId(), TypeEnum.CLOCK_OUT, "Holiday");
+                timerManager.createOrCompleteEventOn((Task) task.getSelectedItem(), currentlyShownWeek,
+                        "Holiday");
                 refreshView();
             }
         });
         clockSickLeaveButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Task selectedTask = (Task) task.getSelectedItem();
-                DateTime today = DateTimeUtil.getCurrentDateTime().getStartOfDay();
-                DateTime start = today.plus(0,0,0,9,0,0,0, DateTime.DayOverflow.Spillover);
-                DateTime end = today.plus(0,0,0,17,0,0,0, DateTime.DayOverflow.Spillover);
-                timerManager.createEvent(start, selectedTask.getId(), TypeEnum.CLOCK_IN,"Sick Leave");
-                timerManager.createEvent(end, selectedTask.getId(), TypeEnum.CLOCK_OUT, "Sick Leave");
+                timerManager.createOrCompleteEventOn((Task) task.getSelectedItem(), currentlyShownWeek,
+                        "Sick leave");
                 refreshView();
             }
         });
