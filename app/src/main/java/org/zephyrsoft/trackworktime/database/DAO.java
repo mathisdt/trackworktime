@@ -507,13 +507,26 @@ public class DAO {
 
 	/**
 	 * Return the first event after a certain date and time or {@code null} if there is no such event.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the date and time after which the event is searched
 	 */
 	public Event getFirstEventAfter(DateTime dateTime) {
 		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > \""
-			+ DateTimeUtil.dateTimeToString(dateTime) + "\"", false, true);
+				+ DateTimeUtil.dateTimeToString(dateTime) + "\"", false, true);
+		// if firstEvent is empty, then there is no such event in the database
+		return firstEvent.isEmpty() ? null : firstEvent.get(0);
+	}
+
+	/**
+	 * Return the first clock-out event after a certain date and time or {@code null} if there is no such event.
+	 *
+	 * @param dateTime
+	 *            the date and time after which the event is searched
+	 */
+	public Event getFirstClockOutEventAfter(DateTime dateTime) {
+		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > \""
+				+ DateTimeUtil.dateTimeToString(dateTime) + "\" AND " + EVENT_TYPE + " == \"0\"", false, true);
 		// if firstEvent is empty, then there is no such event in the database
 		return firstEvent.isEmpty() ? null : firstEvent.get(0);
 	}
