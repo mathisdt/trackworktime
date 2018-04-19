@@ -2,15 +2,15 @@ import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
 
-def buildTime() {
+static def buildTime() {
     def df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
     df.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"))
     return df.format(new Date())
 }
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     
     lintOptions {
         abortOnError false
@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId "org.zephyrsoft.trackworktime"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 27
     }
 
     buildTypes {
@@ -30,21 +30,18 @@ android {
     }
 
     // rename final APK files
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File(
-                    output.outputFile.parent,
-                    "TrackWorkTime_${variant.versionName}_${buildTime()}_${variant.buildType.name}${variant.signingReady ? "" : "-unsigned"}.apk")
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "TrackWorkTime_${variant.versionName}_${buildTime()}_${variant.buildType.name}${variant.signingReady ? "" : "-unsigned"}.apk"
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'ch.acra:acra:4.9.0'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'com.darwinsys:hirondelle-date4j:1.5.1'
-    compile 'com.getpebble:pebblekit:3.1.0@aar'
-    compile 'net.sf.supercsv:super-csv:2.4.0'
-    compile 'com.bignerdranch.android:recyclerview-multiselect:0.2'
+    implementation 'ch.acra:acra:4.9.0'
+    implementation 'org.apache.commons:commons-lang3:3.4'
+    implementation 'com.darwinsys:hirondelle-date4j:1.5.1'
+    implementation 'com.getpebble:pebblekit:3.1.0@aar'
+    implementation 'net.sf.supercsv:super-csv:2.4.0'
+    implementation 'com.bignerdranch.android:recyclerview-multiselect:0.2'
 }

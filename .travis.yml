@@ -13,10 +13,13 @@ jdk:
 android:
   components:
   - tools
-  - build-tools-25.0.0
-  - android-24
+  - build-tools-27.0.3
+  - android-27
   - extra-android-support
   - extra-android-m2repository
+  licenses:
+  - android-sdk-license-.+
+  - android-sdk-build-tools-.+
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
