@@ -19,56 +19,72 @@ package org.zephyrsoft.trackworktime;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
-import static org.acra.ReportField.AVAILABLE_MEM_SIZE;
 import static org.acra.ReportField.BRAND;
 import static org.acra.ReportField.BUILD;
 import static org.acra.ReportField.CRASH_CONFIGURATION;
-import static org.acra.ReportField.DEVICE_FEATURES;
-import static org.acra.ReportField.DISPLAY;
-import static org.acra.ReportField.ENVIRONMENT;
-import static org.acra.ReportField.FILE_PATH;
-import static org.acra.ReportField.INITIAL_CONFIGURATION;
+import static org.acra.ReportField.EVENTSLOG;
 import static org.acra.ReportField.INSTALLATION_ID;
+import static org.acra.ReportField.LOGCAT;
 import static org.acra.ReportField.PACKAGE_NAME;
 import static org.acra.ReportField.PHONE_MODEL;
 import static org.acra.ReportField.PRODUCT;
+import static org.acra.ReportField.RADIOLOG;
 import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.SHARED_PREFERENCES;
 import static org.acra.ReportField.STACK_TRACE;
-import static org.acra.ReportField.TOTAL_MEM_SIZE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 
 import org.acra.ACRA;
-import org.acra.ReportingInteractionMode;
-import org.acra.annotation.ReportsCrashes;
+import org.acra.annotation.AcraCore;
+import org.acra.annotation.AcraHttpSender;
+import org.acra.data.StringFormat;
 import org.acra.sender.HttpSender;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Application entry point.
  * 
  * @author Mathis Dirksen-Thedens
  */
-@ReportsCrashes(formUri = "https://crashreport.zephyrsoft.org/",
-		reportType = HttpSender.Type.JSON,
-		mode = ReportingInteractionMode.SILENT,
-		customReportContent = {
-				ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, AVAILABLE_MEM_SIZE, BRAND, BUILD, CRASH_CONFIGURATION,
-				DEVICE_FEATURES, DISPLAY, ENVIRONMENT, FILE_PATH, INITIAL_CONFIGURATION, INSTALLATION_ID, PACKAGE_NAME,
-				PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, TOTAL_MEM_SIZE, USER_APP_START_DATE,
-				USER_CRASH_DATE})
+@AcraCore(deleteUnapprovedReportsOnApplicationStart = false,
+	reportFormat = StringFormat.JSON,
+	reportContent = {
+		ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, BRAND, BUILD, CRASH_CONFIGURATION,
+		INSTALLATION_ID, LOGCAT, PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID,
+		SHARED_PREFERENCES, STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE},
+	alsoReportToAndroidFramework = true)
+// TODO switch to Notification or Dialog method, then set alsoReportToAndroidFramework = false
+@AcraHttpSender(httpMethod = HttpSender.Method.POST,
+	uri = "https://crashreport.zephyrsoft.org/")
 public class WorkTimeTrackerApplication extends Application {
 
 	@Override
 	public void onCreate() {
 		Logger.info("creating application");
+
+		NotificationChannel notificationChannel = null;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			CharSequence name = getString(R.string.channelName);
+			String description = getString(R.string.channelDescription);
+			int importance = NotificationManager.IMPORTANCE_DEFAULT;
+			notificationChannel = new NotificationChannel(getString(R.string.channelName), name, importance);
+			notificationChannel.setDescription(description);
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			notificationManager.createNotificationChannel(notificationChannel);
+		}
+
 		ACRA.init(this);
-		Basics.getOrCreateInstance(getApplicationContext());
+		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 
 		Logger.info("running self-tests");
 		TimeSum.test();

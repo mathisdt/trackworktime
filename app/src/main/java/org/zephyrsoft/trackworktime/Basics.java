@@ -38,6 +38,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -70,6 +71,7 @@ public class Basics extends BroadcastReceiver {
 	private TimerManager timerManager = null;
 	private TimeCalculator timeCalculator = null;
 	private ExternalNotificationManager externalNotificationManager = null;
+	private NotificationChannel notificationChannel = null;
 
 	private static Basics instance = null;
 
@@ -123,6 +125,14 @@ public class Basics extends BroadcastReceiver {
 		timerManager = new TimerManager(dao, preferences, context);
 		timeCalculator = new TimeCalculator(dao, timerManager);
 		externalNotificationManager = new ExternalNotificationManager(context);
+	}
+
+	public NotificationChannel getNotificationChannel() {
+		return notificationChannel;
+	}
+
+	public void setNotificationChannel(NotificationChannel notificationChannel) {
+		this.notificationChannel = notificationChannel;
 	}
 
 	private void schedulePeriodicIntents() {
@@ -242,7 +252,7 @@ public class Basics extends BroadcastReceiver {
 			}
 			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTimeString);
 			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString,
-				PendingIntent.getActivity(context, 0, clickIntent, Notification.FLAG_ONGOING_EVENT),
+				PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT),
 				Constants.PERSISTENT_STATUS_ID, true,
 				PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT),
 				R.drawable.ic_menu_forward, context.getString(R.string.clockInChangeShort),
@@ -497,6 +507,9 @@ public class Basics extends BroadcastReceiver {
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setTicker(scrollingText)
 				.setOngoing(persistent);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				notificationBuilder.setChannelId(getNotificationChannel().getId());
+			}
 			if (buttonOneIntent != null && buttonOneIcon != null) {
 				notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
 			}
@@ -537,7 +550,7 @@ public class Basics extends BroadcastReceiver {
 	}
 
 	public PendingIntent createMessagePendingIntent(String text, Integer id) {
-		return PendingIntent.getActivity(context, 0, createMessageIntent(text, id), Notification.FLAG_ONGOING_EVENT);
+		return PendingIntent.getActivity(context, 0, createMessageIntent(text, id), PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
 	/**

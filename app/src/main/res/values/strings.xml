@@ -54,7 +54,7 @@
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
     <string name="cannot_delete_task">The task cannot be deleted because it is still used in events.</string>
-    <string name="really_delete_event">Really delete the event?</string>
+    <string name="really_delete_event">Really delete the selected event(s)?</string>
     <string name="enableFlexiTime">Enable Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>
     <string name="preferences">Options</string>
@@ -151,5 +151,9 @@
     <string name="automaticTracking">Automatic Tracking</string>
     <string name="methodsGenerateEventsSeparately">Handle methods separately</string>
     <string name="methodsGenerateEventsSeparatelyDescription">if enabled, every tracking method (location, wifi) generates separate events - if disabled, only first clock-in and last clock-out counts</string>
-    
+    <string name="channelName">Track Work Time Notifications</string>
+    <string name="channelDescription">The category used for all notifications of Track Work Time.</string>
+    <string name="acraTitle">Oops!</string>
+    <string name="acraText">Track Work Time logged an error.</string>
+
 </resources>
