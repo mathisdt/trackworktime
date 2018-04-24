@@ -22,13 +22,11 @@ import static org.acra.ReportField.APP_VERSION_NAME;
 import static org.acra.ReportField.BRAND;
 import static org.acra.ReportField.BUILD;
 import static org.acra.ReportField.CRASH_CONFIGURATION;
-import static org.acra.ReportField.EVENTSLOG;
 import static org.acra.ReportField.INSTALLATION_ID;
 import static org.acra.ReportField.LOGCAT;
 import static org.acra.ReportField.PACKAGE_NAME;
 import static org.acra.ReportField.PHONE_MODEL;
 import static org.acra.ReportField.PRODUCT;
-import static org.acra.ReportField.RADIOLOG;
 import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.SHARED_PREFERENCES;
 import static org.acra.ReportField.STACK_TRACE;
@@ -48,8 +46,6 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Logger;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Application entry point.
