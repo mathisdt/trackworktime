@@ -32,6 +32,9 @@ public class Constants {
 	/** The pattern for vibration on automatic clock-in/clock-out (values in milliseconds). */
 	public static final long[] VIBRATION_PATTERN = { 0, 200, 250, 500, 250, 200 };
 
+	/** the directory in which backups and log files should be saved */
+	public static final String DATA_DIR = "trackworktime";
+
 	// notification IDs
 	/** used for the message about ACCESS_COARSE_LOCATION */
 	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;

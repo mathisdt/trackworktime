@@ -19,11 +19,11 @@ package org.zephyrsoft.trackworktime.location;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 import android.location.Location;
 import android.location.LocationListener;

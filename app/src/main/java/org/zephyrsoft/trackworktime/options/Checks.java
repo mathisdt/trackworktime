@@ -23,10 +23,10 @@ import java.util.Set;
 
 import android.content.SharedPreferences;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Container of all checks.
@@ -210,7 +210,7 @@ public class Checks {
 	public static boolean executeFor(Key key, SharedPreferences prefs) {
 		for (Check check : checks) {
 			if (check.usesPreference(key) && !check.check(prefs)) {
-				Logger.info("check \"{0}\" failed for option \"{1}\"", check.getDescription(), key.getName());
+				Logger.info("check \"{}\" failed for option \"{}\"", check.getDescription(), key.getName());
 				return false;
 			}
 		}

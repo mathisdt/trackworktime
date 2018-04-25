@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.DayLine;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -43,11 +44,9 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -528,7 +527,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private List<Event> fetchEventsForDay(DateTime day) {
-		Logger.debug("fetchEventsForDay: {0}", DateTimeUtil.dateTimeToDateString(day));
+		Logger.debug("fetchEventsForDay: {}", DateTimeUtil.dateTimeToDateString(day));
 		List<Event> ret = dao.getEventsOnDay(day);
 		DateTime now = DateTimeUtil.getCurrentDateTime();
 		Event lastEventBeforeNow = dao.getLastEventBefore(now);
@@ -906,7 +905,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	// ---------------------------------------------------------------------------------------------
 	// Backup, Restore
 	// ---------------------------------------------------------------------------------------------
-	private static final String BACKUP_DIR = "trackworktime";
 	private static final String BACKUP_FILE = "backup.csv";
 	private static final String AUTOMATIC_BACKUP_FILE = "automatic-backup.csv";
 
@@ -919,7 +917,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_BACKUP);
 			return;
 		}
-		final File backupDir = new File(Environment.getExternalStorageDirectory(), BACKUP_DIR);
+		final File backupDir = new File(Environment.getExternalStorageDirectory(), Constants.DATA_DIR);
 		final File backupFile = new File(backupDir, BACKUP_FILE);
 		if (backupDir == null) {
 			Toast.makeText(this, R.string.backup_failed, Toast.LENGTH_LONG).show();
@@ -958,7 +956,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			Logger.warn("automatic backup failed because getExternalStorageDirectory() returned null");
 			return;
 		}
-		final File backupDir = new File(externalStorageDirectory, BACKUP_DIR);
+		final File backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
 		final File backupFile = new File(backupDir, AUTOMATIC_BACKUP_FILE);
 
 		long yesterdayInMillis = DateTimeUtil.getCurrentDateTime().minusDays(1).getMilliseconds(TimeZone.getDefault());
@@ -1025,7 +1023,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_RESTORE);
 			return;
 		}
-		final File backupDir = new File(Environment.getExternalStorageDirectory(), BACKUP_DIR);
+		final File backupDir = new File(Environment.getExternalStorageDirectory(), Constants.DATA_DIR);
 		final File backupFile = new File(backupDir, BACKUP_FILE);
 		if (backupDir == null) {
 			final String msgBackupOverwrite = String.format(

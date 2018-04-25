@@ -25,9 +25,9 @@ import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * The background service providing the wifi-based tracking without having the activity open.

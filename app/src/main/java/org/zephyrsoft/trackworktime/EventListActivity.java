@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -37,21 +35,18 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.StateSet;
-import android.util.TypedValue;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
@@ -60,7 +55,6 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.WeekDayHelper;
 
 /**
@@ -132,7 +126,7 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	private void startEditing(Event event) {
-		Logger.debug("starting to edit the existing event with ID {0} ({1} @ {2})", event.getId(),
+		Logger.debug("starting to edit the existing event with ID {} ({} @ {})", event.getId(),
 				TypeEnum.byValue(
 						event.getType()).toString(), event.getTime());
 		Intent i = new Intent(this, EventEditActivity.class);
@@ -223,10 +217,10 @@ public class EventListActivity extends AppCompatActivity {
 											timerManager.updateWeekSum(week);
 											Basics.getInstance().safeCheckPersistentNotification();
 											if (success) {
-												Logger.debug("deleted event with ID {0}",
+												Logger.debug("deleted event with ID {}",
 														event.getId());
 											} else {
-												Logger.warn("could not delete event with ID {0}",
+												Logger.warn("could not delete event with ID {}",
 														event.getId());
 											}
 											myRecyclerView.getAdapter().notifyItemRemoved(i);

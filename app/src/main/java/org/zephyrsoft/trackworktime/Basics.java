@@ -16,9 +16,19 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import java.io.File;
 import java.util.Calendar;
 
 import org.acra.ACRA;
+import org.pmw.tinylog.Configurator;
+import org.pmw.tinylog.Level;
+import org.pmw.tinylog.Logger;
+import org.pmw.tinylog.labelers.TimestampLabeler;
+import org.pmw.tinylog.policies.DailyPolicy;
+import org.pmw.tinylog.policies.Policy;
+import org.pmw.tinylog.writers.LogcatWriter;
+import org.pmw.tinylog.writers.RollingFileWriter;
+import org.pmw.tinylog.writers.Writer;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.CoordinateUtil;
 import org.zephyrsoft.trackworktime.location.LocationCallback;
@@ -31,7 +41,6 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import android.annotation.TargetApi;
@@ -51,6 +60,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import hirondelle.date4j.DateTime;
@@ -125,6 +135,22 @@ public class Basics extends BroadcastReceiver {
 		timerManager = new TimerManager(dao, preferences, context);
 		timeCalculator = new TimeCalculator(dao, timerManager);
 		externalNotificationManager = new ExternalNotificationManager(context);
+
+		// init TinyLog
+		File backupDir = new File(".");
+		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
+		if (externalStorageDirectory != null) {
+			backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
+		}
+		String threadToObserve = Thread.currentThread().getName();
+		Configurator.defaultConfig()
+			.writer(new RollingFileWriter(backupDir.getAbsolutePath() + File.separatorChar + "log.txt",
+					5, false, new TimestampLabeler("yyyy-MM-dd"), new DailyPolicy()),
+					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {class}.{method} {level} {message}")
+			.addWriter(new LogcatWriter("trackworktime"), Level.DEBUG, "{message}")
+			.writingThread(threadToObserve, 1)
+			.activate();
+		Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
 	}
 
 	public NotificationChannel getNotificationChannel() {
@@ -250,7 +276,7 @@ public class Basics extends BroadcastReceiver {
 			} else {
 				// no second line displayed because no flexi time can be calculated
 			}
-			Logger.debug("persistent notification: worked={0} possiblefinish={1}", timeSoFar, targetTimeString);
+			Logger.debug("persistent notification: worked={} possiblefinish={}", timeSoFar, targetTimeString);
 			showNotification(null, "worked " + timeSoFar + " so far", targetTimeString,
 				PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT),
 				Constants.PERSISTENT_STATUS_ID, true,
@@ -283,21 +309,21 @@ public class Basics extends BroadcastReceiver {
 			try {
 				latitude = Double.parseDouble(latitudeString);
 			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse latitude: {0}", latitudeString);
+				Logger.warn("could not parse latitude: {}", latitudeString);
 				valuesParsable = false;
 			}
 			double longitude = 0.0;
 			try {
 				longitude = Double.parseDouble(longitudeString);
 			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse longitude: {0}", longitudeString);
+				Logger.warn("could not parse longitude: {}", longitudeString);
 				valuesParsable = false;
 			}
 			double tolerance = 0.0;
 			try {
 				tolerance = Double.parseDouble(toleranceString);
 			} catch (NumberFormatException nfe) {
-				Logger.warn("could not parse tolerance: {0}", toleranceString);
+				Logger.warn("could not parse tolerance: {}", toleranceString);
 				valuesParsable = false;
 			}
 			Boolean vibrate = preferences.getBoolean(Key.LOCATION_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
@@ -391,7 +417,7 @@ public class Basics extends BroadcastReceiver {
 
 				Logger
 					.debug(
-						"received current device location: lat={0} long={1} tol={2} / location-based tracking already enabled = {3}",
+						"received current device location: lat={} long={} tol={} / location-based tracking already enabled = {}",
 						latitude, longitude, tolerance, locationBasedTrackingEnabled);
 
 				SharedPreferences.Editor editor = preferences.edit();
@@ -422,7 +448,7 @@ public class Basics extends BroadcastReceiver {
 
 			@Override
 			public void error(Throwable t) {
-				Logger.warn("error receiving the current device location: {0}", t);
+				Logger.warn("error receiving the current device location: {}", t);
 				Intent messageIntent = createMessageIntent(
 					"Could not get the current location. Please ensure that this app can access the coarse location.",
 					null);
@@ -517,7 +543,7 @@ public class Basics extends BroadcastReceiver {
 				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
 			}
 			notification = notificationBuilder.build();
-			Logger.debug("prepared JellyBean+ notification {0} / {1} with button1={2} and button2={3}",
+			Logger.debug("prepared JellyBean+ notification {} / {} with button1={} and button2={}",
 				notificationTitle,
 				notificationSubtitle, buttonOneText, buttonTwoText);
 		} else {
@@ -526,7 +552,7 @@ public class Basics extends BroadcastReceiver {
 				notification.flags = Notification.FLAG_ONGOING_EVENT;
 			}
 //			notification.setLatestEventInfo(context, notificationTitle, notificationSubtitle, clickIntent);
-			Logger.debug("prepared pre-JellyBean notification {0} / {1} with button1={2} and button2={3}",
+			Logger.debug("prepared pre-JellyBean notification {} / {} with button1={} and button2={}",
 				notificationTitle, notificationSubtitle, buttonOneText, buttonTwoText);
 		}
 		notificationManager.notify(notificationId, notification);
@@ -639,7 +665,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
 		} catch (PackageManager.NameNotFoundException nnfe) {
-			Logger.error("could not get version name from manifest: {0}", nnfe.getMessage());
+			Logger.error("could not get version name from manifest: {}", nnfe.getMessage());
 			return "?";
 		}
 	}

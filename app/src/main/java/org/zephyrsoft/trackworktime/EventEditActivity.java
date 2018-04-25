@@ -40,6 +40,7 @@ import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -49,7 +50,6 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.WeekUtil;
 
 /**
@@ -151,10 +151,10 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 					selectedTask.getId());
 				String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
 				if (newEvent) {
-					Logger.debug("saving new event: {0} @ {1}", typeEnum.name(), timeString);
+					Logger.debug("saving new event: {} @ {}", typeEnum.name(), timeString);
 					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
 				} else {
-					Logger.debug("saving changed event with ID {0}: {1} @ {2}", editedEvent.getId(), typeEnum.name(),
+					Logger.debug("saving changed event with ID {}: {} @ {}", editedEvent.getId(), typeEnum.name(),
 						timeString);
 					editedEvent.setType(typeEnum.getValue());
 					editedEvent.setTime(timeString);
@@ -331,7 +331,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 			}
 
 			setWeekday();
-			Logger.debug("date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
+			Logger.debug("date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
 		}
 	}
 
@@ -339,7 +339,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 		selectedHour = hourOfDay;
 		selectedMinute = minute;
-		Logger.debug("time changed to {0}:{1}", hourOfDay, minute);
+		Logger.debug("time changed to {}:{}", hourOfDay, minute);
 	}
 
 	private DateTime getCurrentlySetDateAndTime() {

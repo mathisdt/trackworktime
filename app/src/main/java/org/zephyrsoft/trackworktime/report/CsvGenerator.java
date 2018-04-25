@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.pmw.tinylog.Logger;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.constraint.NotNull;
@@ -40,7 +41,6 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Creates CSV reports from events.
@@ -145,7 +145,7 @@ public class CsvGenerator {
 				beanWriter.write(event, header, eventProcessors);
 			}
 		} catch (IOException e) {
-			Logger.error("error while writing: {0}", e.getMessage());
+			Logger.error("error while writing: {}", e.getMessage());
 		} finally {
 			if (beanWriter != null) {
 				try {

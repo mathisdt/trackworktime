@@ -34,12 +34,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Activity for managing the events of a week.
@@ -121,7 +121,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 					}
 
 					setFromWeekday();
-					Logger.debug("from date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
+					Logger.debug("from date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
 				}
 			}
 		};
@@ -148,7 +148,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 					}
 
 					setToWeekday();
-					Logger.debug("to date changed to {0}-{1}-{2}", year, monthOfYear, dayOfMonth);
+					Logger.debug("to date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
 				}
 			}
 		};
@@ -174,7 +174,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 				Integer taskId = selectedTask == null ? null : selectedTask.getId();
 				String textString = text.getText().toString();
 
-				Logger.info("inserting default times from {0} to {1} with task=\"{2}\" and text=\"{3}\"", from, to,
+				Logger.info("inserting default times from {} to {} with task=\"{}\" and text=\"{}\"", from, to,
 					taskId, textString);
 
 				// save the resulting events

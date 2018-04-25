@@ -42,10 +42,10 @@ import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraHttpSender;
 import org.acra.data.StringFormat;
 import org.acra.sender.HttpSender;
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Application entry point.

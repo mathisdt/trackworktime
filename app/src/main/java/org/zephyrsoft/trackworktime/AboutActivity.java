@@ -31,8 +31,6 @@ import android.text.Html;
 import android.text.util.Linkify;
 import android.widget.TextView;
 
-import org.zephyrsoft.trackworktime.util.Logger;
-
 /**
  * About dialog.
  * 

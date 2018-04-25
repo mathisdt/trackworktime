@@ -32,11 +32,11 @@ import android.preference.PreferenceActivity;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.options.AppCompatPreferenceActivity;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.util.Logger;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 /**
@@ -94,7 +94,7 @@ public class OptionsActivity extends AppCompatPreferenceActivity implements OnSh
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String keyName) {
 		Key sectionToDisable = PreferencesUtil.check(sharedPreferences, keyName);
 		if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(sharedPreferences, sectionToDisable)) {
-			Logger.warn("option {0} is invalid => disabling option {1}", keyName, sectionToDisable.getName());
+			Logger.warn("option {} is invalid => disabling option {}", keyName, sectionToDisable.getName());
 
 			// show message to user
 			Intent messageIntent = Basics

@@ -20,7 +20,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.zephyrsoft.trackworktime.util.Logger;
+import org.pmw.tinylog.Logger;
 
 /**
  * Helper class to manage the SQLite database.
@@ -107,7 +107,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-		Logger.warn("upgrading database from version {0} to {1}", oldVersion, newVersion);
+		Logger.warn("upgrading database from version {} to {}", oldVersion, newVersion);
 		int currentVersion = oldVersion;
 		if (currentVersion <= 1) {
 			database.execSQL("drop table if exists " + TASK);

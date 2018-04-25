@@ -16,7 +16,6 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -25,7 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.zephyrsoft.trackworktime.util.Logger;
+import org.pmw.tinylog.Logger;
 
 /**
  * Activity for querying the amount of time which the new event should be pre-dated.
@@ -64,7 +63,7 @@ public class TimeAheadActivity extends AppCompatActivity {
 				try {
 					minutesValue = Integer.parseInt(minutes.getText().toString());
 				} catch (NumberFormatException nfe) {
-					Logger.warn("could not convert \"{0}\" to int", minutes.getText().toString());
+					Logger.warn("could not convert \"{}\" to int", minutes.getText().toString());
 				}
 				switch (typeIndicator) {
 					case 0:
@@ -74,7 +73,7 @@ public class TimeAheadActivity extends AppCompatActivity {
 						WorkTimeTrackerActivity.getInstance().clockOutAction(minutesValue);
 						break;
 					default:
-						Logger.error("type {0} is unknown, doing nothing", typeIndicator);
+						Logger.error("type {} is unknown, doing nothing", typeIndicator);
 						break;
 				}
 				finish();

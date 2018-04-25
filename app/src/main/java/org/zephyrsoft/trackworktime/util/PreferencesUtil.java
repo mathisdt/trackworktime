@@ -20,6 +20,7 @@ import java.util.Set;
 
 import android.content.SharedPreferences;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
@@ -42,7 +43,7 @@ public class PreferencesUtil {
 		for (String key : preferences.getAll().keySet()) {
 			Key sectionToDisable = PreferencesUtil.check(preferences, key);
 			if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
-				Logger.warn("option {0} is invalid => disabling option {1}", key, sectionToDisable.getName());
+				Logger.warn("option {} is invalid => disabling option {}", key, sectionToDisable.getName());
 				disabledSections++;
 
 				// deactivate the section

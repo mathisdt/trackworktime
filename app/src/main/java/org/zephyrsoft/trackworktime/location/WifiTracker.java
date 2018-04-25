@@ -19,11 +19,11 @@ package org.zephyrsoft.trackworktime.location;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
@@ -109,9 +109,9 @@ public class WifiTracker {
 	 * check if wifi-ssid is in range and start/stop tracking
 	 */
 	public void checkWifi() {
-		Logger.debug("checking wifi for ssid \"{0}\"", ssid);
+		Logger.debug("checking wifi for ssid \"{}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange();
-		Logger.debug("wifi-ssid \"{0}\" in range now: {1}, previous state: {2}", ssid, ssidIsNowInRange,
+		Logger.debug("wifi-ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
 
 		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && !ssidIsNowInRange) {

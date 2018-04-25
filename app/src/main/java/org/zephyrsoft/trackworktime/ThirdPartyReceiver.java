@@ -21,10 +21,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
@@ -42,7 +42,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockIn")) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
-			Logger.info("TRACKING: clock-in via broadcast / taskId={0} / text={1}", taskId, text);
+			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
 				taskId, TypeEnum.CLOCK_IN, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
@@ -52,7 +52,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		} else if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockOut")) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
-			Logger.info("TRACKING: clock-out via broadcast / taskId={0} / text={1}", taskId, text);
+			Logger.info("TRACKING: clock-out via broadcast / taskId={} / text={}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
 				taskId, TypeEnum.CLOCK_OUT, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();

@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -44,7 +45,6 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Manages the time tracking.
@@ -113,7 +113,7 @@ public class TimerManager {
 		try {
 			ignoreBefore = Integer.parseInt(ignoreBeforeString);
 		} catch (NumberFormatException nfe) {
-			Logger.warn("illegal value - ignore before events: {0}", ignoreBeforeString);
+			Logger.warn("illegal value - ignore before events: {}", ignoreBeforeString);
 		}
 		if (firstAfterNow != null) {
 			DateTime firstAfterNowTime = DateTimeUtil.stringToDateTime(firstAfterNow.getTime());
@@ -129,7 +129,7 @@ public class TimerManager {
 		try {
 			ignoreAfter = Integer.parseInt(ignoreAfterString);
 		} catch (NumberFormatException nfe) {
-			Logger.warn("illegal value - ignore after events: {0}", ignoreAfterString);
+			Logger.warn("illegal value - ignore after events: {}", ignoreAfterString);
 		}
 		if (lastBeforeNow != null) {
 			DateTime lastBeforeNowTime = DateTimeUtil.stringToDateTime(lastBeforeNow.getTime());
@@ -205,7 +205,7 @@ public class TimerManager {
 	 */
 	public TimeSum calculateTimeSum(DateTime date, PeriodEnum periodEnum) {
 		// TODO restructure to clarify!
-		Logger.debug("calculating time sum for {0} containing {1}", periodEnum.name(), DateTimeUtil
+		Logger.debug("calculating time sum for {} containing {}", periodEnum.name(), DateTimeUtil
 			.dateTimeToString(date));
 		TimeSum ret = new TimeSum();
 
@@ -269,7 +269,7 @@ public class TimerManager {
 					int differenceInDays = eventTime.getDay() - eventBeforeTime.getDay();
 					if (differenceInDays > 0) {
 						ret.add(24 * differenceInDays, 0);
-						Logger.info("events on different days: {0} => {1}", eventBefore, event);
+						Logger.info("events on different days: {} => {}", eventBefore, event);
 					}
 				}
 				clockedInSince = null;
@@ -350,12 +350,12 @@ public class TimerManager {
 				target.add(0, targetMinutes);
 			}
 
-			Logger.debug("alreadyWorked={0}", alreadyWorked.toString());
-			Logger.debug("target={0}", target.toString());
+			Logger.debug("alreadyWorked={}", alreadyWorked.toString());
+			Logger.debug("target={}", target.toString());
 
-			Logger.debug("isAutoPauseEnabled={0}", isAutoPauseEnabled());
-			Logger.debug("isAutoPauseTheoreticallyApplicable={0}", isAutoPauseTheoreticallyApplicable(dateTime));
-			Logger.debug("isAutoPauseApplicable={0}", isAutoPauseApplicable(dateTime));
+			Logger.debug("isAutoPauseEnabled={}", isAutoPauseEnabled());
+			Logger.debug("isAutoPauseTheoreticallyApplicable={}", isAutoPauseTheoreticallyApplicable(dateTime));
+			Logger.debug("isAutoPauseApplicable={}", isAutoPauseApplicable(dateTime));
 			if (isAutoPauseEnabled() && isAutoPauseTheoreticallyApplicable(dateTime)
 				&& !isAutoPauseApplicable(dateTime)) {
 				// auto-pause is necessary, but was NOT already taken into account by calculateTimeSum():
@@ -366,7 +366,7 @@ public class TimerManager {
 				alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
 			}
 			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
-			Logger.debug("minutesRemaining={0}", minutesRemaining);
+			Logger.debug("minutesRemaining={}", minutesRemaining);
 
 			return minutesRemaining;
 		} else {
@@ -396,7 +396,7 @@ public class TimerManager {
 				// substract the target work time
 				ret.substract(0, targetWorkTime.getAsMinutes());
 			} else {
-				Logger.warn("week {0} (starting at {1}) has a null sum", week.getId(), week.getStart());
+				Logger.warn("week {} (starting at {}) has a null sum", week.getId(), week.getStart());
 			}
 		}
 
@@ -575,7 +575,7 @@ public class TimerManager {
 		}
 
 		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
-		Logger.debug("TRACKING: {0} @ {1} taskId={2} text={3}", type.name(), time, taskId, text);
+		Logger.debug("TRACKING: {} @ {} taskId={} text={}", type.name(), time, taskId, text);
 		event = dao.insertEvent(event);
 
 		updateWeekSum(currentWeek);
@@ -590,7 +590,7 @@ public class TimerManager {
 	public void updateWeekSum(Week week) {
 		TimeSum sum = calculateTimeSum(DateTimeUtil.stringToDateTime(week.getStart()), PeriodEnum.WEEK);
 		int minutes = sum.getAsMinutes();
-		Logger.info("updating the time sum to {0} minutes for the week beginning at {1}", minutes, week.getStart());
+		Logger.info("updating the time sum to {} minutes for the week beginning at {}", minutes, week.getStart());
 		Week weekToUse = week;
 		if (week instanceof WeekPlaceholder) {
 			weekToUse = createPersistentWeek(week.getStart());
@@ -623,7 +623,7 @@ public class TimerManager {
 			// insert auto-pause events
 			DateTime begin = getAutoPauseBegin(dateTime);
 			DateTime end = getAutoPauseEnd(dateTime);
-			Logger.debug("inserting auto-pause, begin={0}, end={1}", begin, end);
+			Logger.debug("inserting auto-pause, begin={}, end={}", begin, end);
 			Event lastBeforePause = dao.getLastEventBefore(begin);
 			createEvent(begin, null, TypeEnum.CLOCK_OUT, null);
 			createEvent(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
@@ -746,13 +746,13 @@ public class TimerManager {
 	public boolean clockInWithTrackingMethod(TrackingMethod method) {
 		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
 		if (getTrackingMethodsGenerateEventsSeparately()) {
-			Logger.debug("clocking in with method {0} forcibly", method.name());
+			Logger.debug("clocking in with method {} forcibly", method.name());
 			return setTrackingMethodClockInStateForcibly(method, true);
 		} else if (currentlyClockedInWithMethod) {
-			Logger.debug("already clocked in with method {0}", method.name());
+			Logger.debug("already clocked in with method {}", method.name());
 			return false;
 		} else {
-			Logger.debug("clocking in with method {0}", method.name());
+			Logger.debug("clocking in with method {}", method.name());
 			return setTrackingMethodClockInState(method, true);
 		}
 	}
@@ -760,13 +760,13 @@ public class TimerManager {
 	public boolean clockOutWithTrackingMethod(TrackingMethod method) {
 		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
 		if (getTrackingMethodsGenerateEventsSeparately()) {
-			Logger.debug("clocking out with method {0} forcibly", method.name());
+			Logger.debug("clocking out with method {} forcibly", method.name());
 			return setTrackingMethodClockInStateForcibly(method, false);
 		} else if (!currentlyClockedInWithMethod) {
-			Logger.debug("not clocked in with method {0}", method.name());
+			Logger.debug("not clocked in with method {}", method.name());
 			return false;
 		} else {
-			Logger.debug("clocking out with method {0}", method.name());
+			Logger.debug("clocking out with method {}", method.name());
 			return setTrackingMethodClockInState(method, false);
 		}
 	}
@@ -801,10 +801,10 @@ public class TimerManager {
 				// we are not clocked in already by hand or by another method, so generate an event (first method
 				// clocking in)
 				startTracking(0, null, null);
-				Logger.debug("method {0}: started tracking", method);
+				Logger.debug("method {}: started tracking", method);
 				return true;
 			} else {
-				Logger.debug("method {0}: NOT started tracking (was not first method or already clocked in manually)",
+				Logger.debug("method {}: NOT started tracking (was not first method or already clocked in manually)",
 					method);
 				return false;
 			}
@@ -813,10 +813,10 @@ public class TimerManager {
 			if (!isClockedInWithAnyOtherTrackingMethod(method) && isTracking()) {
 				// we are not clocked in by hand or by another method, so generate an event (last method clocking out)
 				stopTracking(0);
-				Logger.debug("method {0}: stopped tracking", method);
+				Logger.debug("method {}: stopped tracking", method);
 				return true;
 			} else {
-				Logger.debug("method {0}: NOT stopped tracking (was not last method or already clocked out manually)",
+				Logger.debug("method {}: NOT stopped tracking (was not last method or already clocked out manually)",
 					method);
 				return false;
 			}
@@ -828,10 +828,10 @@ public class TimerManager {
 			// method is clocked in now - should we generate a clock-in event?
 			if (!isTracking()) {
 				startTracking(0, null, null);
-				Logger.debug("method {0}: started tracking forcibly", method);
+				Logger.debug("method {}: started tracking forcibly", method);
 				return true;
 			} else {
-				Logger.debug("method {0}: NOT started tracking forcibly (already clocked in)",
+				Logger.debug("method {}: NOT started tracking forcibly (already clocked in)",
 					method);
 				return false;
 			}
@@ -839,10 +839,10 @@ public class TimerManager {
 			// method is clocked out now - should we generate a clock-out event?
 			if (isTracking()) {
 				stopTracking(0);
-				Logger.debug("method {0}: stopped tracking forcibly", method);
+				Logger.debug("method {}: stopped tracking forcibly", method);
 				return true;
 			} else {
-				Logger.debug("method {0}: NOT stopped tracking forcibly (already clocked out)",
+				Logger.debug("method {}: NOT stopped tracking forcibly (already clocked out)",
 					method);
 				return false;
 			}

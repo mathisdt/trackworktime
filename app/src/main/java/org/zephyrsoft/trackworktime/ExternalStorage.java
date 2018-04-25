@@ -23,8 +23,8 @@ import java.io.IOException;
 import android.content.Context;
 import android.os.Environment;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Can manage directories and files on external storage.
@@ -36,12 +36,12 @@ public class ExternalStorage {
 	public static File getDirectory(String subDirectory, Context context) {
 		File externalStorageDirectory = context.getExternalFilesDir(null);
 		if (!isExternalStorageWritable()) {
-			Logger.error("external storage {0} is not writable", externalStorageDirectory);
+			Logger.error("external storage {} is not writable", externalStorageDirectory);
 			return null;
 		}
 		File twtDirectory = new File(externalStorageDirectory, "trackworktime");
 		if (!twtDirectory.isDirectory() && !twtDirectory.mkdirs()) {
-			Logger.error("directory {0} could not be created", twtDirectory);
+			Logger.error("directory {} could not be created", twtDirectory);
 			return null;
 		}
 		File targetDirectory;
@@ -51,11 +51,11 @@ public class ExternalStorage {
 			targetDirectory = twtDirectory;
 		}
 		if (!targetDirectory.isDirectory() && !targetDirectory.mkdirs()) {
-			Logger.error("directory {0} could not be created", targetDirectory);
+			Logger.error("directory {} could not be created", targetDirectory);
 			return null;
 		}
 		if (!targetDirectory.canWrite()) {
-			Logger.error("directory {0} is not writable", targetDirectory);
+			Logger.error("directory {} is not writable", targetDirectory);
 			return null;
 		}
 		return targetDirectory;
@@ -64,7 +64,7 @@ public class ExternalStorage {
 	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent, Context context) {
 		File targetDirectory = getDirectory(subDirectory, context);
 		if (targetDirectory == null) {
-			Logger.error("target {0} is not writable", targetDirectory);
+			Logger.error("target {} is not writable", targetDirectory);
 			return null;
 		}
 		String timeStamp = DateTimeUtil.getCurrentDateTime().format("YYYY-MM-DD-hh-mm-ss");
@@ -79,7 +79,7 @@ public class ExternalStorage {
 			fos = new FileOutputStream(file);
 			fos.write(fileContent);
 		} catch (Exception e) {
-			Logger.error("file {0} could not be written", file);
+			Logger.error("file {} could not be written", file);
 			return null;
 		} finally {
 			if (fos != null) {

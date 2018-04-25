@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.DayLine;
@@ -36,7 +37,6 @@ import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Calculates the actual work times from events.
@@ -107,7 +107,7 @@ public class TimeCalculator {
 		if (minutesWorked > Integer.MAX_VALUE - 60) {
 			// this is extremely unlikely, someone would have to work 4084 years without pause...
 			int correctedMinutesWorked = Integer.MAX_VALUE - 60;
-			Logger.warn("could not handle {0} minutes, number is too high - taking {1} instead",
+			Logger.warn("could not handle {} minutes, number is too high - taking {} instead",
 				minutesWorked, correctedMinutesWorked);
 		}
 		sumForTask.add(0, (int) minutesWorked);

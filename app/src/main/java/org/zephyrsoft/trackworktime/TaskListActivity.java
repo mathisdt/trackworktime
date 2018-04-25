@@ -35,9 +35,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.util.Logger;
 
 /**
  * Activity for managing the tasks that the user can select. A task can be deleted if no reference to it exists, but it
@@ -124,7 +124,7 @@ public class TaskListActivity extends AppCompatActivity {
 						String value = input.getText().toString();
 						// create new task in DB
 						Task newTask = dao.insertTask(new Task(null, value, 1, 0, 0));
-						Logger.debug("inserted new task: {0}", newTask);
+						Logger.debug("inserted new task: {}", newTask);
 						tasks.add(newTask);
 						tasksAdapter.notifyDataSetChanged();
 						refreshTasksOnParent();
@@ -191,7 +191,7 @@ public class TaskListActivity extends AppCompatActivity {
 						oldTask.setName(value);
 						// update task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID {0} to have the new name: {1}", oldTask.getId(), updatedTask
+						Logger.debug("updated task with ID {} to have the new name: {}", oldTask.getId(), updatedTask
 							.getName());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
@@ -232,13 +232,13 @@ public class TaskListActivity extends AppCompatActivity {
 				if (previousDefault != null) {
 					// unset previous default
 					Task updatedPreviousDefault = dao.updateTask(previousDefault);
-					Logger.debug("updated task with ID {0} to have the new isDefault value: {1}",
+					Logger.debug("updated task with ID {} to have the new isDefault value: {}",
 						previousDefault.getId(), updatedPreviousDefault.getIsDefault());
 					tasks.remove(previousDefaultPosition);
 					tasks.add(previousDefaultPosition, updatedPreviousDefault);
 				}
 				Task toggledTask = dao.updateTask(oldTask);
-				Logger.debug("updated task with ID {0} to have the new isDefault value: {1}", oldTask.getId(),
+				Logger.debug("updated task with ID {} to have the new isDefault value: {}", oldTask.getId(),
 					toggledTask.getIsDefault());
 				tasks.remove(taskPosition);
 				tasks.add(taskPosition, toggledTask);
@@ -264,7 +264,7 @@ public class TaskListActivity extends AppCompatActivity {
 						}
 						// enable or disable task in DB
 						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID {0} to have the new active value: {1}", oldTask.getId(),
+						Logger.debug("updated task with ID {} to have the new active value: {}", oldTask.getId(),
 							updatedTask.getActive());
 						tasks.remove(taskPosition);
 						tasks.add(taskPosition, updatedTask);
@@ -307,11 +307,11 @@ public class TaskListActivity extends AppCompatActivity {
 							// delete task in DB
 							boolean success = dao.deleteTask(oldTask);
 							if (success) {
-								Logger.debug("deleted task with ID {0} and name {1}", oldTask.getId(), oldTask
+								Logger.debug("deleted task with ID {} and name {}", oldTask.getId(), oldTask
 									.getName());
 								tasks.remove(taskPosition);
 							} else {
-								Logger.warn("could not delete task with ID {0} and name {1}", oldTask.getId(), oldTask
+								Logger.warn("could not delete task with ID {} and name {}", oldTask.getId(), oldTask
 									.getName());
 							}
 							tasksAdapter.notifyDataSetChanged();
