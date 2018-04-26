@@ -144,7 +144,7 @@ public class Basics extends BroadcastReceiver {
 		Configurator.defaultConfig()
 			.writer(new RollingFileWriter(backupDir.getAbsolutePath() + File.separatorChar + "log.txt",
 					5, false, new TimestampLabeler("yyyy-MM-dd"), new DailyPolicy()),
-					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {class}.{method} {level} {message}")
+					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {level} {class_name}.{method} - {message}")
 			.addWriter(new LogcatWriter("trackworktime"), Level.DEBUG, "{message}")
 			.writingThread(threadToObserve, 1)
 			.activate();
