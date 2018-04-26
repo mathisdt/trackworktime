@@ -31,7 +31,7 @@ public enum WeekDayEnum {
 	private int value;
 	private WeekDayEnum nextWeekDay;
 
-	private WeekDayEnum(int value, WeekDayEnum nextWeekDay) {
+	WeekDayEnum(int value, WeekDayEnum nextWeekDay) {
 		this.value = value;
 		this.nextWeekDay = nextWeekDay;
 	}

@@ -16,11 +16,11 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import hirondelle.date4j.DateTime;
+import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 
 import java.util.TimeZone;
 
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import hirondelle.date4j.DateTime;
 
 /**
  * Utility class for handling {@link DateTime} objects and converting them.
@@ -37,6 +37,16 @@ public class DateTimeUtil {
 	public static DateTime getCurrentDateTime() {
 		DateTime now = DateTime.now(TimeZone.getDefault());
 		return now;
+	}
+
+	/**
+	 * Gets the current date as formatted string.
+	 *
+	 * @return date in format "YYYY-MM-DD"
+	 */
+	public static String getCurrentDateAsString() {
+		DateTime now = DateTime.now(TimeZone.getDefault());
+		return now.format("YYYY-MM-DD");
 	}
 
 	/**
@@ -223,8 +233,8 @@ public class DateTimeUtil {
 		try {
 			DateTime toTest = parseTimeForToday("");
 			valid = toTest != null
-				&& toTest.getHour().intValue() == 0
-				&& toTest.getMinute().intValue() == 0;
+				&& toTest.getHour() == 0
+				&& toTest.getMinute() == 0;
 		} catch (Exception e) {
 			throw new AssertionError(": " + e.getMessage());
 		}

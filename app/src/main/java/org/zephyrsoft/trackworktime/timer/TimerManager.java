@@ -16,15 +16,6 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -45,6 +36,15 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Manages the time tracking.
@@ -95,7 +95,7 @@ public class TimerManager {
 	 */
 	public boolean isTracking() {
 		Event latestEvent = dao.getLastEventBeforeIncluding(DateTimeUtil.getCurrentDateTime());
-		return latestEvent == null ? false : latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
+		return latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class TimerManager {
 	 *            free text to describe in detail what was done
 	 */
 	public void startTracking(int minutesToPredate, Task selectedTask, String text) {
-		Task taskToLink = selectedTask == null ? null : selectedTask;
+		Task taskToLink = selectedTask;
 		if (taskToLink == null) {
 			taskToLink = dao.getDefaultTask();
 		}
@@ -212,17 +212,20 @@ public class TimerManager {
 		DateTime beginOfPeriod = null;
 		DateTime endOfPeriod = null;
 		List<Event> events = null;
-		if (periodEnum == PeriodEnum.DAY) {
-			beginOfPeriod = date.getStartOfDay();
-			endOfPeriod = beginOfPeriod.plusDays(1);
-			events = dao.getEventsOnDay(date);
-		} else if (periodEnum == PeriodEnum.WEEK) {
-			beginOfPeriod = DateTimeUtil.getWeekStart(date);
-			endOfPeriod = beginOfPeriod.plusDays(7);
-			Week week = dao.getWeek(DateTimeUtil.dateTimeToString(beginOfPeriod));
-			events = dao.getEventsInWeek(week);
-		} else {
-			throw new IllegalArgumentException("unknown period type");
+		switch (periodEnum) {
+			case DAY:
+				beginOfPeriod = date.getStartOfDay();
+				endOfPeriod = beginOfPeriod.plusDays(1);
+				events = dao.getEventsOnDay(date);
+				break;
+			case WEEK:
+				beginOfPeriod = DateTimeUtil.getWeekStart(date);
+				endOfPeriod = beginOfPeriod.plusDays(7);
+				Week week = dao.getWeek(DateTimeUtil.dateTimeToString(beginOfPeriod));
+				events = dao.getEventsInWeek(week);
+				break;
+			default:
+				throw new IllegalArgumentException("unknown period type");
 		}
 		Event lastEventBefore = dao.getLastEventBefore(beginOfPeriod);
 		DateTime lastEventBeforeTime = (lastEventBefore == null ? null : DateTimeUtil.stringToDateTime(lastEventBefore
@@ -338,7 +341,7 @@ public class TimerManager {
 				DateTime weekStart = DateTimeUtil.getWeekStart(dateTime);
 				target = new TimeSum();
 				target.addOrSubstract(targetTimePerDay); // add today as well
-				while (weekStart.getWeekDay() != dateTime.getWeekDay()) {
+				while (weekStart.getWeekDay().intValue() != dateTime.getWeekDay().intValue()) {
 					target.addOrSubstract(targetTimePerDay);
 					weekStart = weekStart.plusDays(1);
 				}
@@ -718,7 +721,7 @@ public class TimerManager {
 	private Collection<TrackingMethod> readCurrentlyActiveTrackingMethods() {
 		String activeMethodsString = preferences.getString(context.getString(R.string.keyActiveMethods), "");
 		String[] activeMethodsStrings = StringUtils.split(activeMethodsString, ',');
-		Collection<TrackingMethod> result = new ArrayList<TrackingMethod>(activeMethodsStrings.length);
+		Collection<TrackingMethod> result = new ArrayList<>(activeMethodsStrings.length);
 		for (String activeMethodString : activeMethodsStrings) {
 			result.add(TrackingMethod.valueOf(activeMethodString));
 		}

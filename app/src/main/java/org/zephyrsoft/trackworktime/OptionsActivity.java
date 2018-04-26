@@ -16,21 +16,14 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
@@ -38,6 +31,9 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.options.AppCompatPreferenceActivity;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * Activity to set the preferences of the application.
@@ -53,15 +49,6 @@ public class OptionsActivity extends AppCompatPreferenceActivity implements OnSh
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.options);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
-			// Backup to Google servers is not supported before Froyo
-			Preference backupEnabledPreference = findPreference(getString(R.string.keyBackupEnabled));
-			if (backupEnabledPreference != null) {
-				backupEnabledPreference.setEnabled(false);
-			} else {
-				Logger.warn("preference 'backup enabled' not found!");
-			}
-		}
 		backupManager = new WorkTimeTrackerBackupManager(this);
 		setTimestamps();
 	}
@@ -183,15 +170,11 @@ public class OptionsActivity extends AppCompatPreferenceActivity implements OnSh
 		showTimestampPrefIcon(lastBackupPref, dateLocalStr, dateBackupStr);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void showTimestampPrefIcon(final Preference timestampPref, final String dateLocalStr,
-		final String dateBackupStr) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			if (dateLocalStr.equals(dateBackupStr)) {
-				timestampPref.setIcon(R.drawable.backup_ok);
-			} else {
-				timestampPref.setIcon(R.drawable.backup_not_ok);
-			}
+	private void showTimestampPrefIcon(final Preference timestampPref, final String dateLocalStr, final String dateBackupStr) {
+		if (dateLocalStr.equals(dateBackupStr)) {
+			timestampPref.setIcon(R.drawable.backup_ok);
+		} else {
+			timestampPref.setIcon(R.drawable.backup_not_ok);
 		}
 	}
 }

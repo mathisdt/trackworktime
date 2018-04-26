@@ -43,7 +43,7 @@ public enum TypeEnum {
 	private Integer value = null;
 	private String readableName = null;
 
-	private TypeEnum(Integer value, String readableName) {
+	TypeEnum(Integer value, String readableName) {
 		this.value = value;
 		this.readableName = readableName;
 	}

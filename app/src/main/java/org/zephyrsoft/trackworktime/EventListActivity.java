@@ -16,14 +16,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -56,6 +49,12 @@ import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.WeekDayHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+
+import hirondelle.date4j.DateTime;
 
 /**
  * Activity for managing the events of a week.
@@ -97,7 +96,7 @@ public class EventListActivity extends AppCompatActivity {
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
 		weekStart = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
-		events = new ArrayList<Event>();
+		events = new ArrayList<>();
 		refreshView();
 		myEventAdapter = new EventAdapter();
 		myRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -205,38 +204,32 @@ public class EventListActivity extends AppCompatActivity {
 					alert.setMessage(getString(R.string.really_delete_event));
 
 					alert.setPositiveButton(getString(R.string.ok),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int whichButton) {
-									for (int i = events.size(); i >= 0; i--) {
-										if (myMultiSelector.isSelected(i, 0)) {
-											Event event = events.remove(i);
-											// delete event in DB
-											boolean success = dao.deleteEvent(event);
-											// we have to call this manually when using the DAO directly:
-											timerManager.updateWeekSum(week);
-											Basics.getInstance().safeCheckPersistentNotification();
-											if (success) {
-												Logger.debug("deleted event with ID {}",
-														event.getId());
-											} else {
-												Logger.warn("could not delete event with ID {}",
-														event.getId());
-											}
-											myRecyclerView.getAdapter().notifyItemRemoved(i);
-										}
-									}
+                        (dialog, whichButton) -> {
+                            for (int i = events.size(); i >= 0; i--) {
+                                if (myMultiSelector.isSelected(i, 0)) {
+                                    Event event = events.remove(i);
+                                    // delete event in DB
+                                    boolean success = dao.deleteEvent(event);
+                                    // we have to call this manually when using the DAO directly:
+                                    timerManager.updateWeekSum(week);
+                                    Basics.getInstance().safeCheckPersistentNotification();
+                                    if (success) {
+                                        Logger.debug("deleted event with ID {}",
+                                                event.getId());
+                                    } else {
+                                        Logger.warn("could not delete event with ID {}",
+                                                event.getId());
+                                    }
+                                    myRecyclerView.getAdapter().notifyItemRemoved(i);
+                                }
+                            }
 
-									myMultiSelector.clearSelections();
-								}
-							});
+                            myMultiSelector.clearSelections();
+                        });
 					alert.setNegativeButton(getString(R.string.cancel),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									// do nothing
-								}
-							});
+                        (dialog, which) -> {
+                            // do nothing
+                        });
 					alert.show();
 
 					actionMode.finish();
@@ -333,12 +326,15 @@ public class EventListActivity extends AppCompatActivity {
 			DateTime dateTime = DateTimeUtil.stringToDateTime(object.getTime());
 			TypeEnum type = TypeEnum.byValue(object.getType());
 			String typeString;
-			if (type == TypeEnum.CLOCK_IN) {
-				typeString = "IN";
-			} else if (type == TypeEnum.CLOCK_OUT) {
-				typeString = "OUT";
-			} else {
-				throw new IllegalStateException("unrecognized event type");
+			switch (type) {
+				case CLOCK_IN:
+					typeString = "IN";
+					break;
+				case CLOCK_OUT:
+					typeString = "OUT";
+					break;
+				default:
+					throw new IllegalStateException("unrecognized event type");
 			}
 			return DateTimeUtil.dateTimeToDateString(dateTime) + " / "
 					+ DateTimeUtil.dateTimeToHourMinuteString(dateTime) + ": " + typeString;

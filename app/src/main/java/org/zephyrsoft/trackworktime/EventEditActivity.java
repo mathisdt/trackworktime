@@ -16,20 +16,10 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
-
-import java.util.List;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
@@ -51,6 +41,11 @@ import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.WeekUtil;
+
+import java.util.List;
+
+import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Activity for managing the events of a week.
@@ -118,66 +113,55 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
 
-		clockIn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				setTaskAndTextEditable(isChecked);
-			}
-		});
+		clockIn.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskAndTextEditable(isChecked));
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
+		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 
-		save.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// commit all edit fields
-				date.clearFocus();
-				time.clearFocus();
-				text.clearFocus();
+		save.setOnClickListener(v -> {
+            // commit all edit fields
+            date.clearFocus();
+            time.clearFocus();
+            text.clearFocus();
 
-				// call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
-				// => https://code.google.com/p/android/issues/detail?id=78861
-				onDateChanged(date, date.getYear(), date.getMonth(), date.getDayOfMonth());
-				onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
+            // call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
+            // => https://code.google.com/p/android/issues/detail?id=78861
+            onDateChanged(date, date.getYear(), date.getMonth(), date.getDayOfMonth());
+            onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
 
-				// save the event
-				TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
-				DateTime dateTime = getCurrentlySetDateAndTime();
-				String timeString = DateTimeUtil.dateTimeToString(dateTime);
-				Task selectedTask = (Task) task.getSelectedItem();
-				Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
-					selectedTask.getId());
-				String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
-				if (newEvent) {
-					Logger.debug("saving new event: {} @ {}", typeEnum.name(), timeString);
-					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
-				} else {
-					Logger.debug("saving changed event with ID {}: {} @ {}", editedEvent.getId(), typeEnum.name(),
-						timeString);
-					editedEvent.setType(typeEnum.getValue());
-					editedEvent.setTime(timeString);
-					editedEvent.setTask(taskId);
-					editedEvent.setText(textString);
-					dao.updateEvent(editedEvent);
-					// we have to call this manually when using the DAO directly:
-					timerManager.updateWeekSum(week);
-					Basics.getInstance().safeCheckPersistentNotification();
-				}
+            // save the event
+            TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
+            DateTime dateTime = getCurrentlySetDateAndTime();
+            String timeString = DateTimeUtil.dateTimeToString(dateTime);
+            Task selectedTask = (Task) task.getSelectedItem();
+            Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
+                selectedTask.getId());
+            String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
+            if (newEvent) {
+                Logger.debug("saving new event: {} @ {}", typeEnum.name(), timeString);
+                timerManager.createEvent(dateTime, taskId, typeEnum, textString);
+            } else {
+                Logger.debug("saving changed event with ID {}: {} @ {}", editedEvent.getId(), typeEnum.name(),
+                    timeString);
+                editedEvent.setType(typeEnum.getValue());
+                editedEvent.setTime(timeString);
+                editedEvent.setTask(taskId);
+                editedEvent.setText(textString);
+                dao.updateEvent(editedEvent);
+                // we have to call this manually when using the DAO directly:
+                timerManager.updateWeekSum(week);
+                Basics.getInstance().safeCheckPersistentNotification();
+            }
 
-				// refresh parents and close the event editor
-				EventListActivity.getInstance().refreshView();
-				finish();
-			}
-		});
-		cancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Logger.debug("canceling EventEditActivity");
-				finish();
-			}
-		});
+            // refresh parents and close the event editor
+            EventListActivity.getInstance().refreshView();
+            finish();
+        });
+		cancel.setOnClickListener(v -> {
+            Logger.debug("canceling EventEditActivity");
+            finish();
+        });
 	}
 
 	private void setTaskAndTextEditable(boolean shouldBeEditable) {

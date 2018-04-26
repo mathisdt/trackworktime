@@ -16,10 +16,10 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
+import org.zephyrsoft.trackworktime.R;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.zephyrsoft.trackworktime.R;
 
 /**
  * Central holder for all keys which are defined in XML files but have to be used in Java code.
@@ -83,7 +83,7 @@ public enum Key {
 	private final Key parent;
 	private final Integer readableNameResourceId;
 
-	private Key(String name, DataType dataType, Key parent, Integer readableNameResourceId) {
+	Key(String name, DataType dataType, Key parent, Integer readableNameResourceId) {
 		this.name = name;
 		this.dataType = dataType;
 		this.parent = parent;
@@ -119,7 +119,7 @@ public enum Key {
 	}
 
 	public static Set<Key> getChildKeys(Key parentKey) {
-		Set<Key> ret = new HashSet<Key>();
+		Set<Key> ret = new HashSet<>();
 		for (Key key : values()) {
 			if (key.getParent() == parentKey) {
 				ret.add(key);

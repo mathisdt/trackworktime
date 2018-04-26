@@ -16,14 +16,14 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import java.util.Set;
-
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
+
+import java.util.Set;
 
 /**
  * Helper class for handling {@link SharedPreferences}.
@@ -67,7 +67,7 @@ public class PreferencesUtil {
 	 * Get the value of the indicated preference. Defaults to false if the preference does not exist.
 	 */
 	public static boolean getBooleanPreference(SharedPreferences sharedPreferences, Key key) {
-		return key == null || sharedPreferences == null ? false : sharedPreferences.getBoolean(key.getName(), false);
+		return key != null && sharedPreferences != null && sharedPreferences.getBoolean(key.getName(), false);
 	}
 
 	/**

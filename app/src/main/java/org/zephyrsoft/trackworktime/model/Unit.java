@@ -23,7 +23,7 @@ public enum Unit {
 
 	private final String name;
 
-	private Unit(String name) {
+	Unit(String name) {
 		this.name = name;
 	}
 

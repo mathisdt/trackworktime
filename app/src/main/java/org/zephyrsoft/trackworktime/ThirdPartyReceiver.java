@@ -86,7 +86,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 				}
 			}
 		} else if (taskId >= 0) {
-			return Integer.valueOf(taskId);
+			return taskId;
 		}
 		return null;
 	}

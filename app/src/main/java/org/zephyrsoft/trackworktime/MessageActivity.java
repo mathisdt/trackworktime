@@ -16,7 +16,6 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;

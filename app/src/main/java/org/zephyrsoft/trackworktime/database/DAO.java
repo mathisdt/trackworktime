@@ -16,6 +16,32 @@
  */
 package org.zephyrsoft.trackworktime.database;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import hirondelle.date4j.DateTime;
+
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_TASK;
@@ -33,31 +59,6 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_START;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
-import hirondelle.date4j.DateTime;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-
-import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
  * The data access object for structures from the app's SQLite database. The model consists of three main elements:
@@ -208,7 +209,7 @@ public class DAO {
 
 	private List<Task> getTasksWithConstraint(String constraint) {
 		open();
-		List<Task> ret = new ArrayList<Task>();
+		List<Task> ret = new ArrayList<>();
 		// TODO sort tasks by TASK_ORDERING when the UI supports manual ordering of tasks
 		Cursor cursor = db.query(TASK, TASK_FIELDS, constraint, null, null, null, TASK_NAME);
 		cursor.moveToFirst();
@@ -334,7 +335,7 @@ public class DAO {
 
 	private List<Week> getWeeksWithConstraint(String constraint) {
 		open();
-		List<Week> ret = new ArrayList<Week>();
+		List<Week> ret = new ArrayList<>();
 		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, WEEK_START);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -449,7 +450,7 @@ public class DAO {
 	 */
 	public List<Event> getEventsInWeek(Week week) {
 		if (week == null || week instanceof WeekPlaceholder) {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		} else {
 			return getEventsWithConstraint(EVENT_WEEK + "=" + week.getId());
 		}
@@ -531,7 +532,7 @@ public class DAO {
 	private List<Event> getEventsWithParameters(String[] fields, String constraint, boolean descending,
 		boolean limitedToOne) {
 		open();
-		List<Event> ret = new ArrayList<Event>();
+		List<Event> ret = new ArrayList<>();
 		Cursor cursor = db.query(EVENT, fields, constraint, null, null, null, EVENT_TIME + (descending ? " desc" : "")
 			+ "," + EVENT_ID + (descending ? " desc" : ""), (limitedToOne ? "1" : null));
 		cursor.moveToFirst();
@@ -665,7 +666,7 @@ public class DAO {
 				+ ";" + MySQLiteHelper.TASK_ORDERING
 				+ ";" + MySQLiteHelper.TASK_DEFAULT
 				+ eol);
-		final StringBuffer buf = new StringBuffer();
+		final StringBuilder buf = new StringBuilder();
 		while (!cur.isAfterLast()) {
 			if (!cur.isNull(cur.getColumnIndex("eventId"))) {
 				buf.append(TypeEnum.byValue(cur.getInt(cur.getColumnIndex(MySQLiteHelper.EVENT_TYPE)))
@@ -722,12 +723,12 @@ public class DAO {
 		deleteAll();
 
 		String line;
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		// cache values
 		final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName();
 		final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
 		while ((line = reader.readLine()) != null) {
-			buffer.append(line + eol);
+			buffer.append(line).append(eol);
 			final String[] columns = line.split("[;\t]");
 			try {
 				if (columns.length > 8 && columns[INDEX_TASK_ID].length() > 0) {

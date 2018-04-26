@@ -25,5 +25,5 @@ public enum PeriodEnum {
 	/** only one day */
 	DAY,
 	/** one week */
-	WEEK;
+	WEEK
 }

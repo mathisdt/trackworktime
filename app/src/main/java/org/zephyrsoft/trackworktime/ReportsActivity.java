@@ -16,20 +16,10 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Toast;
@@ -45,6 +35,13 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import hirondelle.date4j.DateTime;
 
 /**
  * Reports dialog.
@@ -89,144 +86,132 @@ public class ReportsActivity extends AppCompatActivity {
 		timeCalculator = Basics.getInstance().getTimeCalculator();
 		csvGenerator = new CsvGenerator(dao);
 
-		allEventsButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Range selectedRange = getSelectedRange();
-				Unit selectedUnit = getSelectedUnit();
+		allEventsButton.setOnClickListener(v -> {
+            Range selectedRange = getSelectedRange();
+            Unit selectedUnit = getSelectedUnit();
 
-				DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-				List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+            List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
 
-				String report = csvGenerator.createEventCsv(events);
-				if (report == null) {
-					logAndShowError("could not generate report");
-					return;
-				}
+            String report = csvGenerator.createEventCsv(events);
+            if (report == null) {
+                logAndShowError("could not generate report");
+                return;
+            }
 
-				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				File reportFile = ExternalStorage.writeFile("reports", "events-" +
-					reportName.replaceAll(" ", "-"),
-					".csv",
-					report.getBytes(), ReportsActivity.this);
-				if (reportFile == null) {
-					String errorMessage = "could not write report to external storage";
-					Logger.error(errorMessage);
-					Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-					return;
-				}
+            String reportName = getNameForSelection(selectedRange, selectedUnit);
+            File reportFile = ExternalStorage.writeFile("reports", "events-" +
+                reportName.replaceAll(" ", "-"),
+                ".csv",
+                report.getBytes(), ReportsActivity.this);
+            if (reportFile == null) {
+                String errorMessage = "could not write report to external storage";
+                Logger.error(errorMessage);
+                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                return;
+            }
 
-				// send the report
-				Intent sendingIntent = new Intent(Intent.ACTION_SEND);
-				sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Track Work Time Report");
-				sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "report time frame: " + reportName);
-				sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
-				sendingIntent.setType("text/plain");
-				startActivity(Intent.createChooser(sendingIntent, "Send report..."));
+            // send the report
+            Intent sendingIntent = new Intent(Intent.ACTION_SEND);
+            sendingIntent.putExtra(Intent.EXTRA_SUBJECT, "Track Work Time Report");
+            sendingIntent.putExtra(Intent.EXTRA_TEXT, "report time frame: " + reportName);
+            sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
+            sendingIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendingIntent, "Send report..."));
 
-				// close this dialog
-				finish();
-			}
-		});
+            // close this dialog
+            finish();
+        });
 
-		timesByTaskButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Range selectedRange = getSelectedRange();
-				Unit selectedUnit = getSelectedUnit();
+		timesByTaskButton.setOnClickListener(v -> {
+            Range selectedRange = getSelectedRange();
+            Unit selectedUnit = getSelectedUnit();
 
-				DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-				List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
-				Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
+            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+            List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+            Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
 
-				String report = csvGenerator.createSumsCsv(sums);
-				if (report == null) {
-					logAndShowError("could not generate report");
-					return;
-				}
+            String report = csvGenerator.createSumsCsv(sums);
+            if (report == null) {
+                logAndShowError("could not generate report");
+                return;
+            }
 
-				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				File reportFile = ExternalStorage.writeFile("reports", "sums-" +
-					reportName.replaceAll(" ", "-"),
-					".csv",
-					report.getBytes(), ReportsActivity.this);
-				if (reportFile == null) {
-					String errorMessage = "could not write report to external storage";
-					Logger.error(errorMessage);
-					Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-					return;
-				}
+            String reportName = getNameForSelection(selectedRange, selectedUnit);
+            File reportFile = ExternalStorage.writeFile("reports", "sums-" +
+                reportName.replaceAll(" ", "-"),
+                ".csv",
+                report.getBytes(), ReportsActivity.this);
+            if (reportFile == null) {
+                String errorMessage = "could not write report to external storage";
+                Logger.error(errorMessage);
+                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+                return;
+            }
 
-				// send the report
-				Intent sendingIntent = new Intent(Intent.ACTION_SEND);
-				sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Track Work Time Report");
-				sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "report time frame: " + reportName);
-				sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
-				sendingIntent.setType("text/plain");
-				startActivity(Intent.createChooser(sendingIntent, "Send report..."));
+            // send the report
+            Intent sendingIntent = new Intent(Intent.ACTION_SEND);
+            sendingIntent.putExtra(Intent.EXTRA_SUBJECT, "Track Work Time Report");
+            sendingIntent.putExtra(Intent.EXTRA_TEXT, "report time frame: " + reportName);
+            sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
+            sendingIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendingIntent, "Send report..."));
 
-				// close this dialog
-				finish();
-			}
-		});
+            // close this dialog
+            finish();
+        });
 
-		timesByTaskPerWeekButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Range selectedRange = getSelectedRange();
-				Unit selectedUnit = getSelectedUnit();
+		timesByTaskPerWeekButton.setOnClickListener(v -> {
+            Range selectedRange = getSelectedRange();
+            Unit selectedUnit = getSelectedUnit();
 
-				DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-				List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
-					beginAndEnd[1]);
-				Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+            List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
+                beginAndEnd[1]);
+            Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-				String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
-				if (report == null) {
-					logAndShowError("could not generate report");
-					return;
-				}
+            String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
+            if (report == null) {
+                logAndShowError("could not generate report");
+                return;
+            }
 
-				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				boolean success = saveAndSendReport(reportName, "sums-per-week", report);
+            String reportName = getNameForSelection(selectedRange, selectedUnit);
+            boolean success = saveAndSendReport(reportName, "sums-per-week", report);
 
-				if (success) {
-					// close this dialog
-					finish();
-				}
-			}
-		});
+            if (success) {
+                // close this dialog
+                finish();
+            }
+        });
 
-		timesByTaskPerMonthButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Range selectedRange = getSelectedRange();
-				Unit selectedUnit = getSelectedUnit();
+		timesByTaskPerMonthButton.setOnClickListener(v -> {
+            Range selectedRange = getSelectedRange();
+            Unit selectedUnit = getSelectedUnit();
 
-				DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-				List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
-					beginAndEnd[1]);
-				Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+            List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
+                beginAndEnd[1]);
+            Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-				String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
-				if (report == null) {
-					logAndShowError("could not generate report");
-					return;
-				}
+            String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
+            if (report == null) {
+                logAndShowError("could not generate report");
+                return;
+            }
 
-				String reportName = getNameForSelection(selectedRange, selectedUnit);
-				boolean success = saveAndSendReport(reportName, "sums-per-month", report);
+            String reportName = getNameForSelection(selectedRange, selectedUnit);
+            boolean success = saveAndSendReport(reportName, "sums-per-month", report);
 
-				if (success) {
-					// close this dialog
-					finish();
-				}
-			}
-		});
+            if (success) {
+                // close this dialog
+                finish();
+            }
+        });
 	}
 
 	private Map<DateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<DateTime> rangeBeginnings, DateTime end) {
-		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = new HashMap<DateTime, Map<Task, TimeSum>>();
+		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = new HashMap<>();
 
 		for (int i = 0; i < rangeBeginnings.size(); i++) {
 			DateTime rangeStart = rangeBeginnings.get(i);

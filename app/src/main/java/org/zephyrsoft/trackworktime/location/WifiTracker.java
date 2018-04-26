@@ -16,8 +16,9 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.media.AudioManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
@@ -25,9 +26,8 @@ import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 
-import android.media.AudioManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
@@ -114,7 +114,7 @@ public class WifiTracker {
 		Logger.debug("wifi-ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
 			ssidWasPreviouslyInRange);
 
-		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange.booleanValue() && !ssidIsNowInRange) {
+		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange && !ssidIsNowInRange) {
 
 			boolean globalStateChanged = timerManager.clockOutWithTrackingMethod(TrackingMethod.WIFI);
 			if (globalStateChanged) {
@@ -125,7 +125,7 @@ public class WifiTracker {
 				tryPebbleNotification("stopped tracking via WiFi");
 				Logger.info("clocked out via wifi-based tracking");
 			}
-		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange.booleanValue()) && ssidIsNowInRange) {
+		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange) && ssidIsNowInRange) {
 
 			boolean globalStateChanged = timerManager.clockInWithTrackingMethod(TrackingMethod.WIFI);
 			if (globalStateChanged) {

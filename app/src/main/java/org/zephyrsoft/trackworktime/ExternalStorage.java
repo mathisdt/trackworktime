@@ -16,15 +16,15 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.content.Context;
 import android.os.Environment;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Can manage directories and files on external storage.
@@ -95,10 +95,7 @@ public class ExternalStorage {
 
 	private static boolean isExternalStorageWritable() {
 		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			return true;
-		}
-		return false;
+		return Environment.MEDIA_MOUNTED.equals(state);
 	}
 
 }

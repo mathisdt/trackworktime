@@ -16,11 +16,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.util.List;
-
 import android.app.AlertDialog;
-import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
@@ -28,9 +24,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -38,6 +32,8 @@ import android.widget.ListView;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
+
+import java.util.List;
 
 /**
  * Activity for managing the tasks that the user can select. A task can be deleted if no reference to it exists, but it
@@ -47,7 +43,7 @@ import org.zephyrsoft.trackworktime.model.Task;
  */
 public class TaskListActivity extends AppCompatActivity {
 
-	private static enum MenuAction {
+	private enum MenuAction {
 		NEW_TASK,
 		RENAME_TASK,
 		TOGGLE_DEFAULT,
@@ -85,19 +81,14 @@ public class TaskListActivity extends AppCompatActivity {
 
 		dao = Basics.getInstance().getDao();
 		tasks = dao.getAllTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		listView.setAdapter(tasksAdapter);
 
 		listView.setTextFilterEnabled(true);
 
 		registerForContextMenu(listView);
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				openContextMenu(view);
-			}
-		});
+		listView.setOnItemClickListener((parent, view, position, id) -> openContextMenu(view));
 	}
 
 	private void refreshTasksOnParent() {
@@ -118,24 +109,18 @@ public class TaskListActivity extends AppCompatActivity {
 				final EditText input = new EditText(this);
 				alert.setView(input);
 
-				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						String value = input.getText().toString();
-						// create new task in DB
-						Task newTask = dao.insertTask(new Task(null, value, 1, 0, 0));
-						Logger.debug("inserted new task: {}", newTask);
-						tasks.add(newTask);
-						tasksAdapter.notifyDataSetChanged();
-						refreshTasksOnParent();
-					}
-				});
-				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
-				});
+				alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> {
+                    String value = input.getText().toString();
+                    // create new task in DB
+                    Task newTask = dao.insertTask(new Task(null, value, 1, 0, 0));
+                    Logger.debug("inserted new task: {}", newTask);
+                    tasks.add(newTask);
+                    tasksAdapter.notifyDataSetChanged();
+                    refreshTasksOnParent();
+                });
+				alert.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+                    // do nothing
+                });
 
 				alert.show();
 
@@ -184,27 +169,21 @@ public class TaskListActivity extends AppCompatActivity {
 				alert.setView(input);
 				input.setText(oldTask.getName());
 
-				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						String value = input.getText().toString();
-						oldTask.setName(value);
-						// update task in DB
-						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID {} to have the new name: {}", oldTask.getId(), updatedTask
-							.getName());
-						tasks.remove(taskPosition);
-						tasks.add(taskPosition, updatedTask);
-						tasksAdapter.notifyDataSetChanged();
-						refreshTasksOnParent();
-					}
-				});
-				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
-				});
+				alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> {
+                    String value = input.getText().toString();
+                    oldTask.setName(value);
+                    // update task in DB
+                    Task updatedTask = dao.updateTask(oldTask);
+                    Logger.debug("updated task with ID {} to have the new name: {}", oldTask.getId(), updatedTask
+                        .getName());
+                    tasks.remove(taskPosition);
+                    tasks.add(taskPosition, updatedTask);
+                    tasksAdapter.notifyDataSetChanged();
+                    refreshTasksOnParent();
+                });
+				alert.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+                    // do nothing
+                });
 
 				alert.show();
 
@@ -212,11 +191,11 @@ public class TaskListActivity extends AppCompatActivity {
 			case TOGGLE_DEFAULT:
 				Task previousDefault = null;
 				int previousDefaultPosition = -1;
-				if (oldTask.getIsDefault().equals(Integer.valueOf(0))) {
+				if (oldTask.getIsDefault().equals(0)) {
 					// scan for previous default
 					int i = 0;
 					for (Task task : tasks) {
-						if (task.getIsDefault().equals(Integer.valueOf(1))) {
+						if (task.getIsDefault().equals(1)) {
 							previousDefault = task;
 							previousDefaultPosition = i;
 							previousDefault.setIsDefault(0);
@@ -248,36 +227,30 @@ public class TaskListActivity extends AppCompatActivity {
 				return true;
 			case TOGGLE_ACTIVATION_STATE_OF_TASK:
 				alert.setTitle(getString(R.string.toggle_activation_state_of_task));
-				if (oldTask.getActive().equals(Integer.valueOf(0))) {
+				if (oldTask.getActive().equals(0)) {
 					alert.setMessage(getString(R.string.really_enable_task));
 				} else {
 					alert.setMessage(getString(R.string.really_disable_task));
 				}
 
-				alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int whichButton) {
-						if (oldTask.getActive() == 0) {
-							oldTask.setActive(1);
-						} else {
-							oldTask.setActive(0);
-						}
-						// enable or disable task in DB
-						Task updatedTask = dao.updateTask(oldTask);
-						Logger.debug("updated task with ID {} to have the new active value: {}", oldTask.getId(),
-							updatedTask.getActive());
-						tasks.remove(taskPosition);
-						tasks.add(taskPosition, updatedTask);
-						tasksAdapter.notifyDataSetChanged();
-						refreshTasksOnParent();
-					}
-				});
-				alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
-				});
+				alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> {
+                    if (oldTask.getActive() == 0) {
+                        oldTask.setActive(1);
+                    } else {
+                        oldTask.setActive(0);
+                    }
+                    // enable or disable task in DB
+                    Task updatedTask = dao.updateTask(oldTask);
+                    Logger.debug("updated task with ID {} to have the new active value: {}", oldTask.getId(),
+                        updatedTask.getActive());
+                    tasks.remove(taskPosition);
+                    tasks.add(taskPosition, updatedTask);
+                    tasksAdapter.notifyDataSetChanged();
+                    refreshTasksOnParent();
+                });
+				alert.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+                    // do nothing
+                });
 
 				alert.show();
 
@@ -288,12 +261,9 @@ public class TaskListActivity extends AppCompatActivity {
 					alert.setCancelable(false);
 					alert.setTitle(getString(R.string.delete_task));
 					alert.setMessage(getString(R.string.cannot_delete_task));
-					alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// do nothing
-						}
-					});
+					alert.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                        // do nothing
+                    });
 
 					alert.show();
 				} else {
@@ -301,29 +271,23 @@ public class TaskListActivity extends AppCompatActivity {
 					alert.setTitle(getString(R.string.delete_task));
 					alert.setMessage(getString(R.string.really_delete_task));
 
-					alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int whichButton) {
-							// delete task in DB
-							boolean success = dao.deleteTask(oldTask);
-							if (success) {
-								Logger.debug("deleted task with ID {} and name {}", oldTask.getId(), oldTask
-									.getName());
-								tasks.remove(taskPosition);
-							} else {
-								Logger.warn("could not delete task with ID {} and name {}", oldTask.getId(), oldTask
-									.getName());
-							}
-							tasksAdapter.notifyDataSetChanged();
-							refreshTasksOnParent();
-						}
-					});
-					alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// do nothing
-						}
-					});
+					alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> {
+                        // delete task in DB
+                        boolean success = dao.deleteTask(oldTask);
+                        if (success) {
+                            Logger.debug("deleted task with ID {} and name {}", oldTask.getId(), oldTask
+                                .getName());
+                            tasks.remove(taskPosition);
+                        } else {
+                            Logger.warn("could not delete task with ID {} and name {}", oldTask.getId(), oldTask
+                                .getName());
+                        }
+                        tasksAdapter.notifyDataSetChanged();
+                        refreshTasksOnParent();
+                    });
+					alert.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+                        // do nothing
+                    });
 
 					alert.show();
 				}

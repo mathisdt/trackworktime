@@ -30,7 +30,7 @@ public enum TrackingMethod {
 
 	private int preferenceKeyId;
 
-	private TrackingMethod(int preferenceKeyId) {
+	TrackingMethod(int preferenceKeyId) {
 		this.preferenceKeyId = preferenceKeyId;
 	}
 

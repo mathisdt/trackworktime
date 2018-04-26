@@ -16,8 +16,26 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.io.File;
-import java.util.Calendar;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Vibrator;
+import android.preference.PreferenceManager;
 
 import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
@@ -41,26 +59,9 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Vibrator;
-import android.preference.PreferenceManager;
+import java.io.File;
+import java.util.Calendar;
+
 import hirondelle.date4j.DateTime;
 import hirondelle.date4j.DateTime.DayOverflow;
 
@@ -135,20 +136,26 @@ public class Basics extends BroadcastReceiver {
 		externalNotificationManager = new ExternalNotificationManager(context);
 
 		// init TinyLog
-		File backupDir = new File(".");
-		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
-		if (externalStorageDirectory != null) {
-			backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
-		}
 		String threadToObserve = Thread.currentThread().getName();
 		Configurator.defaultConfig()
-			.writer(new RollingFileWriter(backupDir.getAbsolutePath() + File.separatorChar + "log.txt",
-					5, false, new TimestampLabeler("yyyy-MM-dd"), new DailyPolicy()),
+			.writer(new RollingFileWriter(getDataDirectory().getAbsolutePath() + File.separatorChar + "log.txt",
+					2, false, new TimestampLabeler("yyyy-MM-dd"), new DailyPolicy()),
 					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {{level}|min-size=5} {class_name}.{method} - {message}")
 			.addWriter(new LogcatWriter("trackworktime"), Level.DEBUG, "{message}")
 			.writingThread(threadToObserve, 1)
 			.activate();
 		Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
+	}
+
+	public File getDataDirectory() {
+		File backupDir = new File(".");
+		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
+		if (externalStorageDirectory != null) {
+			backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
+		} else {
+			Logger.warn("external storage directory not available");
+		}
+		return backupDir;
 	}
 
 	public NotificationChannel getNotificationChannel() {

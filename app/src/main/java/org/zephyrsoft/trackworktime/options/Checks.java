@@ -16,17 +16,17 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
-import hirondelle.date4j.DateTime;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import hirondelle.date4j.DateTime;
 
 /**
  * Container of all checks.
@@ -35,7 +35,7 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
  */
 public class Checks {
 
-	private static final Set<Check> checks = new HashSet<Check>();
+	private static final Set<Check> checks = new HashSet<>();
 
 	static {
 		checks.add(new Check("auto-pause begin has to be before auto-pause end (at least one minute)") {

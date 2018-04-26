@@ -16,15 +16,8 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import hirondelle.date4j.DateTime;
-
-import java.util.List;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -40,6 +33,10 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.util.List;
+
+import hirondelle.date4j.DateTime;
 
 /**
  * Activity for managing the events of a week.
@@ -94,102 +91,90 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 
 		// bind lists to spinners
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
+		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 
-		fromDateListener = new OnDateChangedListener() {
-			@Override
-			public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-				if (noFromDateChangedReaction) {
-					Logger.debug("from date not changed - infinite loop protection");
-				} else {
-					DateTime newFromDate = getCurrentlySetFromDate();
-					DateTime newToDate = getCurrentlySetToDate();
-					try {
-						noFromDateChangedReaction = true;
+		fromDateListener = (view, year, monthOfYear, dayOfMonth) -> {
+            if (noFromDateChangedReaction) {
+                Logger.debug("from date not changed - infinite loop protection");
+            } else {
+                DateTime newFromDate = getCurrentlySetFromDate();
+                DateTime newToDate = getCurrentlySetToDate();
+                try {
+                    noFromDateChangedReaction = true;
 
-						// correct to date if from date would be after to date
-						if (newFromDate.gt(newToDate)) {
-							updateToDatePicker(newFromDate);
-							Toast.makeText(InsertDefaultTimesActivity.this,
-								"adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
-								Toast.LENGTH_LONG).show();
-						}
-					} finally {
-						noFromDateChangedReaction = false;
-					}
+                    // correct to date if from date would be after to date
+                    if (newFromDate.gt(newToDate)) {
+                        updateToDatePicker(newFromDate);
+                        Toast.makeText(InsertDefaultTimesActivity.this,
+                            "adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
+                            Toast.LENGTH_LONG).show();
+                    }
+                } finally {
+                    noFromDateChangedReaction = false;
+                }
 
-					setFromWeekday();
-					Logger.debug("from date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
-				}
-			}
-		};
-		toDateListener = new OnDateChangedListener() {
-			@Override
-			public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-				if (noToDateChangedReaction) {
-					Logger.debug("to date not changed - infinite loop protection");
-				} else {
-					DateTime newFromDate = getCurrentlySetFromDate();
-					DateTime newToDate = getCurrentlySetToDate();
-					try {
-						noToDateChangedReaction = true;
+                setFromWeekday();
+                Logger.debug("from date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
+            }
+        };
+		toDateListener = (view, year, monthOfYear, dayOfMonth) -> {
+            if (noToDateChangedReaction) {
+                Logger.debug("to date not changed - infinite loop protection");
+            } else {
+                DateTime newFromDate = getCurrentlySetFromDate();
+                DateTime newToDate = getCurrentlySetToDate();
+                try {
+                    noToDateChangedReaction = true;
 
-						// correct from date if to date would be before from date
-						if (newToDate.lt(newFromDate)) {
-							updateFromDatePicker(newToDate);
-							Toast.makeText(InsertDefaultTimesActivity.this,
-								"adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
-								Toast.LENGTH_LONG).show();
-						}
-					} finally {
-						noToDateChangedReaction = false;
-					}
+                    // correct from date if to date would be before from date
+                    if (newToDate.lt(newFromDate)) {
+                        updateFromDatePicker(newToDate);
+                        Toast.makeText(InsertDefaultTimesActivity.this,
+                            "adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
+                            Toast.LENGTH_LONG).show();
+                    }
+                } finally {
+                    noToDateChangedReaction = false;
+                }
 
-					setToWeekday();
-					Logger.debug("to date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
-				}
-			}
-		};
+                setToWeekday();
+                Logger.debug("to date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
+            }
+        };
 
-		save.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// commit all edit fields
-				fromDate.clearFocus();
-				toDate.clearFocus();
-				text.clearFocus();
+		save.setOnClickListener(v -> {
+            // commit all edit fields
+            fromDate.clearFocus();
+            toDate.clearFocus();
+            text.clearFocus();
 
-				// call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
-				// => https://code.google.com/p/android/issues/detail?id=78861
-				fromDateListener.onDateChanged(fromDate, fromDate.getYear(), fromDate.getMonth(), fromDate
-					.getDayOfMonth());
-				toDateListener.onDateChanged(toDate, toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
+            // call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
+            // => https://code.google.com/p/android/issues/detail?id=78861
+            fromDateListener.onDateChanged(fromDate, fromDate.getYear(), fromDate.getMonth(), fromDate
+                .getDayOfMonth());
+            toDateListener.onDateChanged(toDate, toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
 
-				// fetch the data
-				DateTime from = getCurrentlySetFromDate();
-				DateTime to = getCurrentlySetToDate();
-				Task selectedTask = (Task) task.getSelectedItem();
-				Integer taskId = selectedTask == null ? null : selectedTask.getId();
-				String textString = text.getText().toString();
+            // fetch the data
+            DateTime from = getCurrentlySetFromDate();
+            DateTime to = getCurrentlySetToDate();
+            Task selectedTask = (Task) task.getSelectedItem();
+            Integer taskId = selectedTask == null ? null : selectedTask.getId();
+            String textString = text.getText().toString();
 
-				Logger.info("inserting default times from {} to {} with task=\"{}\" and text=\"{}\"", from, to,
-					taskId, textString);
+            Logger.info("inserting default times from {} to {} with task=\"{}\" and text=\"{}\"", from, to,
+                taskId, textString);
 
-				// save the resulting events
-				timerManager.insertDefaultWorkTimes(from, to, taskId, textString);
+            // save the resulting events
+            timerManager.insertDefaultWorkTimes(from, to, taskId, textString);
 
-				finish();
-			}
-		});
-		cancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Logger.debug("canceling InsertDefaultTimesActivity");
-				finish();
-			}
-		});
+            finish();
+        });
+		cancel.setOnClickListener(v -> {
+            Logger.debug("canceling InsertDefaultTimesActivity");
+            finish();
+        });
 	}
 
 	@Override

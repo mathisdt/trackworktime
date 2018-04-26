@@ -61,7 +61,7 @@ public class Week extends Base implements Comparable<Week> {
 	}
 
 	public void setSum(Integer sum) {
-		if (sum==null || sum.intValue()<0) {
+		if (sum==null || sum <0) {
 			throw new IllegalArgumentException("sum of a week may not be negative");
 		}
 		this.sum = sum;

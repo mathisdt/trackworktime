@@ -33,6 +33,7 @@ import org.pmw.tinylog.Logger;
  * 
  * @author Mathis Dirksen-Thedens
  */
+@SuppressWarnings("SyntaxError")
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	/** name of the task table */

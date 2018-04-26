@@ -16,17 +16,17 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Vibrator;
 
 import com.getpebble.android.kit.PebbleKit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Vibrator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages vibration alarms.
@@ -59,7 +59,7 @@ public class ExternalNotificationManager {
 		if (PebbleKit.isWatchConnected(context)) {
 			final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
-			final Map<String, String> data = new HashMap<String, String>();
+			final Map<String, String> data = new HashMap<>();
 			data.put("title", "Track Work Time");
 			data.put("body", message);
 			final JSONObject jsonData = new JSONObject(data);

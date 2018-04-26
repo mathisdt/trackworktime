@@ -23,7 +23,7 @@ public enum Range {
 
 	private final String name;
 
-	private Range(String name) {
+	Range(String name) {
 		this.name = name;
 	}
 

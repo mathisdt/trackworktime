@@ -40,11 +40,7 @@ public class WorkTimeTrackerBackupManager {
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	public WorkTimeTrackerBackupManager(final Context context) {
 		prefKeyBackupEnabled = context.getText(R.string.keyBackupEnabled) + "";
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-			backupManager = new BackupManager(context);
-		} else {
-			backupManager = null;
-		}
+		backupManager = new BackupManager(context);
 		timestampPrefs = context.getSharedPreferences("timestampPrefs", Context.MODE_PRIVATE);
 		defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		enabled = defaultPrefs.getBoolean(prefKeyBackupEnabled, true);

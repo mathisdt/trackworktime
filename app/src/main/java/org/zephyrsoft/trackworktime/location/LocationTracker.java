@@ -114,7 +114,7 @@ public class LocationTracker implements LocationListener {
 		Boolean previousLocationWasInRange = (previousLocation == null ? null : isInRange(previousLocation,
 			"previous location"));
 		boolean locationIsInRange = isInRange(location, "current location");
-		if ((previousLocationWasInRange == null || !previousLocationWasInRange.booleanValue()) && locationIsInRange) {
+		if ((previousLocationWasInRange == null || !previousLocationWasInRange) && locationIsInRange) {
 			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
 				Logger
 					.info("NOT clocked in via location-based tracking - too close to an existing event (see options)");
@@ -129,7 +129,7 @@ public class LocationTracker implements LocationListener {
 					Logger.info("clocked in via location-based tracking");
 				}
 			}
-		} else if ((previousLocationWasInRange == null || previousLocationWasInRange.booleanValue())
+		} else if ((previousLocationWasInRange == null || previousLocationWasInRange)
 			&& !locationIsInRange) {
 			if (timerManager.isInIgnorePeriodForLocationBasedTracking()) {
 				Logger

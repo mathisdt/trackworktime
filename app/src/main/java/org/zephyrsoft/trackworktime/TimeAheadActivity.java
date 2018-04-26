@@ -18,8 +18,6 @@ package org.zephyrsoft.trackworktime;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -50,35 +48,27 @@ public class TimeAheadActivity extends AppCompatActivity {
 		minutes = (EditText) findViewById(R.id.minutes);
 		cancel = (Button) findViewById(R.id.cancel);
 		ok = (Button) findViewById(R.id.ok);
-		cancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
-		ok.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				int minutesValue = 0;
-				try {
-					minutesValue = Integer.parseInt(minutes.getText().toString());
-				} catch (NumberFormatException nfe) {
-					Logger.warn("could not convert \"{}\" to int", minutes.getText().toString());
-				}
-				switch (typeIndicator) {
-					case 0:
-						WorkTimeTrackerActivity.getInstance().clockInAction(minutesValue);
-						break;
-					case 1:
-						WorkTimeTrackerActivity.getInstance().clockOutAction(minutesValue);
-						break;
-					default:
-						Logger.error("type {} is unknown, doing nothing", typeIndicator);
-						break;
-				}
-				finish();
-			}
-		});
+		cancel.setOnClickListener(v -> finish());
+		ok.setOnClickListener(v -> {
+            int minutesValue = 0;
+            try {
+                minutesValue = Integer.parseInt(minutes.getText().toString());
+            } catch (NumberFormatException nfe) {
+                Logger.warn("could not convert \"{}\" to int", minutes.getText().toString());
+            }
+            switch (typeIndicator) {
+                case 0:
+                    WorkTimeTrackerActivity.getInstance().clockInAction(minutesValue);
+                    break;
+                case 1:
+                    WorkTimeTrackerActivity.getInstance().clockOutAction(minutesValue);
+                    break;
+                default:
+                    Logger.error("type {} is unknown, doing nothing", typeIndicator);
+                    break;
+            }
+            finish();
+        });
 	}
 
 	@Override

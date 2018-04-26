@@ -16,17 +16,33 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.TimeZone;
+import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -46,34 +62,18 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.TimeZone;
+
 import hirondelle.date4j.DateTime;
 
 /**
@@ -86,8 +86,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
 
-	private static enum MenuAction {
-		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, RAISE_EXCEPTION;
+	private enum MenuAction {
+		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
@@ -209,83 +209,49 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 		findAllViewsById();
 
-		weekTable.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showEventList();
-			}
-		});
+		weekTable.setOnClickListener(v -> showEventList());
 
-		previousWeekButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				changeDisplayedWeek(-1);
-			}
-		});
+		previousWeekButton.setOnClickListener(v -> changeDisplayedWeek(-1));
 
-		nextWeekButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				changeDisplayedWeek(1);
-			}
-		});
+		nextWeekButton.setOnClickListener(v -> changeDisplayedWeek(1));
 
-		clockInButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				clockInAction(0);
-			}
-		});
-		clockInButton.setOnLongClickListener(new OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
-				String typeString = null;
-				if (timerManager.isTracking()) {
-					typeString = getString(R.string.clockInChange);
-				} else {
-					typeString = getString(R.string.clockIn);
-				}
-				i.putExtra(Constants.TYPE_EXTRA_KEY, 0);
-				i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
-				startActivity(i);
-				return true;
-			}
-		});
+		clockInButton.setOnClickListener(v -> clockInAction(0));
+		clockInButton.setOnLongClickListener(v -> {
+            Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+            String typeString = null;
+            if (timerManager.isTracking()) {
+                typeString = getString(R.string.clockInChange);
+            } else {
+                typeString = getString(R.string.clockIn);
+            }
+            i.putExtra(Constants.TYPE_EXTRA_KEY, 0);
+            i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
+            startActivity(i);
+            return true;
+        });
 
-		clockOutButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				clockOutAction(0);
-			}
-		});
-		clockOutButton.setOnLongClickListener(new OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
-				String typeString = null;
-				if (timerManager.isTracking()) {
-					typeString = getString(R.string.clockOut);
-					i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
-					i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
-					startActivity(i);
-				}
-				return true;
-			}
-		});
+		clockOutButton.setOnClickListener(v -> clockOutAction(0));
+		clockOutButton.setOnLongClickListener(v -> {
+            Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+            String typeString = null;
+            if (timerManager.isTracking()) {
+                typeString = getString(R.string.clockOut);
+                i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
+                i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
+                startActivity(i);
+            }
+            return true;
+        });
 
-		todayButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
-				Week todaysWeek = dao.getWeek(todaysWeekStart);
-				if (todaysWeek == null) {
-					todaysWeek = new WeekPlaceholder(todaysWeekStart);
-				}
-				currentlyShownWeek = todaysWeek;
-				refreshView();
-			}
-		});
+		todayButton.setOnClickListener(v -> {
+            final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
+            Week todaysWeek = dao.getWeek(todaysWeekStart);
+            if (todaysWeek == null) {
+                todaysWeek = new WeekPlaceholder(todaysWeekStart);
+            }
+            currentlyShownWeek = todaysWeek;
+            refreshView();
+        });
 
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
@@ -294,23 +260,20 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		checkAllOptions();
 
 		if (!preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
-			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					final Editor editor = preferences.edit();
-					switch (which) {
-						case DialogInterface.BUTTON_POSITIVE:
-							editor.putBoolean(getText(R.string.keyBackupEnabled) + "", true);
-							break;
+			DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                final Editor editor = preferences.edit();
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        editor.putBoolean(getText(R.string.keyBackupEnabled) + "", true);
+                        break;
 
-						case DialogInterface.BUTTON_NEGATIVE:
-							editor.putBoolean(getText(R.string.keyBackupEnabled) + "", false);
-							break;
-					}
-					editor.putBoolean(getString(R.string.keyBackupSettingAsked), true);
-					editor.commit();
-				}
-			};
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        editor.putBoolean(getText(R.string.keyBackupEnabled) + "", false);
+                        break;
+                }
+                editor.putBoolean(getString(R.string.keyBackupSettingAsked), true);
+                editor.commit();
+            };
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.backup_on_google_servers)
 				.setPositiveButton(R.string.yes, dialogClickListener)
@@ -621,7 +584,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<Task>(this, R.layout.list_item_spinner, tasks);
+		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 	}
@@ -704,21 +667,22 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			.setIcon(R.drawable.ic_menu_edit);
 		menu.add(Menu.NONE, MenuAction.EDIT_TASKS.ordinal(), MenuAction.EDIT_TASKS.ordinal(), R.string.edit_tasks)
 			.setIcon(R.drawable.ic_menu_sort_by_size);
-		menu.add(Menu.NONE, MenuAction.INSERT_DEFAULT_TIMES.ordinal(), MenuAction.INSERT_DEFAULT_TIMES.ordinal(),
-			R.string.insert_default_times).setIcon(R.drawable.ic_menu_mark);
-		menu.add(Menu.NONE, MenuAction.OPTIONS.ordinal(), MenuAction.OPTIONS.ordinal(), R.string.options).setIcon(
-			R.drawable.ic_menu_preferences);
-		menu.add(Menu.NONE, MenuAction.USE_CURRENT_LOCATION.ordinal(), MenuAction.USE_CURRENT_LOCATION.ordinal(),
-			R.string.use_current_location).setIcon(R.drawable.ic_menu_compass);
-		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports).setIcon(
-			R.drawable.ic_menu_agenda);
+		menu.add(Menu.NONE, MenuAction.INSERT_DEFAULT_TIMES.ordinal(), MenuAction.INSERT_DEFAULT_TIMES.ordinal(), R.string.insert_default_times)
+			.setIcon(R.drawable.ic_menu_mark);
+		menu.add(Menu.NONE, MenuAction.OPTIONS.ordinal(), MenuAction.OPTIONS.ordinal(), R.string.options)
+			.setIcon(R.drawable.ic_menu_preferences);
+		menu.add(Menu.NONE, MenuAction.USE_CURRENT_LOCATION.ordinal(), MenuAction.USE_CURRENT_LOCATION.ordinal(), R.string.use_current_location)
+			.setIcon(R.drawable.ic_menu_compass);
+		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports)
+			.setIcon(R.drawable.ic_menu_agenda);
 		menu.add(Menu.NONE, MenuAction.BACKUP.ordinal(), MenuAction.BACKUP.ordinal(), R.string.backup);
 		menu.add(Menu.NONE, MenuAction.RESTORE.ordinal(), MenuAction.RESTORE.ordinal(), R.string.restore);
-		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about).setIcon(
-			R.drawable.ic_menu_star);
+		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about)
+			.setIcon(R.drawable.ic_menu_star);
+		menu.add(Menu.NONE, MenuAction.SEND_LOGS.ordinal(), MenuAction.SEND_LOGS.ordinal(), R.string.sendLogs);
 		if (Basics.getOrCreateInstance(this).isDevelopmentVersion()) {
-			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception").setIcon(
-					R.drawable.ic_menu_star);
+			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception")
+				.setIcon(R.drawable.ic_menu_star);
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -752,6 +716,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				return true;
 			case ABOUT:
 				showAbout();
+				return true;
+			case SEND_LOGS:
+				sendLogs();
 				return true;
 			case RAISE_EXCEPTION:
 				throw new IllegalStateException("this exception is for testing purposes only");
@@ -790,18 +757,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle(getString(R.string.use_current_location));
 		alert.setMessage(getString(R.string.really_use_current_location));
-		alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this);
-			}
-		});
-		alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				// do nothing
-			}
-		});
+		alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this));
+		alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
+            // do nothing
+        });
 		alert.show();
 	}
 
@@ -815,6 +774,33 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		Logger.debug("showing About");
 		Intent i = new Intent(this, AboutActivity.class);
 		startActivity(i);
+	}
+
+	private void sendLogs() {
+		Logger.debug("sending logs");
+
+		new AlertDialog.Builder(this)
+			.setTitle(R.string.sendLogs)
+			.setMessage(R.string.sendLogsQuestion)
+			.setPositiveButton(R.string.ok, (DialogInterface dialog, int id) -> doSendLogs())
+			.setNegativeButton(R.string.cancel, (DialogInterface dialog, int id) -> {
+				// do nothing
+			})
+			.create()
+			.show();
+	}
+
+	private void doSendLogs() {
+		String filename = "log." + DateTimeUtil.getCurrentDateAsString() + ".txt";
+		File fileLocation = new File(Basics.getInstance().getDataDirectory(), filename);
+		Uri filePath = Uri.fromFile(fileLocation);
+		Intent emailIntent = new Intent(Intent.ACTION_SEND);
+		String to[] = {getString(R.string.email)};
+		emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
+		emailIntent.putExtra(Intent.EXTRA_STREAM, filePath);
+		emailIntent.setType("text/plain");
+		emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendLogsSubject));
+		startActivity(Intent.createChooser(emailIntent , getString(R.string.sendLogs)));
 	}
 
 	@Override
@@ -928,13 +914,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			final String msgBackupOverwrite = String.format(
 				getString(R.string.backup_overwrite), backupFile);
 			builder.setMessage(msgBackupOverwrite)
-				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						backup(backupFile);
-						dialog.dismiss();
-					}
-				})
+				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    backup(backupFile);
+                    dialog.dismiss();
+                })
 				.setNegativeButton(android.R.string.cancel, null).show();
 		} else {
 			backup(backupFile);
@@ -1041,13 +1024,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				final String msgBackupOverwrite = String.format(
 					getString(R.string.restore_warning), backupFile);
 				builder.setMessage(msgBackupOverwrite)
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							restore(backupFile);
-							dialog.dismiss();
-						}
-					})
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        restore(backupFile);
+                        dialog.dismiss();
+                    })
 					.setNegativeButton(android.R.string.cancel, null).show();
 			} else {
 				// no entries, skip warning

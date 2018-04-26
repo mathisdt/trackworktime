@@ -16,14 +16,6 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -37,6 +29,14 @@ import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Calculates the actual work times from events.
@@ -57,7 +57,7 @@ public class TimeCalculator {
 	 * Calculate the time sums per task in a given time range.
 	 */
 	public Map<Task, TimeSum> calculateSums(DateTime beginOfPeriod, DateTime endOfPeriod, List<Event> events) {
-		Map<Task, TimeSum> ret = new HashMap<Task, TimeSum>();
+		Map<Task, TimeSum> ret = new HashMap<>();
 		if (events == null || events.isEmpty()) {
 			return ret;
 		}
@@ -238,7 +238,7 @@ public class TimeCalculator {
 	 * complete range).
 	 */
 	public List<DateTime> calculateRangeBeginnings(Unit unit, DateTime from, DateTime to) {
-		List<DateTime> ret = new LinkedList<DateTime>();
+		List<DateTime> ret = new LinkedList<>();
 		ret.add(from);
 
 		DateTime current = null;

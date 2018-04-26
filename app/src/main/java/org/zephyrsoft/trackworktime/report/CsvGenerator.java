@@ -16,16 +16,6 @@
  */
 package org.zephyrsoft.trackworktime.report;
 
-import hirondelle.date4j.DateTime;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.pmw.tinylog.Logger;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.Optional;
@@ -41,6 +31,16 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import hirondelle.date4j.DateTime;
 
 /**
  * Creates CSV reports from events.
@@ -159,7 +159,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsCsv(Map<Task, TimeSum> sums) {
-		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		List<TimeSumsHolder> prepared = new LinkedList<>();
 		for (Entry<Task, TimeSum> entry : sums.entrySet()) {
 			String task = "";
 			if (entry.getKey() != null) {
@@ -173,7 +173,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsPerWeekCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
-		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		List<TimeSumsHolder> prepared = new LinkedList<>();
 		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String week = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
@@ -191,7 +191,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsPerMonthCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
-		List<TimeSumsHolder> prepared = new LinkedList<TimeSumsHolder>();
+		List<TimeSumsHolder> prepared = new LinkedList<>();
 		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String month = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();

@@ -29,8 +29,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.zephyrsoft.trackworktime.R;
-
 /**
  * @author Peter Rosenberg
  */
