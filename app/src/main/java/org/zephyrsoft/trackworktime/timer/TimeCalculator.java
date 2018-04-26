@@ -227,6 +227,16 @@ public class TimeCalculator {
 				endOfTimeFrame = beginOfTimeFrame;
 				beginOfTimeFrame = beginOfTimeFrame.minusDays(daysInLastUnit);
 				break;
+			case ALL_DATA:
+				List<Event> allEvents = dao.getAllEvents();
+				if (allEvents.isEmpty()) {
+					beginOfTimeFrame = DateTimeUtil.getCurrentDateTime().getStartOfDay();
+					endOfTimeFrame = DateTimeUtil.getCurrentDateTime().getEndOfDay();
+				} else {
+					beginOfTimeFrame = DateTimeUtil.stringToDateTime(allEvents.get(0).getTime()).getStartOfDay();
+					endOfTimeFrame = DateTimeUtil.stringToDateTime(allEvents.get(allEvents.size() - 1).getTime()).getEndOfDay();
+				}
+				break;
 			default:
 				throw new IllegalArgumentException("unknown range");
 		}

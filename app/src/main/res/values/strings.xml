@@ -159,5 +159,6 @@
     <string name="sendLogs">Send Logs...</string>
     <string name="acraTitle">Oops!</string>
     <string name="acraText">Track Work Time logged an error.</string>
+    <string name="allData">all data</string>
 
 </resources>

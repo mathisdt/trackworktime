@@ -38,35 +38,41 @@
 
                 <RadioButton
                     android:id="@+id/rangeLastAndCurrent"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/last_and_current" />
+                    android:text="@string/last_and_current"/>
+
+                <RadioButton
+                    android:id="@+id/rangeAllData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/allData"/>
             </RadioGroup>
 
             <RadioGroup
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <RadioButton
                     android:id="@+id/unitWeek"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="@string/week" />
+                    android:text="@string/week"/>
 
                 <RadioButton
                     android:id="@+id/unitMonth"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/month" />
+                    android:text="@string/month"/>
 
                 <RadioButton
                     android:id="@+id/unitYear"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/year" />
+                    android:text="@string/year"/>
             </RadioGroup>
         </LinearLayout>
 

@@ -19,7 +19,8 @@ package org.zephyrsoft.trackworktime.model;
 public enum Range {
 	LAST("last"),
 	CURRENT("current"),
-	LAST_AND_CURRENT("last and current");
+	LAST_AND_CURRENT("last and current"),
+	ALL_DATA("all data");
 
 	private final String name;
 

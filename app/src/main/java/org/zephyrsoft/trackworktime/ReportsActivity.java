@@ -53,6 +53,7 @@ public class ReportsActivity extends AppCompatActivity {
 	private RadioButton rangeLast;
 	private RadioButton rangeCurrent;
 	private RadioButton rangeLastAndCurrent;
+	private RadioButton rangeAllData;
 	private RadioButton unitWeek;
 	private RadioButton unitMonth;
 	private RadioButton unitYear;
@@ -74,6 +75,7 @@ public class ReportsActivity extends AppCompatActivity {
 		rangeLast = (RadioButton) findViewById(R.id.rangeLast);
 		rangeCurrent = (RadioButton) findViewById(R.id.rangeCurrent);
 		rangeLastAndCurrent = (RadioButton) findViewById(R.id.rangeLastAndCurrent);
+		rangeAllData = (RadioButton) findViewById(R.id.rangeAllData);
 		unitWeek = (RadioButton) findViewById(R.id.unitWeek);
 		unitMonth = (RadioButton) findViewById(R.id.unitMonth);
 		unitYear = (RadioButton) findViewById(R.id.unitYear);
@@ -85,6 +87,12 @@ public class ReportsActivity extends AppCompatActivity {
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
 		csvGenerator = new CsvGenerator(dao);
+
+		rangeAllData.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			unitWeek.setEnabled(!isChecked);
+			unitMonth.setEnabled(!isChecked);
+			unitYear.setEnabled(!isChecked);
+		});
 
 		allEventsButton.setOnClickListener(v -> {
             Range selectedRange = getSelectedRange();
@@ -235,6 +243,8 @@ public class ReportsActivity extends AppCompatActivity {
 			return Range.CURRENT;
 		} else if (rangeLastAndCurrent.isChecked()) {
 			return Range.LAST_AND_CURRENT;
+		} else if (rangeAllData.isChecked()) {
+			return Range.ALL_DATA;
 		} else {
 			throw new IllegalStateException("unknown range");
 		}
@@ -253,7 +263,9 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private String getNameForSelection(Range range, Unit unit) {
-		return range.getName() + " " + unit.getName();
+		return range == Range.ALL_DATA
+            ? range.getName()
+            : range.getName() + " " + unit.getName();
 	}
 
 	private boolean saveAndSendReport(String reportName, String filePrefix, String report) {
