@@ -34,6 +34,10 @@ public class Constants {
 
 	/** the directory in which backups and log files should be saved */
 	public static final String DATA_DIR = "trackworktime";
+	/** the name of the currently active log file */
+	public static final String CURRENT_LOG_FILE_NAME = "log.txt";
+	/** the path of the currently active log file */
+	public static final String CURRENT_LOG_FILE_PATH = DATA_DIR + "/" + CURRENT_LOG_FILE_NAME;
 
 	// notification IDs
 	/** used for the message about ACCESS_COARSE_LOCATION */

@@ -41,7 +41,7 @@ import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
-import org.pmw.tinylog.labelers.TimestampLabeler;
+import org.pmw.tinylog.labelers.CountLabeler;
 import org.pmw.tinylog.policies.DailyPolicy;
 import org.pmw.tinylog.writers.LogcatWriter;
 import org.pmw.tinylog.writers.RollingFileWriter;
@@ -74,7 +74,7 @@ import hirondelle.date4j.DateTime.DayOverflow;
  */
 public class Basics extends BroadcastReceiver {
 
-	private Context context = null;
+    private Context context = null;
 	private SharedPreferences preferences = null;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
@@ -138,13 +138,17 @@ public class Basics extends BroadcastReceiver {
 		// init TinyLog
 		String threadToObserve = Thread.currentThread().getName();
 		Configurator.defaultConfig()
-			.writer(new RollingFileWriter(getDataDirectory().getAbsolutePath() + File.separatorChar + "log.txt",
-					2, false, new TimestampLabeler("yyyy-MM-dd"), new DailyPolicy()),
+			.writer(new RollingFileWriter(getDataDirectory().getAbsolutePath() + File.separatorChar + Constants.CURRENT_LOG_FILE_NAME,
+					2, false, new CountLabeler(), new DailyPolicy()),
 					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {{level}|min-size=5} {class_name}.{method} - {message}")
 			.addWriter(new LogcatWriter("trackworktime"), Level.DEBUG, "{message}")
 			.writingThread(threadToObserve, 1)
 			.activate();
 		Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
+	}
+
+	public File getCurrentLogFile() {
+		return new File(getDataDirectory(), Constants.CURRENT_LOG_FILE_NAME);
 	}
 
 	public File getDataDirectory() {

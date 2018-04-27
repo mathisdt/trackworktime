@@ -791,9 +791,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void doSendLogs() {
-		String filename = "log." + DateTimeUtil.getCurrentDateAsString() + ".txt";
-		File fileLocation = new File(Basics.getInstance().getDataDirectory(), filename);
-		Uri filePath = Uri.fromFile(fileLocation);
+		Uri filePath = Uri.fromFile(Basics.getInstance().getCurrentLogFile());
 		Intent emailIntent = new Intent(Intent.ACTION_SEND);
 		String to[] = {getString(R.string.email)};
 		emailIntent.putExtra(Intent.EXTRA_EMAIL, to);

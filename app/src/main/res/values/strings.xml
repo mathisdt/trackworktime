@@ -158,7 +158,8 @@
     <string name="sendLogsSubject">Logs from Track Work Time</string>
     <string name="sendLogs">Send Logs...</string>
     <string name="acraTitle">Oops!</string>
-    <string name="acraText">Track Work Time logged an error.</string>
+    <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please consider sending an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>
+    <string name="acraCommentPrompt">You can add a comment here, e.g. to describe which action produced the error:</string>
     <string name="allData">all data</string>
 
 </resources>
