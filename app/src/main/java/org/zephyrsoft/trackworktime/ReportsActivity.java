@@ -19,6 +19,7 @@ package org.zephyrsoft.trackworktime;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -282,7 +283,10 @@ public class ReportsActivity extends AppCompatActivity {
 		Intent sendingIntent = new Intent(Intent.ACTION_SEND);
 		sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Track Work Time Report");
 		sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "report time frame: " + reportName);
-		sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
+		Uri fileUri = FileProvider.getUriForFile(this,
+			BuildConfig.APPLICATION_ID + ".util.GenericFileProvider", reportFile);
+		sendingIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+		sendingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		sendingIntent.setType("text/plain");
 		startActivity(Intent.createChooser(sendingIntent, "Send report..."));
 

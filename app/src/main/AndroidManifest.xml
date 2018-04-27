@@ -24,6 +24,16 @@
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAIWuqWwAhfQ8Ygb9ZqAPzmXYh_WdSTh3Hjqm8hmg" />
 
+        <provider
+            android:name=".util.GenericFileProvider"
+            android:authorities="${applicationId}.util.GenericFileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
         <receiver android:name="Basics" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -44,6 +54,10 @@
 
         <service
             android:name=".location.LocationTrackerService"
+            android:enabled="true" >
+        </service>
+        <service
+            android:name=".location.WifiTrackerService"
             android:enabled="true" >
         </service>
 
@@ -104,11 +118,6 @@
             android:label="@string/message"
             android:theme="@style/Theme.AppCompat.Dialog" >
         </activity>
-
-        <service
-            android:name=".location.WifiTrackerService"
-            android:enabled="true" >
-        </service>
     </application>
 
 </manifest>
