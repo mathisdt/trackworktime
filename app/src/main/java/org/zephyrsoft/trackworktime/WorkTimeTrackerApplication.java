@@ -31,6 +31,7 @@ import org.acra.sender.HttpSender;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
+import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import static org.acra.ReportField.ANDROID_VERSION;
@@ -85,6 +86,7 @@ public class WorkTimeTrackerApplication extends Application {
 		}
 
 		ACRA.init(this);
+		ACRA.setLog(new TinylogAndLogcatLogger());
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 
 		Logger.info("running self-tests");

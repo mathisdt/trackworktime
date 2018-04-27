@@ -154,11 +154,11 @@
     <string name="methodsGenerateEventsSeparatelyDescription">if enabled, every tracking method (location, wifi) generates separate events - if disabled, only first clock-in and last clock-out counts</string>
     <string name="channelName">Track Work Time Notifications</string>
     <string name="channelDescription">The category used for all notifications of Track Work Time.</string>
-    <string name="sendLogsQuestion">You are about to send the logs of everything that happened today in Track Work Time.\n\nThis may include personal data.\n\nPlease consider to send the data to yourself first, check it and then forward it to android@zephyrsoft.org!</string>
+    <string name="sendLogsQuestion">You are about to send the logs of everything that happened today in Track Work Time to the developer.\n\nThe logs may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n\nYou are also welcome to send the data to yourself first, check it, anonymize it where necessary and then forward it to android@zephyrsoft.org!</string>
     <string name="sendLogsSubject">Logs from Track Work Time</string>
     <string name="sendLogs">Send Logs...</string>
     <string name="acraTitle">Oops!</string>
-    <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please consider sending an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>
+    <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please send an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>
     <string name="acraCommentPrompt">You can add a comment here, e.g. to describe which action produced the error:</string>
     <string name="allData">all data</string>
 
