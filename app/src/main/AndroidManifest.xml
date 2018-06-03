@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.zephyrsoft.trackworktime"
-    android:versionCode="24"
-    android:versionName="1.0.2">
+    android:versionCode="25"
+    android:versionName="1.0.3-SNAPSHOT">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
