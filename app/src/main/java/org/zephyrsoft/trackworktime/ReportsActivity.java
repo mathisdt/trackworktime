@@ -109,27 +109,15 @@ public class ReportsActivity extends AppCompatActivity {
             }
 
             String reportName = getNameForSelection(selectedRange, selectedUnit);
-            File reportFile = ExternalStorage.writeFile("reports", "events-" +
-                reportName.replaceAll(" ", "-"),
-                ".csv",
-                report.getBytes(), ReportsActivity.this);
-            if (reportFile == null) {
-                String errorMessage = "could not write report to external storage";
-                Logger.error(errorMessage);
-                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                return;
-            }
+            boolean success = saveAndSendReport(
+            		reportName,
+					String.format("events-%s.csv", reportName.replaceAll(" ", "-")),
+					report);
 
-            // send the report
-            Intent sendingIntent = new Intent(Intent.ACTION_SEND);
-            sendingIntent.putExtra(Intent.EXTRA_SUBJECT, "Track Work Time Report");
-            sendingIntent.putExtra(Intent.EXTRA_TEXT, "report time frame: " + reportName);
-            sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
-            sendingIntent.setType("text/plain");
-            startActivity(Intent.createChooser(sendingIntent, "Send report..."));
-
-            // close this dialog
-            finish();
+            if (success) {
+				// close this dialog
+				finish();
+			}
         });
 
 		timesByTaskButton.setOnClickListener(v -> {
@@ -147,27 +135,15 @@ public class ReportsActivity extends AppCompatActivity {
             }
 
             String reportName = getNameForSelection(selectedRange, selectedUnit);
-            File reportFile = ExternalStorage.writeFile("reports", "sums-" +
-                reportName.replaceAll(" ", "-"),
-                ".csv",
-                report.getBytes(), ReportsActivity.this);
-            if (reportFile == null) {
-                String errorMessage = "could not write report to external storage";
-                Logger.error(errorMessage);
-                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
-                return;
-            }
+			boolean success = saveAndSendReport(
+					reportName,
+					String.format("sums-%s.csv", reportName.replaceAll(" ", "-")),
+					report);
 
-            // send the report
-            Intent sendingIntent = new Intent(Intent.ACTION_SEND);
-            sendingIntent.putExtra(Intent.EXTRA_SUBJECT, "Track Work Time Report");
-            sendingIntent.putExtra(Intent.EXTRA_TEXT, "report time frame: " + reportName);
-            sendingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(reportFile));
-            sendingIntent.setType("text/plain");
-            startActivity(Intent.createChooser(sendingIntent, "Send report..."));
-
-            // close this dialog
-            finish();
+			if (success) {
+				// close this dialog
+				finish();
+			}
         });
 
 		timesByTaskPerWeekButton.setOnClickListener(v -> {
