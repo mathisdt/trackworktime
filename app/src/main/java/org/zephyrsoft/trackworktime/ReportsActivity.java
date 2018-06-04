@@ -103,16 +103,15 @@ public class ReportsActivity extends AppCompatActivity {
             List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
 
             String report = csvGenerator.createEventCsv(events);
-            if (report == null) {
-                logAndShowError("could not generate report");
-                return;
-            }
+			String reportName = getNameForSelection(selectedRange, selectedUnit);
+			if (report == null) {
+				logAndShowError("could not generate report " + reportName);
+				return;
+			}
 
-            String reportName = getNameForSelection(selectedRange, selectedUnit);
-            boolean success = saveAndSendReport(
-            		reportName,
-					String.format("events-%s.csv", reportName.replaceAll(" ", "-")),
-					report);
+            boolean success = saveAndSendReport(reportName,
+				"events-" + reportName.replaceAll(" ", "-"),
+				report);
 
             if (success) {
 				// close this dialog
@@ -129,16 +128,15 @@ public class ReportsActivity extends AppCompatActivity {
             Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
 
             String report = csvGenerator.createSumsCsv(sums);
-            if (report == null) {
-                logAndShowError("could not generate report");
-                return;
-            }
+			String reportName = getNameForSelection(selectedRange, selectedUnit);
+			if (report == null) {
+				logAndShowError("could not generate report " + reportName);
+				return;
+			}
 
-            String reportName = getNameForSelection(selectedRange, selectedUnit);
-			boolean success = saveAndSendReport(
-					reportName,
-					String.format("sums-%s.csv", reportName.replaceAll(" ", "-")),
-					report);
+			boolean success = saveAndSendReport(reportName,
+				"sums-" + reportName.replaceAll(" ", "-"),
+				report);
 
 			if (success) {
 				// close this dialog
@@ -155,14 +153,16 @@ public class ReportsActivity extends AppCompatActivity {
                 beginAndEnd[1]);
             Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-            String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
-            if (report == null) {
-                logAndShowError("could not generate report");
-                return;
-            }
+			String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
+			String reportName = getNameForSelection(selectedRange, selectedUnit);
+			if (report == null) {
+				logAndShowError("could not generate report " + reportName);
+				return;
+			}
 
-            String reportName = getNameForSelection(selectedRange, selectedUnit);
-            boolean success = saveAndSendReport(reportName, "sums-per-week", report);
+            boolean success = saveAndSendReport(reportName,
+				"sums-per-week-" + reportName.replaceAll(" ", "-"),
+				report);
 
             if (success) {
                 // close this dialog
@@ -180,13 +180,15 @@ public class ReportsActivity extends AppCompatActivity {
             Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
             String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
-            if (report == null) {
-                logAndShowError("could not generate report");
-                return;
-            }
+			String reportName = getNameForSelection(selectedRange, selectedUnit);
+			if (report == null) {
+				logAndShowError("could not generate report " + reportName);
+				return;
+			}
 
-            String reportName = getNameForSelection(selectedRange, selectedUnit);
-            boolean success = saveAndSendReport(reportName, "sums-per-month", report);
+            boolean success = saveAndSendReport(reportName,
+				"sums-per-month-" + reportName.replaceAll(" ", "-"),
+				report);
 
             if (success) {
                 // close this dialog
