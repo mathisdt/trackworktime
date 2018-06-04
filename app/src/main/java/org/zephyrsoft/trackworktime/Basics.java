@@ -265,15 +265,20 @@ public class Basics extends BroadcastReceiver {
 				.toString();
 			String targetTimeString = "";
 			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				final Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
+				Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
 					Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
 				if (minutesRemaining != null) {
 					if (minutesRemaining >= 0) {
 						// target time in future
+
+						int hoursRemaining = (int) Math.floor(minutesRemaining / 60);
+						minutesRemaining = minutesRemaining % 60;
+						int daysRemaining = (int) Math.floor(hoursRemaining / 24);
+						hoursRemaining = hoursRemaining % 24;
+
 						DateTime finishingTime = DateTimeUtil.getCurrentDateTime()
-							.plus(0, 0, 0, 0, minutesRemaining, 0, 0, DayOverflow.Spillover);
-						String targetTime = (finishingTime == null ? null : DateTimeUtil
-							.dateTimeToHourMinuteString(finishingTime));
+							.plus(0, 0, daysRemaining, hoursRemaining, minutesRemaining, 0, 0, DayOverflow.Spillover);
+						String targetTime = DateTimeUtil.dateTimeToHourMinuteString(finishingTime);
 						targetTimeString = "possible finishing time: " + targetTime;
 					} else {
 						// target time in past
