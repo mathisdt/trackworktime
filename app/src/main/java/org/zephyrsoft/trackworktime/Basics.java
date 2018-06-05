@@ -16,7 +16,6 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -81,6 +80,7 @@ public class Basics extends BroadcastReceiver {
 	private TimeCalculator timeCalculator = null;
 	private ExternalNotificationManager externalNotificationManager = null;
 	private NotificationChannel notificationChannel = null;
+	private NotificationChannel serviceNotificationChannel = null;
 
 	private static Basics instance = null;
 
@@ -168,6 +168,14 @@ public class Basics extends BroadcastReceiver {
 
 	public void setNotificationChannel(NotificationChannel notificationChannel) {
 		this.notificationChannel = notificationChannel;
+	}
+
+	public NotificationChannel getServiceNotificationChannel() {
+		return serviceNotificationChannel;
+	}
+
+	public void setServiceNotificationChannel(NotificationChannel serviceNotificationChannel) {
+		this.serviceNotificationChannel = serviceNotificationChannel;
 	}
 
 	private void schedulePeriodicIntents() {
@@ -363,7 +371,11 @@ public class Basics extends BroadcastReceiver {
 		// is already running with the current parameters - if the location or the
 		// tolerance changed, then it will update the values for the service
 		Logger.debug("try to start location-based tracking service");
-		context.startService(startIntent);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			context.startForegroundService(startIntent);
+		} else {
+			context.startService(startIntent);
+		}
 		Logger.debug("location-based tracking service started");
 	}
 
@@ -403,7 +415,11 @@ public class Basics extends BroadcastReceiver {
 		Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
 		Logger.debug("try to start wifi-based tracking service");
 		// changes to settings will be adopted & wifi-check will be performed
-		context.startService(startIntent);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			context.startForegroundService(startIntent);
+		} else {
+			context.startService(startIntent);
+		}
 		Logger.debug("wifi-based tracking service started");
 	}
 
@@ -531,45 +547,67 @@ public class Basics extends BroadcastReceiver {
 	 *            a unique number to identify the notification
 	 */
 	@SuppressWarnings("deprecation")
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
 		PendingIntent clickIntent, Integer notificationId, boolean persistent, PendingIntent buttonOneIntent,
 		Integer buttonOneIcon, String buttonOneText, PendingIntent buttonTwoIntent, Integer buttonTwoIcon,
 		String buttonTwoText) {
 		NotificationManager notificationManager = (NotificationManager) context
 			.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = null;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-			Notification.Builder notificationBuilder = new Notification.Builder(context)
-				.setContentTitle(notificationTitle)
-				.setContentText(notificationSubtitle)
-				.setContentIntent(clickIntent)
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setTicker(scrollingText)
-				.setOngoing(persistent);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-				notificationBuilder.setChannelId(getNotificationChannel().getId());
-			}
-			if (buttonOneIntent != null && buttonOneIcon != null) {
-				notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
-			}
-			if (buttonTwoIntent != null && buttonTwoIcon != null) {
-				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
-			}
-			notification = notificationBuilder.build();
-			Logger.debug("prepared JellyBean+ notification {} / {} with button1={} and button2={}",
-				notificationTitle,
-				notificationSubtitle, buttonOneText, buttonTwoText);
-		} else {
-			notification = new Notification(R.drawable.ic_launcher, scrollingText, 0);
-			if (persistent) {
-				notification.flags = Notification.FLAG_ONGOING_EVENT;
-			}
-//			notification.setLatestEventInfo(context, notificationTitle, notificationSubtitle, clickIntent);
-			Logger.debug("prepared pre-JellyBean notification {} / {} with button1={} and button2={}",
-				notificationTitle, notificationSubtitle, buttonOneText, buttonTwoText);
+		Notification.Builder notificationBuilder = new Notification.Builder(context)
+			.setContentTitle(notificationTitle)
+			.setContentText(notificationSubtitle)
+			.setContentIntent(clickIntent)
+			.setSmallIcon(R.drawable.ic_launcher)
+			.setTicker(scrollingText)
+			.setOngoing(persistent);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			notificationBuilder.setChannelId(getNotificationChannel().getId());
 		}
+		if (buttonOneIntent != null && buttonOneIcon != null) {
+			notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
+		}
+		if (buttonTwoIntent != null && buttonTwoIcon != null) {
+			notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
+		}
+		Notification notification = notificationBuilder.build();
+		Logger.debug("prepared notification {} / {} with button1={} and button2={}",
+			notificationTitle,
+			notificationSubtitle, buttonOneText, buttonTwoText);
 		notificationManager.notify(notificationId, notification);
+	}
+
+	public Notification createNotificationTrackingByLocation() {
+		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
+		clickIntent.setAction(Intent.ACTION_MAIN);
+		clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		Notification.Builder notificationBuilder = new Notification.Builder(context)
+			.setContentTitle("location check is active")
+			.setContentIntent(pendingIntent)
+			.setSmallIcon(R.drawable.ic_launcher)
+			.setOngoing(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			notificationBuilder.setChannelId(getServiceNotificationChannel().getId());
+		}
+		return notificationBuilder.build();
+	}
+
+	public Notification createNotificationTrackingByWifi() {
+		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
+		clickIntent.setAction(Intent.ACTION_MAIN);
+		clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		Notification.Builder notificationBuilder = new Notification.Builder(context)
+			.setContentTitle("Wi-Fi check is active")
+			.setContentIntent(pendingIntent)
+			.setSmallIcon(R.drawable.ic_launcher)
+			.setOngoing(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			notificationBuilder.setChannelId(getServiceNotificationChannel().getId());
+		}
+		return notificationBuilder.build();
 	}
 
 	/**

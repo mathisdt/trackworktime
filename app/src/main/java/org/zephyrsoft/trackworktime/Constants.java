@@ -40,12 +40,14 @@ public class Constants {
 	public static final String CURRENT_LOG_FILE_PATH = DATA_DIR + "/" + CURRENT_LOG_FILE_NAME;
 
 	// notification IDs
-	/** used for the message about ACCESS_COARSE_LOCATION */
-	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 1;
+	/** used for the persistent notification when tracking via location and/or WiFi */
+	public static final int PERSISTENT_TRACKING_ID = 1;
 	/** used for the status notification when clocked in */
 	public static final int PERSISTENT_STATUS_ID = 2;
+	/** used for the message about ACCESS_COARSE_LOCATION */
+	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 3;
 	/** used for the message about ACCESS_WIFI_STATE */
-	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 3;
+	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 4;
 
 	// intent extra keys
 	/** key for the intent extra "week start" */

@@ -16,18 +16,19 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.IBinder;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The background service providing the wifi-based tracking without having the activity open.
@@ -47,6 +48,9 @@ public class WifiTrackerService extends Service {
 	public void onCreate() {
 		Logger.info("creating WifiTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTrackingByWifi());
+		}
 		wifiTracker = new WifiTracker((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE), basics.getTimerManager(),
 			basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously

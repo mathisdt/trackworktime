@@ -75,19 +75,29 @@ public class WorkTimeTrackerApplication extends Application {
 		Logger.info("creating application");
 
 		NotificationChannel notificationChannel = null;
+		NotificationChannel serviceNotificationChannel = null;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			CharSequence name = getString(R.string.channelName);
-			String description = getString(R.string.channelDescription);
-			int importance = NotificationManager.IMPORTANCE_DEFAULT;
-			notificationChannel = new NotificationChannel(getString(R.string.channelName), name, importance);
-			notificationChannel.setDescription(description);
 			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+			String name = getString(R.string.standardChannelName);
+			String description = getString(R.string.standardChannelDescription);
+			int importance = NotificationManager.IMPORTANCE_DEFAULT;
+			notificationChannel = new NotificationChannel(name, name, importance);
+			notificationChannel.setDescription(description);
 			notificationManager.createNotificationChannel(notificationChannel);
+
+			name = getString(R.string.serviceChannelName);
+			description = getString(R.string.serviceChannelDescription);
+			importance = NotificationManager.IMPORTANCE_LOW;
+			serviceNotificationChannel = new NotificationChannel(name, name, importance);
+			serviceNotificationChannel.setDescription(description);
+			notificationManager.createNotificationChannel(serviceNotificationChannel);
 		}
 
 		ACRA.init(this);
 		ACRA.setLog(new TinylogAndLogcatLogger());
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
+		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
 
 		Logger.info("running self-tests");
 		TimeSum.test();

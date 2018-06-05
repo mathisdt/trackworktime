@@ -16,18 +16,19 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.IBinder;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The background service providing the location-based tracking without having the activity open.
@@ -47,10 +48,13 @@ public class LocationTrackerService extends Service {
 	public void onCreate() {
 		Logger.info("creating LocationTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTrackingByLocation());
+		}
 		locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics
 			.getTimerManager(), basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
 		// restart if service crashed previously
-		Basics.getOrCreateInstance(getApplicationContext()).safeCheckLocationBasedTracking();
+		basics.safeCheckLocationBasedTracking();
 	}
 
 	@Override
