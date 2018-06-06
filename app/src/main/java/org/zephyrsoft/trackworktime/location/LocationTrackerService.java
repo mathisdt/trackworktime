@@ -49,7 +49,7 @@ public class LocationTrackerService extends Service {
 		Logger.info("creating LocationTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTrackingByLocation());
+			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
 		}
 		locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics
 			.getTimerManager(), basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));

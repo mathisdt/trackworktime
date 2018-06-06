@@ -49,7 +49,7 @@ public class WifiTrackerService extends Service {
 		Logger.info("creating WifiTrackerService");
 		basics = Basics.getOrCreateInstance(getApplicationContext());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTrackingByWifi());
+			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
 		}
 		wifiTracker = new WifiTracker((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE), basics.getTimerManager(),
 			basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));

@@ -576,37 +576,21 @@ public class Basics extends BroadcastReceiver {
 		notificationManager.notify(notificationId, notification);
 	}
 
-	public Notification createNotificationTrackingByLocation() {
+	public Notification createNotificationTracking() {
 		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
 		clickIntent.setAction(Intent.ACTION_MAIN);
 		clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Notification.Builder notificationBuilder = new Notification.Builder(context)
-			.setContentTitle("location check is active")
+			.setContentTitle("automatic clock-in by location and/or WiFi active")
 			.setContentIntent(pendingIntent)
-			.setSmallIcon(R.drawable.ic_launcher)
+			.setSmallIcon(R.drawable.ic_menu_mylocation)
 			.setOngoing(true);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			notificationBuilder.setChannelId(getServiceNotificationChannel().getId());
 		}
-		return notificationBuilder.build();
-	}
-
-	public Notification createNotificationTrackingByWifi() {
-		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
-		clickIntent.setAction(Intent.ACTION_MAIN);
-		clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-		Notification.Builder notificationBuilder = new Notification.Builder(context)
-			.setContentTitle("Wi-Fi check is active")
-			.setContentIntent(pendingIntent)
-			.setSmallIcon(R.drawable.ic_launcher)
-			.setOngoing(true);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			notificationBuilder.setChannelId(getServiceNotificationChannel().getId());
-		}
+		Logger.debug("created service notification");
 		return notificationBuilder.build();
 	}
 
