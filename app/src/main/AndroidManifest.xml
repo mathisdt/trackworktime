@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.zephyrsoft.trackworktime"
     android:versionCode="25"
-    android:versionName="1.0.3-SNAPSHOT">
+    android:versionName="1.0.3">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
