@@ -15,4 +15,4 @@ Finally, the app can generate reports for you. The raw events report is the righ
 <br>
 <b>This is an open source project</b>, so if there is anything you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews, that doesn't work in both directions. Just write me an email, and I'll see what I can do - web site and email address as stated above.<br>
 <br>
-Important note: This app definitely won't send your personal data anywhere. It uses the INTERNET permission only to send crash reports, but those reports contain neither any times nor any coordinates you may have tracked.<br>
+Important note: This app definitely won't send your personal data anywhere. It uses the INTERNET permission only to offer you to send some information about the problem to the developer. The log file appended to the bug report may include personal data - if so, it will kept strictly confidential and only used to identify the problem.<br>
