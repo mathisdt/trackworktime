@@ -118,7 +118,7 @@ public class OptionsActivity extends AppCompatPreferenceActivity implements OnSh
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		for (int i = 0; i < permissions.length; i++) {
 			if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(permissions[i])) {
-				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+				if (grantResults != null && grantResults.length > i && grantResults[i] != PackageManager.PERMISSION_GRANTED) {
 					final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
 					editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
 					editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);

@@ -867,17 +867,17 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			int[] grantResults) {
 		switch (requestCode) {
 			case PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP:
-				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupToSdAutomatically();
 				}
 				break;
 			case PERMISSION_REQUEST_CODE_BACKUP:
-				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupToSd();
 				}
 				break;
 			case PERMISSION_REQUEST_CODE_RESTORE:
-				if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					restoreFromSd();
 				}
 				break;
