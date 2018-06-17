@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -791,13 +792,15 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void doSendLogs() {
-		Uri filePath = Uri.fromFile(Basics.getInstance().getCurrentLogFile());
 		Intent emailIntent = new Intent(Intent.ACTION_SEND);
+		emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendLogsSubject));
+		Uri fileUri = FileProvider.getUriForFile(this,
+			BuildConfig.APPLICATION_ID + ".util.GenericFileProvider", Basics.getInstance().getCurrentLogFile());
+		emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+		emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		emailIntent.setType("text/plain");
 		String to[] = {getString(R.string.email)};
 		emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
-		emailIntent.putExtra(Intent.EXTRA_STREAM, filePath);
-		emailIntent.setType("text/plain");
-		emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendLogsSubject));
 		startActivity(Intent.createChooser(emailIntent , getString(R.string.sendLogs)));
 	}
 
