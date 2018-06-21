@@ -590,15 +590,20 @@ public class TimerManager {
 	/**
 	 * Update the week's total worked sum.
 	 */
-	public void updateWeekSum(Week week) {
+	public void updateWeekSum(final Week week) {
 		TimeSum sum = calculateTimeSum(DateTimeUtil.stringToDateTime(week.getStart()), PeriodEnum.WEEK);
 		int minutes = sum.getAsMinutes();
 		Logger.info("updating the time sum to {} minutes for the week beginning at {}", minutes, week.getStart());
 		Week weekToUse = week;
-		if (week instanceof WeekPlaceholder) {
-			weekToUse = createPersistentWeek(week.getStart());
+		if (weekToUse instanceof WeekPlaceholder) {
+			weekToUse = createPersistentWeek(weekToUse.getStart());
 		}
-		weekToUse.setSum(minutes);
+		if (minutes >= 0) {
+			weekToUse.setSum(minutes);
+		} else {
+			Logger.warn("NOT setting the sum of the week starting {} to {} minutes (the sum cannot be negative)", weekToUse.getStart(), minutes);
+			weekToUse.setSum(0);
+		}
 		dao.updateWeek(weekToUse);
 		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
 		// TODO update the sum of the next week(s) if type is CLOCK_IN?
