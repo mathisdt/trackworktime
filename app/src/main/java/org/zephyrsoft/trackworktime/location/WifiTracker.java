@@ -150,7 +150,7 @@ public class WifiTracker {
 		if (wifiManager.isWifiEnabled()) {
 			List<ScanResult> wifiNetworksInRange = wifiManager.getScanResults();
 			if (wifiNetworksInRange != null) {
-				if (wifiNetworksInRange.isEmpty()) {
+				if (!wifiNetworksInRange.isEmpty()) {
 					for (ScanResult network : wifiNetworksInRange) {
 						if (network.SSID.equalsIgnoreCase(ssid)) {
 							return true;
