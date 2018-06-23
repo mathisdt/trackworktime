@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -88,7 +89,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
 
 	private enum MenuAction {
-		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION;
+		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
@@ -672,6 +673,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			.setIcon(R.drawable.ic_menu_mark);
 		menu.add(Menu.NONE, MenuAction.OPTIONS.ordinal(), MenuAction.OPTIONS.ordinal(), R.string.options)
 			.setIcon(R.drawable.ic_menu_preferences);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			menu.add(Menu.NONE, MenuAction.REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS.ordinal(), MenuAction.REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS.ordinal(), R.string.request_to_ignore_battery_optimizations)
+				.setIcon(R.drawable.ic_menu_preferences);
+		}
 		menu.add(Menu.NONE, MenuAction.USE_CURRENT_LOCATION.ordinal(), MenuAction.USE_CURRENT_LOCATION.ordinal(), R.string.use_current_location)
 			.setIcon(R.drawable.ic_menu_compass);
 		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports)
@@ -702,6 +707,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				return true;
 			case OPTIONS:
 				showOptions();
+				return true;
+			case REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS:
+				showRequestToIgnoreBatteryOptimizations();
 				return true;
 			case USE_CURRENT_LOCATION:
 				useCurrentLocationAsWorkplace();
@@ -751,6 +759,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		Logger.debug("showing Options");
 		Intent i = new Intent(this, OptionsActivity.class);
 		startActivity(i);
+	}
+
+	private void showRequestToIgnoreBatteryOptimizations() {
+		Logger.debug("showing request to ignore battery optimizations");
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle(getString(R.string.request_to_ignore_battery_optimizations_title));
+		alert.setMessage(getString(R.string.request_to_ignore_battery_optimizations_text));
+		alert.setPositiveButton(getString(R.string.request_to_ignore_battery_optimizations_go_to_settings),
+			(dialog, whichButton) -> Basics.getInstance().openBatterySettings());
+		alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
+			// do nothing
+		});
+		alert.show();
 	}
 
 	private void useCurrentLocationAsWorkplace() {

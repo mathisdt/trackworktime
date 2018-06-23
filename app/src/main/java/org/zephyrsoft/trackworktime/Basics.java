@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 
 import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
@@ -703,6 +704,14 @@ public class Basics extends BroadcastReceiver {
 		} catch (PackageManager.NameNotFoundException nnfe) {
 			Logger.error("could not get version name from manifest: {}", nnfe.getMessage());
 			return "?";
+		}
+	}
+
+    public void openBatterySettings() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			Intent intent = new Intent();
+			intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+			context.startActivity(intent);
 		}
 	}
 }
