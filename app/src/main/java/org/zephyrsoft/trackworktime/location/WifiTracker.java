@@ -150,10 +150,15 @@ public class WifiTracker {
 		if (wifiManager.isWifiEnabled()) {
 			List<ScanResult> wifiNetworksInRange = wifiManager.getScanResults();
 			if (wifiNetworksInRange != null) {
-				for (ScanResult network : wifiNetworksInRange) {
-					if (network.SSID.equalsIgnoreCase(ssid)) {
-						return true;
+				if (wifiNetworksInRange.isEmpty()) {
+					for (ScanResult network : wifiNetworksInRange) {
+						if (network.SSID.equalsIgnoreCase(ssid)) {
+							return true;
+						}
 					}
+					Logger.info("tracking by wifi, but specified wifi name \"{}\" not found in {} available wifi networks", ssid, wifiNetworksInRange.size());
+				} else {
+					Logger.info("tracking by wifi, but wifi network list is empty");
 				}
 			} else {
 				Logger.info("tracking by wifi, but wifi network list is unavailable");
