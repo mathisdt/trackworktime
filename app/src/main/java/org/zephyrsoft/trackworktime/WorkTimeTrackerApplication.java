@@ -112,6 +112,7 @@ public class WorkTimeTrackerApplication extends Application {
 	public void onTerminate() {
 		Logger.info("terminating application");
 		Basics.getOrCreateInstance(getApplicationContext()).getDao().close();
+		Basics.getInstance().unregisterThirdPartyReceiver();
 		super.onTerminate();
 	}
 

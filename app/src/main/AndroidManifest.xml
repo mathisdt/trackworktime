@@ -46,10 +46,6 @@
             android:name="ThirdPartyReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver" >
-            <intent-filter>
-                <action android:name="org.zephyrsoft.trackworktime.ClockIn" />
-                <action android:name="org.zephyrsoft.trackworktime.ClockOut" />
-            </intent-filter>
         </receiver>
 
         <service
