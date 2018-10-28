@@ -25,6 +25,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -82,6 +83,7 @@ public class Basics extends BroadcastReceiver {
 	private ExternalNotificationManager externalNotificationManager = null;
 	private NotificationChannel notificationChannel = null;
 	private NotificationChannel serviceNotificationChannel = null;
+	private ThirdPartyReceiver thirdPartyReceiver;
 
 	private static Basics instance = null;
 
@@ -116,7 +118,6 @@ public class Basics extends BroadcastReceiver {
 	public void onReceive(Context androidContext, Intent intent) {
 		// always only use the one instance
 		instance.receivedIntent(androidContext);
-
 	}
 
 	/**
@@ -146,6 +147,33 @@ public class Basics extends BroadcastReceiver {
 			.writingThread(threadToObserve, 1)
 			.activate();
 		Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
+
+		registerThirdPartyReceiver();
+	}
+
+	private void registerThirdPartyReceiver() {
+		if(thirdPartyReceiver != null) {
+			Logger.warn(ThirdPartyReceiver.class.getSimpleName() + " already registered, skipping.");
+			return;
+		}
+
+		thirdPartyReceiver = new ThirdPartyReceiver();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction("org.zephyrsoft.trackworktime.ClockIn");
+		intentFilter.addAction("org.zephyrsoft.trackworktime.ClockOut");
+		context.registerReceiver(thirdPartyReceiver, intentFilter);
+		Logger.debug("Registered " + ThirdPartyReceiver.class.getSimpleName());
+	}
+
+	public void unregisterThirdPartyReceiver() {
+		if(thirdPartyReceiver == null) {
+			Logger.warn(ThirdPartyReceiver.class.getSimpleName() + " not registered, skipping.");
+			return;
+		}
+
+		context.unregisterReceiver(thirdPartyReceiver);
+		thirdPartyReceiver = null;
+		Logger.debug("Unregistered " + ThirdPartyReceiver.class.getSimpleName());
 	}
 
 	public File getCurrentLogFile() {
