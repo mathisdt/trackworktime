@@ -18,7 +18,7 @@ package org.zephyrsoft.trackworktime.location;
 
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
+import android.support.annotation.NonNull;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
@@ -35,9 +35,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 
  * @author Christoph Loewe
  */
-public class WifiTracker {
+public class WifiTracker implements WifiScanner.WifiScanListener {
 
-	private final WifiManager wifiManager;
+	private final WifiScanner wifiScanner;
 	private final TimerManager timerManager;
 	private final ExternalNotificationManager externalNotificationManager;
 	private final AudioManager audioManager;
@@ -54,12 +54,9 @@ public class WifiTracker {
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
 	 * {@link #startTrackingByWifi(String, boolean)} explicitly.
 	 */
-	public WifiTracker(WifiManager wifiManager, TimerManager timerManager,
+	public WifiTracker(TimerManager timerManager,
 		ExternalNotificationManager externalNotificationManager,
-		AudioManager audioManager) {
-		if (wifiManager == null) {
-			throw new IllegalArgumentException("the WifiManager is null");
-		}
+		AudioManager audioManager, WifiScanner wifiScanner) {
 		if (timerManager == null) {
 			throw new IllegalArgumentException("the TimerManager is null");
 		}
@@ -69,10 +66,13 @@ public class WifiTracker {
 		if (audioManager == null) {
 			throw new IllegalArgumentException("the AudioManager is null");
 		}
-		this.wifiManager = wifiManager;
+		if (wifiScanner == null) {
+			throw new IllegalArgumentException("the " + WifiScanner.class.getSimpleName() + " is null");
+		}
 		this.timerManager = timerManager;
 		this.externalNotificationManager = externalNotificationManager;
 		this.audioManager = audioManager;
+		this.wifiScanner = wifiScanner;
 	}
 
 	/**
@@ -92,6 +92,7 @@ public class WifiTracker {
 		if (isTrackingByWifi.compareAndSet(false, true)) {
 			try {
 				timerManager.activateTrackingMethod(TrackingMethod.WIFI);
+				wifiScanner.setWifiScanListener(this);
 				Logger.info("started wifi-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
@@ -109,10 +110,15 @@ public class WifiTracker {
 	 * check if wifi-ssid is in range and start/stop tracking
 	 */
 	public void checkWifi() {
+		wifiScanner.requestWifiScanResults();
+	}
+
+	@Override
+	public void onScanResultsUpdated(@NonNull List<ScanResult> wifiNetworksInRange) {
 		Logger.debug("checking wifi for ssid \"{}\"", ssid);
-		final boolean ssidIsNowInRange = isConfiguredSsidInRange();
+		final boolean ssidIsNowInRange = isConfiguredSsidInRange(wifiNetworksInRange);
 		Logger.debug("wifi-ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
-			ssidWasPreviouslyInRange);
+				ssidWasPreviouslyInRange);
 
 		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange && !ssidIsNowInRange) {
 
@@ -141,31 +147,45 @@ public class WifiTracker {
 		ssidWasPreviouslyInRange = ssidIsNowInRange;
 	}
 
+	@Override
+	public void onScanRequestFailed(@NonNull WifiScanner.Result failCode) {
+		switch (failCode) {
+			case FAIL_WIFI_DISABLED:
+				Logger.warn("tracking by wifi, but wifi-radio is disabled. Retaining previous " +
+						"tracking state");
+				break;
+			case FAIL_SCAN_REQUEST_FAILED:
+				Logger.info("wifi scan request failed, skipping wifi check - retaining previous " +
+						"tracking state");
+				break;
+			case FAIL_RESULTS_NOT_UPDATED:
+				Logger.info("wifi scan results were not updated, skipping wifi check - retaining " +
+						"previous tracking state");
+				break;
+			case CANCEL_SPAMMING:
+				Logger.warn("wifi scan request canceled, due to too much requests");
+				break;
+		}
+	}
+
 	/**
 	 * look for networks in range if wifi-radio is activated
 	 * 
 	 * @return found, false in case of deactived wifi-radio
 	 */
-	private boolean isConfiguredSsidInRange() {
-		if (wifiManager.isWifiEnabled()) {
-			List<ScanResult> wifiNetworksInRange = wifiManager.getScanResults();
-			if (wifiNetworksInRange != null) {
-				if (!wifiNetworksInRange.isEmpty()) {
-					for (ScanResult network : wifiNetworksInRange) {
-						if (network.SSID.equalsIgnoreCase(ssid)) {
-							return true;
-						}
-					}
-					Logger.info("tracking by wifi, but specified wifi name \"{}\" not found in {} available wifi networks", ssid, wifiNetworksInRange.size());
-				} else {
-					Logger.info("tracking by wifi, but wifi network list is empty");
-				}
-			} else {
-				Logger.info("tracking by wifi, but wifi network list is unavailable");
-			}
-		} else {
-			Logger.info("tracking by wifi, but wifi-radio is disabled");
+	private boolean isConfiguredSsidInRange(@NonNull List<ScanResult> wifiNetworksInRange) {
+		if(wifiNetworksInRange.isEmpty()) {
+			Logger.info("tracking by wifi, but wifi network list is empty");
+			return false;
 		}
+
+		for (ScanResult network : wifiNetworksInRange) {
+			if (network.SSID.equalsIgnoreCase(ssid)) {
+				return true;
+			}
+		}
+
+		Logger.info("tracking by wifi, but specified wifi name \"{}\" not found in {} available wifi networks", ssid, wifiNetworksInRange.size());
 		return false;
 	}
 
@@ -194,6 +214,7 @@ public class WifiTracker {
 	 */
 	public void stopTrackingByWifi() {
 		timerManager.deactivateTrackingMethod(TrackingMethod.WIFI);
+		wifiScanner.setWifiScanListener(null);
 
 		if (isTrackingByWifi.compareAndSet(true, false)) {
 			Logger.info("stopped wifi-based tracking");
@@ -214,5 +235,4 @@ public class WifiTracker {
 	public boolean shouldVibrate() {
 		return vibrate;
 	}
-
 }
