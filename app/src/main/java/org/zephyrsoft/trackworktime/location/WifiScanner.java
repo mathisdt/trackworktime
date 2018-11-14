@@ -30,28 +30,28 @@ import hirondelle.date4j.DateTime;
  *
  * Notes:
  * This class receives wifi {@link ScanResult}s every time ANY APP on the phone initiates scanning.
- * We can take advantage of this and cache results (in {@link #mLatestScanResults}), to minimize
+ * We can take advantage of this and cache results (in {@link #latestScanResults}), to minimize
  * scan requests and lower battery drain.
  */
 public class WifiScanner extends BroadcastReceiver {
-	@NonNull private final WifiManager mWifiManager;
+	@NonNull private final WifiManager wifiManager;
 	/** Max scan age [sec]. How old scan results are still considered "good enough". */
-	private final int mMaxScanAge;
+	private final int maxScanAge;
 	/** Timeout value [sec], implying when next scan request can be made. */
-	private final int mScanRequestTimeout;
+	private final int scanRequestTimeout;
 
 	/** Flag indicating if {@code this} {@link BroadcastReceiver} was already registered.
 	 * {@code true} if registered, {@code false} otherwise. */
-	private boolean mRegistered = false;
+	private boolean registered = false;
 	/** Most recently received scan results */
-	@NonNull private List<ScanResult> mLatestScanResults = new ArrayList<>();
-	/** Most recent update date time of {@link #mLatestScanResults} */
-	@NonNull private DateTime mLatestScanResultTime = DateTime.forInstant(0, TimeZone.getDefault());
+	@NonNull private List<ScanResult> latestScanResults = new ArrayList<>();
+	/** Most recent update date time of {@link #latestScanResults} */
+	@NonNull private DateTime latestScanResultTime = DateTime.forInstant(0, TimeZone.getDefault());
 	/** Listener reference, for anyone who is interested in scanning results */
-	@Nullable private WifiScanListener mWifiScanListener;
+	@Nullable private WifiScanListener wifiScanListener;
 	/** Flag, when set to {@code true}, disables scan requests to prevent flooding. */
-	private boolean mScanRequested = false;
-	@NonNull private DateTime mLatestScanRequestTime = DateTime.forInstant(0, TimeZone.getDefault());
+	private boolean scanRequested = false;
+	@NonNull private DateTime latestScanRequestTime = DateTime.forInstant(0, TimeZone.getDefault());
 
 	public enum Result {
 		/** When {@link WifiManager#isWifiEnabled()} returns false */
@@ -61,7 +61,7 @@ public class WifiScanner extends BroadcastReceiver {
 		/** When {@link WifiScanner} receives results not updated broadcast */
 		FAIL_RESULTS_NOT_UPDATED,
 		/** When calling {@link #requestWifiScanResults()} too fast.
-		 * @see #mScanRequestTimeout */
+		 * @see #scanRequestTimeout */
 		CANCEL_SPAMMING
 	}
 
@@ -85,17 +85,20 @@ public class WifiScanner extends BroadcastReceiver {
 
 	@SuppressWarnings("ConstantConditions")
 	public WifiScanner(@NonNull WifiManager wifiManager, int maxScanAge, int scanRequestTimeout) {
-		if(wifiManager == null)
+		if(wifiManager == null) {
 			throw new IllegalArgumentException(WifiManager.class.getSimpleName() + " should not be" +
 					" null");
-		if(maxScanAge < 0)
+		}
+		if(maxScanAge < 0) {
 			throw new IllegalArgumentException("Scan result age should not be negative number");
-		if(scanRequestTimeout < 0)
+		}
+		if(scanRequestTimeout < 0) {
 			throw new IllegalArgumentException("Scan timeout should not be negative number");
+		}
 
-		mWifiManager = wifiManager;
-		mMaxScanAge = maxScanAge;
-		mScanRequestTimeout = scanRequestTimeout;
+		this.wifiManager = wifiManager;
+		this.maxScanAge = maxScanAge;
+		this.scanRequestTimeout = scanRequestTimeout;
 	}
 
 	/**
@@ -137,11 +140,11 @@ public class WifiScanner extends BroadcastReceiver {
 	 * @return {@code true} if registered
 	 */
 	public boolean isRegistered() {
-		return mRegistered;
+		return registered;
 	}
 
 	private void setRegistered(boolean registered) {
-		mRegistered = registered;
+		this.registered = registered;
 		Logger.debug(getClass().getSimpleName() + " changed registered state to: " + registered);
 	}
 
@@ -149,7 +152,7 @@ public class WifiScanner extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		boolean success;
 
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
 			// EXTRA_RESULTS_UPDATED is representing if the scan was successful or not. Scans may
 			// fail if:
 			// - App requested too many scans in a certain period of time. This may lead to
@@ -158,35 +161,37 @@ public class WifiScanner extends BroadcastReceiver {
 			// - The device is idle and scanning is disabled.
 			// - Wifi hardware reported a scan failure.
 			success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
-		else
+		} else {
 			// Doze mode was implemented in API23 (M), so there shouldn't be any problems
 			// on earlier versions. We can't really check anyways... presume it was successful.
 			success = true;
+		}
 
 		onWifiScanFinished(success);
 	}
 
 	public void onWifiScanFinished(boolean success) {
 		if(success) {
-			mLatestScanResults.clear();
-			mLatestScanResults.addAll(mWifiManager.getScanResults());
-			mLatestScanResultTime = DateTimeUtil.getCurrentDateTime();
+			latestScanResults.clear();
+			latestScanResults.addAll(wifiManager.getScanResults());
+			latestScanResultTime = DateTimeUtil.getCurrentDateTime();
 		}
 
-		if(!mScanRequested) {
+		if(!scanRequested) {
 			Logger.debug("Another app initiated wifi-scan, caching results.");
 			return;
 		}
 
-		if(mWifiScanListener == null)
+		if(wifiScanListener == null) {
 			Logger.warn("Cannot dispatch scan results! " + WifiScanListener.class.getSimpleName() +
 					" was null!");
-		else if(success)
-			mWifiScanListener.onScanResultsUpdated(mLatestScanResults);
-		else
-			mWifiScanListener.onScanRequestFailed(Result.FAIL_RESULTS_NOT_UPDATED);
+		} else if(success) {
+			wifiScanListener.onScanResultsUpdated(latestScanResults);
+		} else {
+			wifiScanListener.onScanRequestFailed(Result.FAIL_RESULTS_NOT_UPDATED);
+		}
 
-		mScanRequested = false;
+		scanRequested = false;
 	}
 
 	/**
@@ -194,7 +199,7 @@ public class WifiScanner extends BroadcastReceiver {
 	 * @param wifiScanListener callback or {@code null} for unregistering it
 	 */
 	public void setWifiScanListener(@Nullable WifiScanListener wifiScanListener) {
-		mWifiScanListener = wifiScanListener;
+		this.wifiScanListener = wifiScanListener;
 	}
 
 	/**
@@ -206,15 +211,15 @@ public class WifiScanner extends BroadcastReceiver {
 	public void requestWifiScanResults() {
 		Logger.debug("Requested wifi scan results");
 
-		if(mWifiScanListener == null) {
+		if(wifiScanListener == null) {
 			// No point in requesting scans nobody cares about...
             Logger.warn("Requesting wifi scan, but no " + WifiScanListener.class.getSimpleName()
 					+ " is registered!");
 			return;
 		}
 
-		if(!mWifiManager.isWifiEnabled()) {
-			mWifiScanListener.onScanRequestFailed(Result.FAIL_WIFI_DISABLED);
+		if(!wifiManager.isWifiEnabled()) {
+			wifiScanListener.onScanRequestFailed(Result.FAIL_WIFI_DISABLED);
 			return;
 		}
 
@@ -222,38 +227,38 @@ public class WifiScanner extends BroadcastReceiver {
 		// and use them if they are not too old.
 		if(areLastResultsOk()) {
 			Logger.debug("Returning cached wifi scan results");
-			mWifiScanListener.onScanResultsUpdated(mLatestScanResults);
+			wifiScanListener.onScanResultsUpdated(latestScanResults);
 			return;
 		}
 
 		// Note: Let's be nice, and allow returning valid cached scan results. I.e. allow returning
 		// cached results, before checking if we can scan again.
 		if(!canScanAgain()) {
-			mWifiScanListener.onScanRequestFailed(Result.CANCEL_SPAMMING);
+			wifiScanListener.onScanRequestFailed(Result.CANCEL_SPAMMING);
 			return;
 		}
 
-		boolean success = mWifiManager.startScan();
-		mLatestScanResultTime = DateTimeUtil.getCurrentDateTime();
+		boolean success = wifiManager.startScan();
+		latestScanResultTime = DateTimeUtil.getCurrentDateTime();
 		Logger.debug("Wifi start scan succeeded: " + success);
 
 		if(!success) {
-			mWifiScanListener.onScanRequestFailed(Result.FAIL_SCAN_REQUEST_FAILED);
+			wifiScanListener.onScanRequestFailed(Result.FAIL_SCAN_REQUEST_FAILED);
 			return;
 		}
 
-		mScanRequested = true;
+		scanRequested = true;
 	}
 
 	/**
-	 * Check if current {@link #mLatestScanResults} are still considered to be usable, i.e. not too
+	 * Check if current {@link #latestScanResults} are still considered to be usable, i.e. not too
 	 * old.
 	 * @return {@code true} if still ok, {@code false} if they are stale
 	 */
 	private boolean areLastResultsOk() {
 		DateTime current = DateTimeUtil.getCurrentDateTime();
-		DateTime validUntil = mLatestScanResultTime.plus(
-				0, 0, 0, 0, 0, mMaxScanAge, 0, DateTime.DayOverflow.Spillover);
+		DateTime validUntil = latestScanResultTime.plus(
+				0, 0, 0, 0, 0, maxScanAge, 0, DateTime.DayOverflow.Spillover);
 
 		return validUntil.gteq(current);
 	}
@@ -264,8 +269,8 @@ public class WifiScanner extends BroadcastReceiver {
 	 */
 	public boolean canScanAgain(){
 		DateTime current = DateTimeUtil.getCurrentDateTime();
-		DateTime disabledUntil = mLatestScanRequestTime.plus(
-				0, 0, 0, 0, 0, mScanRequestTimeout, 0, DateTime.DayOverflow.Spillover);
+		DateTime disabledUntil = latestScanRequestTime.plus(
+				0, 0, 0, 0, 0, scanRequestTimeout, 0, DateTime.DayOverflow.Spillover);
 
 		return disabledUntil.lteq(current);
 	}
