@@ -165,6 +165,8 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 			case CANCEL_SPAMMING:
 				Logger.warn("wifi scan request canceled, due to too much requests");
 				break;
+			default:
+				throw new UnsupportedOperationException("Unhandled wifi scan result code");
 		}
 	}
 
