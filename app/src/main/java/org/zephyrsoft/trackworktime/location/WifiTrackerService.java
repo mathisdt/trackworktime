@@ -43,6 +43,7 @@ public class WifiTrackerService extends Service {
 	private static final AtomicBoolean isRunning = new AtomicBoolean(false);
 
 	private Basics basics = null;
+	private WifiScanner wifiScanner;
 
 	@Override
 	public void onCreate() {
@@ -51,8 +52,18 @@ public class WifiTrackerService extends Service {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
 		}
-		wifiTracker = new WifiTracker((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE), basics.getTimerManager(),
-			basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
+
+		WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+		int time = (int)(Constants.REPEAT_TIME / 1000 / 2);
+		wifiScanner = new WifiScanner(wifiManager, time, time);
+		wifiScanner.register(getApplicationContext());
+
+		wifiTracker = new WifiTracker(
+				basics.getTimerManager(),
+				basics.getExternalNotificationManager(),
+				(AudioManager) getSystemService(Context.AUDIO_SERVICE),
+				wifiScanner);
+
 		// restart if service crashed previously
 		Basics.getOrCreateInstance(getApplicationContext()).safeCheckWifiBasedTracking();
 	}
@@ -92,8 +103,7 @@ public class WifiTrackerService extends Service {
 		if (result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
 			// disable the tracking and notify user of it
 			basics.disableWifiBasedTracking();
-			basics
-				.showNotification(
+			basics.showNotification(
 					"Disabling the wifi-based tracking because of missing privileges!",
 					"Disabled wifi-based tracking!",
 					"(open to see details)",
@@ -120,6 +130,10 @@ public class WifiTrackerService extends Service {
 	public void onDestroy() {
 		Logger.info("destroying WifiTrackerService");
 		wifiTracker.stopTrackingByWifi();
+
+		wifiScanner.unregister(getApplicationContext());
+		wifiScanner.setWifiScanListener(null);
+
 		isRunning.set(false);
 		stopSelf();
 	}
