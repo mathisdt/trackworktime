@@ -1,4 +1,8 @@
-# Track Work Time #
+![license](https://img.shields.io/github/license/mathisdt/trackworktime.svg?style=flat)
+[![Travis-CI Build](https://img.shields.io/travis/mathisdt/trackworktime.svg?label=Travis-CI%20Build&style=flat)](https://travis-ci.org/mathisdt/trackworktime/)
+[![last released](https://img.shields.io/github/release-date/mathisdt/trackworktime.svg?label=last%20released&style=flat)](https://github.com/mathisdt/trackworktime/releases)
+
+# Track Work Time
   
 Track your work time easily via WiFi or location and **categorize each recorded interval** by a predefined client/task and a free text.
   
@@ -14,14 +18,18 @@ The latest version even can notify you via your Pebble smart watch on clock-in a
   
 Finally, the app can generate reports for you. The raw events report is the right thing if you want to import your data somewhere else, while year/month/week reports are fine if you want to keep track of your task progress.
 
-This is an open source project, so if there is something you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews on Google Play or AndroidPit, that doesn't work in both directions. Just [write me an email](http://zephyrsoft.org/contact-about-me) and I'll see what I can do.
+Important note: **This app definitely won't send your personal data anywhere.** It uses the INTERNET permission only to send crash reports (and only if you agree), but those reports contain neither any times nor any coordinates you may have tracked.  
   
-Important note: **This app definitely won't send your personal data anywhere.** It uses the INTERNET permission only to send crash reports, but those reports contain neither any times nor any coordinates you may have tracked.  
-  
-[Project Tracker (GitHub Issues)](https://github.com/mathisdt/trackworktime/issues)  
-[Continuous Integration (Travis)](https://travis-ci.org/mathisdt/trackworktime) [![Build Status](https://travis-ci.org/mathisdt/trackworktime.svg?branch=master)](https://travis-ci.org/mathisdt/trackworktime)  
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
+[<img src="https://f-droid.org/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
+
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
-Links to binary distribution points:  
-[TWT @ Google Play Store](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)  
-[TWT @ F-Droid (not maintained actively, possibly older version)](https://f-droid.org/repository/browse/?fdid=org.zephyrsoft.trackworktime)  
+This is an open source project, so if there's something you don't like, you are welcome to
+[file an issue](https://github.com/mathisdt/trackworktime/issues) or even fix things yourself and create a pull request.
+Please don't try to communicate with me via reviews on Google Play or AndroidPit, that doesn't work in both directions.
+You can also [write me an email](http://zephyrsoft.org/contact-about-me) and I'll see what I can do.
