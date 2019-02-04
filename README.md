@@ -32,4 +32,4 @@ You can track the past development by looking at the [version history](https://z
 This is an open source project, so if there's something you don't like, you are welcome to
 [file an issue](https://github.com/mathisdt/trackworktime/issues) or even fix things yourself and create a pull request.
 Please don't try to communicate with me via reviews on Google Play or AndroidPit, that doesn't work in both directions.
-You can also [write me an email](http://zephyrsoft.org/contact-about-me) and I'll see what I can do.
+You can also [write me an email](https://zephyrsoft.org/contact-about-me) and I'll see what I can do.
