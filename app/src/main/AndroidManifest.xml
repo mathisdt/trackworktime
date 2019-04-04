@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.zephyrsoft.trackworktime"
     android:versionCode="27"
-    android:versionName="1.0.5-SNAPSHOT">
+    android:versionName="1.0.5">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
