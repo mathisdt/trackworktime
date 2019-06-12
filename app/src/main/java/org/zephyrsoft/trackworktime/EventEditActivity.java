@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,7 +49,7 @@ import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Activity for managing the events of a week.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class EventEditActivity extends AppCompatActivity implements OnDateChangedListener, OnTimeChangedListener {
@@ -62,6 +62,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	private ArrayAdapter<TypeEnum> typesAdapter;
 	private RadioButton clockIn;
 	private RadioButton clockOut;
+	private RadioButton flexTime;
 	private TextView weekday = null;
 	private DatePicker date = null;
 	private int selectedYear = -1;
@@ -104,6 +105,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 		cancel = (Button) findViewById(R.id.cancel);
 		clockIn = (RadioButton) findViewById(R.id.radioClockIn);
 		clockOut = (RadioButton) findViewById(R.id.radioClockOut);
+		flexTime = (RadioButton) findViewById(R.id.radioFlexTime);
 		weekday = (TextView) findViewById(R.id.weekday);
 		date = (DatePicker) findViewById(R.id.date);
 		time = (TimePicker) findViewById(R.id.time);
@@ -131,7 +133,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
             onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
 
             // save the event
-            TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
+            TypeEnum typeEnum = clockIn.isChecked() ? TypeEnum.CLOCK_IN : clockOut.isChecked() ? TypeEnum.CLOCK_OUT: TypeEnum.FLEX;
             DateTime dateTime = getCurrentlySetDateAndTime();
             String timeString = DateTimeUtil.dateTimeToString(dateTime);
             Task selectedTask = (Task) task.getSelectedItem();
@@ -218,6 +220,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 			newEvent = false;
 			clockIn.setChecked(TypeEnum.CLOCK_IN.getValue().equals(editedEvent.getType()));
 			clockOut.setChecked(TypeEnum.CLOCK_OUT.getValue().equals(editedEvent.getType()));
+			flexTime.setChecked(TypeEnum.FLEX.getValue().equals(editedEvent.getType()));
 			DateTime dateTime = DateTimeUtil.stringToDateTime(editedEvent.getTime());
 			updateDateAndTimePickers(dateTime);
 			for (int i = 0; i < task.getCount(); i++) {

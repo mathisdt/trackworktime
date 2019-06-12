@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -65,7 +65,7 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
  * tasks (which are defined by the user and can be referenced when clocking in), events (which are generated when
  * clocking in or out and when changing task or text) and weeks (which are like a clip around events and also can
  * provide a sum so that not all events have to be read to calculate the flexi time).
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class DAO {
@@ -125,7 +125,7 @@ public class DAO {
 
 	/**
 	 * Insert a new task.
-	 * 
+	 *
 	 * @param task
 	 *            the task to add
 	 * @return the newly created task as read from the database (complete with ID)
@@ -142,7 +142,7 @@ public class DAO {
 
 	/**
 	 * Get all tasks.
-	 * 
+	 *
 	 * @return all existing tasks
 	 */
 	public List<Task> getAllTasks() {
@@ -151,7 +151,7 @@ public class DAO {
 
 	/**
 	 * Get all active tasks.
-	 * 
+	 *
 	 * @return all existing tasks that are active at the moment
 	 */
 	public List<Task> getActiveTasks() {
@@ -160,7 +160,7 @@ public class DAO {
 
 	/**
 	 * Get the default task.
-	 * 
+	 *
 	 * @return the default task or {@code null} (if no task was marked as default or if the default task is deactivated)
 	 */
 	public Task getDefaultTask() {
@@ -170,7 +170,7 @@ public class DAO {
 
 	/**
 	 * Get the task with a specific ID.
-	 * 
+	 *
 	 * @param id
 	 *            the ID
 	 * @return the task or {@code null} if the specified ID does not exist
@@ -182,7 +182,7 @@ public class DAO {
 
 	/**
 	 * Get the first task with a specific name.
-	 * 
+	 *
 	 * @param name
 	 *            the name
 	 * @return the task (first if more than one exist) or {@code null} if the specified name does not exist at all
@@ -224,7 +224,7 @@ public class DAO {
 
 	/**
 	 * Update a task.
-	 * 
+	 *
 	 * @param task
 	 *            the task to update - the ID has to be set!
 	 * @return the task as newly read from the database
@@ -241,7 +241,7 @@ public class DAO {
 
 	/**
 	 * Remove a task.
-	 * 
+	 *
 	 * @param task
 	 *            the task to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
@@ -274,7 +274,7 @@ public class DAO {
 
 	/**
 	 * Insert a new week.
-	 * 
+	 *
 	 * @param week
 	 *            the week to add
 	 * @return the newly created week as read from the database (complete with ID)
@@ -301,7 +301,7 @@ public class DAO {
 
 	/**
 	 * Returns the week identified by the given start date or {@code null} if no week exists for that date.
-	 * 
+	 *
 	 * @param start
 	 *            the start date
 	 */
@@ -313,7 +313,7 @@ public class DAO {
 	/**
 	 * Returns all weeks up to the given date. If "start" is a week start date, the week with that start date is also
 	 * included in the result.
-	 * 
+	 *
 	 * @param date
 	 *            the limiting date
 	 */
@@ -324,7 +324,7 @@ public class DAO {
 
 	/**
 	 * Returns the week identified by the given ID or {@code null} if no week exists for that ID.
-	 * 
+	 *
 	 * @param id
 	 *            the ID
 	 */
@@ -349,7 +349,7 @@ public class DAO {
 
 	/**
 	 * Update a week.
-	 * 
+	 *
 	 * @param week
 	 *            the week to update - the ID has to be set!
 	 * @return the week as newly read from the database
@@ -366,7 +366,7 @@ public class DAO {
 
 	/**
 	 * Remove a week.
-	 * 
+	 *
 	 * @param week
 	 *            the week to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
@@ -408,7 +408,7 @@ public class DAO {
 
 	/**
 	 * Insert a new event.
-	 * 
+	 *
 	 * @param event
 	 *            the event to add
 	 * @return the newly created event as read from the database (complete with ID)
@@ -444,7 +444,7 @@ public class DAO {
 
 	/**
 	 * Return all events in a certain week.
-	 * 
+	 *
 	 * @param week
 	 *            the week in which the events are searched - the ID has to be set!
 	 */
@@ -458,7 +458,7 @@ public class DAO {
 
 	/**
 	 * Return all events on a certain day.
-	 * 
+	 *
 	 * @param day
 	 *            the day on which the events are searched
 	 */
@@ -468,7 +468,7 @@ public class DAO {
 
 	/**
 	 * Fetch a specific event.
-	 * 
+	 *
 	 * @param id
 	 *            the ID of the event
 	 * @return the event, or {@code null} if the id does not exist
@@ -481,7 +481,7 @@ public class DAO {
 
 	/**
 	 * Return the last event before a certain date and time or {@code null} if there is no such event.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the date and time before which the event is searched
 	 */
@@ -495,7 +495,7 @@ public class DAO {
 	/**
 	 * Return the last event before a certain date and time (including the hour and minute given!) or {@code null} if
 	 * there is no such event.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the date and time before which the event is searched
 	 */
@@ -508,7 +508,7 @@ public class DAO {
 
 	/**
 	 * Return the first event after a certain date and time or {@code null} if there is no such event.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the date and time after which the event is searched
 	 */
@@ -551,7 +551,7 @@ public class DAO {
 
 	/**
 	 * Update an event.
-	 * 
+	 *
 	 * @param event
 	 *            the event to update - the ID has to be set!
 	 * @return the event as newly read from the database
@@ -568,7 +568,7 @@ public class DAO {
 
 	/**
 	 * Remove an event.
-	 * 
+	 *
 	 * @param event
 	 *            the event to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
@@ -727,6 +727,8 @@ public class DAO {
 		// cache values
 		final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName();
 		final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
+		final String clockOutReadableName = TypeEnum.CLOCK_OUT.getReadableName();
+		final String flexTimeReadableName = TypeEnum.FLEX.getReadableName();
 		while ((line = reader.readLine()) != null) {
 			buffer.append(line).append(eol);
 			final String[] columns = line.split("[;\t]");
@@ -754,9 +756,14 @@ public class DAO {
 						typeEnum = TypeEnum.CLOCK_IN;
 					} else if (clockOutNowReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
 						typeEnum = TypeEnum.CLOCK_OUT_NOW;
-					} else {
+					} else if (clockOutReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
 						typeEnum = TypeEnum.CLOCK_OUT;
-					}
+					} else if (flexTimeReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
+						typeEnum = TypeEnum.FLEX;
+                    } else {
+                        // this type is not known, so we skip this entry
+                        continue;
+                    }
 					timerManager.createEvent(dateTime,
 						Integer.parseInt(columns[INDEX_EVENT_TASK]),
 						typeEnum,

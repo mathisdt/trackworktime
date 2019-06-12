@@ -52,15 +52,15 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:orientation="horizontal" >
-		 
+
 		        <RadioButton
 		            android:id="@+id/radioClockIn"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
 		            android:layout_weight="1"
-		            android:text="@string/clockIn" 
+		            android:text="@string/clockIn"
 		            android:checked="true" />
-		 
+
 		        <RadioButton
 		            android:id="@+id/radioClockOut"
 		            android:layout_width="wrap_content"
@@ -68,8 +68,16 @@
 		            android:layout_marginLeft="5dp"
 		            android:layout_weight="1"
 		            android:text="@string/clockOut" />
+
+		        <RadioButton
+		            android:id="@+id/radioFlexTime"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginLeft="5dp"
+		            android:layout_weight="1"
+		            android:text="@string/flexTime" />
 		    </RadioGroup>
-			
+
             <TextView
                 android:id="@+id/dateTimeLabel"
                 android:layout_width="fill_parent"

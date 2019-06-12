@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * The possible event types - clock in or clock out.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public enum TypeEnum {
@@ -38,7 +38,11 @@ public enum TypeEnum {
 	 * clock-out now type of event used to display correct amount of worked time on current day when currently clocked
 	 * in - THIS TYPE NEVER COMES FROM THE DATABASE
 	 */
-	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)");
+	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)"),
+    /**
+     * flex type defines a individual flex time for this day
+     */
+    FLEX(Values.FLEX_VALUE, "flex");
 
 	private Integer value = null;
 	private String readableName = null;
@@ -74,7 +78,7 @@ public enum TypeEnum {
 
 	/**
 	 * Get the enum for a specific value.
-	 * 
+	 *
 	 * @param value
 	 *            the value
 	 * @return the corresponding enum
@@ -88,6 +92,8 @@ public enum TypeEnum {
 			return CLOCK_OUT;
 		} else if (value == Values.CLOCK_OUT_NOW_VALUE) {
 			return CLOCK_OUT_NOW;
+        } else if (value == Values.FLEX_VALUE) {
+            return FLEX;
 		} else {
 			throw new IllegalArgumentException("unknown value");
 		}
@@ -96,6 +102,7 @@ public enum TypeEnum {
 	private static class Values {
 		private static final int CLOCK_IN_VALUE = 1;
 		private static final int CLOCK_OUT_VALUE = 0;
+		private static final int FLEX_VALUE = 2;
 		private static final int CLOCK_OUT_NOW_VALUE = -1;
 	}
 }
