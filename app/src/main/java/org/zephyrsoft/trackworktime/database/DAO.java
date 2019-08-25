@@ -263,7 +263,9 @@ public class DAO {
 		week.setId(cursor.getInt(0));
 		week.setStart(cursor.getString(1));
 		week.setSum(cursor.getInt(2));
-		week.setFlexi(cursor.getInt(3));
+		if (!cursor.isNull(3)) {
+			week.setFlexi(cursor.getInt(3));
+		}
 		return week;
 	}
 

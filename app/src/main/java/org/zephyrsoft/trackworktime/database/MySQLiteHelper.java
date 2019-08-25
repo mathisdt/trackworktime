@@ -76,7 +76,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String EVENT_TEXT = "customtext";
 
 	static final String DATABASE_NAME = "trackworktime.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	private static final String DATABASE_CREATE_TASK = "create table " + TASK + " (" + TASK_ID
 		+ " integer primary key autoincrement, " + TASK_NAME + " text not null, " + TASK_ACTIVE + " integer not null, "
@@ -94,6 +94,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		+ " add column " + TASK_DEFAULT + " integer not null default 0;";
 	private static final String DATABASE_UPDATE_TASK_2_TO_3 = "update " + TASK
 		+ " set " + TASK_DEFAULT + "=1 where " + TASK_NAME + "='Default';";
+
+	private static final String DATABASE_ALTER_WEEK_3_TO_4 = "alter table " + WEEK
+		+ " add column " + WEEK_FLEXI + " integer null;";
 
 	/**
 	 * Constructor
@@ -123,7 +126,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			dbUpgradeFrom2to3(database);
 			currentVersion++;
 		}
-        // TODO upgrade from 3 to 4 and add week.flexi (int) column
+		if (currentVersion == 3) {
+			dbUpgradeFrom3to4(database);
+			currentVersion++;
+		}
 		if (currentVersion != newVersion) {
 			throw new IllegalStateException("could not upgrade database");
 		}
@@ -141,6 +147,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		database.execSQL(DATABASE_ALTER_TASK_2_TO_3);
 		// make 'Default' task "really default"
 		database.execSQL(DATABASE_UPDATE_TASK_2_TO_3);
+	}
+
+	private void dbUpgradeFrom3to4(SQLiteDatabase database) {
+		database.execSQL(DATABASE_ALTER_WEEK_3_TO_4);
 	}
 
 }

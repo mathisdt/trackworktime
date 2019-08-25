@@ -450,8 +450,7 @@ public class TimerManager {
 			Integer weekFlexiMinutes = week.getFlexi();
 			if (weekFlexiMinutes != null) {
 				ret.substract(0, weekFlexiMinutes);
-			}
-			else {
+			} else {
 				ret.substract(0, targetWorkTime.getAsMinutes());
 				Logger.warn("week {} (starting at {}) has a null flexi sum using default {}", week.getId(),
 					week.getStart(), targetWorkTimeString);
