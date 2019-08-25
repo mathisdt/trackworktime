@@ -59,6 +59,7 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_START;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_SUM;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_FLEXI;
 
 /**
  * The data access object for structures from the app's SQLite database. The model consists of three main elements:
@@ -255,13 +256,14 @@ public class DAO {
 
 	// =======================================================
 
-	private static final String[] WEEK_FIELDS = { WEEK_ID, WEEK_START, WEEK_SUM };
+	private static final String[] WEEK_FIELDS = { WEEK_ID, WEEK_START, WEEK_SUM, WEEK_FLEXI };
 
 	private Week cursorToWeek(Cursor cursor) {
 		Week week = new Week();
 		week.setId(cursor.getInt(0));
 		week.setStart(cursor.getString(1));
 		week.setSum(cursor.getInt(2));
+		week.setFlexi(cursor.getInt(3));
 		return week;
 	}
 
@@ -269,6 +271,7 @@ public class DAO {
 		ContentValues ret = new ContentValues();
 		ret.put(WEEK_START, week.getStart());
 		ret.put(WEEK_SUM, week.getSum());
+		ret.put(WEEK_FLEXI, week.getFlexi());
 		return ret;
 	}
 

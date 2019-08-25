@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,7 @@ import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Manages the time tracking.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class TimerManager {
@@ -90,7 +90,7 @@ public class TimerManager {
 
 	/**
 	 * Checks the current state.
-	 * 
+	 *
 	 * @return {@code true} if currently clocked in, {@code false} otherwise
 	 */
 	public boolean isTracking() {
@@ -156,7 +156,7 @@ public class TimerManager {
 	/**
 	 * Either starts tracking (from non-tracked time) or changes the task and/or text (from already tracked time).
 	 * If the task is {@code null}, the default task is taken. If there is no default task, no task will be taken.
-	 * 
+	 *
 	 * @param minutesToPredate
 	 *            how many minutes in the future should the event be
 	 * @param selectedTask
@@ -175,7 +175,7 @@ public class TimerManager {
 
 	/**
 	 * Stops tracking time.
-	 * 
+	 *
 	 * @param minutesToPredate
 	 *            how many minutes in the future should the event be
 	 */
@@ -198,6 +198,13 @@ public class TimerManager {
 		return event != null
 			&& (event.getType().equals(TypeEnum.CLOCK_OUT.getValue()) || event.getType().equals(
 				TypeEnum.CLOCK_OUT_NOW.getValue()));
+	}
+
+	/**
+	* Is the event a flexi time event? {@code null} as argument will return {@code false}.
+	*/
+	public static boolean isFlexEvent(Event event) {
+		return event != null && event.getType().equals(TypeEnum.FLEX.getValue());
 	}
 
 	/**
@@ -309,10 +316,50 @@ public class TimerManager {
 	}
 
 	/**
+	* Calculate a flexi (needed worktime) time sum for a given period.
+	*/
+	public TimeSum calculateFlexTimeSum(DateTime date) {
+		Logger.debug("calculating flexi time sum for week containing {}", DateTimeUtil
+		.dateTimeToString(date));
+
+		TimeSum ret = new TimeSum();
+		List<Event> events = null;
+
+		// make date the first day of this week
+		date = date.minusDays(date.getWeekDay() - 1);
+
+		for (WeekDayEnum weekDay : WeekDayEnum.values()) {
+			DateTime day = date.plusDays(weekDay.getValue() - 1);
+			events = dao.getEventsOnDay(day);
+			boolean found_flex_time = false;
+			for (Event event : events) {
+				DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
+
+				// skip all events that are not flex events
+				if (!isFlexEvent(event)) {
+					continue;
+				}
+
+				DateTime flex_time = DateTimeUtil.stringToDateTime(event.getTime());
+				ret.add(eventTime.getHour(), eventTime.getMinute());
+				Logger.debug("calculating flexi time for {} {} event found: {}", day.toString(), weekDay.getValue(), flex_time.toString());
+				found_flex_time = true;
+				break;  // there can only be one flext time per day
+			}
+			if (found_flex_time == false) {
+				int normalWorkTimeInMinutes = getNormalWorkDurationFor(weekDay);
+				ret.add(0, normalWorkTimeInMinutes);
+				Logger.debug("calculating flexi time for {} {} no event found, use default: {}", day.toString(), weekDay.getValue(), normalWorkTimeInMinutes);
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * Get the remaining time for today (in minutes). Takes into account the target work time for the week and also if
 	 * this
 	 * is the last day in the working week.
-	 * 
+	 *
 	 * @param includeFlexiTime
 	 *            use flexi overtime to reduce the working time - ONLY ON LAST WORKING DAY OF THE WEEK!
 	 * @return {@code null} either if today is not a work day (as defined in the options) or if the regular working time
@@ -396,10 +443,18 @@ public class TimerManager {
 			if (weekWorkedMinutes != null) {
 				// add the actual work time
 				ret.add(0, weekWorkedMinutes);
-				// substract the target work time
-				ret.substract(0, targetWorkTime.getAsMinutes());
 			} else {
 				Logger.warn("week {} (starting at {}) has a null sum", week.getId(), week.getStart());
+			}
+			// substract the target work time
+			Integer weekFlexiMinutes = week.getFlexi();
+			if (weekFlexiMinutes != null) {
+				ret.substract(0, weekFlexiMinutes);
+			}
+			else {
+				ret.substract(0, targetWorkTime.getAsMinutes());
+				Logger.warn("week {} (starting at {}) has a null flexi sum using default {}", week.getId(),
+					week.getStart(), targetWorkTimeString);
 			}
 		}
 
@@ -509,7 +564,7 @@ public class TimerManager {
 
 	/**
 	 * Create a new event at current time + the given minute amount.
-	 * 
+	 *
 	 * @param minutesToPredate
 	 *            how many minutes to add to "now"
 	 * @param taskId
@@ -530,7 +585,7 @@ public class TimerManager {
 
 	/**
 	 * Create a new event at the given time.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the time for which the new event should be created
 	 * @param taskId
@@ -546,7 +601,7 @@ public class TimerManager {
 
 	/**
 	 * Create a new event at the given time.
-	 * 
+	 *
 	 * @param dateTime
 	 *            the time for which the new event should be created
 	 * @param taskId
@@ -604,13 +659,19 @@ public class TimerManager {
 			Logger.warn("NOT setting the sum of the week starting {} to {} minutes (the sum cannot be negative)", weekToUse.getStart(), minutes);
 			weekToUse.setSum(0);
 		}
+
+		TimeSum flexi_sum = calculateFlexTimeSum(DateTimeUtil.stringToDateTime(week.getStart()));
+		int flexi_minutes = flexi_sum.getAsMinutes();
+		Logger.info("updating the flexi time sum to {} minutes for the week beginning at {}", flexi_minutes, week.getStart());
+		weekToUse.setFlexi(flexi_minutes);
+
 		dao.updateWeek(weekToUse);
 		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
 		// TODO update the sum of the next week(s) if type is CLOCK_IN?
 	}
 
 	private Week createPersistentWeek(String weekStart) {
-		Week week = new Week(null, weekStart, 0);
+		Week week = new Week(null, weekStart, 0, 0);
 		week = dao.insertWeek(week);
 		return week;
 	}
