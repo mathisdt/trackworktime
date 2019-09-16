@@ -344,7 +344,7 @@ public class TimerManager {
 				ret.add(eventTime.getHour(), eventTime.getMinute());
 				Logger.debug("calculating flexi time for {} {} event found: {}", day.toString(), weekDay.getValue(), flex_time.toString());
 				found_flex_time = true;
-				break;  // there can only be one flext time per day
+				break;  // there can only be one flexi time per day
 			}
 			if (found_flex_time == false) {
 				int normalWorkTimeInMinutes = getNormalWorkDurationFor(weekDay);
