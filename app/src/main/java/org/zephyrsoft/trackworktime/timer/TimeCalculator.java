@@ -120,12 +120,12 @@ public class TimeCalculator {
 	public DayLine calulateOneDay(DateTime day, List<Event> eventsOfOneDay) {
 		DayLine ret = new DayLine();
 
-        boolean found_day_flex_time = false;
+        boolean foundDayFlexTime = false;
         for (Event event : eventsOfOneDay) {
             if (event.getType() == TypeEnum.FLEX.getValue()) {
-                DateTime flex_time = DateTimeUtil.stringToDateTime(event.getTime());
-                ret.getTimeFlexi().substract(flex_time.getHour(), flex_time.getMinute());
-                found_day_flex_time = true;
+                DateTime flexTime = DateTimeUtil.stringToDateTime(event.getTime());
+                ret.getTimeFlexi().substract(flexTime.getHour(), flexTime.getMinute());
+                foundDayFlexTime = true;
                 break;
             }
         }
@@ -133,13 +133,13 @@ public class TimeCalculator {
         // get default flex time from settings
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
 		if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
-			&& timerManager.isWorkDay(weekDay) && found_day_flex_time == false) {
+			&& timerManager.isWorkDay(weekDay) && foundDayFlexTime == false) {
 			// substract the "normal" work time for one day
 			int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
 			ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
 		}
 
-		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty() || found_day_flex_time && eventsOfOneDay.size() == 1) {
+		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty() || foundDayFlexTime && eventsOfOneDay.size() == 1) {
 			return ret;
 		}
 

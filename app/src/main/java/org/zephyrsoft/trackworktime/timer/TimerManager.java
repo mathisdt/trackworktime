@@ -331,7 +331,7 @@ public class TimerManager {
 		for (WeekDayEnum weekDay : WeekDayEnum.values()) {
 			DateTime day = date.plusDays(weekDay.getValue() - 1);
 			events = dao.getEventsOnDay(day);
-			boolean found_flex_time = false;
+			boolean foundFlexTime = false;
 			for (Event event : events) {
 				DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
 
@@ -340,13 +340,13 @@ public class TimerManager {
 					continue;
 				}
 
-				DateTime flex_time = DateTimeUtil.stringToDateTime(event.getTime());
+				DateTime flexTime = DateTimeUtil.stringToDateTime(event.getTime());
 				ret.add(eventTime.getHour(), eventTime.getMinute());
-				Logger.debug("calculating flexi time for {} {} event found: {}", day.toString(), weekDay.getValue(), flex_time.toString());
-				found_flex_time = true;
-				break;  // there can only be one flexi time per day
+				Logger.debug("calculating flexi time for {} {} event found: {}", day.toString(), weekDay.getValue(), flexTime.toString());
+				foundFlexTime = true;
+				break;  // there can only be one flext time per day
 			}
-			if (found_flex_time == false) {
+			if (foundFlexTime == false) {
 				int normalWorkTimeInMinutes = getNormalWorkDurationFor(weekDay);
 				ret.add(0, normalWorkTimeInMinutes);
 				Logger.debug("calculating flexi time for {} {} no event found, use default: {}", day.toString(), weekDay.getValue(), normalWorkTimeInMinutes);
@@ -659,10 +659,10 @@ public class TimerManager {
 			weekToUse.setSum(0);
 		}
 
-		TimeSum flexi_sum = calculateFlexTimeSum(DateTimeUtil.stringToDateTime(week.getStart()));
-		int flexi_minutes = flexi_sum.getAsMinutes();
-		Logger.info("updating the flexi time sum to {} minutes for the week beginning at {}", flexi_minutes, week.getStart());
-		weekToUse.setFlexi(flexi_minutes);
+		TimeSum flexiSum = calculateFlexTimeSum(DateTimeUtil.stringToDateTime(week.getStart()));
+		int flexiMinutes = flexiSum.getAsMinutes();
+		Logger.info("updating the flexi time sum to {} minutes for the week beginning at {}", flexiMinutes, week.getStart());
+		weekToUse.setFlexi(flexiMinutes);
 
 		dao.updateWeek(weekToUse);
 		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
