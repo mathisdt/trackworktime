@@ -23,7 +23,7 @@ Important note: **This app definitely won't send your personal data anywhere.** 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
-[<img src="https://f-droid.org/badge/get-it-on.png"
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
 
