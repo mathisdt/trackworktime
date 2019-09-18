@@ -3,7 +3,7 @@
 
     <string name="app_name">Track Work Time</string>
     <string name="yes">Yes</string>
-    <string name="no">No</string> 
+    <string name="no">No</string>
     <string name="website">https://zephyrsoft.org</string>
     <string name="email">android@zephyrsoft.org</string>
     <string name="in">IN</string>
@@ -35,6 +35,7 @@
     <string name="clockInChangeShort">New Period</string>
     <string name="clockOut">Stop Tracking</string>
     <string name="clockOutShort">Stop</string>
+    <string name="flexTime">Flex Time</string>
     <string name="insert_default_times">Multi-Insert</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="edit_events">Edit Events</string>

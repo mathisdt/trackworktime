@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,6 +25,7 @@ import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Range;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import org.zephyrsoft.trackworktime.options.Key;
@@ -40,7 +41,7 @@ import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Calculates the actual work times from events.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class TimeCalculator {
@@ -119,15 +120,26 @@ public class TimeCalculator {
 	public DayLine calulateOneDay(DateTime day, List<Event> eventsOfOneDay) {
 		DayLine ret = new DayLine();
 
+        boolean foundDayFlexTime = false;
+        for (Event event : eventsOfOneDay) {
+            if (event.getType() == TypeEnum.FLEX.getValue()) {
+                DateTime flexTime = DateTimeUtil.stringToDateTime(event.getTime());
+                ret.getTimeFlexi().substract(flexTime.getHour(), flexTime.getMinute());
+                foundDayFlexTime = true;
+                break;
+            }
+        }
+
+        // get default flex time from settings
 		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
 		if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
-			&& timerManager.isWorkDay(weekDay)) {
+			&& timerManager.isWorkDay(weekDay) && foundDayFlexTime == false) {
 			// substract the "normal" work time for one day
 			int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
 			ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
 		}
 
-		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty()) {
+		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty() || foundDayFlexTime && eventsOfOneDay.size() == 1) {
 			return ret;
 		}
 

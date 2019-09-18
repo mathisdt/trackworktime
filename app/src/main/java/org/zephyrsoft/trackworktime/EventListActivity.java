@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -58,7 +58,7 @@ import hirondelle.date4j.DateTime;
 
 /**
  * Activity for managing the events of a week.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class EventListActivity extends AppCompatActivity {
@@ -333,6 +333,9 @@ public class EventListActivity extends AppCompatActivity {
 				case CLOCK_OUT:
 					typeString = "OUT";
 					break;
+                case FLEX:
+                    typeString = "FLEX";
+                    break;
 				default:
 					throw new IllegalStateException("unrecognized event type");
 			}

@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,13 +24,13 @@ import org.pmw.tinylog.Logger;
 
 /**
  * Helper class to manage the SQLite database.
- * 
+ *
  * Database version history:
- * 
+ *
  * 1: used only in development.
  * 2: initial layout, since 0.5.0.
  * 3: added column "default" in task table, since 0.5.12.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 @SuppressWarnings("SyntaxError")
@@ -57,6 +57,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String WEEK_START = "start";
 	/** name of the sum attribute of the week table - in whole minutes */
 	public static final String WEEK_SUM = "sum";
+	/** name of the flexi attribute of the week table - in whole minutes */
+	public static final String WEEK_FLEXI = "flexi";
 
 	/** name of the event table */
 	public static final String EVENT = "event";
@@ -74,13 +76,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String EVENT_TEXT = "customtext";
 
 	static final String DATABASE_NAME = "trackworktime.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	private static final String DATABASE_CREATE_TASK = "create table " + TASK + " (" + TASK_ID
 		+ " integer primary key autoincrement, " + TASK_NAME + " text not null, " + TASK_ACTIVE + " integer not null, "
 		+ TASK_ORDERING + " integer null);";
 	private static final String DATABASE_CREATE_WEEK = "create table " + WEEK + " (" + WEEK_ID
-		+ " integer primary key autoincrement, " + WEEK_START + " text not null, " + WEEK_SUM + " integer null);";
+		+ " integer primary key autoincrement, " + WEEK_START + " text not null, " + WEEK_SUM + " integer null, " + WEEK_FLEXI +" integer null);";
 	private static final String DATABASE_CREATE_EVENT = "create table " + EVENT + " (" + EVENT_ID
 		+ " integer primary key autoincrement, " + EVENT_WEEK + " integer null, " + EVENT_TYPE + " integer not null, "
 		+ EVENT_TIME + " text not null, " + EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
@@ -92,6 +94,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		+ " add column " + TASK_DEFAULT + " integer not null default 0;";
 	private static final String DATABASE_UPDATE_TASK_2_TO_3 = "update " + TASK
 		+ " set " + TASK_DEFAULT + "=1 where " + TASK_NAME + "='Default';";
+
+	private static final String DATABASE_ALTER_WEEK_3_TO_4 = "alter table " + WEEK
+		+ " add column " + WEEK_FLEXI + " integer null;";
 
 	/**
 	 * Constructor
@@ -121,6 +126,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			dbUpgradeFrom2to3(database);
 			currentVersion++;
 		}
+		if (currentVersion == 3) {
+			dbUpgradeFrom3to4(database);
+			currentVersion++;
+		}
 		if (currentVersion != newVersion) {
 			throw new IllegalStateException("could not upgrade database");
 		}
@@ -138,6 +147,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		database.execSQL(DATABASE_ALTER_TASK_2_TO_3);
 		// make 'Default' task "really default"
 		database.execSQL(DATABASE_UPDATE_TASK_2_TO_3);
+	}
+
+	private void dbUpgradeFrom3to4(SQLiteDatabase database) {
+		database.execSQL(DATABASE_ALTER_WEEK_3_TO_4);
 	}
 
 }
