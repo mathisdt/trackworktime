@@ -165,7 +165,7 @@ public class CsvGenerator {
 			if (entry.getKey() != null) {
 				task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
 			}
-			prepared.add(new TimeSumsHolder(null, null, task, entry.getValue()));
+			prepared.add(new TimeSumsHolder(null, null, null, task, entry.getValue()));
 		}
 		Collections.sort(prepared);
 
@@ -182,7 +182,7 @@ public class CsvGenerator {
 				if (entry.getKey() != null) {
 					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
 				}
-				prepared.add(new TimeSumsHolder(null, week, task, entry.getValue()));
+				prepared.add(TimeSumsHolder.createForWeek(week, task, entry.getValue()));
 			}
 		}
 		Collections.sort(prepared);
@@ -200,7 +200,7 @@ public class CsvGenerator {
 				if (entry.getKey() != null) {
 					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
 				}
-				prepared.add(new TimeSumsHolder(month, null, task, entry.getValue()));
+				prepared.add(TimeSumsHolder.createForMonth(month, task, entry.getValue()));
 			}
 		}
 		Collections.sort(prepared);
