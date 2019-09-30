@@ -207,6 +207,11 @@ public class TimeCalculator {
 
 		int daysInLastUnit;
 		switch (unit) {
+			case DAY:
+				beginOfTimeFrame = now.getStartOfDay();
+				endOfTimeFrame = now.getEndOfDay();
+				daysInLastUnit = 1;
+				break;
 			case WEEK:
 				beginOfTimeFrame = DateTimeUtil.getWeekStart(now);
 				endOfTimeFrame = beginOfTimeFrame.plusDays(7);
@@ -265,6 +270,13 @@ public class TimeCalculator {
 
 		DateTime current = null;
 		switch (unit) {
+			case DAY:
+				current = from.getStartOfDay().plusDays(1);
+				while (current.lt(to)) {
+					ret.add(current);
+					current = current.plusDays(1);
+				}
+				break;
 			case WEEK:
 				current = DateTimeUtil.getWeekStart(from).plusDays(7);
 				while (current.lt(to)) {
