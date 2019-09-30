@@ -172,6 +172,24 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "task", "spent" }, sumsProcessors);
 	}
 
+	public String createSumsPerDayCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+		List<TimeSumsHolder> prepared = new LinkedList<>();
+		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String day = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+			Map<Task, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
+				String task = "";
+				if (entry.getKey() != null) {
+					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+				}
+				prepared.add(TimeSumsHolder.createForDay(day, task, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "date", "task", "spent" }, sumsPerRangeProcessors);
+	}
+
 	public String createSumsPerWeekCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
 		List<TimeSumsHolder> prepared = new LinkedList<>();
 		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
