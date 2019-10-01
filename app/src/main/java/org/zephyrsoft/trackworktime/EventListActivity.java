@@ -89,7 +89,7 @@ public class EventListActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_activity);
-		myRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+		myRecyclerView = findViewById(R.id.recycler_view);
 
 		instance = this;
 

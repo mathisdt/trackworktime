@@ -44,7 +44,7 @@ public class AboutActivity extends AppCompatActivity {
 
 		setContentView(R.layout.about);
 
-		TextView about = (TextView) findViewById(R.id.about_text);
+		TextView about = findViewById(R.id.about_text);
 		String aboutText = readRawTextFile(R.raw.about);
 		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
 		CharSequence version = Basics.getInstance().getVersionName();
@@ -56,7 +56,7 @@ public class AboutActivity extends AppCompatActivity {
 		about.setLinkTextColor(Color.WHITE);
 		Linkify.addLinks(about, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 
-		TextView help = (TextView) findViewById(R.id.help_text);
+		TextView help = findViewById(R.id.help_text);
 		help.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
 		help.setLinkTextColor(Color.WHITE);
 	}

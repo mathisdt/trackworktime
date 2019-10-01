@@ -73,17 +73,17 @@ public class ReportsActivity extends AppCompatActivity {
 
 		setContentView(R.layout.reports);
 
-		rangeLast = (RadioButton) findViewById(R.id.rangeLast);
-		rangeCurrent = (RadioButton) findViewById(R.id.rangeCurrent);
-		rangeLastAndCurrent = (RadioButton) findViewById(R.id.rangeLastAndCurrent);
-		rangeAllData = (RadioButton) findViewById(R.id.rangeAllData);
-		unitWeek = (RadioButton) findViewById(R.id.unitWeek);
-		unitMonth = (RadioButton) findViewById(R.id.unitMonth);
-		unitYear = (RadioButton) findViewById(R.id.unitYear);
-		allEventsButton = (Button) findViewById(R.id.allEventsButton);
-		timesByTaskButton = (Button) findViewById(R.id.timesByTaskButton);
-		timesByTaskPerWeekButton = (Button) findViewById(R.id.timesByTaskPerWeek);
-		timesByTaskPerMonthButton = (Button) findViewById(R.id.timesByTaskPerMonth);
+		rangeLast = findViewById(R.id.rangeLast);
+		rangeCurrent = findViewById(R.id.rangeCurrent);
+		rangeLastAndCurrent = findViewById(R.id.rangeLastAndCurrent);
+		rangeAllData = findViewById(R.id.rangeAllData);
+		unitWeek = findViewById(R.id.unitWeek);
+		unitMonth = findViewById(R.id.unitMonth);
+		unitYear = findViewById(R.id.unitYear);
+		allEventsButton = findViewById(R.id.allEventsButton);
+		timesByTaskButton = findViewById(R.id.timesByTaskButton);
+		timesByTaskPerWeekButton = findViewById(R.id.timesByTaskPerWeek);
+		timesByTaskPerMonthButton = findViewById(R.id.timesByTaskPerMonth);
 
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();

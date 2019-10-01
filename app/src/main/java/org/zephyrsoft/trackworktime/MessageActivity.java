@@ -40,7 +40,7 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.message);
-		textView = (TextView) findViewById(R.id.dialogMessage);
+		textView = findViewById(R.id.dialogMessage);
 		textView.setOnClickListener(this);
 	}
 
