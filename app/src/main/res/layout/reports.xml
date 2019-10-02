@@ -99,6 +99,13 @@
             android:text="@string/timesByTaskReport" />
 
         <Button
+            android:id="@+id/timesByTaskPerDay"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="@string/timesByTaskPerDay" />
+
+        <Button
             android:id="@+id/timesByTaskPerWeek"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

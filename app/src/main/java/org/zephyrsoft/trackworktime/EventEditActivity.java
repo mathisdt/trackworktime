@@ -101,16 +101,16 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 
 		setContentView(R.layout.event);
 
-		save = (Button) findViewById(R.id.save);
-		cancel = (Button) findViewById(R.id.cancel);
-		clockIn = (RadioButton) findViewById(R.id.radioClockIn);
-		clockOut = (RadioButton) findViewById(R.id.radioClockOut);
-		flexTime = (RadioButton) findViewById(R.id.radioFlexTime);
-		weekday = (TextView) findViewById(R.id.weekday);
-		date = (DatePicker) findViewById(R.id.date);
-		time = (TimePicker) findViewById(R.id.time);
-		task = (Spinner) findViewById(R.id.task);
-		text = (EditText) findViewById(R.id.text);
+		save = findViewById(R.id.save);
+		cancel = findViewById(R.id.cancel);
+		clockIn = findViewById(R.id.radioClockIn);
+		clockOut = findViewById(R.id.radioClockOut);
+		flexTime = findViewById(R.id.radioFlexTime);
+		weekday = findViewById(R.id.weekday);
+		date = findViewById(R.id.date);
+		time = findViewById(R.id.time);
+		task = findViewById(R.id.task);
+		text = findViewById(R.id.text);
 
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);

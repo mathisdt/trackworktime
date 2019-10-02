@@ -89,7 +89,7 @@ public class EventListActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_activity);
-		myRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+		myRecyclerView = findViewById(R.id.recycler_view);
 
 		instance = this;
 
@@ -97,7 +97,6 @@ public class EventListActivity extends AppCompatActivity {
 		timerManager = Basics.getInstance().getTimerManager();
 		weekStart = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
 		events = new ArrayList<>();
-		refreshView();
 		myEventAdapter = new EventAdapter();
 		myRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		myRecyclerView.setAdapter(myEventAdapter);
@@ -131,6 +130,12 @@ public class EventListActivity extends AppCompatActivity {
 		Intent i = new Intent(this, EventEditActivity.class);
 		i.putExtra(Constants.EVENT_ID_EXTRA_KEY, event.getId());
 		startActivity(i);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		refreshView();
 	}
 
 	/**

@@ -75,7 +75,7 @@ public class TaskListActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.tasks_activity);
-		listView = (ListView) findViewById(R.id.list_view);
+		listView = findViewById(R.id.list_view);
 
 		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 

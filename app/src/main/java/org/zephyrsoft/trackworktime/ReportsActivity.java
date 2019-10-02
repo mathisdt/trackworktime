@@ -60,6 +60,7 @@ public class ReportsActivity extends AppCompatActivity {
 	private RadioButton unitYear;
 	private Button allEventsButton;
 	private Button timesByTaskButton;
+	private Button timesByTaskPerDayButton;
 	private Button timesByTaskPerWeekButton;
 	private Button timesByTaskPerMonthButton;
 
@@ -73,17 +74,18 @@ public class ReportsActivity extends AppCompatActivity {
 
 		setContentView(R.layout.reports);
 
-		rangeLast = (RadioButton) findViewById(R.id.rangeLast);
-		rangeCurrent = (RadioButton) findViewById(R.id.rangeCurrent);
-		rangeLastAndCurrent = (RadioButton) findViewById(R.id.rangeLastAndCurrent);
-		rangeAllData = (RadioButton) findViewById(R.id.rangeAllData);
-		unitWeek = (RadioButton) findViewById(R.id.unitWeek);
-		unitMonth = (RadioButton) findViewById(R.id.unitMonth);
-		unitYear = (RadioButton) findViewById(R.id.unitYear);
-		allEventsButton = (Button) findViewById(R.id.allEventsButton);
-		timesByTaskButton = (Button) findViewById(R.id.timesByTaskButton);
-		timesByTaskPerWeekButton = (Button) findViewById(R.id.timesByTaskPerWeek);
-		timesByTaskPerMonthButton = (Button) findViewById(R.id.timesByTaskPerMonth);
+		rangeLast = findViewById(R.id.rangeLast);
+		rangeCurrent = findViewById(R.id.rangeCurrent);
+		rangeLastAndCurrent = findViewById(R.id.rangeLastAndCurrent);
+		rangeAllData = findViewById(R.id.rangeAllData);
+		unitWeek = findViewById(R.id.unitWeek);
+		unitMonth = findViewById(R.id.unitMonth);
+		unitYear = findViewById(R.id.unitYear);
+		allEventsButton = findViewById(R.id.allEventsButton);
+		timesByTaskButton = findViewById(R.id.timesByTaskButton);
+    timesByTaskPerDayButton = findViewById(R.id.timesByTaskPerDay);
+		timesByTaskPerWeekButton = findViewById(R.id.timesByTaskPerWeek);
+		timesByTaskPerMonthButton = findViewById(R.id.timesByTaskPerMonth);
 
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
@@ -143,6 +145,32 @@ public class ReportsActivity extends AppCompatActivity {
 				finish();
 			}
         });
+
+		timesByTaskPerDayButton.setOnClickListener(v -> {
+			Range selectedRange = getSelectedRange();
+			Unit selectedUnit = getSelectedUnit();
+
+			DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+			List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
+					beginAndEnd[1]);
+			Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+			String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
+			String reportName = getNameForSelection(selectedRange, selectedUnit);
+			if (report == null) {
+				logAndShowError("could not generate report " + reportName);
+				return;
+			}
+
+			boolean success = saveAndSendReport(reportName,
+					"sums-per-day-" + reportName.replaceAll(" ", "-"),
+					report);
+
+			if (success) {
+				// close this dialog
+				finish();
+			}
+		});
 
 		timesByTaskPerWeekButton.setOnClickListener(v -> {
             Range selectedRange = getSelectedRange();
