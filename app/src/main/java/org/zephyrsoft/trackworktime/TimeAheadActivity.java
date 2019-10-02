@@ -44,10 +44,10 @@ public class TimeAheadActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.time_ahead);
-		type = (TextView) findViewById(R.id.type);
-		minutes = (EditText) findViewById(R.id.minutes);
-		cancel = (Button) findViewById(R.id.cancel);
-		ok = (Button) findViewById(R.id.ok);
+		type = findViewById(R.id.type);
+		minutes = findViewById(R.id.minutes);
+		cancel = findViewById(R.id.cancel);
+		ok = findViewById(R.id.ok);
 		cancel.setOnClickListener(v -> finish());
 		ok.setOnClickListener(v -> {
             int minutesValue = 0;

@@ -80,14 +80,14 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 
 		setContentView(R.layout.default_times);
 
-		save = (Button) findViewById(R.id.save);
-		cancel = (Button) findViewById(R.id.cancel);
-		fromWeekday = (TextView) findViewById(R.id.fromWeekday);
-		fromDate = (DatePicker) findViewById(R.id.fromDate);
-		toWeekday = (TextView) findViewById(R.id.toWeekday);
-		toDate = (DatePicker) findViewById(R.id.toDate);
-		task = (Spinner) findViewById(R.id.task);
-		text = (EditText) findViewById(R.id.text);
+		save = findViewById(R.id.save);
+		cancel = findViewById(R.id.cancel);
+		fromWeekday = findViewById(R.id.fromWeekday);
+		fromDate = findViewById(R.id.fromDate);
+		toWeekday = findViewById(R.id.toWeekday);
+		toDate = findViewById(R.id.toDate);
+		task = findViewById(R.id.task);
+		text = findViewById(R.id.text);
 
 		// bind lists to spinners
 		tasks = dao.getActiveTasks();
