@@ -150,6 +150,7 @@
     <string name="eventsReport">All Events</string>
     <string name="timesByTaskReport">Times by Task</string>
     <string name="chooseReport">Choose Report</string>
+    <string name="timesByTaskPerDay">Times by Task (daily)</string>
     <string name="timesByTaskPerWeek">Times by Task (weekly)</string>
     <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
     <string name="notificationUsesFlexiTimeAsTarget">use flexi time 0:00 as target</string>

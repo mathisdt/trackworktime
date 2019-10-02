@@ -16,6 +16,8 @@
  */
 package org.zephyrsoft.trackworktime.report;
 
+import android.support.annotation.NonNull;
+
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 
@@ -28,14 +30,36 @@ public class TimeSumsHolder implements Comparable<TimeSumsHolder> {
 
 	private String month;
 	private String week;
+	private String day;
 	private String task;
 	private TimeSum spent;
 
-	public TimeSumsHolder(String month, String week, String task, TimeSum spent) {
+	public TimeSumsHolder(String month, String week, String day, String task, TimeSum spent) {
 		this.month = month;
 		this.week = week;
+		this.day = day;
 		this.task = task;
 		this.spent = spent;
+	}
+
+	public static @NonNull TimeSumsHolder createForDay(String day, String task, TimeSum spent) {
+		return new TimeSumsHolder(null, null, day, task, spent);
+	}
+
+	public static @NonNull TimeSumsHolder createForWeek(String week, String task, TimeSum spent) {
+		return new TimeSumsHolder(null, week, null, task, spent);
+	}
+
+	public static @NonNull TimeSumsHolder createForMonth(String month, String task, TimeSum spent) {
+		return new TimeSumsHolder(month, null, null, task, spent);
+	}
+
+	public String getDay() {
+		return day;
+	}
+
+	public void setDay(String day) {
+		this.day = day;
 	}
 
 	public String getWeek() {
@@ -78,6 +102,7 @@ public class TimeSumsHolder implements Comparable<TimeSumsHolder> {
 		return new CompareToBuilder()
 			.append(getMonth(), another.getMonth())
 			.append(getWeek(), another.getWeek())
+			.append(getDay(), another.getDay())
 			.append(getTask(), another.getTask())
 			.toComparison();
 	}
