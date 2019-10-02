@@ -588,6 +588,7 @@ public class Basics extends BroadcastReceiver {
 			.setContentIntent(clickIntent)
 			.setSmallIcon(R.drawable.ic_launcher)
 			.setTicker(scrollingText)
+			.setOnlyAlertOnce(true)
 			.setOngoing(persistent);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			notificationBuilder.setChannelId(getNotificationChannel().getId());
