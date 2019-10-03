@@ -187,7 +187,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, new String[] { "date", "task", "spent" }, sumsPerRangeProcessors);
+		return createCsv(prepared, new String[] { "day", "task", "spent" }, sumsPerRangeProcessors);
 	}
 
 	public String createSumsPerWeekCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
