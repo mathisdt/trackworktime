@@ -102,31 +102,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/eventsReport" />
+                android:text="@string/eventGroupingNone" />
 
             <RadioButton
                 android:id="@+id/groupingByTask"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/timesByTaskReport" />
+                android:text="@string/eventGroupingByTask" />
 
             <RadioButton
                 android:id="@+id/groupingByTaskPerDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/timesByTaskPerDay"/>
+                android:text="@string/eventGroupingByTaskPerDay"/>
 
             <RadioButton
                 android:id="@+id/groupingByTaskPerWeek"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/timesByTaskPerWeek"/>
+                android:text="@string/eventGroupingByTaskPerWeek"/>
 
             <RadioButton
                 android:id="@+id/groupingByTaskPerMonth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/timesByTaskPerMonth"/>
+                android:text="@string/eventGroupingByTaskPerMonth"/>
         </RadioGroup>
 
         <Button
