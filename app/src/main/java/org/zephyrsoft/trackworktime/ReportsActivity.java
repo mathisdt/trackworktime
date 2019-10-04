@@ -23,6 +23,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.pmw.tinylog.Logger;
@@ -58,11 +59,8 @@ public class ReportsActivity extends AppCompatActivity {
 	private RadioButton unitWeek;
 	private RadioButton unitMonth;
 	private RadioButton unitYear;
-	private Button allEventsButton;
-	private Button timesByTaskButton;
-	private Button timesByTaskPerDayButton;
-	private Button timesByTaskPerWeekButton;
-	private Button timesByTaskPerMonthButton;
+	private RadioGroup groupingRadioGroup;
+	private Button exportButton;
 
 	private DAO dao;
 	private TimeCalculator timeCalculator;
@@ -81,11 +79,8 @@ public class ReportsActivity extends AppCompatActivity {
 		unitWeek = findViewById(R.id.unitWeek);
 		unitMonth = findViewById(R.id.unitMonth);
 		unitYear = findViewById(R.id.unitYear);
-		allEventsButton = findViewById(R.id.allEventsButton);
-		timesByTaskButton = findViewById(R.id.timesByTaskButton);
-    timesByTaskPerDayButton = findViewById(R.id.timesByTaskPerDay);
-		timesByTaskPerWeekButton = findViewById(R.id.timesByTaskPerWeek);
-		timesByTaskPerMonthButton = findViewById(R.id.timesByTaskPerMonth);
+		groupingRadioGroup = findViewById(R.id.grouping);
+		exportButton = findViewById(R.id.reportExport);
 
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
@@ -97,132 +92,157 @@ public class ReportsActivity extends AppCompatActivity {
 			unitYear.setEnabled(!isChecked);
 		});
 
-		allEventsButton.setOnClickListener(v -> {
-            Range selectedRange = getSelectedRange();
-            Unit selectedUnit = getSelectedUnit();
+		exportButton.setOnClickListener(v -> export());
+	}
 
-            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-            List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+	private void export() {
+		int selectedId = groupingRadioGroup.getCheckedRadioButtonId();
+		switch (selectedId) {
+			case R.id.groupingNone:
+				exportAllEvents();
+				break;
+			case R.id.groupingByTask:
+				exportTimesByTask();
+				break;
+			case R.id.groupingByTaskPerDay:
+				exportTimesByTaskPerDay();
+				break;
+			case R.id.groupingByTaskPerWeek:
+				exportTimesByTaskPerWeek();
+				break;
+			case R.id.groupingByTaskPerMonth:
+				exportTimesByTaskPerMonth();
+				break;
+			default:
+				throw new RuntimeException("Grouping not implemented");
+		}
+	}
 
-            String report = csvGenerator.createEventCsv(events);
-			String reportName = getNameForSelection(selectedRange, selectedUnit);
-			if (report == null) {
-				logAndShowError("could not generate report " + reportName);
-				return;
-			}
+	private void exportAllEvents() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
 
-            boolean success = saveAndSendReport(reportName,
-				"events-" + reportName.replaceAll(" ", "-"),
+		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+
+		String report = csvGenerator.createEventCsv(events);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return;
+		}
+
+		boolean success = saveAndSendReport(reportName,
+			"events-" + reportName.replaceAll(" ", "-"),
+			report);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private void exportTimesByTask() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+		Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
+
+		String report = csvGenerator.createSumsCsv(sums);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return;
+		}
+
+		boolean success = saveAndSendReport(reportName,
+			"sums-" + reportName.replaceAll(" ", "-"),
+			report);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private void exportTimesByTaskPerDay() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
+				beginAndEnd[1]);
+		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return;
+		}
+
+		boolean success = saveAndSendReport(reportName,
+				"sums-per-day-" + reportName.replaceAll(" ", "-"),
 				report);
 
-            if (success) {
-				// close this dialog
-				finish();
-			}
-        });
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
 
-		timesByTaskButton.setOnClickListener(v -> {
-            Range selectedRange = getSelectedRange();
-            Unit selectedUnit = getSelectedUnit();
+	private void exportTimesByTaskPerWeek() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
 
-            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-            List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
-            Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
+		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
+			beginAndEnd[1]);
+		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-            String report = csvGenerator.createSumsCsv(sums);
-			String reportName = getNameForSelection(selectedRange, selectedUnit);
-			if (report == null) {
-				logAndShowError("could not generate report " + reportName);
-				return;
-			}
+		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return;
+		}
 
-			boolean success = saveAndSendReport(reportName,
-				"sums-" + reportName.replaceAll(" ", "-"),
-				report);
+		boolean success = saveAndSendReport(reportName,
+			"sums-per-week-" + reportName.replaceAll(" ", "-"),
+			report);
 
-			if (success) {
-				// close this dialog
-				finish();
-			}
-        });
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
 
-		timesByTaskPerDayButton.setOnClickListener(v -> {
-			Range selectedRange = getSelectedRange();
-			Unit selectedUnit = getSelectedUnit();
+	private void exportTimesByTaskPerMonth() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
 
-			DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-			List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
-					beginAndEnd[1]);
-			Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
+			beginAndEnd[1]);
+		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-			String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
-			String reportName = getNameForSelection(selectedRange, selectedUnit);
-			if (report == null) {
-				logAndShowError("could not generate report " + reportName);
-				return;
-			}
+		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return;
+		}
 
-			boolean success = saveAndSendReport(reportName,
-					"sums-per-day-" + reportName.replaceAll(" ", "-"),
-					report);
+		boolean success = saveAndSendReport(reportName,
+			"sums-per-month-" + reportName.replaceAll(" ", "-"),
+			report);
 
-			if (success) {
-				// close this dialog
-				finish();
-			}
-		});
-
-		timesByTaskPerWeekButton.setOnClickListener(v -> {
-            Range selectedRange = getSelectedRange();
-            Unit selectedUnit = getSelectedUnit();
-
-            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-            List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
-                beginAndEnd[1]);
-            Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
-
-			String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
-			String reportName = getNameForSelection(selectedRange, selectedUnit);
-			if (report == null) {
-				logAndShowError("could not generate report " + reportName);
-				return;
-			}
-
-            boolean success = saveAndSendReport(reportName,
-				"sums-per-week-" + reportName.replaceAll(" ", "-"),
-				report);
-
-            if (success) {
-                // close this dialog
-                finish();
-            }
-        });
-
-		timesByTaskPerMonthButton.setOnClickListener(v -> {
-            Range selectedRange = getSelectedRange();
-            Unit selectedUnit = getSelectedUnit();
-
-            DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-            List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
-                beginAndEnd[1]);
-            Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
-
-            String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
-			String reportName = getNameForSelection(selectedRange, selectedUnit);
-			if (report == null) {
-				logAndShowError("could not generate report " + reportName);
-				return;
-			}
-
-            boolean success = saveAndSendReport(reportName,
-				"sums-per-month-" + reportName.replaceAll(" ", "-"),
-				report);
-
-            if (success) {
-                // close this dialog
-                finish();
-            }
-        });
+		if (success) {
+			// close this dialog
+			finish();
+		}
 	}
 
 	private Map<DateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<DateTime> rangeBeginnings, DateTime end) {
