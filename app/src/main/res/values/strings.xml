@@ -141,18 +141,20 @@
     <string name="backup_overwrite">Overwrite existing file \"%1$s\"?</string>
     <string name="restore_warning">Delete everything and replace it with the content of the restore file \"%1$s\"?</string>
     <string name="please_wait">Please wait&#8230;</string>
-    <string name="current">current</string>
-    <string name="last">last</string>
-    <string name="week">week</string>
-    <string name="month">month</string>
-    <string name="year">year</string>
-    <string name="last_and_current">last + current</string>
-    <string name="eventsReport">All Events</string>
-    <string name="timesByTaskReport">Times by Task</string>
-    <string name="chooseReport">Choose Report</string>
-    <string name="timesByTaskPerDay">Times by Task (daily)</string>
-    <string name="timesByTaskPerWeek">Times by Task (weekly)</string>
-    <string name="timesByTaskPerMonth">Times by Task (monthly)</string>
+    <string name="current">Current</string>
+    <string name="last">Last</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
+    <string name="last_and_current">Last + current</string>
+    <string name="exportRange">Export Range</string>
+    <string name="eventGrouping">Event Grouping</string>
+    <string name="eventGroupingNone">None (all events)</string>
+    <string name="eventGroupingByTask">Times by Task</string>
+    <string name="eventGroupingByTaskPerDay">Times by Task (daily)</string>
+    <string name="eventGroupingByTaskPerWeek">Times by Task (weekly)</string>
+    <string name="eventGroupingByTaskPerMonth">Times by Task (monthly)</string>
+    <string name="export">Export</string>
     <string name="notificationUsesFlexiTimeAsTarget">use flexi time 0:00 as target</string>
     <string name="notificationFlexiTimeDescription">reduce weekly target by flexi overtime</string>
     <string name="automaticTracking">Automatic Tracking</string>
@@ -168,6 +170,6 @@
     <string name="acraTitle">Oops!</string>
     <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please send an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>
     <string name="acraCommentPrompt">You can add a comment here, e.g. to describe which action produced the error:</string>
-    <string name="allData">all data</string>
+    <string name="allData">All data</string>
 
 </resources>

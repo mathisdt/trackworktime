@@ -10,10 +10,16 @@
         android:orientation="vertical"
         android:padding="10dp" >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="@string/exportRange"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
             android:baselineAligned="false"
             android:orientation="horizontal" >
 
@@ -80,43 +86,55 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="10dp"
-            android:text="@string/chooseReport"
+            android:text="@string/eventGrouping"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <Button
-            android:id="@+id/allEventsButton"
-            android:layout_width="fill_parent"
+        <RadioGroup
+            android:id="@+id/grouping"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/eventsReport" />
+            >
+
+            <RadioButton
+                android:id="@+id/groupingNone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/eventGroupingNone" />
+
+            <RadioButton
+                android:id="@+id/groupingByTask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTask" />
+
+            <RadioButton
+                android:id="@+id/groupingByTaskPerDay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskPerDay"/>
+
+            <RadioButton
+                android:id="@+id/groupingByTaskPerWeek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskPerWeek"/>
+
+            <RadioButton
+                android:id="@+id/groupingByTaskPerMonth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskPerMonth"/>
+        </RadioGroup>
 
         <Button
-            android:id="@+id/timesByTaskButton"
+            android:id="@+id/reportExport"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/timesByTaskReport" />
-
-        <Button
-            android:id="@+id/timesByTaskPerDay"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/timesByTaskPerDay" />
-
-        <Button
-            android:id="@+id/timesByTaskPerWeek"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/timesByTaskPerWeek" />
-
-        <Button
-            android:id="@+id/timesByTaskPerMonth"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/timesByTaskPerMonth" />
+            android:layout_marginTop="30dp"
+            android:text="@string/export" />
 
     </LinearLayout>
 
