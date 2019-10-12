@@ -9,7 +9,7 @@ static def buildTime() {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     compileOptions {
@@ -24,7 +24,7 @@ android {
     defaultConfig {
         applicationId "org.zephyrsoft.trackworktime"
         minSdkVersion 16
-        targetSdkVersion 27
+        targetSdkVersion 28
     }
 
     buildTypes {
@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    def supportLibraryVersion = "27.1.1"
+    def supportLibraryVersion = "28.0.0"
     def acraVersion = "5.2.1"
 
     implementation "com.android.support:support-core-utils:$supportLibraryVersion"
