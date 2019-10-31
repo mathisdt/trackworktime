@@ -16,7 +16,7 @@
  */
 package org.zephyrsoft.trackworktime.report;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.zephyrsoft.trackworktime.model.TimeSum;

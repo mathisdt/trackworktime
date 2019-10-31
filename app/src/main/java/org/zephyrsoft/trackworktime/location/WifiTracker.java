@@ -18,7 +18,7 @@ package org.zephyrsoft.trackworktime.location;
 
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
