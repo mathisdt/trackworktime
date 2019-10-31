@@ -16,7 +16,7 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 
 /**
  * Extend FileProvider to make sure our FileProvider doesn't conflict with any FileProviders declared

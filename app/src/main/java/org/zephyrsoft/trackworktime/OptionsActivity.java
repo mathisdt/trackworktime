@@ -23,7 +23,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;

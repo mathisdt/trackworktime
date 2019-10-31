@@ -18,7 +18,7 @@ package org.zephyrsoft.trackworktime;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
