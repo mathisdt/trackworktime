@@ -126,7 +126,7 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	}
 
 	public interface WeekCallback {
-		void onWeekTableClick();
+		void onWeekTableClick(@NonNull Week week);
 	}
 
 	public @Nullable Week getWeek() {
@@ -218,8 +218,9 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 		});
 
 		weekTable.setOnClickListener(v -> {
-			if(weekCallback != null)
-				weekCallback.onWeekTableClick();
+			if(currentlyShownWeek != null && weekCallback != null) {
+				weekCallback.onWeekTableClick(currentlyShownWeek);
+			}
 		});
 	}
 

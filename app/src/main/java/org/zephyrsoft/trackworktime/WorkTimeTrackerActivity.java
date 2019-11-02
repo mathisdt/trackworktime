@@ -386,7 +386,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (MenuAction.byOrdinal(item.getItemId())) {
 			case EDIT_EVENTS:
-				showEventList();
+				// Fixme: Get current week from fragment somehow
+				showEventList(null);
 				return true;
 			case EDIT_TASKS:
 				showTaskList();
@@ -426,21 +427,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	}
 
 	@Override
-	public void onWeekTableClick() {
-		showEventList();
+	public void onWeekTableClick(@NonNull Week week) {
+		showEventList(week);
 	}
 
-	private void showEventList() {
+	private void showEventList(Week week) {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
-		// Fixme: Get current week from fragment somehow
-		//Week currentWeek = weekFragment.getWeek();
-		Week currentWeek = null;
-		if(currentWeek == null) {
+		if(week == null) {
 			Logger.error("WeekFragment has no Week set");
 			return;
 		}
-		i.putExtra(Constants.WEEK_START_EXTRA_KEY, currentWeek.getStart());
+		i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.getStart());
 		startActivity(i);
 	}
 
