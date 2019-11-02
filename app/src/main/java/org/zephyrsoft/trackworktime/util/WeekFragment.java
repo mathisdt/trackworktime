@@ -108,8 +108,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	private TextView totalWorked = null;
 	private TextView totalFlexi = null;
 
-	private Button previousWeekButton = null;
-	private Button nextWeekButton = null;
 	private Button todayButton = null;
 
 	private Week currentlyShownWeek;
@@ -205,10 +203,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 
 		findAllViewsById(view);
 
-		previousWeekButton.setOnClickListener(v -> changeDisplayedWeek(-1));
-
-		nextWeekButton.setOnClickListener(v -> changeDisplayedWeek(1));
-
 		todayButton.setOnClickListener(v -> {
 			final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 			Week todaysWeek = dao.getWeek(todaysWeekStart);
@@ -283,37 +277,7 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 		totalWorked = view.findViewById(R.id.totalWorked);
 		totalFlexi = view.findViewById(R.id.totalFlexi);
 		todayButton = view.findViewById(R.id.todayButton);
-		previousWeekButton = view.findViewById(R.id.previous);
-		nextWeekButton = view.findViewById(R.id.next);
 		todayButton = view.findViewById(R.id.todayButton);
-	}
-
-	/**
-	 * @param interval
-	 *            position of the week relative to the currently displayed week, e.g. -2 for two weeks before the
-	 *            currently displayed week
-	 */
-	private void changeDisplayedWeek(int interval) {
-		if (interval == 0) {
-			return;
-		}
-
-		DateTime targetWeekStart = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart()).plusDays(interval * 7);
-		Week targetWeek = dao.getWeek(DateTimeUtil.dateTimeToString(targetWeekStart));
-		if (targetWeek == null) {
-			// don't insert a new week into the DB but only use a placeholder
-			targetWeek = new WeekPlaceholder(DateTimeUtil.dateTimeToString(targetWeekStart));
-		}
-
-		// display a Toast indicating the change interval (helps the user for more than one week difference)
-		if (Math.abs(interval) > 1) {
-			CharSequence backwardOrForward = interval < 0 ? getText(R.string.backward) : getText(R.string.forward);
-			Toast.makeText(getContext(), backwardOrForward + " " + Math.abs(interval) + " " + getText(R.string.weeks),
-					Toast.LENGTH_SHORT).show();
-		}
-
-		currentlyShownWeek = targetWeek;
-		refreshView();
 	}
 
 	public void refreshView() {
