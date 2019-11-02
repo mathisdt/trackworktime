@@ -31,9 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,18 +40,25 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.viewpager2.widget.ViewPager2;
+
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.util.WeekFragment;
+import org.zephyrsoft.trackworktime.weektimes.WeekFragmentAdapter;
+import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -92,7 +96,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private EditText text = null;
 	private Button clockInButton = null;
 	private Button clockOutButton = null;
-	private WeekFragment weekFragment = null;
+	private ViewPager2 weekPager = null;
 
 	private static WorkTimeTrackerActivity instance = null;
 
@@ -143,7 +147,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 
 		findAllViewsById();
 
-		weekFragment = (WeekFragment)getSupportFragmentManager().findFragmentById(R.id.week_fragment);
+		initWeekViewPager();
 
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
@@ -200,6 +204,24 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				.setPositiveButton(R.string.yes, dialogClickListener)
 				.setNegativeButton(R.string.no, dialogClickListener).show();
 		}
+	}
+
+	private void initWeekViewPager() {
+		TimeZone timeZone = DateTimeUtil.getCurrentTimeZone();
+		WeekIndexConverter weekIndexConverter = new WeekIndexConverter(dao, timeZone);
+		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
+				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
+		weekPager.setAdapter(weekFragmentAdapter);
+
+		final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
+		Week todaysWeek = dao.getWeek(todaysWeekStart);
+		if (todaysWeek == null) {
+			todaysWeek = new WeekPlaceholder(todaysWeekStart);
+		}
+		int currentWeekIndex = weekIndexConverter.getIndexForWeek(todaysWeek);
+		boolean smoothScroll = false;
+		// Fixme save/restore position
+		weekPager.setCurrentItem(currentWeekIndex, smoothScroll);
 	}
 
 	@Override
@@ -289,7 +311,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				i++;
 			}
 		}
-		weekFragment.refreshView();
+		// Fixme: WeekFragment refresh
 	}
 
 	private void setupTasksAdapter() {
@@ -304,6 +326,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		text = findViewById(R.id.text);
 		clockInButton = findViewById(R.id.clockInButton);
 		clockOutButton = findViewById(R.id.clockOutButton);
+		weekPager = findViewById(R.id.week_pager);
 	}
 
 	/**
@@ -394,7 +417,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private void showEventList() {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
-		Week currentWeek = weekFragment.getWeek();
+		// Fixme: Get current week from fragment somehow
+		//Week currentWeek = weekFragment.getWeek();
+		Week currentWeek = null;
 		if(currentWeek == null) {
 			Logger.error("WeekFragment has no Week set");
 			return;

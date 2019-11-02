@@ -14,11 +14,10 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical" >
 
-        <fragment
-            android:id="@+id/week_fragment"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/week_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:name="org.zephyrsoft.trackworktime.util.WeekFragment"
             />
 
         <LinearLayout
