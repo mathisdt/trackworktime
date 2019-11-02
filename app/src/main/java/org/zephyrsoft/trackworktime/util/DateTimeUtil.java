@@ -237,6 +237,14 @@ public class DateTimeUtil {
 		return date;
 	}
 
+	/**
+	 * Add number of weeks to provided date
+	 */
+	public static DateTime plusWeeks(DateTime fromDate, int weekCount) {
+		int plusDays = weekCount * 7;
+		return fromDate.plusDays(plusDays);
+	}
+
 	public static void test() {
 		boolean valid = false;
 		try {
