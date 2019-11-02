@@ -16,6 +16,10 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.zephyrsoft.trackworktime.database.DAO;
 
 /**
@@ -24,7 +28,7 @@ import org.zephyrsoft.trackworktime.database.DAO;
  * @see DAO
  * @author Mathis Dirksen-Thedens
  */
-public class Week extends Base implements Comparable<Week> {
+public class Week extends Base implements Comparable<Week>, Parcelable {
 	private Integer id = null;
 	private String start = null;
 	/** amount of minutes worked in this week */
@@ -40,6 +44,14 @@ public class Week extends Base implements Comparable<Week> {
 		this.start = start;
 		this.sum = sum;
 		this.flexi = flexi;
+	}
+
+	@SuppressLint("ParcelClassLoader") // Ok, since not restoring custom classes
+	protected Week(Parcel in) {
+		id = (Integer)in.readValue(null);
+		start = in.readString();
+		sum = (Integer)in.readValue(null);
+		flexi = (Integer)in.readValue(null);
 	}
 
 	public Integer getId() {
@@ -90,5 +102,30 @@ public class Week extends Base implements Comparable<Week> {
 	@Override
 	public String toString() {
 		return getStart() + " - " + getSum();
+	}
+
+	public static final Creator<Week> CREATOR = new Creator<Week>() {
+		@Override
+		public Week createFromParcel(Parcel in) {
+			return new Week(in);
+		}
+
+		@Override
+		public Week[] newArray(int size) {
+			return new Week[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeValue(id);
+		dest.writeString(start);
+		dest.writeValue(sum);
+		dest.writeValue(flexi);
 	}
 }

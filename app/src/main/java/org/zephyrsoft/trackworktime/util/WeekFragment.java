@@ -11,7 +11,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -39,6 +38,8 @@ import hirondelle.date4j.DateTime;
  * Controller for work times view
  */
 public class WeekFragment extends Fragment {
+
+	private static final String KEY_WEEK = "key_week";
 
 	private TableLayout weekTable = null;
 
@@ -129,16 +130,36 @@ public class WeekFragment extends Fragment {
 		refreshView();
 	}
 
+	public static WeekFragment newInstance(@NonNull Week week) {
+		WeekFragment fragment = new WeekFragment();
+		Bundle args = new Bundle();
+		args.putParcelable(KEY_WEEK, week);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		loadArgs();
 		Context context = requireContext().getApplicationContext();
 		Basics basics = Basics.getOrCreateInstance(context);
 		dao = basics.getDao();
 		preferences = basics.getPreferences();
 		timerManager = basics.getTimerManager();
 		timeCalculator = basics.getTimeCalculator();
+	}
+
+	private void loadArgs() {
+		Bundle args = getArguments();
+		if(args == null) {
+			throw new IllegalStateException("Fragment has no arguments");
+		}
+
+		currentlyShownWeek = getArguments().getParcelable(KEY_WEEK);
+		if(currentlyShownWeek == null) {
+			throw new IllegalArgumentException("Fragment week argument was null");
+		}
 	}
 
 	@Override
@@ -469,14 +490,6 @@ public class WeekFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		String weekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
-		currentlyShownWeek = dao.getWeek(weekStart);
-		if (currentlyShownWeek == null) {
-			// don't insert a new week into the DB but only use a placeholder
-			currentlyShownWeek = new WeekPlaceholder(weekStart);
-		}
-
 		refreshView();
 	}
 
