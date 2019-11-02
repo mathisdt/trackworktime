@@ -173,9 +173,11 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		if(!(context instanceof WeekCallback))
+
+		if(!(context instanceof WeekCallback)) {
 			throw new RuntimeException("Parent fragment context should implement "
 					+ WeekCallback.class.getSimpleName());
+		}
 		weekCallback = (WeekCallback)context;
 
 		if(!(context instanceof WeekRefreshAttacher)) {
@@ -198,7 +200,7 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	}
 
 	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
 		findAllViewsById(view);
