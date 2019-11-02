@@ -29,6 +29,8 @@ import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.weektimes.WeekRefreshAttacher;
+import org.zephyrsoft.trackworktime.weektimes.WeekRefreshHandler;
 
 import java.util.List;
 
@@ -37,7 +39,7 @@ import hirondelle.date4j.DateTime;
 /**
  * Controller for work times view
  */
-public class WeekFragment extends Fragment {
+public class WeekFragment extends Fragment implements WeekRefreshHandler {
 
 	private static final String KEY_WEEK = "key_week";
 
@@ -116,6 +118,12 @@ public class WeekFragment extends Fragment {
 	private TimerManager timerManager = null;
 	private TimeCalculator timeCalculator = null;
 	private WeekCallback weekCallback;
+	private WeekRefreshAttacher weekRefreshAttacher;
+
+	@Override
+	public void onRefresh() {
+		refreshView();
+	}
 
 	public interface WeekCallback {
 		void onWeekTableClick();
@@ -169,12 +177,19 @@ public class WeekFragment extends Fragment {
 			throw new RuntimeException("Parent fragment context should implement "
 					+ WeekCallback.class.getSimpleName());
 		weekCallback = (WeekCallback)context;
+
+		if(!(context instanceof WeekRefreshAttacher)) {
+			throw new RuntimeException("Parent fragment context should implement "
+					+ WeekRefreshAttacher.class.getSimpleName());
+		}
+		weekRefreshAttacher = (WeekRefreshAttacher)context;
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 		weekCallback = null;
+		weekRefreshAttacher = null;
 	}
 
 	@Override @Nullable
@@ -491,12 +506,14 @@ public class WeekFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		refreshView();
+		weekRefreshAttacher.addObserver(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		dao.close();
+		weekRefreshAttacher.removeObserver(this);
 	}
 
 }

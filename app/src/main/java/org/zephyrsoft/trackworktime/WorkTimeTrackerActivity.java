@@ -40,6 +40,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -59,6 +60,9 @@ import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekFragmentAdapter;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
+import org.zephyrsoft.trackworktime.weektimes.WeekRefreshAttacher;
+import org.zephyrsoft.trackworktime.weektimes.WeekRefreshDispatcher;
+import org.zephyrsoft.trackworktime.weektimes.WeekRefreshHandler;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -79,7 +83,8 @@ import static org.zephyrsoft.trackworktime.util.WeekFragment.WeekCallback;
  *
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCallback {
+public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCallback,
+		WeekRefreshAttacher {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
@@ -111,6 +116,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
+	private final WeekRefreshDispatcher weekRefreshDispatcher = new WeekRefreshDispatcher();
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -127,6 +133,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 					null);
 			startActivity(messageIntent);
 		}
+	}
+
+	@Override
+	public void addObserver(@NonNull WeekRefreshHandler weekRefreshHandler) {
+		weekRefreshDispatcher.addObserver(weekRefreshHandler);
+	}
+
+	@Override
+	public void removeObserver(@NonNull WeekRefreshHandler weekRefreshHandler) {
+		weekRefreshDispatcher.removeObserver(weekRefreshHandler);
 	}
 
 	@Override
@@ -311,7 +327,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				i++;
 			}
 		}
-		// Fixme: WeekFragment refresh
+		weekRefreshDispatcher.dispatchRefresh();
 	}
 
 	private void setupTasksAdapter() {
