@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -108,8 +107,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	private TextView totalWorked = null;
 	private TextView totalFlexi = null;
 
-	private Button todayButton = null;
-
 	private Week currentlyShownWeek;
 	private SharedPreferences preferences;
 	private DAO dao = null;
@@ -203,16 +200,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 
 		findAllViewsById(view);
 
-		todayButton.setOnClickListener(v -> {
-			final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
-			Week todaysWeek = dao.getWeek(todaysWeekStart);
-			if (todaysWeek == null) {
-				todaysWeek = new WeekPlaceholder(todaysWeekStart);
-			}
-			currentlyShownWeek = todaysWeek;
-			refreshView();
-		});
-
 		weekTable.setOnClickListener(v -> {
 			if(currentlyShownWeek != null && weekCallback != null) {
 				weekCallback.onWeekTableClick(currentlyShownWeek);
@@ -276,8 +263,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 		totalOut = view.findViewById(R.id.totalOut);
 		totalWorked = view.findViewById(R.id.totalWorked);
 		totalFlexi = view.findViewById(R.id.totalFlexi);
-		todayButton = view.findViewById(R.id.todayButton);
-		todayButton = view.findViewById(R.id.todayButton);
 	}
 
 	public void refreshView() {

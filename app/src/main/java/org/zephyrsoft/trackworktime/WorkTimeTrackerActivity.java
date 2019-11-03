@@ -90,7 +90,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
 
 	private enum MenuAction {
-		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS, USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION;
+		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS,
+		USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION, RECENTER_WEEK;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
@@ -117,6 +118,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
 	private final WeekRefreshDispatcher weekRefreshDispatcher = new WeekRefreshDispatcher();
+	private WeekIndexConverter weekIndexConverter;
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -154,6 +156,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		// fill basic data from central structures
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
+		weekIndexConverter = new WeekIndexConverter(dao, DateTimeUtil.getCurrentTimeZone());
 		timerManager = basics.getTimerManager();
 		externalNotificationManager = basics.getExternalNotificationManager();
 
@@ -223,21 +226,23 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	}
 
 	private void initWeekViewPager() {
-		TimeZone timeZone = DateTimeUtil.getCurrentTimeZone();
-		WeekIndexConverter weekIndexConverter = new WeekIndexConverter(dao, timeZone);
 		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
 				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
 		weekPager.setAdapter(weekFragmentAdapter);
 
+		// Fixme save/restore pager position
+		recenterWeek(false);
+	}
+
+	private void recenterWeek(boolean animate) {
 		final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 		Week todaysWeek = dao.getWeek(todaysWeekStart);
 		if (todaysWeek == null) {
 			todaysWeek = new WeekPlaceholder(todaysWeekStart);
 		}
 		int currentWeekIndex = weekIndexConverter.getIndexForWeek(todaysWeek);
-		boolean smoothScroll = false;
-		// Fixme save/restore position
-		weekPager.setCurrentItem(currentWeekIndex, smoothScroll);
+		weekPager.setCurrentItem(currentWeekIndex, animate);
+
 	}
 
 	@Override
@@ -379,12 +384,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception")
 				.setIcon(R.drawable.ic_menu_star);
 		}
+		MenuItem recenterItem = menu.add(Menu.NONE, MenuAction.RECENTER_WEEK.ordinal(),
+				MenuAction.RECENTER_WEEK.ordinal(), R.string.recenter_week);
+		recenterItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		recenterItem.setIcon(R.drawable.ic_calendar_today);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (MenuAction.byOrdinal(item.getItemId())) {
+			case RECENTER_WEEK:
+				recenterWeek(true);
+				return true;
 			case EDIT_EVENTS:
 				// Fixme: Get current week from fragment somehow
 				showEventList(null);
