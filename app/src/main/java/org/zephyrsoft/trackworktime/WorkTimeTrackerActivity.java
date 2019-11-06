@@ -230,8 +230,31 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
 		weekPager.setAdapter(weekFragmentAdapter);
 
+		initWeekViewPagerAnimation();
 		// Fixme save/restore pager position
 		recenterWeek(false);
+	}
+
+	private void initWeekViewPagerAnimation() {
+		weekPager.setPageTransformer((view, position) -> {
+			if(position >= 1 || position < -1) {
+				return;
+			}
+			if (position >= 0) {
+				view.setAlpha(1);
+				view.setTranslationX(0);
+				view.setScaleX(1);
+				view.setScaleY(1);
+			} else if (position >= -1) {
+				view.setAlpha(1 + position);
+				view.setPivotY(0.5f * view.getHeight());
+				view.setTranslationX(view.getWidth() * -position);
+				final float MIN_SCALE = 0.95f;
+				float scaleFactor = MIN_SCALE + (1 - MIN_SCALE) * (1 - Math.abs(position));
+				view.setScaleX(scaleFactor);
+				view.setScaleY(scaleFactor);
+			}
+		});
 	}
 
 	private void recenterWeek(boolean animate) {
