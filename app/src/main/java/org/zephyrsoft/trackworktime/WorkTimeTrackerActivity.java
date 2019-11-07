@@ -421,8 +421,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				recenterWeek(true);
 				return true;
 			case EDIT_EVENTS:
-				// Fixme: Get current week from fragment somehow
-				showEventList(null);
+				showCurrentEventList();
 				return true;
 			case EDIT_TASKS:
 				showTaskList();
@@ -459,6 +458,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");
 		}
+	}
+
+	private void showCurrentEventList() {
+		Week currentWeek = getCurrentlyDisplayedWeek();
+		showEventList(currentWeek);
+	}
+
+	private @NonNull Week getCurrentlyDisplayedWeek() {
+		int weekIndex = weekPager.getCurrentItem();
+		return weekIndexConverter.getWeekForIndex(weekIndex);
 	}
 
 	@Override
