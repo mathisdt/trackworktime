@@ -30,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -88,6 +90,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
+
+	private static final String KEY_CURRENT_WEEK = "current_week";
 
 	private enum MenuAction {
 		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS,
@@ -166,7 +170,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 
 		findAllViewsById();
 
-		initWeekViewPager();
+		initWeekViewPager(savedInstanceState);
 
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
@@ -225,14 +229,13 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		}
 	}
 
-	private void initWeekViewPager() {
+	private void initWeekViewPager(@Nullable Bundle state) {
 		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
 				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
 		weekPager.setAdapter(weekFragmentAdapter);
 
 		initWeekViewPagerAnimation();
-		// Fixme save/restore pager position
-		recenterWeek(false);
+		initWeekPagerPosition(state);
 	}
 
 	private void initWeekViewPagerAnimation() {
@@ -257,15 +260,33 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		});
 	}
 
+	private void initWeekPagerPosition(@Nullable Bundle state) {
+		Week restoredWeek = state == null ? null : state.getParcelable(KEY_CURRENT_WEEK);
+		Week initialWeek = restoredWeek == null ? getTodaysWeek() : restoredWeek;
+		showWeek(initialWeek, false);
+	}
+
 	private void recenterWeek(boolean animate) {
+		Week todaysWeek = getTodaysWeek();
+		showWeek(todaysWeek, animate);
+	}
+
+	private Week getTodaysWeek() {
 		final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
 		Week todaysWeek = dao.getWeek(todaysWeekStart);
-		if (todaysWeek == null) {
-			todaysWeek = new WeekPlaceholder(todaysWeekStart);
-		}
-		int currentWeekIndex = weekIndexConverter.getIndexForWeek(todaysWeek);
-		weekPager.setCurrentItem(currentWeekIndex, animate);
+		return todaysWeek != null
+				? todaysWeek
+				: new WeekPlaceholder(todaysWeekStart);
+	}
 
+	private void showWeek(@NonNull Week week, boolean animate) {
+		int weekIndex = weekIndexConverter.getIndexForWeek(week);
+		weekPager.setCurrentItem(weekIndex, animate);
+	}
+
+	@Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+		super.onSaveInstanceState(outState, outPersistentState);
+		outState.putParcelable(KEY_CURRENT_WEEK, getCurrentlyDisplayedWeek());
 	}
 
 	@Override
