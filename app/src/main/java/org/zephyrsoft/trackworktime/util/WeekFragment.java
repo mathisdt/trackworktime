@@ -455,15 +455,16 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onStart() {
+		super.onStart();
 		refreshView();
+		// Note: Attaching fragment on start will keep it "ready" when view pager swipes on to it
 		weekRefreshAttacher.addObserver(this);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onStop() {
+		super.onStop();
 		dao.close();
 		weekRefreshAttacher.removeObserver(this);
 	}
