@@ -170,7 +170,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 
 		findAllViewsById();
 
-		initWeekViewPager(savedInstanceState);
+		initWeekPager(savedInstanceState);
 
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
@@ -229,16 +229,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		}
 	}
 
-	private void initWeekViewPager(@Nullable Bundle state) {
-		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
-				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
-		weekPager.setAdapter(weekFragmentAdapter);
-
-		initWeekViewPagerAnimation();
+	private void initWeekPager(@Nullable Bundle state) {
+		initWeekPagerAdapter();
+		initWeekPagerAnimation();
 		initWeekPagerPosition(state);
 	}
 
-	private void initWeekViewPagerAnimation() {
+	private void initWeekPagerAdapter() {
+		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
+				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
+		weekPager.setAdapter(weekFragmentAdapter);
+	}
+
+	private void initWeekPagerAnimation() {
 		weekPager.setPageTransformer((view, position) -> {
 			if(position >= 1 || position < -1) {
 				return;
