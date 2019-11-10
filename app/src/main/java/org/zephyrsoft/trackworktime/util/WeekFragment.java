@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -122,15 +122,6 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 
 	public interface WeekCallback {
 		void onWeekTableClick(@NonNull Week week);
-	}
-
-	public @Nullable Week getWeek() {
-		return currentlyShownWeek;
-	}
-
-	public void setWeek(@NonNull Week week) {
-		currentlyShownWeek = week;
-		refreshView();
 	}
 
 	public static WeekFragment newInstance(@NonNull Week week) {
