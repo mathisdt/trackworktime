@@ -1,4 +1,4 @@
-package org.zephyrsoft.trackworktime.util;
+package org.zephyrsoft.trackworktime.weektimes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,8 +28,7 @@ import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.weektimes.WeekRefreshAttacher;
-import org.zephyrsoft.trackworktime.weektimes.WeekRefreshHandler;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.util.List;
 

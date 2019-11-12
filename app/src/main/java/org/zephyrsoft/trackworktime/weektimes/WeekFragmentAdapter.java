@@ -7,7 +7,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.util.WeekFragment;
 
 public class WeekFragmentAdapter extends FragmentStateAdapter {
 

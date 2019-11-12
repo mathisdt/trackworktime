@@ -78,7 +78,7 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.TimeZone;
 
-import static org.zephyrsoft.trackworktime.util.WeekFragment.WeekCallback;
+import static org.zephyrsoft.trackworktime.weektimes.WeekFragment.WeekCallback;
 
 /**
  * Main activity of the application.
