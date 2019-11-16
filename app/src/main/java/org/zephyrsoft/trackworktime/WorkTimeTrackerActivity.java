@@ -230,6 +230,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	}
 
 	private void initWeekPager(@Nullable Bundle state) {
+		weekPager.setOffscreenPageLimit(1);
 		initWeekPagerAdapter();
 		initWeekPagerAnimation();
 		initWeekPagerPosition(state);
