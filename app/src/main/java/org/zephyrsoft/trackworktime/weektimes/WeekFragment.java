@@ -2,6 +2,7 @@ package org.zephyrsoft.trackworktime.weektimes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,25 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.DayLine;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.model.WeekRowState;
+import org.zephyrsoft.trackworktime.model.WeekState;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-
-import java.util.List;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Controller for work times view
@@ -114,6 +104,9 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	private WeekCallback weekCallback;
 	private WeekRefreshAttacher weekRefreshAttacher;
 
+	private WeekStateLoader weekStateLoader;
+	private WeekStateCalculator weekStateCalculator;
+
 	@Override
 	public void onRefresh() {
 		refreshView();
@@ -137,10 +130,14 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 		loadArgs();
 		Context context = requireContext().getApplicationContext();
 		Basics basics = Basics.getOrCreateInstance(context);
-		dao = basics.getDao();
+		// Create new DAO, since it's not completely thread safe
+		dao = new DAO(getContext());
 		preferences = basics.getPreferences();
 		timerManager = basics.getTimerManager();
 		timeCalculator = basics.getTimeCalculator();
+
+		weekStateCalculator = new WeekStateCalculator(getContext(), dao,
+				timerManager, timeCalculator, preferences, currentlyShownWeek);
 	}
 
 	private void loadArgs() {
@@ -256,192 +253,72 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	}
 
 	public void refreshView() {
-		if (currentlyShownWeek == null) {
+		if(currentlyShownWeek == null ||
+				(weekStateLoader != null && weekStateLoader.getStatus() != AsyncTask.Status.FINISHED)) {
 			return;
 		}
 
-		DateTime monday = DateTimeUtil.stringToDateTime(currentlyShownWeek.getStart());
-		DateTime tuesday = monday.plusDays(1);
-		DateTime wednesday = tuesday.plusDays(1);
-		DateTime thursday = wednesday.plusDays(1);
-		DateTime friday = thursday.plusDays(1);
-		DateTime saturday = friday.plusDays(1);
-		DateTime sunday = saturday.plusDays(1);
-		// set dates
-		showActualDates(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-		// highlight current day (if it is visible)
-		// and reset the highlighting for the other days
-		refreshRowHighlighting(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-		// display times
-		showTimes(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+		startWeekLoader();
 	}
 
-	private void showActualDates(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
-			DateTime friday, DateTime saturday, DateTime sunday) {
-		topLeftCorner.setText("W " + thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear())));
-		mondayLabel.setText(getString(R.string.monday) + getString(R.string.onespace)
-				+ monday.format(getString(R.string.shortDateFormat)));
-		tuesdayLabel.setText(getString(R.string.tuesday) + getString(R.string.onespace)
-				+ tuesday.format(getString(R.string.shortDateFormat)));
-		wednesdayLabel.setText(getString(R.string.wednesday) + getString(R.string.onespace)
-				+ wednesday.format(getString(R.string.shortDateFormat)));
-		thursdayLabel.setText(getString(R.string.thursday) + getString(R.string.onespace)
-				+ thursday.format(getString(R.string.shortDateFormat)));
-		fridayLabel.setText(getString(R.string.friday) + getString(R.string.onespace)
-				+ friday.format(getString(R.string.shortDateFormat)));
-		saturdayLabel.setText(getString(R.string.saturday) + getString(R.string.onespace)
-				+ saturday.format(getString(R.string.shortDateFormat)));
-		sundayLabel.setText(getString(R.string.sunday) + getString(R.string.onespace)
-				+ sunday.format(getString(R.string.shortDateFormat)));
+	private void startWeekLoader() {
+		weekStateLoader = new WeekStateLoader(weekStateCalculator, this::showWeekData);
+		weekStateLoader.execute();
 	}
 
-	private void refreshRowHighlighting(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday,
-		DateTime friday, DateTime saturday, DateTime sunday) {
-		DateTime today = DateTimeUtil.getCurrentDateTime();
-		mondayRow.setBackgroundResource(today.isSameDayAs(monday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-		tuesdayRow.setBackgroundResource(today.isSameDayAs(tuesday) ? R.drawable.table_row_highlighting : 0);
-		wednesdayRow.setBackgroundResource(today.isSameDayAs(wednesday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-		thursdayRow.setBackgroundResource(today.isSameDayAs(thursday) ? R.drawable.table_row_highlighting : 0);
-		fridayRow.setBackgroundResource(today.isSameDayAs(friday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
-		saturdayRow.setBackgroundResource(today.isSameDayAs(saturday) ? R.drawable.table_row_highlighting : 0);
-		sundayRow.setBackgroundResource(today.isSameDayAs(sunday) ? R.drawable.table_row_highlighting
-				: R.drawable.table_row);
+	private void showWeekData(WeekState weekState) {
+		// TODO: Generalize...
+
+		showWeekRow(weekState.header, topLeftCorner, inLabel, outLabel, workedLabel,
+				flexiLabel);
+
+		showWeekRow(weekState.monday, mondayLabel, mondayIn, mondayOut, mondayWorked,
+				mondayFlexi);
+		refreshRowHighlighting(weekState.monday, mondayRow, true);
+
+		showWeekRow(weekState.tuesday, tuesdayLabel, tuesdayIn, tuesdayOut, tuesdayWorked,
+				tuesdayFlexi);
+		refreshRowHighlighting(weekState.tuesday, tuesdayRow, false);
+
+		showWeekRow(weekState.wednesday, wednesdayLabel, wednesdayIn, wednesdayOut, wednesdayWorked,
+				wednesdayFlexi);
+		refreshRowHighlighting(weekState.wednesday, wednesdayRow, true);
+
+		showWeekRow(weekState.thursday, thursdayLabel, thursdayIn, thursdayOut, thursdayWorked,
+				thursdayFlexi);
+		refreshRowHighlighting(weekState.thursday, thursdayRow, false);
+
+		showWeekRow(weekState.friday, fridayLabel, fridayIn, fridayOut, fridayWorked,
+				fridayFlexi);
+		refreshRowHighlighting(weekState.friday, fridayRow, true);
+
+		showWeekRow(weekState.saturday, saturdayLabel, saturdayIn, saturdayOut, saturdayWorked,
+				saturdayFlexi);
+		refreshRowHighlighting(weekState.saturday, saturdayRow, false);
+
+		showWeekRow(weekState.sunday, sundayLabel, sundayIn, sundayOut, sundayWorked,
+				sundayFlexi);
+		refreshRowHighlighting(weekState.sunday, sundayRow, true);
+
+		showWeekRow(weekState.totals, totalLabel, totalIn, totalOut, totalWorked,
+				totalFlexi);
 	}
 
-	private void showTimes(DateTime monday, DateTime tuesday, DateTime wednesday, DateTime thursday, DateTime friday,
-			DateTime saturday, DateTime sunday) {
-		if (currentlyShownWeek != null) {
-			TimeSum flexiBalance = null;
-			boolean hasRealData = !(currentlyShownWeek instanceof WeekPlaceholder);
-			if (hasRealData && preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				flexiBalance = timerManager.getFlexiBalanceAtWeekStart(DateTimeUtil.stringToDateTime(currentlyShownWeek
-						.getStart()));
-			}
-			boolean earlierEventsExist = (dao.getLastEventBefore(monday.getStartOfDay()) != null);
-			boolean showFlexiTimes = hasRealData || earlierEventsExist;
-			List<Event> events = fetchEventsForDay(monday);
-			flexiBalance = showTimesForSingleDay(monday, events, flexiBalance, mondayIn, mondayOut, mondayWorked,
-					mondayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(tuesday);
-			flexiBalance = showTimesForSingleDay(tuesday, events, flexiBalance, tuesdayIn, tuesdayOut, tuesdayWorked,
-					tuesdayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(wednesday);
-			flexiBalance = showTimesForSingleDay(wednesday, events, flexiBalance, wednesdayIn, wednesdayOut,
-					wednesdayWorked, wednesdayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(thursday);
-			flexiBalance = showTimesForSingleDay(thursday, events, flexiBalance, thursdayIn, thursdayOut,
-					thursdayWorked, thursdayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(friday);
-			flexiBalance = showTimesForSingleDay(friday, events, flexiBalance, fridayIn, fridayOut, fridayWorked,
-					fridayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(saturday);
-			flexiBalance = showTimesForSingleDay(saturday, events, flexiBalance, saturdayIn, saturdayOut,
-					saturdayWorked, saturdayFlexi, showFlexiTimes);
-			events = fetchEventsForDay(sunday);
-			flexiBalance = showTimesForSingleDay(sunday, events, flexiBalance, sundayIn, sundayOut, sundayWorked,
-					sundayFlexi, showFlexiTimes);
-
-			TimeSum amountWorked = timerManager.calculateTimeSum(DateTimeUtil.getWeekStart(DateTimeUtil
-					.stringToDateTime(currentlyShownWeek.getStart())), PeriodEnum.WEEK);
-			showSummaryLine(amountWorked, flexiBalance, showFlexiTimes && DateTimeUtil.isInPast(monday
-					.getStartOfDay()));
-		}
+	private void showWeekRow(WeekRowState weekRowState, TextView label, TextView in, TextView out,
+			TextView worked, TextView flexi) {
+		label.setText(weekRowState.date);
+		in.setText(weekRowState.in);
+		out.setText(weekRowState.out);
+		worked.setText(weekRowState.worked);
+		flexi.setText(weekRowState.flexi);
 	}
 
-	private List<Event> fetchEventsForDay(DateTime day) {
-		Logger.debug("fetchEventsForDay: {}", DateTimeUtil.dateTimeToDateString(day));
-		List<Event> ret = dao.getEventsOnDay(day);
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		Event lastEventBeforeNow = dao.getLastEventBefore(now);
-		if (day.isSameDayAs(now) && TimerManager.isClockInEvent(lastEventBeforeNow)) {
-			// currently clocked in: add clock-out event "NOW"
-			ret.add(timerManager.createClockOutNowEvent());
-		}
-		return ret;
-	}
-
-	private TimeSum showTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
-			TextView in, TextView out, TextView worked, TextView flexi, boolean showFlexiTimes) {
-
-		DayLine dayLine = timeCalculator.calulateOneDay(day, events);
-
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-		boolean isWorkDay = timerManager.isWorkDay(weekDay);
-		boolean isTodayOrEarlier = DateTimeUtil.isInPast(day.getStartOfDay());
-		boolean containsEventsForDay = containsEventsForDay(events, day);
-		boolean weekEndWithoutEvents = !isWorkDay && !containsEventsForDay;
-		// correct result by previous flexi time sum
-		dayLine.getTimeFlexi().addOrSubstract(flexiBalanceAtDayStart);
-
-		in.setText(formatTime(dayLine.getTimeIn()));
-		if (isCurrentMinute(dayLine.getTimeOut()) && timerManager.isTracking()) {
-			out.setText("NOW");
-		} else {
-			out.setText(formatTime(dayLine.getTimeOut()));
-		}
-		if (weekEndWithoutEvents) {
-			worked.setText("");
-		} else if (isWorkDay && isTodayOrEarlier) {
-			worked.setText(formatSum(dayLine.getTimeWorked(), null));
-		} else {
-			worked.setText(formatSum(dayLine.getTimeWorked(), ""));
-		}
-		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(),
-				false)) {
-			flexi.setText("");
-		} else if (isWorkDay && isTodayOrEarlier) {
-			flexi.setText(formatSum(dayLine.getTimeFlexi(), null));
-		} else if (containsEventsForDay) {
-			flexi.setText(formatSum(dayLine.getTimeFlexi(), ""));
-		} else {
-			flexi.setText("");
-		}
-
-		return dayLine.getTimeFlexi();
-	}
-
-	private void showSummaryLine(TimeSum amountWorked, TimeSum flexiBalance, boolean showFlexiTimes) {
-		totalWorked.setText(amountWorked.toString());
-		if (flexiBalance != null && showFlexiTimes) {
-			totalFlexi.setText(flexiBalance.toString());
-		} else {
-			totalFlexi.setText("");
-		}
-	}
-
-	private boolean containsEventsForDay(List<Event> events, DateTime day) {
-		for (Event event : events) {
-			if (DateTimeUtil.stringToDateTime(event.getTime()).isSameDayAs(day)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isCurrentMinute(DateTime dateTime) {
-		if (dateTime == null) {
-			return false;
-		}
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		return now.getYear().equals(dateTime.getYear())
-				&& now.getMonth().equals(dateTime.getMonth())
-				&& now.getDay().equals(dateTime.getDay())
-				&& now.getHour().equals(dateTime.getHour())
-				&& now.getMinute().equals(dateTime.getMinute());
-	}
-
-	private String formatTime(DateTime time) {
-		return time == null ? "" : DateTimeUtil.dateTimeToHourMinuteString(time);
-	}
-
-	private String formatSum(TimeSum sum, String valueForZero) {
-		if (sum != null && sum.getAsMinutes() == 0 && valueForZero != null) {
-			return valueForZero;
-		}
-		return sum == null ? "" : sum.toString();
+	private void refreshRowHighlighting(WeekRowState weekRowState, TableRow tableRow,
+			boolean isLight) {
+		int notHighlightedDrawable = isLight ? R.drawable.table_row : 0;
+		tableRow.setBackgroundResource(weekRowState.isHiglighted
+				? R.drawable.table_row_highlighting
+				: notHighlightedDrawable);
 	}
 
 	@Override
@@ -455,8 +332,14 @@ public class WeekFragment extends Fragment implements WeekRefreshHandler {
 	@Override
 	public void onStop() {
 		super.onStop();
-		dao.close();
 		weekRefreshAttacher.removeObserver(this);
+		stopWeekLoader();
+		dao.close();
+	}
+
+	private void stopWeekLoader() {
+		if(weekStateLoader != null)
+			weekStateLoader.cancel(true);
 	}
 
 }
