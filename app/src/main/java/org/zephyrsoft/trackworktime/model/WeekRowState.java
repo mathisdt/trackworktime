@@ -11,4 +11,8 @@ public class WeekRowState {
 
 	public boolean isHiglighted;
 
+	@NonNull @Override public String toString() {
+		return "values: " + date + ", " + in + ", " + out + ", " + worked + ", " + flexi
+				+ ", highlighted: " + isHiglighted;
+	}
 }

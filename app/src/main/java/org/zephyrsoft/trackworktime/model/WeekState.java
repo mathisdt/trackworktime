@@ -18,4 +18,15 @@ public class WeekState {
 		totals = new WeekRowState();
 	}
 
+	@NonNull @Override public String toString() {
+		return header + "\n" +
+				monday + "\n" +
+				tuesday + "\n" +
+				wednesday + "\n" +
+				thursday + "\n" +
+				friday + "\n" +
+				saturday + "\n" +
+				sunday + "\n" +
+				totals;
+	}
 }
