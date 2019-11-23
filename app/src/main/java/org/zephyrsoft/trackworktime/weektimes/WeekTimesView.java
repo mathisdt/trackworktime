@@ -6,10 +6,14 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.model.WeekRowState;
 import org.zephyrsoft.trackworktime.model.WeekState;
+
+import java.util.Objects;
 
 public class WeekTimesView extends LinearLayout {
 
@@ -80,13 +84,27 @@ public class WeekTimesView extends LinearLayout {
 
 	public WeekTimesView(@NonNull Context context) {
 		super(context);
-		inflateLayout();
-		findAllViewsById();
+		startLayoutLoading();
 	}
 
-	private void inflateLayout() {
-		Context context = getContext();
-		inflate(context, R.layout.week_table, this);
+	private void startLayoutLoading() {
+		AsyncLayoutInflater asyncInflater = new AsyncLayoutInflater(getContext());
+		asyncInflater.inflate(R.layout.week_table, this, (view, resId, parent) -> {
+			Objects.requireNonNull(parent); // Non-null parent passed in #asyncInflater
+			parent.addView(view);
+			onViewReady();
+		});
+	}
+
+	private void onViewReady() {
+		findAllViewsById();
+		if(isDataSet()) {
+			loadWeekState();
+		}
+	}
+
+	private boolean isDataSet() {
+		return weekState != null;
 	}
 
 	private void findAllViewsById() {
@@ -148,10 +166,21 @@ public class WeekTimesView extends LinearLayout {
 
 	public void setWeekState(@NonNull WeekState weekState) {
 		this.weekState = weekState;
-		loadWeekState();
+		if(isViewReady()) {
+			loadWeekState();
+		}
+	}
+
+	private boolean isViewReady() {
+		return inLabel != null;
 	}
 
 	private void loadWeekState() {
+		if(!isDataSet()) {
+			Logger.warn("Loading weekState when data was not set");
+			return;
+		}
+
 		// TODO: Generalize...
 
 		showWeekRow(weekState.header, topLeftCorner, inLabel, outLabel, workedLabel,
