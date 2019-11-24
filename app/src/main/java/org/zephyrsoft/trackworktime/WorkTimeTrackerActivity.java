@@ -35,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -226,7 +227,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 	private void initWeekPagerAdapter() {
 		WeekStateLoaderManager weekStateLoaderManager = createWeekLoaderManger();
-		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderManager);
+		OnClickListener weekClickListener = v -> showCurrentEventList();
+		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderManager, weekClickListener);
 		weekPager.setAdapter(weekAdapter);
 	}
 

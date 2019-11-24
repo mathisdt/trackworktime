@@ -1,10 +1,12 @@
 package org.zephyrsoft.trackworktime.weektimes;
 
 import android.content.Context;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,11 +21,14 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 	private final WeekIndexConverter weekIndexConverter;
 	private final WeekStateLoaderManager weekStateLoaderManager;
 	private final LayoutParams LAYOUT_PARAMS = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
+	private final OnClickListener onClickListener;
 
 	public WeekAdapter(@NonNull WeekIndexConverter weekIndexConverter,
-			@NonNull WeekStateLoaderManager weekStateLoaderManager) {
+			@NonNull WeekStateLoaderManager weekStateLoaderManager,
+			@Nullable OnClickListener onClickListener) {
 		this.weekIndexConverter = weekIndexConverter;
 		this.weekStateLoaderManager = weekStateLoaderManager;
+		this.onClickListener = onClickListener;
 		setHasStableIds(true);
 	}
 
@@ -37,6 +42,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 	private WeekTimesView createView(Context context) {
 		WeekTimesView weekTimesView = new WeekTimesView(context);
 		weekTimesView.setLayoutParams(LAYOUT_PARAMS);
+		weekTimesView.setOnClickListener(onClickListener);
 		return weekTimesView;
 	}
 
