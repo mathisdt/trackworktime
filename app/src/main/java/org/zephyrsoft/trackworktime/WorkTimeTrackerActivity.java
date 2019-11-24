@@ -56,15 +56,15 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
-import org.zephyrsoft.trackworktime.weektimes.WeekFragmentAdapter;
+import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
-import org.zephyrsoft.trackworktime.weektimes.WeekRefreshAttacher;
-import org.zephyrsoft.trackworktime.weektimes.WeekRefreshDispatcher;
-import org.zephyrsoft.trackworktime.weektimes.WeekRefreshHandler;
+import org.zephyrsoft.trackworktime.weektimes.WeekStateCalculatorFactory;
+import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -78,15 +78,12 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.TimeZone;
 
-import static org.zephyrsoft.trackworktime.weektimes.WeekFragment.WeekCallback;
-
 /**
  * Main activity of the application.
  *
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCallback,
-		WeekRefreshAttacher {
+public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
@@ -121,8 +118,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
-	private final WeekRefreshDispatcher weekRefreshDispatcher = new WeekRefreshDispatcher();
 	private WeekIndexConverter weekIndexConverter;
+	private WeekAdapter weekAdapter;
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -139,16 +136,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 					null);
 			startActivity(messageIntent);
 		}
-	}
-
-	@Override
-	public void addObserver(@NonNull WeekRefreshHandler weekRefreshHandler) {
-		weekRefreshDispatcher.addObserver(weekRefreshHandler);
-	}
-
-	@Override
-	public void removeObserver(@NonNull WeekRefreshHandler weekRefreshHandler) {
-		weekRefreshDispatcher.removeObserver(weekRefreshHandler);
 	}
 
 	@Override
@@ -237,9 +224,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 	}
 
 	private void initWeekPagerAdapter() {
-		WeekFragmentAdapter weekFragmentAdapter = new WeekFragmentAdapter(
-				getSupportFragmentManager(), getLifecycle(), weekIndexConverter);
-		weekPager.setAdapter(weekFragmentAdapter);
+		WeekStateLoaderFactory weekStateLoaderFactory = createWeekLoaderFactory();
+		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderFactory);
+		weekPager.setAdapter(weekAdapter);
+	}
+
+	private WeekStateLoaderFactory createWeekLoaderFactory() {
+		DAO dao = new DAO(this);
+		TimerManager timerManager = new TimerManager(dao, preferences, this);
+		TimeCalculator timeCalculator = new TimeCalculator(dao, timerManager);
+		WeekStateCalculatorFactory weekStateCalculatorFactory = new WeekStateCalculatorFactory(
+				this, dao, timerManager, timeCalculator, preferences);
+		return new WeekStateLoaderFactory(weekStateCalculatorFactory);
 	}
 
 	private void initWeekPagerAnimation() {
@@ -380,7 +376,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 				i++;
 			}
 		}
-		weekRefreshDispatcher.dispatchRefresh();
+		weekAdapter.notifyDataSetChanged();
 	}
 
 	private void setupTasksAdapter() {
@@ -495,16 +491,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity implements WeekCa
 		return weekIndexConverter.getWeekForIndex(weekIndex);
 	}
 
-	@Override
-	public void onWeekTableClick(@NonNull Week week) {
-		showEventList(week);
-	}
-
 	private void showEventList(Week week) {
 		Logger.debug("showing EventList");
 		Intent i = new Intent(this, EventListActivity.class);
 		if(week == null) {
-			Logger.error("WeekFragment has no Week set");
+			Logger.error("Trying to show event list for null week");
 			return;
 		}
 		i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.getStart());
