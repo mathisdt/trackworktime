@@ -20,10 +20,12 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -60,6 +62,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	private Button save = null;
 	private Button cancel = null;
 	private ArrayAdapter<TypeEnum> typesAdapter;
+	private RadioGroup type;
 	private RadioButton clockIn;
 	private RadioButton clockOut;
 	private RadioButton flexTime;
@@ -103,6 +106,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 
 		save = findViewById(R.id.save);
 		cancel = findViewById(R.id.cancel);
+		type = findViewById(R.id.radioType);
 		clockIn = findViewById(R.id.radioClockIn);
 		clockOut = findViewById(R.id.radioClockOut);
 		flexTime = findViewById(R.id.radioFlexTime);
@@ -115,7 +119,10 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
 
-		clockIn.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskAndTextEditable(isChecked));
+		type.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			task.setEnabled(isChecked == R.id.radioClockIn);
+			text.setEnabled(isChecked == R.id.radioClockIn || isChecked == R.id.radioFlexTime);
+		});
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -164,11 +171,6 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
             Logger.debug("canceling EventEditActivity");
             finish();
         });
-	}
-
-	private void setTaskAndTextEditable(boolean shouldBeEditable) {
-		task.setEnabled(shouldBeEditable);
-		text.setEnabled(shouldBeEditable);
 	}
 
 	@Override
