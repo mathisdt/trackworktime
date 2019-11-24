@@ -2,42 +2,43 @@ package org.zephyrsoft.trackworktime.weektimes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.WeekState;
 
-public class WeekTimesViewHolder extends RecyclerView.ViewHolder {
+import java.util.Objects;
+
+public class WeekTimesViewHolder extends RecyclerView.ViewHolder implements Observer<WeekState> {
 
 	private final WeekTimesView weekTimesView;
-	private final WeekStateLoaderFactory weekStateLoaderFactory;
-	private @Nullable WeekStateLoader weekStateLoader;
+	private @Nullable LiveData<WeekState> weekStateLiveData;
 
-	public WeekTimesViewHolder(@NonNull WeekTimesView weekTimesView,
-			@NonNull WeekStateLoaderFactory weekStateLoaderFactory) {
+	public WeekTimesViewHolder(@NonNull WeekTimesView weekTimesView) {
 		super(weekTimesView);
 		this.weekTimesView = weekTimesView;
-		this.weekStateLoaderFactory = weekStateLoaderFactory;
 	}
 
-	public void bind(@NonNull Week week) {
-		startWeekStateLoading(week);
+	public void bind(@NonNull LiveData<WeekState> weekStateLiveData) {
+		this.weekStateLiveData = weekStateLiveData;
+		weekStateLiveData.observeForever(this);
 	}
 
-	private void startWeekStateLoading(@NonNull Week week) {
-		weekStateLoader = weekStateLoaderFactory.create(week, weekTimesView::setWeekState);
-		weekStateLoader.execute();
+	@Override public void onChanged(WeekState weekState) {
+		Objects.requireNonNull(weekState);
+		weekTimesView.setWeekState(weekState);
 	}
 
 	public void recycle() {
-		stopWeekStateLoading();
+		removeObserver();
 	}
 
-	private void stopWeekStateLoading() {
-		if(weekStateLoader == null) {
-			return;
+	private void removeObserver() {
+		if(weekStateLiveData != null) {
+			weekStateLiveData.removeObserver(this);
+			weekStateLiveData = null;
 		}
-		weekStateLoader.cancel(true);
-		weekStateLoader = null;
 	}
 
 }

@@ -65,6 +65,7 @@ import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateCalculatorFactory;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderFactory;
+import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderManager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -224,9 +225,14 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void initWeekPagerAdapter() {
-		WeekStateLoaderFactory weekStateLoaderFactory = createWeekLoaderFactory();
-		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderFactory);
+		WeekStateLoaderManager weekStateLoaderManager = createWeekLoaderManger();
+		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderManager);
 		weekPager.setAdapter(weekAdapter);
+	}
+
+	private WeekStateLoaderManager createWeekLoaderManger() {
+		WeekStateLoaderFactory weekStateLoaderFactory = createWeekLoaderFactory();
+		return new WeekStateLoaderManager(weekStateLoaderFactory);
 	}
 
 	private WeekStateLoaderFactory createWeekLoaderFactory() {
