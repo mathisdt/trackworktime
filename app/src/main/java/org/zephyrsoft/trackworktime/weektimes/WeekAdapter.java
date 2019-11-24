@@ -24,6 +24,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 			@NonNull WeekStateLoaderManager weekStateLoaderManager) {
 		this.weekIndexConverter = weekIndexConverter;
 		this.weekStateLoaderManager = weekStateLoaderManager;
+		setHasStableIds(true);
 	}
 
 	@NonNull @Override
@@ -57,6 +58,10 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 
 	@Override public int getItemCount() {
 		return Integer.MAX_VALUE;
+	}
+
+	@Override public long getItemId(int position) {
+		return position;
 	}
 
 }
