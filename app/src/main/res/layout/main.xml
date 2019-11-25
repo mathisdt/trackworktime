@@ -18,6 +18,8 @@
             android:id="@+id/week_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="22dp"
             />
 
         <LinearLayout
