@@ -39,7 +39,7 @@ public class ExternalStorage {
 			Logger.error("external storage {} is not writable", externalStorageDirectory);
 			return null;
 		}
-		File twtDirectory = new File(externalStorageDirectory, "trackworktime");
+		File twtDirectory = new File(externalStorageDirectory, Constants.DATA_DIR);
 		if (!twtDirectory.isDirectory() && !twtDirectory.mkdirs()) {
 			Logger.error("directory {} could not be created", twtDirectory);
 			return null;
