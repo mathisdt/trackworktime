@@ -4,19 +4,15 @@ import androidx.annotation.NonNull;
 
 public class WeekState {
 
-	@NonNull public WeekRowState header, monday, tuesday, wednesday, thursday, friday, saturday, sunday,
-			totals;
-	{
-		header = new WeekRowState();
-		monday = new WeekRowState();
-		tuesday = new WeekRowState();
-		wednesday = new WeekRowState();
-		thursday = new WeekRowState();
-		friday = new WeekRowState();
-		saturday = new WeekRowState();
-		sunday = new WeekRowState();
-		totals = new WeekRowState();
-	}
+	@NonNull public WeekRowState header = new WeekRowState();
+	@NonNull public WeekRowState monday = new WeekRowState();
+	@NonNull public WeekRowState tuesday = new WeekRowState();
+	@NonNull public WeekRowState wednesday = new WeekRowState();
+	@NonNull public WeekRowState thursday = new WeekRowState();
+	@NonNull public WeekRowState friday = new WeekRowState();
+	@NonNull public WeekRowState saturday = new WeekRowState();
+	@NonNull public WeekRowState sunday = new WeekRowState();
+	@NonNull public WeekRowState totals = new WeekRowState();
 
 	@NonNull @Override public String toString() {
 		return header + "\n" +
@@ -29,4 +25,5 @@ public class WeekState {
 				sunday + "\n" +
 				totals;
 	}
+
 }
