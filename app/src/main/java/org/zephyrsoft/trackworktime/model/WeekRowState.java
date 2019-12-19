@@ -4,19 +4,19 @@ import androidx.annotation.NonNull;
 
 public class WeekRowState {
 
-	@NonNull private String date = "";
+	@NonNull private String label = "";
 	@NonNull private String in = "";
 	@NonNull private String out = "";
 	@NonNull private String worked = "";
 	@NonNull private String flexi = "";
 	private boolean isHiglighted;
 
-	@NonNull public String getDate() {
-		return date;
+	@NonNull public String getLabel() {
+		return label;
 	}
 
-	public void setDate(@NonNull String date) {
-		this.date = date;
+	public void setLabel(@NonNull String label) {
+		this.label = label;
 	}
 
 	@NonNull public String getIn() {
@@ -60,7 +60,7 @@ public class WeekRowState {
 	}
 
 	@NonNull @Override public String toString() {
-		return "values: " + getDate() + ", " + getIn() + ", " + getOut() + ", " + getWorked() + ", " + getFlexi()
+		return "values: " + getLabel() + ", " + getIn() + ", " + getOut() + ", " + getWorked() + ", " + getFlexi()
 				+ ", highlighted: " + isHiglighted();
 	}
 

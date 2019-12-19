@@ -220,7 +220,7 @@ public class WeekTimesView extends LinearLayout {
 
 	private void showWeekRow(WeekRowState weekRowState, TextView label, TextView in, TextView out,
 			TextView worked, TextView flexi) {
-		label.setText(weekRowState.getDate());
+		label.setText(weekRowState.getLabel());
 		in.setText(weekRowState.getIn());
 		out.setText(weekRowState.getOut());
 		worked.setText(weekRowState.getWorked());

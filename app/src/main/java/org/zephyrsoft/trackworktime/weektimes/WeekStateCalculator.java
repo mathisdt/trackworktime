@@ -71,27 +71,27 @@ public class WeekStateCalculator {
 
 	private void setDates(@NonNull WeekState weekState) {
 		int weekIndex = thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear()));
-		weekState.header.setDate("W " + weekIndex);
+		weekState.header.setLabel("W " + weekIndex);
 
-		weekState.monday.setDate(getString(R.string.monday) + getString(R.string.onespace)
+		weekState.monday.setLabel(getString(R.string.monday) + getString(R.string.onespace)
 				+ monday.format(getString(R.string.shortDateFormat)));
 
-		weekState.tuesday.setDate(getString(R.string.tuesday) + getString(R.string.onespace)
+		weekState.tuesday.setLabel(getString(R.string.tuesday) + getString(R.string.onespace)
 				+ tuesday.format(getString(R.string.shortDateFormat)));
 
-		weekState.wednesday.setDate(getString(R.string.wednesday) + getString(R.string.onespace)
+		weekState.wednesday.setLabel(getString(R.string.wednesday) + getString(R.string.onespace)
 				+ wednesday.format(getString(R.string.shortDateFormat)));
 
-		weekState.thursday.setDate(getString(R.string.thursday) + getString(R.string.onespace)
+		weekState.thursday.setLabel(getString(R.string.thursday) + getString(R.string.onespace)
 				+ thursday.format(getString(R.string.shortDateFormat)));
 
-		weekState.friday.setDate(getString(R.string.friday) + getString(R.string.onespace)
+		weekState.friday.setLabel(getString(R.string.friday) + getString(R.string.onespace)
 				+ friday.format(getString(R.string.shortDateFormat)));
 
-		weekState.saturday.setDate(getString(R.string.saturday) + getString(R.string.onespace)
+		weekState.saturday.setLabel(getString(R.string.saturday) + getString(R.string.onespace)
 				+ saturday.format(getString(R.string.shortDateFormat)));
 
-		weekState.sunday.setDate(getString(R.string.sunday) + getString(R.string.onespace)
+		weekState.sunday.setLabel(getString(R.string.sunday) + getString(R.string.onespace)
 				+ sunday.format(getString(R.string.shortDateFormat)));
 	}
 
@@ -220,7 +220,7 @@ public class WeekStateCalculator {
 
 	private void setSummaryLine(WeekRowState weekRowState, TimeSum amountWorked, TimeSum flexiBalance,
 			boolean showFlexiTimes) {
-		weekRowState.setDate(getString(R.string.total));
+		weekRowState.setLabel(getString(R.string.total));
 
 		weekRowState.setWorked(amountWorked.toString());
 
