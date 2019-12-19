@@ -164,6 +164,10 @@ public class WeekTimesView extends LinearLayout {
 		totalFlexi = findViewById(R.id.totalFlexi);
 	}
 
+	public void clearWeekState() {
+		setWeekState(new WeekState());
+	}
+
 	public void setWeekState(@NonNull WeekState weekState) {
 		this.weekState = weekState;
 		if(isViewReady()) {

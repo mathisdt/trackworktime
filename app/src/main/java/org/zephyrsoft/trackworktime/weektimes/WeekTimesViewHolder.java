@@ -32,6 +32,7 @@ public class WeekTimesViewHolder extends RecyclerView.ViewHolder implements Obse
 
 	public void recycle() {
 		removeObserver();
+		weekTimesView.clearWeekState();
 	}
 
 	private void removeObserver() {
