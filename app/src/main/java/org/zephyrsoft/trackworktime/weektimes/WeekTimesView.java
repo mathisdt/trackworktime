@@ -220,17 +220,17 @@ public class WeekTimesView extends LinearLayout {
 
 	private void showWeekRow(WeekRowState weekRowState, TextView label, TextView in, TextView out,
 			TextView worked, TextView flexi) {
-		label.setText(weekRowState.date);
-		in.setText(weekRowState.in);
-		out.setText(weekRowState.out);
-		worked.setText(weekRowState.worked);
-		flexi.setText(weekRowState.flexi);
+		label.setText(weekRowState.getDate());
+		in.setText(weekRowState.getIn());
+		out.setText(weekRowState.getOut());
+		worked.setText(weekRowState.getWorked());
+		flexi.setText(weekRowState.getFlexi());
 	}
 
 	private void refreshRowHighlighting(WeekRowState weekRowState, TableRow tableRow,
 			boolean isLight) {
 		int notHighlightedDrawable = isLight ? R.drawable.table_row : 0;
-		tableRow.setBackgroundResource(weekRowState.isHiglighted
+		tableRow.setBackgroundResource(weekRowState.isHiglighted()
 				? R.drawable.table_row_highlighting
 				: notHighlightedDrawable);
 	}

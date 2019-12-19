@@ -71,46 +71,46 @@ public class WeekStateCalculator {
 
 	private void setDates(@NonNull WeekState weekState) {
 		int weekIndex = thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear()));
-		weekState.header.date = "W " + weekIndex;
+		weekState.header.setDate("W " + weekIndex);
 
-		weekState.monday.date = getString(R.string.monday) + getString(R.string.onespace)
-				+ monday.format(getString(R.string.shortDateFormat));
+		weekState.monday.setDate(getString(R.string.monday) + getString(R.string.onespace)
+				+ monday.format(getString(R.string.shortDateFormat)));
 
-		weekState.tuesday.date = getString(R.string.tuesday) + getString(R.string.onespace)
-				+ tuesday.format(getString(R.string.shortDateFormat));
+		weekState.tuesday.setDate(getString(R.string.tuesday) + getString(R.string.onespace)
+				+ tuesday.format(getString(R.string.shortDateFormat)));
 
-		weekState.wednesday.date = getString(R.string.wednesday) + getString(R.string.onespace)
-				+ wednesday.format(getString(R.string.shortDateFormat));
+		weekState.wednesday.setDate(getString(R.string.wednesday) + getString(R.string.onespace)
+				+ wednesday.format(getString(R.string.shortDateFormat)));
 
-		weekState.thursday.date = getString(R.string.thursday) + getString(R.string.onespace)
-				+ thursday.format(getString(R.string.shortDateFormat));
+		weekState.thursday.setDate(getString(R.string.thursday) + getString(R.string.onespace)
+				+ thursday.format(getString(R.string.shortDateFormat)));
 
-		weekState.friday.date = getString(R.string.friday) + getString(R.string.onespace)
-				+ friday.format(getString(R.string.shortDateFormat));
+		weekState.friday.setDate(getString(R.string.friday) + getString(R.string.onespace)
+				+ friday.format(getString(R.string.shortDateFormat)));
 
-		weekState.saturday.date = getString(R.string.saturday) + getString(R.string.onespace)
-				+ saturday.format(getString(R.string.shortDateFormat));
+		weekState.saturday.setDate(getString(R.string.saturday) + getString(R.string.onespace)
+				+ saturday.format(getString(R.string.shortDateFormat)));
 
-		weekState.sunday.date = getString(R.string.sunday) + getString(R.string.onespace)
-				+ sunday.format(getString(R.string.shortDateFormat));
+		weekState.sunday.setDate(getString(R.string.sunday) + getString(R.string.onespace)
+				+ sunday.format(getString(R.string.shortDateFormat)));
 	}
 
 	private void setDays(@NonNull WeekRowState weekRowHeaderState) {
-		weekRowHeaderState.in = getString(R.string.in);
-		weekRowHeaderState.out = getString(R.string.out);
-		weekRowHeaderState.worked = getString(R.string.worked);
-		weekRowHeaderState.flexi = getString(R.string.flexi);
+		weekRowHeaderState.setIn(getString(R.string.in));
+		weekRowHeaderState.setOut(getString(R.string.out));
+		weekRowHeaderState.setWorked(getString(R.string.worked));
+		weekRowHeaderState.setFlexi(getString(R.string.flexi));
 	}
 
 	private void setRowHighlighting(@NonNull WeekState weekState) {
 		DateTime today = DateTimeUtil.getCurrentDateTime();
-		weekState.monday.isHiglighted = today.isSameDayAs(monday);
-		weekState.tuesday.isHiglighted = today.isSameDayAs(tuesday);
-		weekState.wednesday.isHiglighted = today.isSameDayAs(wednesday);
-		weekState.thursday.isHiglighted = today.isSameDayAs(thursday);
-		weekState.friday.isHiglighted = today.isSameDayAs(friday);
-		weekState.saturday.isHiglighted = today.isSameDayAs(saturday);
-		weekState.sunday.isHiglighted = today.isSameDayAs(sunday);
+		weekState.monday.setHiglighted(today.isSameDayAs(monday));
+		weekState.tuesday.setHiglighted(today.isSameDayAs(tuesday));
+		weekState.wednesday.setHiglighted(today.isSameDayAs(wednesday));
+		weekState.thursday.setHiglighted(today.isSameDayAs(thursday));
+		weekState.friday.setHiglighted(today.isSameDayAs(friday));
+		weekState.saturday.setHiglighted(today.isSameDayAs(saturday));
+		weekState.sunday.setHiglighted(today.isSameDayAs(sunday));
 	}
 
 	private void setTimes(@NonNull WeekState weekState) {
@@ -182,7 +182,7 @@ public class WeekStateCalculator {
 		// correct result by previous flexi time sum
 		dayLine.getTimeFlexi().addOrSubstract(flexiBalanceAtDayStart);
 
-		weekRowState.in = formatTime(dayLine.getTimeIn());
+		weekRowState.setIn(formatTime(dayLine.getTimeIn()));
 
 		final String out;
 		if (isCurrentMinute(dayLine.getTimeOut()) && timerManager.isTracking()) {
@@ -190,7 +190,7 @@ public class WeekStateCalculator {
 		} else {
 			out = formatTime(dayLine.getTimeOut());
 		}
-		weekRowState.out = out;
+		weekRowState.setOut(out);
 
 		final String worked;
 		if (weekEndWithoutEvents) {
@@ -200,7 +200,7 @@ public class WeekStateCalculator {
 		} else {
 			worked = formatSum(dayLine.getTimeWorked(), "");
 		}
-		weekRowState.worked = worked;
+		weekRowState.setWorked(worked);
 
 		final String flexi;
 		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(),
@@ -213,19 +213,19 @@ public class WeekStateCalculator {
 		} else {
 			flexi = "";
 		}
-		weekRowState.flexi = flexi;
+		weekRowState.setFlexi(flexi);
 
 		return dayLine.getTimeFlexi();
 	}
 
 	private void setSummaryLine(WeekRowState weekRowState, TimeSum amountWorked, TimeSum flexiBalance,
 			boolean showFlexiTimes) {
-		weekRowState.date = getString(R.string.total);
+		weekRowState.setDate(getString(R.string.total));
 
-		weekRowState.worked = amountWorked.toString();
+		weekRowState.setWorked(amountWorked.toString());
 
 		boolean showFlexi = flexiBalance != null && showFlexiTimes;
-		weekRowState.flexi = showFlexi ? flexiBalance.toString() : "";
+		weekRowState.setFlexi(showFlexi ? flexiBalance.toString() : "");
 	}
 
 	private boolean containsEventsForDay(List<Event> events, DateTime day) {
