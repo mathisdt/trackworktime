@@ -49,6 +49,9 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 	@Override public void onBindViewHolder(@NonNull WeekTimesViewHolder holder, int position) {
 		Week week = weekIndexConverter.getWeekForIndex(position);
 		int requestId = position;
+		// Cancel request before starting new one. It's possible same week is still being loaded,
+		// but holder hasn't been recycled yet.
+		weekStateLoaderManager.cancelRequest(requestId);
 		LiveData<WeekState> weekState = weekStateLoaderManager.requestWeekState(week, requestId);
 		holder.bind(weekState);
 	}
