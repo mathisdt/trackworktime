@@ -238,9 +238,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private WeekStateLoaderFactory createWeekLoaderFactory() {
-		DAO dao = new DAO(this);
-		TimerManager timerManager = new TimerManager(dao, preferences, this);
-		TimeCalculator timeCalculator = new TimeCalculator(dao, timerManager);
+		TimeCalculator timeCalculator = Basics.getInstance().getTimeCalculator();
 		WeekStateCalculatorFactory weekStateCalculatorFactory = new WeekStateCalculatorFactory(
 				this, dao, timerManager, timeCalculator, preferences);
 		return new WeekStateLoaderFactory(weekStateCalculatorFactory);
