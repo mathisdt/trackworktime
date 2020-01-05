@@ -114,8 +114,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 	private boolean visible = false;
 
-	private boolean tabsAreChanging = false;
-
 	private SharedPreferences preferences;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
@@ -322,14 +320,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				ActivityCompat.requestPermissions(this,
 						new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
 			}
-		}
-	}
-
-	private static void setVisibility(View view, boolean visible) {
-		if (visible) {
-			view.setVisibility(View.VISIBLE);
-		} else {
-			view.setVisibility(View.GONE);
 		}
 	}
 
