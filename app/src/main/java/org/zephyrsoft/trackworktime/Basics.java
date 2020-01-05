@@ -233,6 +233,7 @@ public class Basics extends BroadcastReceiver {
 		safeCheckLocationBasedTracking();
 		safeCheckWifiBasedTracking();
 		safeCheckPersistentNotification();
+		WorkTimeTrackerActivity.refreshViewIfShown();
 	}
 
 	/**
