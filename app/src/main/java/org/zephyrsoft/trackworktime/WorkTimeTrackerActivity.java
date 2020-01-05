@@ -34,7 +34,6 @@ import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -42,6 +41,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,6 +80,8 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.TimeZone;
 
+import static java.lang.Math.abs;
+
 /**
  * Main activity of the application.
  *
@@ -106,6 +108,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private Button clockInButton = null;
 	private Button clockOutButton = null;
 	private ViewPager2 weekPager = null;
+	private MenuItem recenterMenuItem;
 
 	private static WorkTimeTrackerActivity instance = null;
 
@@ -223,6 +226,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		initWeekPagerAdapter();
 		initWeekPagerAnimation();
 		initWeekPagerPosition(state);
+		initWeekPagerChangeCallback();
 	}
 
 	private void initWeekPagerAdapter() {
@@ -288,6 +292,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private void showWeek(@NonNull Week week, boolean animate) {
 		int weekIndex = weekIndexConverter.getIndexForWeek(week);
 		weekPager.setCurrentItem(weekIndex, animate);
+	}
+
+	private void initWeekPagerChangeCallback() {
+		weekPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+			@Override
+			public void onPageSelected(int selectedWeekIndex) {
+				super.onPageSelected(selectedWeekIndex);
+				refreshRecenterMenuItem();
+			}
+		});
 	}
 
 	@Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
@@ -383,6 +397,37 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			}
 		}
 		weekAdapter.notifyDataSetChanged();
+		refreshRecenterMenuItem();
+	}
+
+	private void refreshRecenterMenuItem() {
+		if(recenterMenuItem == null) {
+			// Can happen during startup, since onCreateOptionsMenu() is called after onResume()
+			return;
+		}
+
+		int difference = getDisplayedToTodaysWeekDifference();
+
+		boolean itemVisible = abs(difference) > 0;
+		recenterMenuItem.setVisible(itemVisible);
+
+		if(!itemVisible) {
+			return;
+		}
+		@DrawableRes int icon = difference > 0
+				? R.drawable.ic_calendar_recenter_right
+				: R.drawable.ic_calendar_recenter_left;
+		recenterMenuItem.setIcon(icon);
+	}
+
+	/**
+	 * @return 0, when current week is displayed, negative value, when currently displayed week is
+	 * in the past, and positive value, when displaying future week */
+	private int getDisplayedToTodaysWeekDifference() {
+		Week todaysWeek = getTodaysWeek();
+		int todaysIndex = weekIndexConverter.getIndexForWeek(todaysWeek);
+		int shownIndex = getCurrentlyDisplayedWeekIndex();
+		return todaysIndex - shownIndex;
 	}
 
 	private void setupTasksAdapter() {
@@ -434,10 +479,13 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception")
 				.setIcon(R.drawable.ic_menu_star);
 		}
-		MenuItem recenterItem = menu.add(Menu.NONE, MenuAction.RECENTER_WEEK.ordinal(),
-				MenuAction.RECENTER_WEEK.ordinal(), R.string.recenter_week);
-		recenterItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-		recenterItem.setIcon(R.drawable.ic_calendar_today);
+
+		int recenterId = MenuAction.RECENTER_WEEK.ordinal();
+		recenterMenuItem = menu.add(Menu.NONE, recenterId, recenterId, R.string.recenter_week);
+		recenterMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		recenterMenuItem.setVisible(false);
+		refreshRecenterMenuItem();
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -493,8 +541,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private @NonNull Week getCurrentlyDisplayedWeek() {
-		int weekIndex = weekPager.getCurrentItem();
+		int weekIndex = getCurrentlyDisplayedWeekIndex();
 		return weekIndexConverter.getWeekForIndex(weekIndex);
+	}
+
+	private int getCurrentlyDisplayedWeekIndex() {
+		return weekPager.getCurrentItem();
 	}
 
 	private void showEventList(Week week) {
