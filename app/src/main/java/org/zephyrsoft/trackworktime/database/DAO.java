@@ -67,13 +67,15 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.WEEK_FLEXI;
  * clocking in or out and when changing task or text) and weeks (which are like a clip around events and also can
  * provide a sum so that not all events have to be read to calculate the flexi time).
  *
+ * This class is thread safe.
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class DAO {
 
 	// TODO use prepared statements as described here: http://stackoverflow.com/questions/7255574
 
-	private SQLiteDatabase db;
+	private volatile SQLiteDatabase db;
 	private final MySQLiteHelper dbHelper;
 	private final Context context;
 	private final WorkTimeTrackerBackupManager backupManager;
@@ -90,14 +92,16 @@ public class DAO {
 	/**
 	 * Open the underlying database. Implicitly called before any database operation.
 	 */
-	private void open() throws SQLException {
-		db = dbHelper.getWritableDatabase();
+	private synchronized void open() throws SQLException {
+		if(db == null || !db.isOpen()) {
+			db = dbHelper.getWritableDatabase();
+		}
 	}
 
 	/**
 	 * Close the underlying database.
 	 */
-	public void close() {
+	public synchronized void close() {
 		dbHelper.close();
 	}
 
@@ -131,7 +135,7 @@ public class DAO {
 	 *            the task to add
 	 * @return the newly created task as read from the database (complete with ID)
 	 */
-	public Task insertTask(Task task) {
+	public synchronized Task insertTask(Task task) {
 		open();
 		ContentValues args = taskToContentValues(task);
 		long insertId = db.insert(TASK, null, args);
@@ -196,7 +200,7 @@ public class DAO {
 	/**
 	 * Return if the task with the given ID is used in an event.
 	 */
-	public boolean isTaskUsed(Integer id) {
+	public synchronized boolean isTaskUsed(Integer id) {
 		Cursor cursor = db.query(EVENT, new String[] { "count(*)" }, EVENT_TASK + " = " + String.valueOf(id), null,
 			null, null, null, null);
 		cursor.moveToFirst();
@@ -208,7 +212,7 @@ public class DAO {
 		return count > 0;
 	}
 
-	private List<Task> getTasksWithConstraint(String constraint) {
+	private synchronized List<Task> getTasksWithConstraint(String constraint) {
 		open();
 		List<Task> ret = new ArrayList<>();
 		// TODO sort tasks by TASK_ORDERING when the UI supports manual ordering of tasks
@@ -230,7 +234,7 @@ public class DAO {
 	 *            the task to update - the ID has to be set!
 	 * @return the task as newly read from the database
 	 */
-	public Task updateTask(Task task) {
+	public synchronized Task updateTask(Task task) {
 		open();
 		ContentValues args = taskToContentValues(task);
 		db.update(TASK, args, TASK_ID + "=" + task.getId(), null);
@@ -247,7 +251,7 @@ public class DAO {
 	 *            the task to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
 	 */
-	public boolean deleteTask(Task task) {
+	public synchronized boolean deleteTask(Task task) {
 		open();
 		final boolean result = db.delete(TASK, TASK_ID + "=" + task.getId(), null) > 0;
 		dataChanged();
@@ -284,7 +288,7 @@ public class DAO {
 	 *            the week to add
 	 * @return the newly created week as read from the database (complete with ID)
 	 */
-	public Week insertWeek(Week week) {
+	public synchronized Week insertWeek(Week week) {
 		if (week.getSum()==null || week.getSum()<0) {
 			throw new IllegalArgumentException("sum of a week may not be negative");
 		}
@@ -338,7 +342,7 @@ public class DAO {
 		return weeks.isEmpty() ? null : weeks.get(0);
 	}
 
-	private List<Week> getWeeksWithConstraint(String constraint) {
+	private synchronized List<Week> getWeeksWithConstraint(String constraint) {
 		open();
 		List<Week> ret = new ArrayList<>();
 		Cursor cursor = db.query(WEEK, WEEK_FIELDS, constraint, null, null, null, WEEK_START);
@@ -359,7 +363,7 @@ public class DAO {
 	 *            the week to update - the ID has to be set!
 	 * @return the week as newly read from the database
 	 */
-	public Week updateWeek(Week week) {
+	public synchronized Week updateWeek(Week week) {
 		open();
 		ContentValues args = weekToContentValues(week);
 		db.update(WEEK, args, WEEK_ID + "=" + week.getId(), null);
@@ -376,7 +380,7 @@ public class DAO {
 	 *            the week to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
 	 */
-	public boolean deleteWeek(Week week) {
+	public synchronized boolean deleteWeek(Week week) {
 		open();
 		final boolean result = db.delete(WEEK, WEEK_ID + "=" + week.getId(), null) > 0;
 		dataChanged();
@@ -418,7 +422,7 @@ public class DAO {
 	 *            the event to add
 	 * @return the newly created event as read from the database (complete with ID)
 	 */
-	public Event insertEvent(Event event) {
+	public synchronized Event insertEvent(Event event) {
 		open();
 		ContentValues args = eventToContentValues(event);
 		long insertId = db.insert(EVENT, null, args);
@@ -534,7 +538,8 @@ public class DAO {
 		return event;
 	}
 
-	private List<Event> getEventsWithParameters(String[] fields, String constraint, boolean descending,
+	private synchronized List<Event> getEventsWithParameters(String[] fields, String constraint,
+			boolean descending,
 		boolean limitedToOne) {
 		open();
 		List<Event> ret = new ArrayList<>();
@@ -561,7 +566,7 @@ public class DAO {
 	 *            the event to update - the ID has to be set!
 	 * @return the event as newly read from the database
 	 */
-	public Event updateEvent(Event event) {
+	public synchronized Event updateEvent(Event event) {
 		open();
 		ContentValues args = eventToContentValues(event);
 		db.update(EVENT, args, EVENT_ID + "=" + event.getId(), null);
@@ -578,14 +583,14 @@ public class DAO {
 	 *            the event to delete - the ID has to be set!
 	 * @return {@code true} if successful, {@code false} if not
 	 */
-	public boolean deleteEvent(Event event) {
+	public synchronized boolean deleteEvent(Event event) {
 		open();
 		final boolean result = db.delete(EVENT, EVENT_ID + "=" + event.getId(), null) > 0;
 		dataChanged();
 		return result;
 	}
 
-	private boolean deleteAll() {
+	private synchronized boolean deleteAll() {
 		open();
 		boolean result = db.delete(TASK, null, null) > 0;
 		result |= db.delete(WEEK, null, null) > 0;
@@ -594,7 +599,7 @@ public class DAO {
 		return result;
 	}
 
-	public Cursor getAllEventsAndTasks() {
+	public synchronized Cursor getAllEventsAndTasks() {
 		open();
 		final String querySelectPart = "SELECT"
 			+ " " + MySQLiteHelper.EVENT + "." + MySQLiteHelper.EVENT_ID + " AS eventId"

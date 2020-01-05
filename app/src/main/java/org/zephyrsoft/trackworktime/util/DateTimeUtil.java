@@ -35,7 +35,7 @@ public class DateTimeUtil {
 	 * @return {@link DateTime} object
 	 */
 	public static DateTime getCurrentDateTime() {
-		DateTime now = DateTime.now(TimeZone.getDefault());
+		DateTime now = DateTime.now(getCurrentTimeZone());
 		return now;
 	}
 
@@ -45,8 +45,17 @@ public class DateTimeUtil {
 	 * @return date in format "YYYY-MM-DD"
 	 */
 	public static String getCurrentDateAsString() {
-		DateTime now = DateTime.now(TimeZone.getDefault());
+		DateTime now = DateTime.now(getCurrentTimeZone());
 		return now.format("YYYY-MM-DD");
+	}
+
+	/**
+	 * Gets the current time zone
+	 *
+	 * @return {@link TimeZone} object
+	 */
+	public static TimeZone getCurrentTimeZone() {
+		return TimeZone.getDefault();
 	}
 
 	/**
@@ -226,6 +235,14 @@ public class DateTimeUtil {
 		}
 		date.minusDays(3);
 		return date;
+	}
+
+	/**
+	 * Add number of weeks to provided date
+	 */
+	public static DateTime plusWeeks(DateTime fromDate, int weekCount) {
+		int plusDays = weekCount * 7;
+		return fromDate.plusDays(plusDays);
 	}
 
 	public static void test() {
