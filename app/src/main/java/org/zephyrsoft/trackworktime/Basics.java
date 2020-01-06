@@ -384,7 +384,7 @@ public class Basics extends BroadcastReceiver {
 				startLocationTrackerService(latitude, longitude, tolerance, vibrate);
 			} else {
 				// just in case
-				stopWifiTrackerService();
+				stopLocationTrackerService();
 			}
 		} else {
 			stopLocationTrackerService();
