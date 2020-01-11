@@ -16,14 +16,19 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -66,7 +71,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	private RadioButton clockIn;
 	private RadioButton clockOut;
 	private RadioButton flexTime;
-	private TextView weekday = null;
+	private ImageButton infoButton;
 	private DatePicker date = null;
 	private int selectedYear = -1;
 	private int selectedMonth = -1;
@@ -110,11 +115,15 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 		clockIn = findViewById(R.id.radioClockIn);
 		clockOut = findViewById(R.id.radioClockOut);
 		flexTime = findViewById(R.id.radioFlexTime);
-		weekday = findViewById(R.id.weekday);
+		infoButton = findViewById(R.id.typeInfoButton);
 		date = findViewById(R.id.date);
 		time = findViewById(R.id.time);
 		task = findViewById(R.id.task);
 		text = findViewById(R.id.text);
+
+		infoButton.setOnClickListener(v -> new AlertDialog.Builder(v.getContext())
+			.setMessage(R.string.eventTypeInfoMessage)
+			.show());
 
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
@@ -251,37 +260,6 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 			selectedYear = dateTime.getYear();
 			selectedMonth = dateTime.getMonth() - 1;
 			selectedDay = dateTime.getDay();
-			setWeekday();
-		}
-	}
-
-	private void setWeekday() {
-		DateTime currentlySelected = getCurrentlySetDateAndTime();
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(currentlySelected.getWeekDay());
-		switch (weekDay) {
-			case MONDAY:
-				weekday.setText(R.string.monday);
-				break;
-			case TUESDAY:
-				weekday.setText(R.string.tuesday);
-				break;
-			case WEDNESDAY:
-				weekday.setText(R.string.wednesday);
-				break;
-			case THURSDAY:
-				weekday.setText(R.string.thursday);
-				break;
-			case FRIDAY:
-				weekday.setText(R.string.friday);
-				break;
-			case SATURDAY:
-				weekday.setText(R.string.saturday);
-				break;
-			case SUNDAY:
-				weekday.setText(R.string.sunday);
-				break;
-			default:
-				throw new IllegalStateException("unknown weekday");
 		}
 	}
 
@@ -319,7 +297,6 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 				noDateChangedReaction = false;
 			}
 
-			setWeekday();
 			Logger.debug("date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
 		}
 	}

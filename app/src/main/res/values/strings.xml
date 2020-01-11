@@ -35,7 +35,8 @@
     <string name="clockInChangeShort">New Period</string>
     <string name="clockOut">Stop Tracking</string>
     <string name="clockOutShort">Stop</string>
-    <string name="flexTime">Flex Time</string>
+    <string name="flexTime">Flex</string>
+    <string name="eventTypeInfoMessage"><b>Start Tracking / Stop Tracking:</b>\nAllows you to create clock-in or clock-out events as if you tapped the "Start" or "Stop" buttons at the selected time.\n\n<b>Flex:</b>\nAllows you to define the working time time for the selected day.\nEvent at 00:00 = flexi time will stay the same as before if no work is clocked (as if the day wasn\'t a work day)\nEvent at any other time = set working time to the selected hour(s) and minutes(s)\nExample: regular working time is 8 hours, flex event at 03:30 => required working time for the day is 3,5 hours</string>
     <string name="insert_default_times">Multi-Insert</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="edit_events">Edit Events</string>

@@ -5,11 +5,11 @@
     android:descendantFocusability="beforeDescendants"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <Button
             android:id="@+id/cancel"
@@ -29,7 +29,7 @@
     <ScrollView
         android:id="@+id/scroller"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -37,7 +37,7 @@
             android:descendantFocusability="beforeDescendants"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/typeLabel"
@@ -47,36 +47,53 @@
                 android:text="@string/type"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-		    <RadioGroup
-		        android:id="@+id/radioType"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:orientation="horizontal" >
+            <LinearLayout
+                android:id="@+id/radioTypeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-		        <RadioButton
-		            android:id="@+id/radioClockIn"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_weight="1"
-		            android:text="@string/clockIn"
-		            android:checked="true" />
+                <RadioGroup
+                    android:id="@+id/radioType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-		        <RadioButton
-		            android:id="@+id/radioClockOut"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_marginLeft="5dp"
-		            android:layout_weight="1"
-		            android:text="@string/clockOut" />
+                    <RadioButton
+                        android:id="@+id/radioClockIn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/clockIn"
+                        android:checked="true" />
 
-		        <RadioButton
-		            android:id="@+id/radioFlexTime"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_marginLeft="5dp"
-		            android:layout_weight="1"
-		            android:text="@string/flexTime" />
-		    </RadioGroup>
+                    <RadioButton
+                        android:id="@+id/radioClockOut"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:text="@string/clockOut" />
+
+                    <RadioButton
+                        android:id="@+id/radioFlexTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:text="@string/flexTime" />
+                </RadioGroup>
+
+                <ImageButton
+                    android:id="@+id/typeInfoButton"
+                    style="@style/Widget.AppCompat.ImageButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:background="@android:drawable/ic_dialog_info"
+                    tools:src="@android:drawable/ic_dialog_info" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/dateTimeLabel"
@@ -89,24 +106,14 @@
             <RelativeLayout
                 android:id="@+id/dateLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/weekday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:gravity="center"
-                    android:text="@string/monday"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:layout_height="wrap_content">
 
                 <DatePicker
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-					android:calendarViewShown="false" />
+                    android:calendarViewShown="false" />
             </RelativeLayout>
 
             <TimePicker
