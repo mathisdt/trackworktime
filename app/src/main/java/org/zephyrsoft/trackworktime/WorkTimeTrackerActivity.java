@@ -19,6 +19,7 @@ package org.zephyrsoft.trackworktime;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,6 +60,7 @@ import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.BackupUtil;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
@@ -90,7 +92,6 @@ import static java.lang.Math.abs;
 public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
-	private static final int PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP = 3;
 
 	private static final String KEY_CURRENT_WEEK = "current_week";
 
@@ -153,8 +154,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		weekIndexConverter = new WeekIndexConverter(dao, DateTimeUtil.getCurrentTimeZone());
 		timerManager = basics.getTimerManager();
 		externalNotificationManager = basics.getExternalNotificationManager();
-
-		backupToSdAutomatically();
 
 		setContentView(R.layout.main);
 
@@ -691,11 +690,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	public void onRequestPermissionsResult(int requestCode, String[] permissions,
 			int[] grantResults) {
 		switch (requestCode) {
-			case PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP:
-				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					backupToSdAutomatically();
-				}
-				break;
 			case PERMISSION_REQUEST_CODE_BACKUP:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupToSd();
@@ -715,7 +709,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	// Backup, Restore
 	// ---------------------------------------------------------------------------------------------
 	private static final String BACKUP_FILE = "backup.csv";
-	private static final String AUTOMATIC_BACKUP_FILE = "automatic-backup.csv";
 
 	/**
 	 * Check if file exists and ask user if so.
@@ -747,33 +740,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		}
 	}
 
-	/**
-	 * Backup without asking the user and without displaying a notification,
-	 * but only if the last automatic backup is more than 24 hours old (or nonexistent).
-	 */
-	private void backupToSdAutomatically() {
-		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_AUTOMATIC_BACKUP);
-			return;
-		}
-		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
-		if (externalStorageDirectory == null) {
-			Logger.warn("automatic backup failed because getExternalStorageDirectory() returned null");
-			return;
-		}
-		final File backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
-		final File backupFile = new File(backupDir, AUTOMATIC_BACKUP_FILE);
-
-		long yesterdayInMillis = DateTimeUtil.getCurrentDateTime().minusDays(1).getMilliseconds(TimeZone.getDefault());
-		if (!backupFile.exists() || backupFile.lastModified() < yesterdayInMillis) {
-			Logger.info("starting automatic backup");
-			doBackup(backupFile);
-		} else {
-			Logger.debug("not starting automatic backup");
-		}
-	}
-
 	private void backup(final File backupFile) {
 		// do in background
 		new AsyncTask<Void, Void, Boolean>() {
@@ -788,7 +754,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 			@Override
 			protected Boolean doInBackground(Void... none) {
-				return doBackup(backupFile);
+				return BackupUtil.doBackup(getApplicationContext(), backupFile);
 			}
 
 			@Override
@@ -803,24 +769,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			}
 
 		}.execute(null, null);
-	}
-
-	private Boolean doBackup(File backupFile) {
-		try {
-            backupFile.getParentFile().mkdirs();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(backupFile)));
-
-            dao.backupToWriter(writer);
-            writer.close();
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
 	}
 
 	private void restoreFromSd() {

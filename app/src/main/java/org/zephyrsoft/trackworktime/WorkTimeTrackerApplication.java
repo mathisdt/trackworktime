@@ -34,6 +34,11 @@ import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APPLICATION_LOG;
 import static org.acra.ReportField.APP_VERSION_CODE;
@@ -98,6 +103,10 @@ public class WorkTimeTrackerApplication extends Application {
 		ACRA.setLog(new TinylogAndLogcatLogger());
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
+
+		PeriodicWorkRequest automaticBackup = new PeriodicWorkRequest.Builder(AutomaticBackup.class, 1, TimeUnit.DAYS, 6, TimeUnit.HOURS)
+			.build();
+		WorkManager.getInstance(getApplicationContext()).enqueue(automaticBackup);
 
 		Logger.info("running self-tests");
 		TimeSum.test();
