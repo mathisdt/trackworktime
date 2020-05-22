@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import android.content.SharedPreferences;
 
+import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
@@ -159,6 +160,19 @@ public enum DataType {
 		@Override
 		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
 			String value = sharedPreferences.getString(key, "");
+			return validate(value);
+		}
+	},
+	/** Type for {@link org.zephyrsoft.trackworktime.model.Unit} */
+	TIME_UNIT {
+		@Override
+		public boolean validate(String value) {
+			return Unit.nameExists(value);
+		}
+
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			String value = sharedPreferences.getString(key, Unit.NULL.getName());
 			return validate(value);
 		}
 	};
