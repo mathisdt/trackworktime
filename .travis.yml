@@ -29,7 +29,7 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 
-script: "./gradlew assemble"
+script: "./gradlew test" && "./gradlew assemble"
 
 deploy:
   provider: releases
