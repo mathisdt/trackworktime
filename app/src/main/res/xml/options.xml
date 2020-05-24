@@ -31,6 +31,11 @@
             android:summary="@string/flexiTimeTargetDescription"
             android:title="@string/flexiTimeTarget" />
 
+        <org.zephyrsoft.trackworktime.options.FlexiIntervalPreference
+            android:key="@string/keyFlexiTimeResetInterval"
+            android:summary="@string/flexiTimeResetIntervalDescription"
+            android:title="@string/flexiTimeResetInterval" />
+
         <CheckBoxPreference
             android:key="@string/keyFlexiTimeDayMonday"
             android:summary="@string/flexiTimeDayDescription"
