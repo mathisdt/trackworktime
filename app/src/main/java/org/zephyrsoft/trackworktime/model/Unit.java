@@ -17,6 +17,7 @@
 package org.zephyrsoft.trackworktime.model;
 
 public enum Unit {
+	NULL("null"),
 	DAY("day"),
 	WEEK("week"),
 	MONTH("month"),
