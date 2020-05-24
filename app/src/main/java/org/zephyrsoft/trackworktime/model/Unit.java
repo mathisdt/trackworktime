@@ -16,6 +16,9 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Unit {
 	NULL("null"),
 	DAY("day"),
@@ -25,6 +28,14 @@ public enum Unit {
 
 	private final String name;
 
+	private static final Map<String, Unit> nameToUnitMap;
+	static {
+		Unit[] units = values();
+		nameToUnitMap = new HashMap<>(units.length);
+		for(Unit u : units)
+			nameToUnitMap.put(u.name, u);
+	}
+
 	Unit(String name) {
 		this.name = name;
 	}
@@ -32,4 +43,9 @@ public enum Unit {
 	public String getName() {
 		return name;
 	}
+
+	public static Unit getByName(String name) {
+		return nameToUnitMap.get(name);
+	}
+
 }
