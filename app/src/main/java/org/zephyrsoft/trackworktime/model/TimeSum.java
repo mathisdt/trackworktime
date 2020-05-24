@@ -100,6 +100,11 @@ public class TimeSum {
 		return hours * 60 + minutes;
 	}
 
+	public void reset() {
+		hours = 0;
+		minutes = 0;
+	}
+
 	/** test the behaviour of this class */
 	public static void test() {
 		TimeSum underTest = new TimeSum();
@@ -141,6 +146,9 @@ public class TimeSum {
 		assertEquals(underTest.toString(), "-1:00");
 		assertEquals(underTest.getAsMinutes(), -60);
 
+		underTest.reset();
+		assertEquals(underTest.hours, 0);
+		assertEquals(underTest.minutes, 0);
 	}
 
 	private static void assertEquals(Object o1, Object o2) {
