@@ -55,7 +55,7 @@ public class FlexiResetTest {
 		checkGetByUnit(Unit.DAY, FlexiReset.DAILY);
 		checkGetByUnit(Unit.WEEK, FlexiReset.WEEKLY);
 		checkGetByUnit(Unit.MONTH, FlexiReset.MONTHLY);
-		checkGetByUnit(Unit.YEAR, FlexiReset.YEARLY);
+//		checkGetByUnit(Unit.YEAR, FlexiReset.YEARLY);
 	}
 
 	private void checkGetByUnit(Unit actualUnit, FlexiReset expectedFlexiReset) {

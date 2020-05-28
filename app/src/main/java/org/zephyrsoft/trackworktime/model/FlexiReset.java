@@ -2,30 +2,28 @@ package org.zephyrsoft.trackworktime.model;
 
 import android.content.SharedPreferences;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import org.acra.util.Predicate;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import hirondelle.date4j.DateTime;
 
 public enum FlexiReset {
-	NONE(Unit.NULL, "none", dateTime -> false),
-	DAILY(Unit.DAY, "daily", dateTime -> true),
-	WEEKLY(Unit.WEEK, "weekly", dateTime -> DateTimeUtil.getWeekStart(dateTime).isSameDayAs(dateTime)),
-	MONTHLY(Unit.MONTH, "monthly", dateTime -> dateTime.getStartOfMonth().isSameDayAs(dateTime)),
-	YEARLY(Unit.YEAR, "yearly", dateTime -> dateTime.getDayOfYear()==1);
+	NONE(1, Unit.NULL, "none"),
+	DAILY(1, Unit.DAY, "daily"),
+	WEEKLY(1, Unit.WEEK, "weekly"),
+	MONTHLY(1, Unit.MONTH, "monthly"),
+	YEARLY(12, Unit.MONTH, "yearly");
 
+	private final int size;
 	private final Unit interval;
 	private final String friendlyName;
-	private final Predicate<DateTime> resetDayEvaluator;
 
-	FlexiReset(@NonNull Unit unit, @NonNull String friendlyName,
-			@NonNull Predicate<DateTime> resetDayEvaluator) {
-		this.interval = unit;
+	FlexiReset(@IntRange(from=1) int size, @NonNull Unit interval, @NonNull String friendlyName) {
+		this.size = size;
+		this.interval = interval;
 		this.friendlyName = friendlyName;
-		this.resetDayEvaluator = resetDayEvaluator;
 	}
 
 	public String getFriendlyName() {
@@ -33,7 +31,32 @@ public enum FlexiReset {
 	}
 
 	public boolean isResetDay(DateTime day) {
-		return resetDayEvaluator.apply(day);
+		switch(interval) {
+			case NULL: return false;
+			case DAY: return isResetDayForDay(day);
+			case WEEK: return isResetDayForWeek(day);
+			case MONTH: return isResetDayMonth(day);
+			default: throw new UnsupportedOperationException(interval.toString());
+		}
+	}
+
+	public boolean isResetDayForDay(DateTime day) {
+		int zeroBasedDayIndex = day.getDayOfYear() - 1;
+		return zeroBasedDayIndex % size == 0;
+	}
+
+	public boolean isResetDayForWeek(DateTime day) {
+		boolean isFirstDay = day.getWeekDay() == 2;
+		int zeroBasedWeekIndex = day.getWeekIndex() - 1;
+		boolean isCorrectWeek = zeroBasedWeekIndex % size == 0;
+		return isFirstDay && isCorrectWeek;
+	}
+
+	public boolean isResetDayMonth(DateTime day) {
+		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
+		int zeroBasedMonthIndex = day.getMonth() - 1;
+		boolean isCorrectMonth = zeroBasedMonthIndex % size == 0;
+		return isFirstDay && isCorrectMonth;
 	}
 
 	public String getIntervalPreferenceValue() {
