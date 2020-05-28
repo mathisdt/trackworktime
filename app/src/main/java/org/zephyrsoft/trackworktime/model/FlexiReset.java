@@ -16,13 +16,14 @@ public enum FlexiReset {
 	MONTHLY(1, Unit.MONTH, "monthly"),
 	YEARLY(12, Unit.MONTH, "yearly");
 
-	private final int size;
-	private final Unit interval;
+	private final int intervalSize;
+	private final Unit intervalUnit;
 	private final String friendlyName;
 
-	FlexiReset(@IntRange(from=1) int size, @NonNull Unit interval, @NonNull String friendlyName) {
-		this.size = size;
-		this.interval = interval;
+	FlexiReset(@IntRange(from=1) int intervalSize, @NonNull Unit intervalUnit,
+			@NonNull String friendlyName) {
+		this.intervalSize = intervalSize;
+		this.intervalUnit = intervalUnit;
 		this.friendlyName = friendlyName;
 	}
 
@@ -31,36 +32,36 @@ public enum FlexiReset {
 	}
 
 	public boolean isResetDay(DateTime day) {
-		switch(interval) {
+		switch(intervalUnit) {
 			case NULL: return false;
 			case DAY: return isResetDayForDay(day);
 			case WEEK: return isResetDayForWeek(day);
 			case MONTH: return isResetDayMonth(day);
-			default: throw new UnsupportedOperationException(interval.toString());
+			default: throw new UnsupportedOperationException(intervalUnit.toString());
 		}
 	}
 
 	public boolean isResetDayForDay(DateTime day) {
 		int zeroBasedDayIndex = day.getDayOfYear() - 1;
-		return zeroBasedDayIndex % size == 0;
+		return zeroBasedDayIndex % intervalSize == 0;
 	}
 
 	public boolean isResetDayForWeek(DateTime day) {
 		boolean isFirstDay = day.getWeekDay() == 2;
 		int zeroBasedWeekIndex = day.getWeekIndex() - 1;
-		boolean isCorrectWeek = zeroBasedWeekIndex % size == 0;
+		boolean isCorrectWeek = zeroBasedWeekIndex % intervalSize == 0;
 		return isFirstDay && isCorrectWeek;
 	}
 
 	public boolean isResetDayMonth(DateTime day) {
 		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
 		int zeroBasedMonthIndex = day.getMonth() - 1;
-		boolean isCorrectMonth = zeroBasedMonthIndex % size == 0;
+		boolean isCorrectMonth = zeroBasedMonthIndex % intervalSize == 0;
 		return isFirstDay && isCorrectMonth;
 	}
 
 	public String getIntervalPreferenceValue() {
-		return interval.getName();
+		return intervalUnit.getName();
 	}
 
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {
@@ -77,7 +78,7 @@ public enum FlexiReset {
 
 	public static FlexiReset getByUnit(@NonNull Unit unit) {
 		for(FlexiReset flexiReset : values()) {
-			if(flexiReset.interval.equals(unit)) {
+			if(flexiReset.intervalUnit.equals(unit)) {
 				return flexiReset;
 			}
 		}
