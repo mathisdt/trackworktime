@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import hirondelle.date4j.DateTime;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 public class FlexiResetTest {
@@ -43,20 +42,6 @@ public class FlexiResetTest {
 		assertWithMessage(flexiReset + ", " + date)
 				.that(actualResetDay)
 				.isEqualTo(expectedResetDay);
-	}
-
-	@Test
-	public void getByUnit() {
-		checkGetByUnit(Unit.NULL, FlexiReset.NONE);
-		checkGetByUnit(Unit.DAY, FlexiReset.DAILY);
-		checkGetByUnit(Unit.WEEK, FlexiReset.WEEKLY);
-		checkGetByUnit(Unit.MONTH, FlexiReset.MONTHLY);
-//		checkGetByUnit(Unit.YEAR, FlexiReset.YEARLY);
-	}
-
-	private void checkGetByUnit(Unit actualUnit, FlexiReset expectedFlexiReset) {
-		FlexiReset actualFlexiReset = FlexiReset.getByUnit(actualUnit);
-		assertThat(actualFlexiReset).isEqualTo(expectedFlexiReset);
 	}
 
 }

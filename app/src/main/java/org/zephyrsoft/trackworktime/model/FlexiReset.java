@@ -69,13 +69,4 @@ public enum FlexiReset {
 		return valueOf(string);
 	}
 
-	public static FlexiReset getByUnit(@NonNull Unit unit) {
-		for(FlexiReset flexiReset : values()) {
-			if(flexiReset.intervalUnit.equals(unit)) {
-				return flexiReset;
-			}
-		}
-		throw new IllegalArgumentException("Not defined for provided interval unit: " + unit);
-	}
-
 }
