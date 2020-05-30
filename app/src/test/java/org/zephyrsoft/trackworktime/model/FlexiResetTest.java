@@ -12,29 +12,21 @@ public class FlexiResetTest {
 	public void isResetDay() {
 		// Date, where day is start of the year, month, week
 		DateTime startOfEverything = DateTime.forDateOnly(2018, 1, 1);
-		// Date, where day is not start of the year, month or week
-		DateTime startOfNothing = DateTime.forDateOnly(2018, 2, 2);
+		DateTime endLoopDate = DateTime.forDateOnly(2019, 1, 1);
 
-		checkIsResetDay(FlexiReset.NONE, startOfEverything, false);
-		checkIsResetDay(FlexiReset.NONE, startOfNothing, false);
+		for(DateTime date = startOfEverything; date.lt(endLoopDate); date=date.plusDays(1)) {
+			int month = date.getMonth();
+			int monthDay = date.getDay();
+			boolean firstDayOfMonth = monthDay==1;
 
-		checkIsResetDay(FlexiReset.DAILY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.DAILY, startOfNothing, true);
-
-		checkIsResetDay(FlexiReset.WEEKLY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.WEEKLY, startOfNothing, false);
-
-		checkIsResetDay(FlexiReset.MONTHLY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.MONTHLY, startOfNothing, false);
-
-		checkIsResetDay(FlexiReset.QUARTERLY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.QUARTERLY, startOfNothing, false);
-
-		checkIsResetDay(FlexiReset.HALF_YEARLY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.HALF_YEARLY, startOfNothing, false);
-
-		checkIsResetDay(FlexiReset.YEARLY, startOfEverything, true);
-		checkIsResetDay(FlexiReset.YEARLY, startOfNothing, false);
+			checkIsResetDay(FlexiReset.NONE, date, false);
+			checkIsResetDay(FlexiReset.DAILY, date, true);
+			checkIsResetDay(FlexiReset.WEEKLY, date, date.getWeekDay()==2);
+			checkIsResetDay(FlexiReset.MONTHLY, date, firstDayOfMonth);
+			checkIsResetDay(FlexiReset.QUARTERLY, date, month%3==1 && firstDayOfMonth);
+			checkIsResetDay(FlexiReset.HALF_YEARLY, date, month%6==1 && firstDayOfMonth);
+			checkIsResetDay(FlexiReset.YEARLY, date, date.getDayOfYear()==1);
+		}
 	}
 
 	private void checkIsResetDay(FlexiReset flexiReset, DateTime date, boolean expectedResetDay) {
