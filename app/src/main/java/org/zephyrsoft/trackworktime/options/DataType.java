@@ -163,6 +163,19 @@ public enum DataType {
 			return validate(value);
 		}
 	},
+	/** String value for enum, as returned by enum#name() */
+	ENUM_NAME {
+		@Override
+		public boolean validate(String value) {
+			return value != null && !value.isEmpty();
+		}
+
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			String value = sharedPreferences.getString(key, "");
+			return validate(value);
+		}
+	},
 	/** Type for {@link org.zephyrsoft.trackworktime.model.Unit} */
 	TIME_UNIT {
 		@Override
