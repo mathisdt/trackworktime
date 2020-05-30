@@ -48,8 +48,4 @@ public enum Unit {
 		return nameToUnitMap.get(name);
 	}
 
-	public static boolean nameExists(String name) {
-		return nameToUnitMap.containsKey(name);
-	}
-
 }
