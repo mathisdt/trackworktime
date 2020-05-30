@@ -62,10 +62,6 @@ public enum FlexiReset {
 		return isFirstDay && isCorrectMonth;
 	}
 
-	public String getIntervalPreferenceValue() {
-		return intervalUnit.getName();
-	}
-
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {
 		String key = Key.FLEXI_TIME_RESET_INTERVAL.getName();
 		String defaultValue = FlexiReset.NONE.name();

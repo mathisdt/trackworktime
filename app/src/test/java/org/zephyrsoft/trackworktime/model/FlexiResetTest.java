@@ -46,16 +46,6 @@ public class FlexiResetTest {
 	}
 
 	@Test
-	public void getIntervalPreferenceValue() {
-		FlexiReset flexiReset = FlexiReset.WEEKLY;
-
-		String actualValue = flexiReset.getIntervalPreferenceValue();
-
-		String expectedValue = Unit.WEEK.getName();
-		assertThat(actualValue).isEqualTo(expectedValue);
-	}
-
-	@Test
 	public void getByUnit() {
 		checkGetByUnit(Unit.NULL, FlexiReset.NONE);
 		checkGetByUnit(Unit.DAY, FlexiReset.DAILY);
