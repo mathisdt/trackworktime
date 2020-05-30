@@ -42,7 +42,7 @@ public class FlexiIntervalPreference extends ListPreference {
 	}
 
 	private void setDefaultSelection() {
-		setDefaultValue(FlexiReset.NONE.getIntervalPreferenceValue());
+		setDefaultValue(FlexiReset.NONE.name());
 	}
 
 	private void setEntries() {
@@ -51,7 +51,7 @@ public class FlexiIntervalPreference extends ListPreference {
 		for(FlexiReset flexiReset : FlexiReset.values()) {
 			String name = flexiReset.getFriendlyName();
 			names.add(name);
-			String value = flexiReset.getIntervalPreferenceValue();
+			String value = flexiReset.name();
 			values.add(value);
 		}
 		setEntryValues(values.toArray(new String[0]));

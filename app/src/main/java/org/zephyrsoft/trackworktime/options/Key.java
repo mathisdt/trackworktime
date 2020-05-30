@@ -39,7 +39,7 @@ public enum Key {
 	FLEXI_TIME_DAY_FRIDAY("keyFlexiTimeDayFriday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.fridayLong),
 	FLEXI_TIME_DAY_SATURDAY("keyFlexiTimeDaySaturday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.saturdayLong),
 	FLEXI_TIME_DAY_SUNDAY("keyFlexiTimeDaySunday", DataType.BOOLEAN, ENABLE_FLEXI_TIME, R.string.sundayLong),
-	FLEXI_TIME_RESET_INTERVAL("keyFlexiTimeResetInterval", DataType.TIME_UNIT,
+	FLEXI_TIME_RESET_INTERVAL("keyFlexiTimeResetInterval", DataType.ENUM_NAME,
 			ENABLE_FLEXI_TIME, R.string.flexiTimeResetInterval),
 
 	FLATTENING_ENABLED("keyFlatteningEnabled", DataType.BOOLEAN, null, R.string.flatteningEnabled),

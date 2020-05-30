@@ -67,15 +67,10 @@ public enum FlexiReset {
 	}
 
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {
-		Unit unit = loadUnitFromPreferences(preferences);
-		return FlexiReset.getByUnit(unit);
-	}
-
-	private static Unit loadUnitFromPreferences(SharedPreferences preferences) {
 		String key = Key.FLEXI_TIME_RESET_INTERVAL.getName();
-		String defaultValue = FlexiReset.NONE.getIntervalPreferenceValue();
+		String defaultValue = FlexiReset.NONE.name();
 		String string = preferences.getString(key, defaultValue);
-		return Unit.getByName(string);
+		return valueOf(string);
 	}
 
 	public static FlexiReset getByUnit(@NonNull Unit unit) {
