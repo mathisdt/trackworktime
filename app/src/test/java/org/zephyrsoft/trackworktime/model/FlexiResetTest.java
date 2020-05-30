@@ -31,6 +31,9 @@ public class FlexiResetTest {
 		checkIsResetDay(FlexiReset.QUARTERLY, startOfEverything, true);
 		checkIsResetDay(FlexiReset.QUARTERLY, startOfNothing, false);
 
+		checkIsResetDay(FlexiReset.HALF_YEARLY, startOfEverything, true);
+		checkIsResetDay(FlexiReset.HALF_YEARLY, startOfNothing, false);
+
 		checkIsResetDay(FlexiReset.YEARLY, startOfEverything, true);
 		checkIsResetDay(FlexiReset.YEARLY, startOfNothing, false);
 	}
