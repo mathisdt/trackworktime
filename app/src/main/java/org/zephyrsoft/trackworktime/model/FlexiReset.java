@@ -14,6 +14,7 @@ public enum FlexiReset {
 	DAILY(1, Unit.DAY, "daily"),
 	WEEKLY(1, Unit.WEEK, "weekly"),
 	MONTHLY(1, Unit.MONTH, "monthly"),
+	QUARTERLY(3, Unit.MONTH, "quarterly"),
 	YEARLY(12, Unit.MONTH, "yearly");
 
 	private final int intervalSize;
