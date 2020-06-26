@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    def acraVersion = "5.2.1"
+    def acraVersion = "5.6.1"
 
     implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
