@@ -2,6 +2,8 @@ package org.zephyrsoft.trackworktime.model;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class TimeSumTest {
 
 	@Test
@@ -47,12 +49,6 @@ public class TimeSumTest {
 
 		underTest.reset();
 		assertEquals(underTest.getAsMinutes(), 0);
-	}
-
-	private static void assertEquals(Object o1, Object o2) {
-		if(o1 == null || !o1.equals(o2)) {
-			throw new AssertionError("no match: " + o1 + " vs. " + o2);
-		}
 	}
 
 }
