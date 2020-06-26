@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
+  - package-ecosystem: "gradle"
+    directory: "/app"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "direct"
