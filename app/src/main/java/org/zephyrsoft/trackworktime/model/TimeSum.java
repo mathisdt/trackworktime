@@ -147,8 +147,7 @@ public class TimeSum {
 		assertEquals(underTest.getAsMinutes(), -60);
 
 		underTest.reset();
-		assertEquals(underTest.hours, 0);
-		assertEquals(underTest.minutes, 0);
+		assertEquals(underTest.getAsMinutes(), 0);
 	}
 
 	private static void assertEquals(Object o1, Object o2) {
