@@ -11,6 +11,7 @@ import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.DayLine;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.FlexiReset;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Week;
@@ -37,6 +38,8 @@ public class WeekStateCalculator {
 	private final Week week;
 	private final DateTime monday, tuesday, wednesday, thursday, friday, saturday, sunday;
 
+	private FlexiReset flexiReset;
+
 	public WeekStateCalculator(@NonNull Context context, @NonNull DAO dao,
 			@NonNull TimerManager timerManager, @NonNull TimeCalculator timeCalculator,
 			@NonNull SharedPreferences preferences, @NonNull Week week) {
@@ -57,9 +60,14 @@ public class WeekStateCalculator {
 	}
 
 	public @NonNull WeekState calculateWeekState() {
+		initFlexiReset();
 		WeekState weekState = new WeekState();
 		loadWeek(weekState);
 		return weekState;
+	}
+
+	private void initFlexiReset() {
+		flexiReset = FlexiReset.loadFromPreferences(preferences);
 	}
 
 	private void loadWeek(WeekState weekState) {
@@ -124,30 +132,37 @@ public class WeekStateCalculator {
 		boolean showFlexiTimes = hasRealData || earlierEventsExist;
 
 		List<Event> events = fetchEventsForDay(monday);
+		resetFlexiIfNecessary(monday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(monday, events, flexiBalance, weekState.monday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(tuesday);
+		resetFlexiIfNecessary(tuesday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(tuesday, events, flexiBalance, weekState.tuesday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(wednesday);
+		resetFlexiIfNecessary(wednesday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(wednesday, events, flexiBalance, weekState.wednesday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(thursday);
+		resetFlexiIfNecessary(thursday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(thursday, events, flexiBalance, weekState.thursday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(friday);
+		resetFlexiIfNecessary(friday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(friday, events, flexiBalance, weekState.friday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(saturday);
+		resetFlexiIfNecessary(saturday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(saturday, events, flexiBalance, weekState.saturday,
 				showFlexiTimes);
 
 		events = fetchEventsForDay(sunday);
+		resetFlexiIfNecessary(sunday, flexiBalance);
 		flexiBalance = setTimesForSingleDay(sunday, events, flexiBalance, weekState.sunday,
 				showFlexiTimes);
 
@@ -155,6 +170,15 @@ public class WeekStateCalculator {
 		TimeSum amountWorked = timerManager.calculateTimeSum(weekStart, PeriodEnum.WEEK);
 		boolean showFlexi = showFlexiTimes && DateTimeUtil.isInPast(monday.getStartOfDay());
 		setSummaryLine(weekState.totals, amountWorked, flexiBalance, showFlexi);
+	}
+
+	private void resetFlexiIfNecessary(DateTime dayDate, TimeSum timeSum) {
+		if(timeSum == null) {
+			return;
+		}
+		if(flexiReset.isResetDay(dayDate)) {
+			timeSum.reset();
+		}
 	}
 
 	private List<Event> fetchEventsForDay(DateTime day) {

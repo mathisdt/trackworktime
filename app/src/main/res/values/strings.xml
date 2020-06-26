@@ -95,6 +95,9 @@
     <string name="ignoreBeforeAfterDescription">in minutes, e.g. 10</string>
     <string name="flexiTimeTarget">Flexi Time Target</string>
     <string name="flexiTimeTargetDescription">in hours:minutes per week, e.g. 38:30</string>
+    <string name="flexiTimeResetInterval">Flexi Time Reset Interval</string>
+    <string name="flexiTimeResetIntervalDescription">Automatic flexi reset, at start of selected
+            interval</string>
     <string name="locationBasedTrackingVibrate">Vibrate on Events</string>
     <string name="autoPause">Automatic Pause</string>
     <string name="autoPauseEnabled">Enable Automatic Pause</string>

@@ -6,6 +6,7 @@
     <string name="keyFlexiTimeToZeroOnEveryDay">keyFlexiTimeToZeroOnEveryDay</string>
     <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
     <string name="keyFlexiTimeTarget">keyFlexiTimeTarget</string>
+    <string name="keyFlexiTimeResetInterval">keyFlexiTimeResetInterval</string>
     <string name="keyFlexiTimeDayMonday">keyFlexiTimeDayMonday</string>
     <string name="keyFlexiTimeDayTuesday">keyFlexiTimeDayTuesday</string>
     <string name="keyFlexiTimeDayWednesday">keyFlexiTimeDayWednesday</string>
