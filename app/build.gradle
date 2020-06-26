@@ -50,7 +50,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
-    implementation 'androidx.work:work-runtime:2.3.3'
+    implementation 'androidx.work:work-runtime:2.3.4'
     implementation 'com.github.aolivafaura:recyclerview-multiselect:326a7e6ea3'
     implementation "ch.acra:acra-http:$acraVersion"
     implementation "ch.acra:acra-dialog:$acraVersion"
