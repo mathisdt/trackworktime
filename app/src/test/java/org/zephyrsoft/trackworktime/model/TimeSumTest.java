@@ -28,59 +28,83 @@ public class TimeSumTest {
 
 	@Test
 	public void add() {
-		underTest.add(0, 75);
-		assertEquals(underTest.toString(), "1:15");
+		add(0, 75);
+		assertTime("1:15");
 
-		underTest.add(2, 65);
-		assertEquals(underTest.toString(), "4:20");
+		add(2, 65);
+		assertTime("4:20");
+	}
+
+	private void add(int h, int min) {
+		underTest.add(h, min);
 	}
 
 	@Test
 	public void substract() {
-		underTest.set(4, 20);
+		set(4, 20);
 
-		underTest.substract(0, 140);
-		assertEquals(underTest.toString(), "2:00");
+		subtract(0, 140);
+		assertTime("2:00");
 
-		underTest.substract(1, 75);
-		assertEquals(underTest.toString(), "-0:15");
+		subtract(1, 75);
+		assertTime("-0:15");
 
-		underTest.substract(1, 50);
-		assertEquals(underTest.toString(), "-2:05");
+		subtract(1, 50);
+		assertTime("-2:05");
+	}
+
+	private void subtract(int h, int min) {
+		underTest.substract(h, min);
 	}
 
 	@Test
 	public void addOrSustract() {
-		underTest.set(-2, 5);
+		set(-2, 5);
 
 		TimeSum positive = new TimeSum();
 		positive.set(2, 30);
-		underTest.addOrSubstract(positive);
-		assertEquals(underTest.toString(), "0:25");
+		addOrSubtract(positive);
+		assertTime("0:25");
 
 		TimeSum negative = new TimeSum();
 		negative.set(-1, 25);
-		underTest.addOrSubstract(negative);
-		assertEquals(underTest.toString(), "-1:00");
+		addOrSubtract(negative);
+		assertTime("-1:00");
+	}
+
+	private void addOrSubtract(TimeSum other) {
+		underTest.addOrSubstract(other);
 	}
 
 	@Test
 	public void reset() {
-		underTest.set(-1, 0);
+		set(-1, 0);
 
 		underTest.reset();
-		assertEquals(underTest.toString(), "0:00");
+		assertTime("0:00");
+	}
+
+	private void assertTime(String expectedTime) {
+		assertEquals(underTest.toString(), expectedTime);
 	}
 
 	@Test
 	public void getAsMinutes() {
-		assertEquals(underTest.getAsMinutes(), 0);
+		assertEquals(getAsMin(), 0);
 
-		underTest.set(1, 30);
-		assertEquals(underTest.getAsMinutes(), 90);
+		set(1, 30);
+		assertEquals(getAsMin(), 90);
 
-		underTest.set(-1, 30);
-		assertEquals(underTest.getAsMinutes(), -90);
+		set(-1, 30);
+		assertEquals(getAsMin(), -90);
+	}
+
+	private int getAsMin() {
+		return underTest.getAsMinutes();
+	}
+
+	private void set(int h, int min) {
+		underTest.set(h, min);
 	}
 
 }
