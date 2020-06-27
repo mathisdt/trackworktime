@@ -1,5 +1,6 @@
 package org.zephyrsoft.trackworktime.model;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -7,6 +8,17 @@ import static org.junit.Assert.assertEquals;
 public class TimeSumTest {
 
 	private TimeSum underTest = new TimeSum();
+
+	@BeforeClass
+	public static void set() {
+		TimeSum timeSum = new TimeSum();
+
+		timeSum.set(0, 45);
+		assertEquals(timeSum.toString(), "0:45");
+
+		timeSum.set(-1, 45);
+		assertEquals(timeSum.toString(), "-1:45");
+	}
 
 	@Test
 	public void add() {
