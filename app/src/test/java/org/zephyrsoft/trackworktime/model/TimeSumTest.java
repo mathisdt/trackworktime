@@ -10,6 +10,12 @@ public class TimeSumTest {
 	private TimeSum underTest = new TimeSum();
 
 	@BeforeClass
+	public static void defaultState() {
+		TimeSum timeSum = new TimeSum();
+		assertEquals("Initial time sum", timeSum.toString(), "0:00");
+	}
+
+	@BeforeClass
 	public static void set() {
 		TimeSum timeSum = new TimeSum();
 
