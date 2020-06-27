@@ -10,14 +10,7 @@ public class TimeSumTest {
 
 	@Test
 	public void test() {
-		underTest.add(0, 75);
-		assertEquals(underTest.toString(), "1:15");
-		assertEquals(underTest.getAsMinutes(), 75);
-
-		underTest.add(2, 65);
-		assertEquals(underTest.toString(), "4:20");
-		assertEquals(underTest.getAsMinutes(), 260);
-
+		underTest.set(4, 20);
 		underTest.substract(0, 140);
 		assertEquals(underTest.toString(), "2:00");
 		assertEquals(underTest.getAsMinutes(), 120);
@@ -50,6 +43,17 @@ public class TimeSumTest {
 
 		underTest.reset();
 		assertEquals(underTest.getAsMinutes(), 0);
+	}
+
+	@Test
+	public void add() {
+		underTest.add(0, 75);
+		assertEquals(underTest.toString(), "1:15");
+		assertEquals(underTest.getAsMinutes(), 75);
+
+		underTest.add(2, 65);
+		assertEquals(underTest.toString(), "4:20");
+		assertEquals(underTest.getAsMinutes(), 260);
 	}
 
 }
