@@ -10,24 +10,7 @@ public class TimeSumTest {
 
 	@Test
 	public void test() {
-		TimeSum positive = new TimeSum();
-		positive.add(2, 30);
-		assertEquals(positive.toString(), "2:30");
-		assertEquals(positive.getAsMinutes(), 150);
-
-		underTest.set(-2, 5);
-		underTest.addOrSubstract(positive);
-		assertEquals(underTest.toString(), "0:25");
-		assertEquals(underTest.getAsMinutes(), 25);
-
-		TimeSum negative = new TimeSum();
-		negative.substract(0, 85);
-		assertEquals(negative.toString(), "-1:25");
-		assertEquals(negative.getAsMinutes(), -85);
-
-		underTest.addOrSubstract(negative);
-		assertEquals(underTest.toString(), "-1:00");
-		assertEquals(underTest.getAsMinutes(), -60);
+		underTest.set(-1, 0);
 
 		underTest.reset();
 		assertEquals(underTest.getAsMinutes(), 0);
@@ -59,6 +42,27 @@ public class TimeSumTest {
 		underTest.substract(1, 50);
 		assertEquals(underTest.toString(), "-2:05");
 		assertEquals(underTest.getAsMinutes(), -125);
+	}
+
+	@Test
+	public void addOrSustract() {
+		underTest.set(-2, 5);
+
+		TimeSum positive = new TimeSum();
+		positive.add(2, 30);
+		assertEquals(positive.toString(), "2:30");
+		assertEquals(positive.getAsMinutes(), 150);
+		underTest.addOrSubstract(positive);
+		assertEquals(underTest.toString(), "0:25");
+		assertEquals(underTest.getAsMinutes(), 25);
+
+		TimeSum negative = new TimeSum();
+		negative.substract(0, 85);
+		assertEquals(negative.toString(), "-1:25");
+		assertEquals(negative.getAsMinutes(), -85);
+		underTest.addOrSubstract(negative);
+		assertEquals(underTest.toString(), "-1:00");
+		assertEquals(underTest.getAsMinutes(), -60);
 	}
 
 }
