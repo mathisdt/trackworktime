@@ -31,6 +31,23 @@ public class TimeSum {
 	private int minutes = 0;
 
 	/**
+	 * Set time to specific values
+	 * @param hours positive or negative
+	 * @param minutes only positive. Does not spillover to hours.
+	 */
+	public void set(int hours, int minutes) {
+		if(minutes < 0 || minutes > 59) {
+			throw new IllegalArgumentException("Minutes out of range: " + minutes);
+		}
+		if(hours < 0 && minutes > 0) {
+			minutes = 60 - minutes;
+			hours -= 1;
+		}
+		this.hours = hours;
+		this.minutes = minutes;
+	}
+
+	/**
 	 * Add some hours and minutes. The minutes value doesn't have to be < 60, but both values have to be >= 0.
 	 */
 	public void add(int hoursToAdd, int minutesToAdd) {
