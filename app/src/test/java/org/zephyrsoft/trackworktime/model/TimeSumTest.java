@@ -9,14 +9,6 @@ public class TimeSumTest {
 	private TimeSum underTest = new TimeSum();
 
 	@Test
-	public void test() {
-		underTest.set(-1, 0);
-
-		underTest.reset();
-		assertEquals(underTest.getAsMinutes(), 0);
-	}
-
-	@Test
 	public void add() {
 		underTest.add(0, 75);
 		assertEquals(underTest.toString(), "1:15");
@@ -63,6 +55,14 @@ public class TimeSumTest {
 		underTest.addOrSubstract(negative);
 		assertEquals(underTest.toString(), "-1:00");
 		assertEquals(underTest.getAsMinutes(), -60);
+	}
+
+	@Test
+	public void reset() {
+		underTest.set(-1, 0);
+
+		underTest.reset();
+		assertEquals(underTest.getAsMinutes(), 0);
 	}
 
 }
