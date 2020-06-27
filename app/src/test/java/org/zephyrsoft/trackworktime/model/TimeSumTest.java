@@ -59,7 +59,7 @@ public class TimeSumTest {
 		underTest.set(-2, 5);
 
 		TimeSum positive = new TimeSum();
-		positive.add(2, 30);
+		positive.set(2, 30);
 		assertEquals(positive.toString(), "2:30");
 		assertEquals(positive.getAsMinutes(), 150);
 		underTest.addOrSubstract(positive);
@@ -67,7 +67,7 @@ public class TimeSumTest {
 		assertEquals(underTest.getAsMinutes(), 25);
 
 		TimeSum negative = new TimeSum();
-		negative.substract(0, 85);
+		negative.set(-1, 25);
 		assertEquals(negative.toString(), "-1:25");
 		assertEquals(negative.getAsMinutes(), -85);
 		underTest.addOrSubstract(negative);
