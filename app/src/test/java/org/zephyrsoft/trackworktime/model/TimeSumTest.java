@@ -6,9 +6,10 @@ import static org.junit.Assert.assertEquals;
 
 public class TimeSumTest {
 
+	private TimeSum underTest = new TimeSum();
+
 	@Test
 	public void test() {
-		TimeSum underTest = new TimeSum();
 		underTest.add(0, 75);
 		assertEquals(underTest.toString(), "1:15");
 		assertEquals(underTest.getAsMinutes(), 75);
