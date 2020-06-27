@@ -83,4 +83,15 @@ public class TimeSumTest {
 		assertEquals(underTest.getAsMinutes(), 0);
 	}
 
+	@Test
+	public void getAsMinutes() {
+		assertEquals(underTest.getAsMinutes(), 0);
+
+		underTest.set(1, 30);
+		assertEquals(underTest.getAsMinutes(), 90);
+
+		underTest.set(-1, 30);
+		assertEquals(underTest.getAsMinutes(), -90);
+	}
+
 }
