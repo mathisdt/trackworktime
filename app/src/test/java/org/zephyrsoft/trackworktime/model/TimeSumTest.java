@@ -55,13 +55,11 @@ public class TimeSumTest {
 
 		TimeSum positive = new TimeSum();
 		positive.set(2, 30);
-		assertEquals(positive.toString(), "2:30");
 		underTest.addOrSubstract(positive);
 		assertEquals(underTest.toString(), "0:25");
 
 		TimeSum negative = new TimeSum();
 		negative.set(-1, 25);
-		assertEquals(negative.toString(), "-1:25");
 		underTest.addOrSubstract(negative);
 		assertEquals(underTest.toString(), "-1:00");
 	}
