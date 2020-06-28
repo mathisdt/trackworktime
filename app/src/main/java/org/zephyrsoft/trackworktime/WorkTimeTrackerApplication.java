@@ -105,8 +105,6 @@ public class WorkTimeTrackerApplication extends Application {
 			.build();
 		WorkManager.getInstance(getApplicationContext()).enqueue(automaticBackup);
 
-		Logger.info("running self-tests");
-
 		Logger.info("handing off to super");
 		super.onCreate();
 	}
