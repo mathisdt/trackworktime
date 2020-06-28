@@ -29,7 +29,6 @@ import org.acra.data.StringFormat;
 import org.acra.file.Directory;
 import org.acra.sender.HttpSender;
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -109,7 +108,6 @@ public class WorkTimeTrackerApplication extends Application {
 		WorkManager.getInstance(getApplicationContext()).enqueue(automaticBackup);
 
 		Logger.info("running self-tests");
-		TimeSum.test();
 		DataType.test();
 		DateTimeUtil.test();
 
