@@ -4,22 +4,15 @@ import org.junit.Test;
 
 import hirondelle.date4j.DateTime;
 
+import static com.google.common.truth.Truth.assertThat;
+
 public class DateTimeUtilTest {
 
 	@Test
-	public static void parseTimeForToday() {
-		boolean valid = false;
-		try {
-			DateTime toTest = DateTimeUtil.parseTimeForToday("");
-			valid = toTest != null
-					&& toTest.getHour() == 0
-					&& toTest.getMinute() == 0;
-		} catch (Exception e) {
-			throw new AssertionError(": " + e.getMessage());
-		}
-		if (!valid) {
-			throw new AssertionError("parseTimeForToday");
-		}
+	public void parseTimeForToday() {
+		DateTime toTest = DateTimeUtil.parseTimeForToday("");
+		assertThat(toTest.getHour()).isEqualTo(0);
+		assertThat(toTest.getMinute()).isEqualTo(0);
 	}
 
 }
