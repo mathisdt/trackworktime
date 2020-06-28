@@ -31,7 +31,6 @@ import org.acra.sender.HttpSender;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -109,7 +108,6 @@ public class WorkTimeTrackerApplication extends Application {
 
 		Logger.info("running self-tests");
 		DataType.test();
-		DateTimeUtil.test();
 
 		Logger.info("handing off to super");
 		super.onCreate();
