@@ -186,14 +186,4 @@ public enum DataType {
 	 */
 	public abstract boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key);
 
-	/** Run some internal self-tests. */
-	public static void test() {
-		boolean valid = HOUR_MINUTE.validate("-1:55");
-		valid &= HOUR_MINUTE.validate("1:00");
-		valid &= HOUR_MINUTE.validate("1:29");
-		valid &= HOUR_MINUTE.validate("37:30");
-		if (!valid) {
-			throw new AssertionError("HOUR_MINUTE");
-		}
-	}
 }
