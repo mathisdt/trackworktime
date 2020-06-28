@@ -29,9 +29,7 @@ import org.acra.data.StringFormat;
 import org.acra.file.Directory;
 import org.acra.sender.HttpSender;
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.options.DataType;
 import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -106,10 +104,6 @@ public class WorkTimeTrackerApplication extends Application {
 		PeriodicWorkRequest automaticBackup = new PeriodicWorkRequest.Builder(AutomaticBackup.class, 1, TimeUnit.DAYS, 6, TimeUnit.HOURS)
 			.build();
 		WorkManager.getInstance(getApplicationContext()).enqueue(automaticBackup);
-
-		Logger.info("running self-tests");
-		DataType.test();
-		DateTimeUtil.test();
 
 		Logger.info("handing off to super");
 		super.onCreate();

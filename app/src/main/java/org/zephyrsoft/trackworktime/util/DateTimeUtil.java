@@ -245,18 +245,4 @@ public class DateTimeUtil {
 		return fromDate.plusDays(plusDays);
 	}
 
-	public static void test() {
-		boolean valid = false;
-		try {
-			DateTime toTest = parseTimeForToday("");
-			valid = toTest != null
-				&& toTest.getHour() == 0
-				&& toTest.getMinute() == 0;
-		} catch (Exception e) {
-			throw new AssertionError(": " + e.getMessage());
-		}
-		if (!valid) {
-			throw new AssertionError("parseTimeForToday");
-		}
-	}
 }
