@@ -12,7 +12,7 @@ public class TimeSumTest {
 	@BeforeClass
 	public static void defaultState() {
 		TimeSum timeSum = new TimeSum();
-		assertEquals("Initial time sum", timeSum.toString(), "0:00");
+		assertEquals("Initial time sum", "0:00", timeSum.toString());
 	}
 
 	@BeforeClass
@@ -20,10 +20,10 @@ public class TimeSumTest {
 		TimeSum timeSum = new TimeSum();
 
 		timeSum.set(0, 45);
-		assertEquals(timeSum.toString(), "0:45");
+		assertEquals("0:45", timeSum.toString());
 
 		timeSum.set(-1, 45);
-		assertEquals(timeSum.toString(), "-1:45");
+		assertEquals("-1:45", timeSum.toString());
 	}
 
 	@Test
@@ -85,18 +85,18 @@ public class TimeSumTest {
 	}
 
 	private void assertTime(String expectedTime) {
-		assertEquals(underTest.toString(), expectedTime);
+		assertEquals(expectedTime, underTest.toString());
 	}
 
 	@Test
 	public void getAsMinutes() {
-		assertEquals(getAsMin(), 0);
+		assertEquals(0, getAsMin());
 
 		set(1, 30);
-		assertEquals(getAsMin(), 90);
+		assertEquals(90, getAsMin());
 
 		set(-1, 30);
-		assertEquals(getAsMin(), -90);
+		assertEquals(-90, getAsMin());
 	}
 
 	private int getAsMin() {
