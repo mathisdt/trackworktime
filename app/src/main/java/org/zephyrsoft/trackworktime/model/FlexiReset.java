@@ -44,22 +44,34 @@ public enum FlexiReset {
 	}
 
 	private boolean isResetDayForDay(DateTime day) {
-		int zeroBasedDayIndex = day.getDayOfYear() - 1;
-		return zeroBasedDayIndex % intervalSize == 0;
+		return getCountSinceLastResetDay(day) == 0;
 	}
 
 	private boolean isResetDayForWeek(DateTime day) {
 		boolean isFirstDay = day.getWeekDay() == 2;
-		int zeroBasedWeekIndex = day.getWeekIndex() - 1;
-		boolean isCorrectWeek = zeroBasedWeekIndex % intervalSize == 0;
+		boolean isCorrectWeek = getCountSinceLastResetWeek(day) == 0;
 		return isFirstDay && isCorrectWeek;
 	}
 
 	private boolean isResetDayForMonth(DateTime day) {
 		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
-		int zeroBasedMonthIndex = day.getMonth() - 1;
-		boolean isCorrectMonth = zeroBasedMonthIndex % intervalSize == 0;
+		boolean isCorrectMonth = getCountSinceLastResetMonth(day) == 0;
 		return isFirstDay && isCorrectMonth;
+	}
+
+	private int getCountSinceLastResetDay(DateTime atDay) {
+		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
+		return zeroBasedDayIndex % intervalSize;
+	}
+
+	private int getCountSinceLastResetWeek(DateTime atDay) {
+		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
+		return zeroBasedDayIndex % intervalSize;
+	}
+
+	private int getCountSinceLastResetMonth(DateTime atDay) {
+		int zeroBasedMonthIndex = atDay.getMonth() - 1;
+		return zeroBasedMonthIndex % intervalSize;
 	}
 
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {
