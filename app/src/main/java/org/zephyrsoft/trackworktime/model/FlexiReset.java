@@ -43,19 +43,19 @@ public enum FlexiReset {
 		}
 	}
 
-	public boolean isResetDayForDay(DateTime day) {
+	private boolean isResetDayForDay(DateTime day) {
 		int zeroBasedDayIndex = day.getDayOfYear() - 1;
 		return zeroBasedDayIndex % intervalSize == 0;
 	}
 
-	public boolean isResetDayForWeek(DateTime day) {
+	private boolean isResetDayForWeek(DateTime day) {
 		boolean isFirstDay = day.getWeekDay() == 2;
 		int zeroBasedWeekIndex = day.getWeekIndex() - 1;
 		boolean isCorrectWeek = zeroBasedWeekIndex % intervalSize == 0;
 		return isFirstDay && isCorrectWeek;
 	}
 
-	public boolean isResetDayMonth(DateTime day) {
+	private boolean isResetDayMonth(DateTime day) {
 		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
 		int zeroBasedMonthIndex = day.getMonth() - 1;
 		boolean isCorrectMonth = zeroBasedMonthIndex % intervalSize == 0;
