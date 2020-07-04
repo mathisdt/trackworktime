@@ -38,7 +38,7 @@ public enum FlexiReset {
 			case NULL: return false;
 			case DAY: return isResetDayForDay(day);
 			case WEEK: return isResetDayForWeek(day);
-			case MONTH: return isResetDayMonth(day);
+			case MONTH: return isResetDayForMonth(day);
 			default: throw new UnsupportedOperationException(intervalUnit.toString());
 		}
 	}
@@ -55,7 +55,7 @@ public enum FlexiReset {
 		return isFirstDay && isCorrectWeek;
 	}
 
-	private boolean isResetDayMonth(DateTime day) {
+	private boolean isResetDayForMonth(DateTime day) {
 		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
 		int zeroBasedMonthIndex = day.getMonth() - 1;
 		boolean isCorrectMonth = zeroBasedMonthIndex % intervalSize == 0;
