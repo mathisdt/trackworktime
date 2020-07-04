@@ -22,6 +22,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
+
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -329,6 +331,17 @@ public class DAO {
 	public List<Week> getWeeksUpTo(String date) {
 		List<Week> weeks = getWeeksWithConstraint(WEEK_START + "<=\"" + date + "\"");
 		return weeks;
+	}
+
+	public @NonNull List<Week> getWeeksBetween(@NonNull String fromDate, @NonNull String toDate) {
+		if(fromDate.isEmpty()) {
+			throw new IllegalArgumentException("Invalid from date " + fromDate);
+		}
+		if(toDate.isEmpty()) {
+			throw new IllegalArgumentException("Invalid to date " + toDate);
+		}
+		String constraint = WEEK_START + " between \"" + fromDate + "\" and \"" + toDate + "\"";
+		return getWeeksWithConstraint(constraint);
 	}
 
 	/**
