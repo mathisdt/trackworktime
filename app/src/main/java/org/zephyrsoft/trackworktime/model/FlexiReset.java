@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import hirondelle.date4j.DateTime;
 
@@ -34,32 +36,57 @@ public enum FlexiReset {
 	}
 
 	public boolean isResetDay(DateTime day) {
+		DateTime resetDay;
 		switch(intervalUnit) {
 			case NULL: return false;
-			case DAY: return isResetDayForDay(day);
-			case WEEK: return isResetDayForWeek(day);
-			case MONTH: return isResetDayMonth(day);
+			case DAY: resetDay = calcLastResetDayForDay(day); break;
+			case WEEK: resetDay = calcLastResetDayForWeek(day); break;
+			case MONTH: resetDay = calcLastResetDayForMonth(day); break;
+			default: throw new UnsupportedOperationException(intervalUnit.toString());
+		}
+		return resetDay.isSameDayAs(day);
+	}
+
+	public @NonNull DateTime calcLastResetDayFromDay(@NonNull DateTime fromDay) {
+		switch(intervalUnit) {
+			case NULL: return Constants.EPOCH;
+			case DAY: return calcLastResetDayForDay(fromDay);
+			case WEEK: return calcLastResetDayForWeek(fromDay);
+			case MONTH: return calcLastResetDayForMonth(fromDay);
 			default: throw new UnsupportedOperationException(intervalUnit.toString());
 		}
 	}
 
-	public boolean isResetDayForDay(DateTime day) {
-		int zeroBasedDayIndex = day.getDayOfYear() - 1;
-		return zeroBasedDayIndex % intervalSize == 0;
+	private DateTime calcLastResetDayForDay(DateTime fromDay) {
+		int daysDelta = getCountSinceLastResetDay(fromDay);
+		return fromDay.minusDays(daysDelta).getStartOfDay();
 	}
 
-	public boolean isResetDayForWeek(DateTime day) {
-		boolean isFirstDay = day.getWeekDay() == 2;
-		int zeroBasedWeekIndex = day.getWeekIndex() - 1;
-		boolean isCorrectWeek = zeroBasedWeekIndex % intervalSize == 0;
-		return isFirstDay && isCorrectWeek;
+	private int getCountSinceLastResetDay(DateTime atDay) {
+		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
+		return zeroBasedDayIndex % intervalSize;
 	}
 
-	public boolean isResetDayMonth(DateTime day) {
-		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
-		int zeroBasedMonthIndex = day.getMonth() - 1;
-		boolean isCorrectMonth = zeroBasedMonthIndex % intervalSize == 0;
-		return isFirstDay && isCorrectMonth;
+	private DateTime calcLastResetDayForWeek(DateTime fromDay) {
+		int weekDelta = getCountSinceLastResetWeek(fromDay);
+		DateTime resetWeek = fromDay.minusDays(weekDelta * 7);
+		return DateTimeUtil.getWeekStart(resetWeek);
+	}
+
+	private int getCountSinceLastResetWeek(DateTime atDay) {
+		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
+		return zeroBasedDayIndex % intervalSize;
+	}
+
+	private DateTime calcLastResetDayForMonth(DateTime fromDay) {
+		int monthDelta = getCountSinceLastResetMonth(fromDay);
+		DateTime resetMonth = DateTimeUtil.minusMonths(fromDay, monthDelta);
+		return resetMonth.getStartOfMonth();
+	}
+
+	private int getCountSinceLastResetMonth(DateTime atDay) {
+		int zeroBasedMonthIndex = atDay.getMonth() - 1;
+		return zeroBasedMonthIndex % intervalSize;
 	}
 
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {

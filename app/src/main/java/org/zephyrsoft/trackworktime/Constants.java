@@ -16,6 +16,10 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import java.util.TimeZone;
+
+import hirondelle.date4j.DateTime;
+
 /**
  * Constants for the app.
  * 
@@ -77,4 +81,7 @@ public class Constants {
 	public static final String INTENT_EXTRA_TASK = "task";
 	/** the key for the new event's text (used for third-party events) */
 	public static final String INTENT_EXTRA_TEXT = "text";
+
+	public static final DateTime EPOCH = DateTime.forInstant(0, TimeZone.getTimeZone("UTC"));
+
 }

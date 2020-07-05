@@ -21,6 +21,7 @@ import org.zephyrsoft.trackworktime.model.WeekDayEnum;
 import java.util.TimeZone;
 
 import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Utility class for handling {@link DateTime} objects and converting them.
@@ -243,6 +244,13 @@ public class DateTimeUtil {
 	public static DateTime plusWeeks(DateTime fromDate, int weekCount) {
 		int plusDays = weekCount * 7;
 		return fromDate.plusDays(plusDays);
+	}
+
+	/**
+	 * Subtract number of months from provided date
+	 */
+	public static DateTime minusMonths(DateTime fromDate, int monthCount) {
+		return fromDate.minus(0, monthCount, 0, 0, 0, 0, 0, DayOverflow.LastDay);
 	}
 
 }
