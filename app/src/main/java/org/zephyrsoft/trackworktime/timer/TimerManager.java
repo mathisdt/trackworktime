@@ -27,6 +27,7 @@ import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.TrackingMethod;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.FlexiReset;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
@@ -435,8 +436,11 @@ public class TimerManager {
 		TimeSum targetWorkTime = parseHoursMinutesString(targetWorkTimeString);
 		ret.addOrSubstract(startValue);
 
+		FlexiReset flexiReset = FlexiReset.loadFromPreferences(preferences);
+		DateTime from = flexiReset.calcLastResetDayFromDay(weekStart);
 		DateTime upTo = weekStart.minusDays(1);
-		List<Week> weeksToCount = dao.getWeeksUpTo(DateTimeUtil.dateTimeToString(upTo));
+		List<Week> weeksToCount = dao.getWeeksBetween(
+				DateTimeUtil.dateTimeToString(from), DateTimeUtil.dateTimeToString(upTo));
 
 		for (Week week : weeksToCount) {
 			Integer weekWorkedMinutes = week.getSum();
