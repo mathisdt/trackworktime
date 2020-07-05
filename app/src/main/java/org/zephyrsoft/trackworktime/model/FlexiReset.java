@@ -36,29 +36,15 @@ public enum FlexiReset {
 	}
 
 	public boolean isResetDay(DateTime day) {
+		DateTime resetDay;
 		switch(intervalUnit) {
 			case NULL: return false;
-			case DAY: return isResetDayForDay(day);
-			case WEEK: return isResetDayForWeek(day);
-			case MONTH: return isResetDayForMonth(day);
+			case DAY: resetDay = calcLastResetDayForDay(day); break;
+			case WEEK: resetDay = calcLastResetDayForWeek(day); break;
+			case MONTH: resetDay = calcLastResetDayForMonth(day); break;
 			default: throw new UnsupportedOperationException(intervalUnit.toString());
 		}
-	}
-
-	private boolean isResetDayForDay(DateTime day) {
-		return getCountSinceLastResetDay(day) == 0;
-	}
-
-	private boolean isResetDayForWeek(DateTime day) {
-		boolean isFirstDay = day.getWeekDay() == 2;
-		boolean isCorrectWeek = getCountSinceLastResetWeek(day) == 0;
-		return isFirstDay && isCorrectWeek;
-	}
-
-	private boolean isResetDayForMonth(DateTime day) {
-		boolean isFirstDay = day.getStartOfMonth().isSameDayAs(day);
-		boolean isCorrectMonth = getCountSinceLastResetMonth(day) == 0;
-		return isFirstDay && isCorrectMonth;
+		return resetDay.isSameDayAs(day);
 	}
 
 	public @NonNull DateTime calcLastResetDayFromDay(@NonNull DateTime fromDay) {
