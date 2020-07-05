@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
+import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import hirondelle.date4j.DateTime;
 
@@ -59,14 +61,41 @@ public enum FlexiReset {
 		return isFirstDay && isCorrectMonth;
 	}
 
+	public @NonNull DateTime calcLastResetDayFromDay(@NonNull DateTime fromDay) {
+		switch(intervalUnit) {
+			case NULL: return Constants.EPOCH;
+			case DAY: return calcLastResetDayForDay(fromDay);
+			case WEEK: return calcLastResetDayForWeek(fromDay);
+			case MONTH: return calcLastResetDayForMonth(fromDay);
+			default: throw new UnsupportedOperationException(intervalUnit.toString());
+		}
+	}
+
+	private DateTime calcLastResetDayForDay(DateTime fromDay) {
+		int daysDelta = getCountSinceLastResetDay(fromDay);
+		return fromDay.minusDays(daysDelta).getStartOfDay();
+	}
+
 	private int getCountSinceLastResetDay(DateTime atDay) {
 		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
 		return zeroBasedDayIndex % intervalSize;
 	}
 
+	private DateTime calcLastResetDayForWeek(DateTime fromDay) {
+		int weekDelta = getCountSinceLastResetWeek(fromDay);
+		DateTime resetWeek = fromDay.minusDays(weekDelta * 7);
+		return DateTimeUtil.getWeekStart(resetWeek);
+	}
+
 	private int getCountSinceLastResetWeek(DateTime atDay) {
 		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
 		return zeroBasedDayIndex % intervalSize;
+	}
+
+	private DateTime calcLastResetDayForMonth(DateTime fromDay) {
+		int monthDelta = getCountSinceLastResetMonth(fromDay);
+		DateTime resetMonth = DateTimeUtil.minusMonths(fromDay, monthDelta);
+		return resetMonth.getStartOfMonth();
 	}
 
 	private int getCountSinceLastResetMonth(DateTime atDay) {
