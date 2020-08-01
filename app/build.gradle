@@ -54,7 +54,7 @@ dependencies {
     implementation 'com.github.aolivafaura:recyclerview-multiselect:326a7e6ea3'
     implementation "ch.acra:acra-http:$acraVersion"
     implementation "ch.acra:acra-dialog:$acraVersion"
-    implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'com.darwinsys:hirondelle-date4j:1.5.1'
     implementation 'com.getpebble:pebblekit:4.0.1@aar'
     implementation 'net.sf.supercsv:super-csv:2.4.0'
