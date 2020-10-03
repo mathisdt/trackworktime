@@ -232,7 +232,7 @@ public class Basics extends BroadcastReceiver {
 		// then start the action
 		safeCheckLocationBasedTracking();
 		safeCheckWifiBasedTracking();
-		safeCheckPersistentNotification();
+		safeCheckExternalControls();
 		WorkTimeTrackerActivity.refreshViewIfShown();
 	}
 
@@ -270,6 +270,33 @@ public class Basics extends BroadcastReceiver {
 			e.printStackTrace();
 			ACRA.getErrorReporter().handleException(e);
 		}
+	}
+
+	/**
+	 * Updates any external views, such as notifications, app widgets, etc.
+	 */
+	public void safeCheckExternalControls() {
+		safeCheckWidget();
+		safeCheckPersistentNotification();
+	}
+
+	/**
+	 * Wrapper for {@link #checkWidget()} that doesn't throw any exception.
+	 */
+	public void safeCheckWidget() {
+		try {
+			checkWidget();
+		} catch (Exception e) {
+			e.printStackTrace();
+			ACRA.getErrorReporter().handleException(e);
+		}
+	}
+
+	/**
+	 * Dispatches refresh event to {@link Widget}
+	 */
+	public void checkWidget() {
+		Widget.dispatchUpdateIntent(context);
 	}
 
 	/**

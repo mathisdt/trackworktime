@@ -49,6 +49,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
+			Widget.dispatchUpdateIntent(context);
 		} else if (action != null && action.equals(Constants.CLOCK_OUT_ACTION)) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
@@ -59,6 +60,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
+			Widget.dispatchUpdateIntent(context);
 		} else {
 			Logger.warn("TRACKING: unknown intent action");
 		}

@@ -640,7 +640,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			setupTasksAdapter();
 		}
 
-		Basics.getInstance().safeCheckPersistentNotification();
+		Basics.getInstance().safeCheckExternalControls();
 
 		refreshView();
 		super.onResume();

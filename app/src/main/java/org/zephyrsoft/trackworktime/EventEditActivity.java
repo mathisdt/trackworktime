@@ -169,7 +169,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
                 dao.updateEvent(editedEvent);
                 // we have to call this manually when using the DAO directly:
                 timerManager.updateWeekSum(week);
-                Basics.getInstance().safeCheckPersistentNotification();
+                Basics.getInstance().safeCheckExternalControls();
             }
 
             // refresh parents and close the event editor
