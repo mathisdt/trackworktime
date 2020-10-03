@@ -159,8 +159,8 @@ public class Basics extends BroadcastReceiver {
 
 		thirdPartyReceiver = new ThirdPartyReceiver();
 		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction("org.zephyrsoft.trackworktime.ClockIn");
-		intentFilter.addAction("org.zephyrsoft.trackworktime.ClockOut");
+		intentFilter.addAction(Constants.CLOCK_IN_ACTION);
+		intentFilter.addAction(Constants.CLOCK_OUT_ACTION);
 		context.registerReceiver(thirdPartyReceiver, intentFilter);
 		Logger.debug("Registered " + ThirdPartyReceiver.class.getSimpleName());
 	}
@@ -296,8 +296,8 @@ public class Basics extends BroadcastReceiver {
 			Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
 			clickIntent.setAction(Intent.ACTION_MAIN);
 			clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-			Intent buttonOneIntent = new Intent("org.zephyrsoft.trackworktime.ClockIn");
-			Intent buttonTwoIntent = new Intent("org.zephyrsoft.trackworktime.ClockOut");
+			Intent buttonOneIntent = new Intent(Constants.CLOCK_IN_ACTION);
+			Intent buttonTwoIntent = new Intent(Constants.CLOCK_OUT_ACTION);
 
 			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
 				.toString();

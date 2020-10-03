@@ -84,4 +84,7 @@ public class Constants {
 
 	public static final DateTime EPOCH = DateTime.forInstant(0, TimeZone.getTimeZone("UTC"));
 
+	public static final String CLOCK_IN_ACTION = "org.zephyrsoft.trackworktime.ClockIn";
+	public static final String CLOCK_OUT_ACTION = "org.zephyrsoft.trackworktime.ClockOut";
+
 }
