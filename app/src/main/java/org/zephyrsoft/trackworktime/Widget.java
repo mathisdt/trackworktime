@@ -22,9 +22,13 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.RemoteViews;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
 
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -124,7 +128,16 @@ public class Widget extends AppWidgetProvider {
 		PendingIntent intent = createIntentForAction(Constants.CLOCK_OUT_ACTION);
 		int viewId = R.id.clockOut;
 		views.setOnClickPendingIntent(viewId, intent);
-		views.setBoolean(viewId, "setEnabled", isClockedIn());
+
+		boolean isClockedIn = isClockedIn();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			views.setBoolean(viewId, "setEnabled", isClockedIn);
+		} else {
+			// setBoolean() is not supported. Make text appear like disabled.
+			@ColorRes int textColorRes = isClockedIn ? R.color.accent : R.color.text_disabled;
+			@ColorInt int textColor = ContextCompat.getColor(context, textColorRes);
+			views.setTextColor(viewId, textColor);
+		}
 	}
 
 	private boolean isClockedIn() {
