@@ -116,7 +116,7 @@ public class Widget extends AppWidgetProvider {
 	}
 
 	private void updateClockInBtn() {
-		int textRes = isClockedIn() ? R.string.clockInChange : R.string.clockIn;
+		int textRes = isClockedIn() ? R.string.clockInChangeShort : R.string.clockIn;
 		String text = getString(textRes);
 		int viewId = R.id.clockIn;
 		views.setTextViewText(viewId, text);
