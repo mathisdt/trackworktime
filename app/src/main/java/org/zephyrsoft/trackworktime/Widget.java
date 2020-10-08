@@ -30,9 +30,6 @@ import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
-/**
- * Implementation of App Widget functionality.
- */
 public class Widget extends AppWidgetProvider {
 
 	private static final String ACTION_UPDATE = BuildConfig.APPLICATION_ID + ".WIDGET_UPDATE";
