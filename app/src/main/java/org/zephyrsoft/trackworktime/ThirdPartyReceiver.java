@@ -39,7 +39,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		Bundle extras = intent.getExtras();
 
-		if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockIn")) {
+		if (action != null && action.equals(Constants.CLOCK_IN_ACTION)) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
@@ -49,7 +49,8 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
-		} else if (action != null && action.equals("org.zephyrsoft.trackworktime.ClockOut")) {
+			Widget.dispatchUpdateIntent(context);
+		} else if (action != null && action.equals(Constants.CLOCK_OUT_ACTION)) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-out via broadcast / taskId={} / text={}", taskId, text);
@@ -59,6 +60,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
+			Widget.dispatchUpdateIntent(context);
 		} else {
 			Logger.warn("TRACKING: unknown intent action");
 		}
