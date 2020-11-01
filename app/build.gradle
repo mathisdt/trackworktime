@@ -60,6 +60,6 @@ dependencies {
     implementation 'net.sf.supercsv:super-csv:2.4.0'
     implementation 'org.tinylog:tinylog:1.3.6'
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.1'
     testImplementation 'com.google.truth:truth:1.0.1'
 }
