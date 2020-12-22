@@ -31,6 +31,7 @@ import android.widget.ListView;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.databinding.TasksActivityBinding;
 import org.zephyrsoft.trackworktime.model.Task;
 
 import java.util.List;
@@ -61,7 +62,6 @@ public class TaskListActivity extends AppCompatActivity {
 
 	private WorkTimeTrackerActivity parentActivity = null;
 
-	private ListView listView;
 	private ArrayAdapter<Task> tasksAdapter;
 
 	@Override
@@ -74,8 +74,10 @@ public class TaskListActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.tasks_activity);
-		listView = findViewById(R.id.list_view);
+		TasksActivityBinding binding = TasksActivityBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
+		ListView listView = binding.listView;
 
 		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 

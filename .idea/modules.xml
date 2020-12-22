@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="trackworktime/app" />
-      <module fileurl="file://$PROJECT_DIR$/trackworktime.iml" filepath="$PROJECT_DIR$/trackworktime.iml" group="trackworktime" />
+      <module fileurl="file://$PROJECT_DIR$/trackworktime.iml" filepath="$PROJECT_DIR$/trackworktime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/trackworktime.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/trackworktime.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.iml" filepath="$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.iml" />
     </modules>
   </component>
 </project>

@@ -25,6 +25,9 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -39,8 +42,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Creates CSV reports from events.
@@ -63,7 +64,7 @@ public class CsvGenerator {
 				if (arg0 == null) {
 					throw new IllegalStateException("event time may not be null");
 				} else {
-					return ((String) arg0).replaceAll(":\\d\\d\\.\\d\\d\\d\\d$", "");
+					return ((OffsetDateTime) arg0).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 				}
 			}
 		},
@@ -100,7 +101,7 @@ public class CsvGenerator {
 				if (arg0 == null) {
 					throw new IllegalStateException("time sum may not be null");
 				} else {
-					return ((TimeSum) arg0).toString();
+					return arg0.toString();
 				}
 			}
 		}
@@ -116,7 +117,7 @@ public class CsvGenerator {
 				if (arg0 == null) {
 					throw new IllegalStateException("time sum may not be null");
 				} else {
-					return ((TimeSum) arg0).toString();
+					return arg0.toString();
 				}
 			}
 		}
@@ -172,10 +173,10 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "task", "spent" }, sumsProcessors);
 	}
 
-	public String createSumsPerDayCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+	public String createSumsPerDayCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
 		List<TimeSumsHolder> prepared = new LinkedList<>();
-		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
-			String day = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String day = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
 			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
 				String task = "";
@@ -190,10 +191,10 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "day", "task", "spent" }, sumsPerRangeProcessors);
 	}
 
-	public String createSumsPerWeekCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+	public String createSumsPerWeekCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
 		List<TimeSumsHolder> prepared = new LinkedList<>();
-		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
-			String week = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String week = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
 			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
 				String task = "";
@@ -208,10 +209,10 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "week", "task", "spent" }, sumsPerRangeProcessors);
 	}
 
-	public String createSumsPerMonthCsv(Map<DateTime, Map<Task, TimeSum>> sumsPerRange) {
+	public String createSumsPerMonthCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
 		List<TimeSumsHolder> prepared = new LinkedList<>();
-		for (Entry<DateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
-			String month = DateTimeUtil.dateTimeToDateString(rangeEntry.getKey());
+		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String month = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
 			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
 				String task = "";

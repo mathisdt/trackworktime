@@ -152,7 +152,7 @@ public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 					text = (TextView) view;
 				} else {
 					// Otherwise, find the TextView field within the layout
-					text = (TextView) view.findViewById(fieldId);
+					text = view.findViewById(fieldId);
 				}
 				text.setText(extractionMethod.extractText(item));
 			}

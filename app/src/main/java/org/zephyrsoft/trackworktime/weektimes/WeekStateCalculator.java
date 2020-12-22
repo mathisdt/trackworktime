@@ -7,281 +7,154 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoUnit;
+import org.threeten.bp.temporal.IsoFields;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.DayLine;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.FlexiReset;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.model.WeekRowState;
 import org.zephyrsoft.trackworktime.model.WeekState;
+import org.zephyrsoft.trackworktime.model.WeekState.DayRowState;
+import org.zephyrsoft.trackworktime.model.WeekState.SummaryRowState;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
+import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2;
+import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2.DayInfo;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
-import java.util.List;
-
-import hirondelle.date4j.DateTime;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class WeekStateCalculator {
+
+	private final DateTimeFormatter SHORT_DATE;
 
 	private final Context context;
 	private final DAO dao;
 	private final TimerManager timerManager;
-	private final SharedPreferences preferences;
 	private final TimeCalculator timeCalculator;
 	private final Week week;
-	private final DateTime monday, tuesday, wednesday, thursday, friday, saturday, sunday;
+	
+	private final boolean handleFlexiTime;
 
-	private FlexiReset flexiReset;
-
-	public WeekStateCalculator(@NonNull Context context, @NonNull DAO dao,
-			@NonNull TimerManager timerManager, @NonNull TimeCalculator timeCalculator,
-			@NonNull SharedPreferences preferences, @NonNull Week week) {
+	public WeekStateCalculator(Context context, DAO dao, TimerManager timerManager,
+		   TimeCalculator timeCalculator, SharedPreferences preferences, Week week) {
 		this.context = context;
 		this.dao = dao;
 		this.timerManager = timerManager;
 		this.timeCalculator = timeCalculator;
-		this.preferences = preferences;
 		this.week = week;
+		
+		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
 
-		monday = DateTimeUtil.stringToDateTime(week.getStart());
-		tuesday = monday.plusDays(1);
-		wednesday = tuesday.plusDays(1);
-		thursday = wednesday.plusDays(1);
-		friday = thursday.plusDays(1);
-		saturday = friday.plusDays(1);
-		sunday = saturday.plusDays(1);
+		SHORT_DATE = DateTimeFormatter.ofPattern(getString(R.string.shortDate), Locale.getDefault());
 	}
 
 	public @NonNull WeekState calculateWeekState() {
-		initFlexiReset();
 		WeekState weekState = new WeekState();
 		loadWeek(weekState);
 		return weekState;
 	}
 
-	private void initFlexiReset() {
-		flexiReset = FlexiReset.loadFromPreferences(preferences);
-	}
-
 	private void loadWeek(WeekState weekState) {
-		setDates(weekState);
-		setDays(weekState.header);
-		setRowHighlighting(weekState);
-		setTimes(weekState);
-	}
+		long startTime = System.nanoTime();
+		
+		LocalDate startDate = week.getStart();
 
-	private void setDates(@NonNull WeekState weekState) {
-		int weekIndex = thursday.getWeekIndex(DateTimeUtil.getBeginOfFirstWeekFor(thursday.getYear()));
-		weekState.header.setLabel("W " + weekIndex);
+		try {
+			TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, timerManager, startDate, handleFlexiTime);
+			timeCalc.setStartSums(timerManager.getTimesAt(startDate));
+		
+			weekState.topLeftCorner = "W " + startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
 
-		weekState.monday.setLabel(getString(R.string.monday) + getString(R.string.onespace)
-				+ monday.format(getString(R.string.shortDateFormat)));
-
-		weekState.tuesday.setLabel(getString(R.string.tuesday) + getString(R.string.onespace)
-				+ tuesday.format(getString(R.string.shortDateFormat)));
-
-		weekState.wednesday.setLabel(getString(R.string.wednesday) + getString(R.string.onespace)
-				+ wednesday.format(getString(R.string.shortDateFormat)));
-
-		weekState.thursday.setLabel(getString(R.string.thursday) + getString(R.string.onespace)
-				+ thursday.format(getString(R.string.shortDateFormat)));
-
-		weekState.friday.setLabel(getString(R.string.friday) + getString(R.string.onespace)
-				+ friday.format(getString(R.string.shortDateFormat)));
-
-		weekState.saturday.setLabel(getString(R.string.saturday) + getString(R.string.onespace)
-				+ saturday.format(getString(R.string.shortDateFormat)));
-
-		weekState.sunday.setLabel(getString(R.string.sunday) + getString(R.string.onespace)
-				+ sunday.format(getString(R.string.shortDateFormat)));
-	}
-
-	private void setDays(@NonNull WeekRowState weekRowHeaderState) {
-		weekRowHeaderState.setIn(getString(R.string.in));
-		weekRowHeaderState.setOut(getString(R.string.out));
-		weekRowHeaderState.setWorked(getString(R.string.worked));
-		weekRowHeaderState.setFlexi(getString(R.string.flexi));
-	}
-
-	private void setRowHighlighting(@NonNull WeekState weekState) {
-		DateTime today = DateTimeUtil.getCurrentDateTime();
-		weekState.monday.setHiglighted(today.isSameDayAs(monday));
-		weekState.tuesday.setHiglighted(today.isSameDayAs(tuesday));
-		weekState.wednesday.setHiglighted(today.isSameDayAs(wednesday));
-		weekState.thursday.setHiglighted(today.isSameDayAs(thursday));
-		weekState.friday.setHiglighted(today.isSameDayAs(friday));
-		weekState.saturday.setHiglighted(today.isSameDayAs(saturday));
-		weekState.sunday.setHiglighted(today.isSameDayAs(sunday));
-	}
-
-	private void setTimes(@NonNull WeekState weekState) {
-		TimeSum flexiBalance = null;
-		boolean hasRealData = !(week instanceof WeekPlaceholder);
-		if (hasRealData && preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-			flexiBalance = timerManager.getFlexiBalanceAtWeekStart(
-					DateTimeUtil.stringToDateTime(week.getStart()));
-		}
-		boolean earlierEventsExist = (dao.getLastEventBefore(monday.getStartOfDay()) != null);
-		boolean showFlexiTimes = hasRealData || earlierEventsExist;
-
-		List<Event> events = fetchEventsForDay(monday);
-		resetFlexiIfNecessary(monday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(monday, events, flexiBalance, weekState.monday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(tuesday);
-		resetFlexiIfNecessary(tuesday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(tuesday, events, flexiBalance, weekState.tuesday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(wednesday);
-		resetFlexiIfNecessary(wednesday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(wednesday, events, flexiBalance, weekState.wednesday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(thursday);
-		resetFlexiIfNecessary(thursday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(thursday, events, flexiBalance, weekState.thursday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(friday);
-		resetFlexiIfNecessary(friday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(friday, events, flexiBalance, weekState.friday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(saturday);
-		resetFlexiIfNecessary(saturday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(saturday, events, flexiBalance, weekState.saturday,
-				showFlexiTimes);
-
-		events = fetchEventsForDay(sunday);
-		resetFlexiIfNecessary(sunday, flexiBalance);
-		flexiBalance = setTimesForSingleDay(sunday, events, flexiBalance, weekState.sunday,
-				showFlexiTimes);
-
-		DateTime weekStart = DateTimeUtil.getWeekStart(DateTimeUtil.stringToDateTime(week.getStart()));
-		TimeSum amountWorked = timerManager.calculateTimeSum(weekStart, PeriodEnum.WEEK);
-		boolean showFlexi = showFlexiTimes && DateTimeUtil.isInPast(monday.getStartOfDay());
-		setSummaryLine(weekState.totals, amountWorked, flexiBalance, showFlexi);
-	}
-
-	private void resetFlexiIfNecessary(DateTime dayDate, TimeSum timeSum) {
-		if(timeSum == null) {
-			return;
-		}
-		if(flexiReset.isResetDay(dayDate)) {
-			timeSum.reset();
-		}
-	}
-
-	private List<Event> fetchEventsForDay(DateTime day) {
-		Logger.debug("fetchEventsForDay: {}", DateTimeUtil.dateTimeToDateString(day));
-		List<Event> ret = dao.getEventsOnDay(day);
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		Event lastEventBeforeNow = dao.getLastEventBefore(now);
-		if (day.isSameDayAs(now) && TimerManager.isClockInEvent(lastEventBeforeNow)) {
-			// currently clocked in: add clock-out event "NOW"
-			ret.add(timerManager.createClockOutNowEvent());
-		}
-		return ret;
-	}
-
-	private TimeSum setTimesForSingleDay(DateTime day, List<Event> events, TimeSum flexiBalanceAtDayStart,
-			WeekRowState weekRowState, boolean showFlexiTimes) {
-
-		DayLine dayLine = timeCalculator.calulateOneDay(day, events);
-
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-		boolean isWorkDay = timerManager.isWorkDay(weekDay);
-		boolean isTodayOrEarlier = DateTimeUtil.isInPast(day.getStartOfDay());
-		boolean containsEventsForDay = containsEventsForDay(events, day);
-		boolean weekEndWithoutEvents = !isWorkDay && !containsEventsForDay;
-		// correct result by previous flexi time sum
-		dayLine.getTimeFlexi().addOrSubstract(flexiBalanceAtDayStart);
-
-		weekRowState.setIn(formatTime(dayLine.getTimeIn()));
-
-		final String out;
-		if (isCurrentMinute(dayLine.getTimeOut()) && timerManager.isTracking()) {
-			out = "NOW";
-		} else {
-			out = formatTime(dayLine.getTimeOut());
-		}
-		weekRowState.setOut(out);
-
-		final String worked;
-		if (weekEndWithoutEvents) {
-			worked = "";
-		} else if (isWorkDay && isTodayOrEarlier) {
-			worked = formatSum(dayLine.getTimeWorked(), null);
-		} else {
-			worked = formatSum(dayLine.getTimeWorked(), "");
-		}
-		weekRowState.setWorked(worked);
-
-		final String flexi;
-		if (!showFlexiTimes || weekEndWithoutEvents || !preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(),
-				false)) {
-			flexi = "";
-		} else if (isWorkDay && isTodayOrEarlier) {
-			flexi = formatSum(dayLine.getTimeFlexi(), null);
-		} else if (containsEventsForDay) {
-			flexi = formatSum(dayLine.getTimeFlexi(), "");
-		} else {
-			flexi = "";
-		}
-		weekRowState.setFlexi(flexi);
-
-		return dayLine.getTimeFlexi();
-	}
-
-	private void setSummaryLine(WeekRowState weekRowState, TimeSum amountWorked, TimeSum flexiBalance,
-			boolean showFlexiTimes) {
-		weekRowState.setLabel(getString(R.string.total));
-
-		weekRowState.setWorked(amountWorked.toString());
-
-		boolean showFlexi = flexiBalance != null && showFlexiTimes;
-		weekRowState.setFlexi(showFlexi ? flexiBalance.toString() : "");
-	}
-
-	private boolean containsEventsForDay(List<Event> events, DateTime day) {
-		for (Event event : events) {
-			if (DateTimeUtil.stringToDateTime(event.getTime()).isSameDayAs(day)) {
-				return true;
+			for (DayOfWeek day : DayOfWeek.values()) {
+				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day));
 			}
+		
+			setSummaryRow(weekState.totals, timeCalc);
+			
+		} catch (Exception e) {
+			Logger.debug("Exception: {}", e.getMessage());
 		}
-		return false;
+
+		// measure elapsed time
+		long durationInMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+		Logger.debug("Calculated week in {} ms", durationInMillis);
 	}
 
-	private boolean isCurrentMinute(DateTime dateTime) {
+	private void setRowValues(DayInfo dayInfo, DayRowState weekRowState) {
+		weekRowState.highlighted = dayInfo.isToday();
+		weekRowState.label = dayInfo.getDate().format(SHORT_DATE);
+		
+		weekRowState.in = formatTime(dayInfo.getTimeIn());
+
+		if (isCurrentMinute(dayInfo.getTimeOut()) && timerManager.isTracking()) {
+			weekRowState.out = getString(R.string.now);
+		} else {
+			weekRowState.out = formatTime(dayInfo.getTimeOut());
+		}
+		
+		if (handleFlexiTime) {
+			weekRowState.labelHighlighted = !dayInfo.isWorkDay();
+			weekRowState.workedHighlighted = (dayInfo.getType() == DayInfo.TYPE_SPECIAL_GRANT);
+		}
+
+		boolean isTodayOrEarlier = dayInfo.getDate().atStartOfDay().isBefore(LocalDateTime.now());
+
+		if (isTodayOrEarlier && dayInfo.isWorkDay()) {
+			weekRowState.worked = formatSum(dayInfo.getTimeWorked(), null);
+		} else {
+			weekRowState.worked = formatSum(dayInfo.getTimeWorked(), "");
+		}
+
+
+		boolean showFlexiTime = dayInfo.getTimeFlexi() != null;
+		boolean freeWithoutEvents = !dayInfo.isWorkDay() && !dayInfo.containsEvents();
+
+		if (!showFlexiTime || freeWithoutEvents || !handleFlexiTime) {
+			weekRowState.flexi = "";
+		} else if (isTodayOrEarlier && dayInfo.isWorkDay()) {
+			weekRowState.flexi = formatSum(dayInfo.getTimeFlexi(), null);
+		} else if (dayInfo.containsEvents()) {
+			weekRowState.flexi = formatSum(dayInfo.getTimeFlexi(), "");
+		} else {
+			weekRowState.flexi = "";
+		}
+	}
+
+	private void setSummaryRow(SummaryRowState summaryRow, TimeCalculatorV2 timeCalc) {
+		summaryRow.label = getString(R.string.total);
+		summaryRow.worked = TimerManager.formatTime(timeCalc.getTimeWorked());
+
+		if (timeCalc.withFlexiTime()) {
+			summaryRow.flexi = TimerManager.formatTime(timeCalc.getBalance());
+		} else {
+			summaryRow.flexi = "";
+		}
+	}
+
+	private boolean isCurrentMinute(LocalDateTime dateTime) {
 		if (dateTime == null) {
 			return false;
 		}
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		return now.getYear().equals(dateTime.getYear())
-				&& now.getMonth().equals(dateTime.getMonth())
-				&& now.getDay().equals(dateTime.getDay())
-				&& now.getHour().equals(dateTime.getHour())
-				&& now.getMinute().equals(dateTime.getMinute());
+
+		LocalDateTime now = LocalDateTime.now();
+		return dateTime.truncatedTo(ChronoUnit.MINUTES).isEqual(now.truncatedTo(ChronoUnit.MINUTES));
 	}
 
-	private String formatTime(DateTime time) {
+	private String formatTime(LocalDateTime time) {
 		return time == null ? "" : DateTimeUtil.dateTimeToHourMinuteString(time);
 	}
 
-	private String formatSum(TimeSum sum, String valueForZero) {
-		if (sum != null && sum.getAsMinutes() == 0 && valueForZero != null) {
+	private String formatSum(Long sum, String valueForZero) {
+		if (sum != null && sum == 0 && valueForZero != null) {
 			return valueForZero;
 		}
-		return sum == null ? "" : sum.toString();
+		return sum == null ? "" : TimerManager.formatTime(sum);
 	}
 
 	private String getString(@StringRes int id) {

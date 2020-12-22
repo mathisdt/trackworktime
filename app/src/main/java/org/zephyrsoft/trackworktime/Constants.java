@@ -16,10 +16,6 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import java.util.TimeZone;
-
-import hirondelle.date4j.DateTime;
-
 /**
  * Constants for the app.
  * 
@@ -54,6 +50,8 @@ public class Constants {
 	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 4;
 
 	// intent extra keys
+	/** used to transport the date via an intent's extended data */
+	public static final String DATE_EXTRA_KEY = "date";
 	/** key for the intent extra "week start" */
 	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
 	/** key for the intent extra "event id" */
@@ -82,9 +80,9 @@ public class Constants {
 	/** the key for the new event's text (used for third-party events) */
 	public static final String INTENT_EXTRA_TEXT = "text";
 
-	public static final DateTime EPOCH = DateTime.forInstant(0, TimeZone.getTimeZone("UTC"));
-
 	public static final String CLOCK_IN_ACTION = "org.zephyrsoft.trackworktime.ClockIn";
 	public static final String CLOCK_OUT_ACTION = "org.zephyrsoft.trackworktime.ClockOut";
 
+	// Work manager unique name
+	public static final String WORK_AUTOBACKUP = "AUTOBACKUP";
 }

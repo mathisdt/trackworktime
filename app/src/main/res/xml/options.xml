@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <org.zephyrsoft.trackworktime.options.TimeZonePreference
+        android:key="@string/keyHomeTimezone"
+        android:title="@string/homeTimezone" />
 
     <PreferenceCategory
         android:key="@string/keyAutoPause"
@@ -14,6 +18,7 @@
         <org.zephyrsoft.trackworktime.options.TimePreference
             android:key="@string/keyAutoPauseEnd"
             android:title="@string/autoPauseEnd" />
+        <!--android:dependency="@string/keyAutoPauseEnabled"-->
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyFlexiTimeCategory"
@@ -126,9 +131,15 @@
             android:summary="@string/workplaceWifiSSIDDescription"
             android:title="@string/workplaceWifiSSID" />
     </PreferenceCategory>
-    <PreferenceCategory android:key="@string/keyAutomaticTrackingCategory" android:title="@string/automaticTracking">
-        <CheckBoxPreference android:key="@string/keyEachTrackingMethodGeneratesEventsSeparately" android:summary="@string/methodsGenerateEventsSeparatelyDescription" android:title="@string/methodsGenerateEventsSeparately"/>
-    </PreferenceCategory><PreferenceCategory
+    <PreferenceCategory
+        android:key="@string/keyAutomaticTrackingCategory"
+        android:title="@string/automaticTracking">
+        <CheckBoxPreference
+            android:key="@string/keyEachTrackingMethodGeneratesEventsSeparately"
+            android:summary="@string/methodsGenerateEventsSeparatelyDescription"
+            android:title="@string/methodsGenerateEventsSeparately" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:key="@string/keyNotificationCategory"
         android:title="@string/notification" >
         <CheckBoxPreference
@@ -163,6 +174,12 @@
             android:summary="-"
             android:title="@string/lastBackupTimestamp" />
     </PreferenceCategory>
-    
-
-</PreferenceScreen>
+    <PreferenceCategory
+        android:key="@string/keyAppearanceCategory"
+        android:title="@string/appearance">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/keyShowNavigationButtons"
+            android:title="@string/show_navigation_buttons" />
+    </PreferenceCategory>
+</androidx.preference.PreferenceScreen>

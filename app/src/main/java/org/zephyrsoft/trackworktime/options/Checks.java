@@ -19,14 +19,12 @@ package org.zephyrsoft.trackworktime.options;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Container of all checks.
@@ -50,17 +48,17 @@ public class Checks {
 				if (beginString == null || beginString.trim().length() == 0) {
 					return false;
 				}
-				beginString = DateTimeUtil.refineTime(beginString);
-				DateTime begin = DateTimeUtil.parseTimeForToday(beginString);
+
 				String endString = prefs.getString(Key.AUTO_PAUSE_END.getName(), null);
 				if (endString == null || endString.trim().length() == 0) {
 					return false;
 				}
-				endString = DateTimeUtil.refineTime(endString);
-				DateTime end = DateTimeUtil.parseTimeForToday(endString);
+
 				try {
-					// the actual parsing of begin and end takes place here as this is the first access to fields
-					return begin.lt(end);
+					LocalTime begin = DateTimeUtil.parseTime(beginString);
+					LocalTime end   = DateTimeUtil.parseTime(endString);
+
+					return begin.isBefore(end);
 				} catch (Exception e) {
 					return false;
 				}
@@ -79,9 +77,9 @@ public class Checks {
 				if (targetString == null || targetString.trim().length() == 0) {
 					return false;
 				}
-				TimeSum target = TimerManager.parseHoursMinutesString(targetString);
+				int target = TimerManager.parseHoursMinutesString(targetString);
 
-				return target.getAsMinutes() > 0;
+				return target > 0;
 			}
 		});
 
@@ -155,7 +153,7 @@ public class Checks {
 				if (ignoreBeforeString == null || ignoreBeforeString.trim().length() == 0) {
 					ignoreBeforeString = "0";
 				}
-				int ignoreBefore = -1;
+				int ignoreBefore;
 				try {
 					ignoreBefore = Integer.parseInt(ignoreBeforeString);
 				} catch (NumberFormatException nfe) {
@@ -167,7 +165,7 @@ public class Checks {
 				if (ignoreAfterString == null || ignoreAfterString.trim().length() == 0) {
 					ignoreAfterString = "0";
 				}
-				int ignoreAfter = -1;
+				int ignoreAfter;
 				try {
 					ignoreAfter = Integer.parseInt(ignoreAfterString);
 				} catch (NumberFormatException nfe) {
@@ -190,7 +188,7 @@ public class Checks {
 				if (divisorString == null || divisorString.trim().length() == 0) {
 					return false;
 				}
-				int divisor = -1;
+				int divisor;
 				try {
 					divisor = Integer.parseInt(divisorString);
 				} catch (NumberFormatException nfe) {

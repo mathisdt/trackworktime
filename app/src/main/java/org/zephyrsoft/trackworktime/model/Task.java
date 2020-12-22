@@ -115,11 +115,11 @@ public class Task extends Base implements Comparable<Task> {
 		if (getClass() != obj.getClass())
 			return false;
 		Task other = (Task) obj;
+
 		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+			return other.id == null;
+		} else {
+			return id.equals(other.id);
+		}
 	}
 }

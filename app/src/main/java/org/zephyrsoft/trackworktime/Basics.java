@@ -46,13 +46,15 @@ import org.pmw.tinylog.labelers.CountLabeler;
 import org.pmw.tinylog.policies.DailyPolicy;
 import org.pmw.tinylog.writers.LogcatWriter;
 import org.pmw.tinylog.writers.RollingFileWriter;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.CoordinateUtil;
 import org.zephyrsoft.trackworktime.location.LocationCallback;
 import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 import org.zephyrsoft.trackworktime.location.WifiTrackerService;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
-import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -62,9 +64,6 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.io.File;
 import java.util.Calendar;
-
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
@@ -133,6 +132,10 @@ public class Basics extends BroadcastReceiver {
 	private void init() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		dao = new DAO(context);
+
+		// run database migrations if needed
+		dao.executePendingMigrations();
+
 		timerManager = new TimerManager(dao, preferences, context);
 		timeCalculator = new TimeCalculator(dao, timerManager);
 		externalNotificationManager = new ExternalNotificationManager(context);
@@ -326,30 +329,29 @@ public class Basics extends BroadcastReceiver {
 			Intent buttonOneIntent = new Intent(Constants.CLOCK_IN_ACTION);
 			Intent buttonTwoIntent = new Intent(Constants.CLOCK_OUT_ACTION);
 
-			String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
-				.toString();
+			// calculated in home time zone
+			int workedTime = (int)timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
+			String timeSoFar = DateTimeUtil.formatDuration(workedTime);
 			String targetTimeString = "";
 			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 				Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
-					Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
+						Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
+
 				if (minutesRemaining != null) {
 					if (minutesRemaining >= 0) {
 						// target time in future
+						LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
 
-						int hoursRemaining = (int) Math.floor(minutesRemaining / 60);
-						minutesRemaining = minutesRemaining % 60;
-						int daysRemaining = (int) Math.floor(hoursRemaining / 24);
-						hoursRemaining = hoursRemaining % 24;
-
-						DateTime finishingTime = DateTimeUtil.getCurrentDateTime()
-							.plus(0, 0, daysRemaining, hoursRemaining, minutesRemaining, 0, 0, DayOverflow.Spillover);
-						String targetTime = DateTimeUtil.dateTimeToHourMinuteString(finishingTime);
-						targetTimeString = "possible finishing time: " + targetTime;
+						if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
+							String targetTime = DateTimeUtil.dateTimeToHourMinuteString(finishingTime);
+							targetTimeString = "possible finishing time: " + targetTime;
+						} else {
+							targetTimeString = "target working time cannot be reached today!";
+						}
 					} else {
 						// target time in past
-						TimeSum timeSum = new TimeSum();
-						timeSum.add(0, -minutesRemaining);
-						targetTimeString = "regular work time is over since " + timeSum.toString();
+						targetTimeString = "regular work time is over since "
+								+ TimerManager.formatTime(-minutesRemaining);
 					}
 				} // else not a working day
 			} else {
@@ -603,7 +605,6 @@ public class Basics extends BroadcastReceiver {
 	 * @param notificationId
 	 *            a unique number to identify the notification
 	 */
-	@SuppressWarnings("deprecation")
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
 		PendingIntent clickIntent, Integer notificationId, boolean persistent, PendingIntent buttonOneIntent,
 		Integer buttonOneIcon, String buttonOneText, PendingIntent buttonTwoIntent, Integer buttonTwoIcon,
@@ -688,6 +689,15 @@ public class Basics extends BroadcastReceiver {
 	public void disableWifiBasedTracking() {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+		editor.commit();
+	}
+
+	/**
+	 * Set home time zone for cache database and week display.
+	 */
+	public void setHomeTimeZone(ZoneId zoneId) {
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString(Key.HOME_TIME_ZONE.getName(), zoneId.getId());
 		editor.commit();
 	}
 

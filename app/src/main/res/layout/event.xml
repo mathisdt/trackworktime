@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="beforeDescendants"
@@ -48,53 +47,28 @@
                 android:text="@string/type"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <LinearLayout
-                android:id="@+id/radioTypeLayout"
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:id="@+id/radioType"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <RadioGroup
-                    android:id="@+id/radioType"
+                <RadioButton
+                    android:id="@+id/radioClockIn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/radioClockIn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/clockIn"
-                        android:checked="true" />
-
-                    <RadioButton
-                        android:id="@+id/radioClockOut"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:layout_weight="1"
-                        android:text="@string/clockOut" />
-
-                    <RadioButton
-                        android:id="@+id/radioFlexTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:layout_weight="1"
-                        android:text="@string/flexTime" />
-                </RadioGroup>
-
-                <ImageButton
-                    android:id="@+id/typeInfoButton"
-                    style="@style/Widget.AppCompat.ImageButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:background="@android:drawable/ic_dialog_info"
-                    tools:src="@android:drawable/ic_dialog_info" />
-            </LinearLayout>
+                    android:text="@string/clockIn"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/radioClockOut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:text="@string/clockOut" />
+            </RadioGroup>
 
             <TextView
                 android:id="@+id/dateTimeLabel"
@@ -122,34 +96,46 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/taskLabel"
+            <org.zephyrsoft.trackworktime.ui.TimeZonePicker
+                android:id="@+id/time_zone_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="20dp" />
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text="@string/task"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_marginBottom="4dp"
+                android:orientation="horizontal">
 
-            <Spinner
-                android:id="@+id/task"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/taskLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/task"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TextView
-                android:id="@+id/textLabel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text="@string/text"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                <Spinner
+                    android:id="@+id/task"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/choose_task" />
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/optional" >
-            </EditText>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/comment_hint" />
+
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textUpgrade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/upgradeText"
+        android:textSize="18sp" />
+
+    <!--<include layout="@layout/view_timezone_select" />-->
+    <org.zephyrsoft.trackworktime.ui.TimeZonePicker
+            android:id="@+id/time_zone_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp" />
+
+    <Button
+        android:id="@+id/startMigration"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="@string/startMigration" />
+
+    <ProgressBar
+        android:id="@+id/migrationProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp" />
+</LinearLayout>

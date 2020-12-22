@@ -16,6 +16,8 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 import org.zephyrsoft.trackworktime.database.DAO;
 
 /**
@@ -25,20 +27,20 @@ import org.zephyrsoft.trackworktime.database.DAO;
  * @author Mathis Dirksen-Thedens
  */
 public class Event extends Base implements Comparable<Event> {
+	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
+
 	private Integer id = null;
-	private Integer week = null;
 	private Integer task = null;
 	private Integer type = null;
-	private String time = null;
+	private OffsetDateTime time = null;
 	private String text = null;
 
 	public Event() {
 		// do nothing
 	}
 
-	public Event(Integer id, Integer week, Integer task, Integer type, String time, String text) {
+	public Event(Integer id, Integer task, Integer type, OffsetDateTime time, String text) {
 		this.id = id;
-		this.week = week;
 		this.task = task;
 		this.type = type;
 		this.time = time;
@@ -49,10 +51,6 @@ public class Event extends Base implements Comparable<Event> {
 		return id;
 	}
 
-	public Integer getWeek() {
-		return week;
-	}
-
 	public Integer getTask() {
 		return task;
 	}
@@ -61,16 +59,17 @@ public class Event extends Base implements Comparable<Event> {
 		return type;
 	}
 
-	public String getTime() {
+	// used for report generation
+	public OffsetDateTime getTime() {
+		return time;
+	}
+
+	public OffsetDateTime getDateTime() {
 		return time;
 	}
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public void setWeek(Integer week) {
-		this.week = week;
 	}
 
 	public void setTask(Integer task) {
@@ -81,8 +80,8 @@ public class Event extends Base implements Comparable<Event> {
 		this.type = type;
 	}
 
-	public void setTime(String time) {
-		this.time = time;
+	public void setDateTime(OffsetDateTime datetime) {
+		this.time = datetime;
 	}
 
 	public String getText() {
@@ -95,7 +94,7 @@ public class Event extends Base implements Comparable<Event> {
 
 	@Override
 	public int compareTo(Event another) {
-		return compare(getTime(), another.getTime(), compare(getId(), another.getId(), 0));
+		return compare(getDateTime(), another.getDateTime(), compare(getId(), another.getId(), 0));
 	}
 
 	/**
@@ -105,7 +104,7 @@ public class Event extends Base implements Comparable<Event> {
 	 */
 	@Override
 	public String toString() {
-		return getTime() + " / " + TypeEnum.byValue(getType()).name() + " / " + getTask() + " - " + getText();
+		return getDateTime() + " / " + TypeEnum.byValue(getType()).name() + " / " + getTask() + " - " + getText();
 	}
 
 }

@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public enum Key {
 
+	HOME_TIME_ZONE("keyHomeTimezone", DataType.TIMEZONEID, null, R.string.homeTimezone),
+
 	ENABLE_FLEXI_TIME("keyEnableFlexiTime", DataType.BOOLEAN, null, R.string.enableFlexiTime),
 	FLEXI_TIME_START_VALUE("keyFlexiTimeStartValue", DataType.HOUR_MINUTE, ENABLE_FLEXI_TIME,
 		R.string.flexiTimeStartValue),

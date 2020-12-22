@@ -30,6 +30,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
+import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -109,8 +110,8 @@ public class Widget extends AppWidgetProvider {
 	}
 
 	private void updateWorkTime() {
-		String timeSoFar = timerManager.calculateTimeSum(DateTimeUtil.getCurrentDateTime(), PeriodEnum.DAY)
-				.toString();
+		int workedTime = (int)timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
+		String timeSoFar = DateTimeUtil.formatDuration(workedTime);
 		String workedText = getString(R.string.worked) + ": " + timeSoFar;
 		views.setTextViewText(R.id.workTime, workedText);
 	}

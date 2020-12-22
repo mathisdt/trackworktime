@@ -18,90 +18,65 @@ package org.zephyrsoft.trackworktime.options;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.TimePicker;
 
-/**
- * @author Peter Rosenberg
- */
+import androidx.preference.DialogPreference;
+
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.zephyrsoft.trackworktime.R;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
 public class TimePreference extends DialogPreference {
-    private int lastHour = 0;
-    private int lastMinute = 0;
-    private TimePicker picker = null;
+	private static final DateTimeFormatter LOCAL_TIME = DateTimeFormatter.ofPattern("HH:mm");
 
-    public TimePreference(Context ctxt, AttributeSet attrs) {
-        super(ctxt, attrs);
+	private LocalTime time = LocalTime.MIN;
 
-        setPositiveButtonText("Set");
-        setNegativeButtonText("Cancel");
-    }
+	public TimePreference(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    public static int getHour(String time) {
-        String[] pieces = time.split("[:\\.]");
+	@Override
+	protected Object onGetDefaultValue(TypedArray a, int index) {
+		return a.getString(index);
+	}
 
-        return (Integer.parseInt(pieces[0]));
-    }
+	@Override
+	protected void onSetInitialValue(Object defaultValue) {
+		String timeString = getPersistedString(null);
 
-    public static int getMinute(String time) {
-        String[] pieces = time.split("[:\\.]");
+		if (timeString == null && defaultValue != null) {
+			timeString = defaultValue.toString();
+		}
 
-        return (Integer.parseInt(pieces[1]));
-    }
+		if (timeString != null) {
+			time = LocalTime.parse(DateTimeUtil.refineTime(timeString));
+			updateSummary();
+		}
+	}
 
-    @Override
-    protected View onCreateDialogView() {
-        picker = new TimePicker(getContext());
-        picker.setIs24HourView(true);
+	private void updateSummary() {
+		setSummary(String.format(getContext().getString(R.string.current_value), time.format(LOCAL_TIME)));
+	}
 
-        return (picker);
-    }
+	void updateValue(int hour, int minute) {
+		LocalTime newTime = LocalTime.of(hour,minute);
+		String value = newTime.toString();
 
-    @Override
-    protected void onBindDialogView(View v) {
-        super.onBindDialogView(v);
+		if (callChangeListener(value)) {
+			time = newTime;
 
-        picker.setCurrentHour(lastHour);
-        picker.setCurrentMinute(lastMinute);
-    }
+			if (persistString(value)) {
+				updateSummary();
+			}
+		}
+	}
 
-    @Override
-    protected void onDialogClosed(boolean positiveResult) {
-        super.onDialogClosed(positiveResult);
+	int getHour() {
+		return time.getHour();
+	}
 
-        if (positiveResult) {
-            lastHour = picker.getCurrentHour();
-            lastMinute = picker.getCurrentMinute();
-
-            String time = String.valueOf(lastHour) + ":" + String.valueOf(lastMinute);
-
-            if (callChangeListener(time)) {
-                persistString(time);
-            }
-        }
-    }
-
-    @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        return (a.getString(index));
-    }
-
-    @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        String time = null;
-
-        if (restoreValue) {
-            if (defaultValue == null) {
-                time = getPersistedString("00:00");
-            } else {
-                time = getPersistedString(defaultValue.toString());
-            }
-        } else {
-            time = defaultValue.toString();
-        }
-
-        lastHour = getHour(time);
-        lastMinute = getMinute(time);
-    }
+	int getMinute() {
+		return time.getMinute();
+	}
 }

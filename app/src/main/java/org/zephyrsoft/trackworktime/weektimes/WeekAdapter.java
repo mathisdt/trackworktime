@@ -12,22 +12,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.WeekState;
+import org.zephyrsoft.trackworktime.weektimes.WeekTimesView.OnDayClickListener;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
-
-	private final WeekIndexConverter weekIndexConverter;
+	
 	private final WeekStateLoaderManager weekStateLoaderManager;
 	private final LayoutParams LAYOUT_PARAMS = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
+	private final OnDayClickListener onDayClickListener;
 	private final OnClickListener onClickListener;
 
-	public WeekAdapter(@NonNull WeekIndexConverter weekIndexConverter,
-			@NonNull WeekStateLoaderManager weekStateLoaderManager,
+	public WeekAdapter(@NonNull WeekStateLoaderManager weekStateLoaderManager,
+			@Nullable OnDayClickListener onDayClickListener,
 			@Nullable OnClickListener onClickListener) {
-		this.weekIndexConverter = weekIndexConverter;
 		this.weekStateLoaderManager = weekStateLoaderManager;
+		this.onDayClickListener = onDayClickListener;
 		this.onClickListener = onClickListener;
 		setHasStableIds(true);
 	}
@@ -42,12 +43,14 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 	private WeekTimesView createView(Context context) {
 		WeekTimesView weekTimesView = new WeekTimesView(context);
 		weekTimesView.setLayoutParams(LAYOUT_PARAMS);
+		weekTimesView.setOnDayClickListener(onDayClickListener);		
 		weekTimesView.setOnClickListener(onClickListener);
 		return weekTimesView;
 	}
 
-	@Override public void onBindViewHolder(@NonNull WeekTimesViewHolder holder, int position) {
-		Week week = weekIndexConverter.getWeekForIndex(position);
+	@Override
+	public void onBindViewHolder(@NonNull WeekTimesViewHolder holder, int position) {
+		Week week = WeekIndexConverter.getWeekForIndex(position);
 		int requestId = position;
 		// Cancel request before starting new one. It's possible same week is still being loaded,
 		// but holder hasn't been recycled yet.
@@ -56,7 +59,8 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 		holder.bind(weekState);
 	}
 
-	@Override public void onViewRecycled(@NonNull WeekTimesViewHolder holder) {
+	@Override
+	public void onViewRecycled(@NonNull WeekTimesViewHolder holder) {
 		super.onViewRecycled(holder);
 		int position = holder.getAdapterPosition();
 		if(position != NO_POSITION) {
@@ -65,12 +69,13 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekTimesViewHolder> {
 		holder.recycle();
 	}
 
-	@Override public int getItemCount() {
+	@Override
+	public int getItemCount() {
 		return Integer.MAX_VALUE;
 	}
 
-	@Override public long getItemId(int position) {
+	@Override
+	public long getItemId(int position) {
 		return position;
 	}
-
 }

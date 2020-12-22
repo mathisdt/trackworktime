@@ -10,13 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.threeten.bp.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Class responsible for retrieving wifi {@link ScanResult}s.
@@ -46,12 +43,12 @@ public class WifiScanner extends BroadcastReceiver {
 	/** Most recently received scan results */
 	@NonNull private List<ScanResult> latestScanResults = new ArrayList<>();
 	/** Most recent update date time of {@link #latestScanResults} */
-	@NonNull private DateTime latestScanResultTime = DateTime.forInstant(0, TimeZone.getDefault());
+	@NonNull private LocalDateTime latestScanResultTime = LocalDateTime.now().minusYears(1);
 	/** Listener reference, for anyone who is interested in scanning results */
 	@Nullable private WifiScanListener wifiScanListener;
 	/** Flag, when set to {@code true}, disables scan requests to prevent flooding. */
 	private boolean scanRequested = false;
-	@NonNull private DateTime latestScanRequestTime = DateTime.forInstant(0, TimeZone.getDefault());
+	@NonNull private LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
 
 	public enum Result {
 		/** When {@link WifiManager#isWifiEnabled()} returns false */
@@ -174,7 +171,7 @@ public class WifiScanner extends BroadcastReceiver {
 		if(success) {
 			latestScanResults.clear();
 			latestScanResults.addAll(wifiManager.getScanResults());
-			latestScanResultTime = DateTimeUtil.getCurrentDateTime();
+			latestScanResultTime = LocalDateTime.now();
 		}
 
 		if(!scanRequested) {
@@ -239,7 +236,7 @@ public class WifiScanner extends BroadcastReceiver {
 		}
 
 		boolean success = wifiManager.startScan();
-		latestScanResultTime = DateTimeUtil.getCurrentDateTime();
+		latestScanResultTime = LocalDateTime.now();
 		Logger.debug("Wifi start scan succeeded: " + success);
 
 		if(!success) {
@@ -256,22 +253,21 @@ public class WifiScanner extends BroadcastReceiver {
 	 * @return {@code true} if still ok, {@code false} if they are stale
 	 */
 	private boolean areLastResultsOk() {
-		DateTime current = DateTimeUtil.getCurrentDateTime();
-		DateTime validUntil = latestScanResultTime.plus(
-				0, 0, 0, 0, 0, maxScanAge, 0, DateTime.DayOverflow.Spillover);
+		LocalDateTime current = LocalDateTime.now();
+		LocalDateTime validUntil = latestScanResultTime.plusSeconds(maxScanAge);
 
-		return validUntil.gteq(current);
+		return !current.isAfter(validUntil);
 	}
 
 	/**
 	 * Checks if scan request can be made with {@link #requestWifiScanResults()}
+	 *
 	 * @return {@code true} if it can, {@code false otherwise}
 	 */
-	public boolean canScanAgain(){
-		DateTime current = DateTimeUtil.getCurrentDateTime();
-		DateTime disabledUntil = latestScanRequestTime.plus(
-				0, 0, 0, 0, 0, scanRequestTimeout, 0, DateTime.DayOverflow.Spillover);
+	public boolean canScanAgain() {
+		LocalDateTime current = LocalDateTime.now();
+		LocalDateTime disabledUntil = latestScanRequestTime.plusSeconds(scanRequestTimeout);
 
-		return disabledUntil.lteq(current);
+		return !current.isBefore(disabledUntil);
 	}
 }

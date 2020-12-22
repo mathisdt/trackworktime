@@ -16,177 +16,147 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
-import java.util.TimeZone;
-
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
+import java.util.Locale;
 
 /**
- * Utility class for handling {@link DateTime} objects and converting them.
- * 
+ * Utility class for handling dates and times.
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class DateTimeUtil {
+	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final DateTimeFormatter HOUR_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
+	private static final DateTimeFormatter TIME_PRECISE = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
 	/**
-	 * Gets the current date and time.
-	 * 
-	 * @return {@link DateTime} object
+	 * Determines if the given {@link LocalDateTime} is in the future.
 	 */
-	public static DateTime getCurrentDateTime() {
-		DateTime now = DateTime.now(getCurrentTimeZone());
-		return now;
+	public static boolean isInFuture(LocalDateTime dateTime) {
+		return dateTime.isAfter(LocalDateTime.now());
+	}
+
+	public static boolean isInFuture(OffsetDateTime dateTime) {
+		return dateTime.isAfter(OffsetDateTime.now());
 	}
 
 	/**
-	 * Gets the current date as formatted string.
+	 * Determines if the given {@link LocalDateTime} is in the past.
+	 */
+	public static boolean isInPast(LocalDateTime dateTime) {
+		return dateTime.isBefore(LocalDateTime.now());
+	}
+
+	public static boolean isInPast(OffsetDateTime dateTime) {
+		return dateTime.isBefore(OffsetDateTime.now());
+	}
+
+	public static LocalDate getWeekStart(LocalDate date) {
+		return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+	}
+
+	public static LocalDateTime getWeekStart(LocalDateTime dateTime) {
+		return dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+	}
+
+	public static ZonedDateTime getWeekStart(ZonedDateTime dateTime) {
+		return dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+	}
+
+	/**
+	 * Formats a {@link LocalDateTime} to a String.
 	 *
-	 * @return date in format "YYYY-MM-DD"
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
 	 */
-	public static String getCurrentDateAsString() {
-		DateTime now = DateTime.now(getCurrentTimeZone());
-		return now.format("YYYY-MM-DD");
+	public static String formatTimePrecise(LocalDateTime dateTime) {
+		return dateTime.format(TIME_PRECISE);
 	}
 
 	/**
-	 * Gets the current time zone
+	 * Formats a {@link LocalDate} to a String.
 	 *
-	 * @return {@link TimeZone} object
-	 */
-	public static TimeZone getCurrentTimeZone() {
-		return TimeZone.getDefault();
-	}
-
-	/**
-	 * Determines if the given {@link DateTime} is in the future.
-	 */
-	public static boolean isInFuture(DateTime dateTime) {
-		DateTime now = getCurrentDateTime();
-		return now.lt(dateTime);
-	}
-
-	/**
-	 * Determines if the given {@link DateTime} is in the past.
-	 */
-	public static boolean isInPast(DateTime dateTime) {
-		DateTime now = getCurrentDateTime();
-		return now.gt(dateTime);
-	}
-
-	/**
-	 * Gets the week's start related to the specified date and time.
-	 * 
-	 * @param dateTime
-	 *            the date and time
-	 * @return a string representing the week start
-	 */
-	public static String getWeekStartAsString(DateTime dateTime) {
-		return DateTimeUtil.dateTimeToString(getWeekStart(dateTime));
-	}
-
-	/**
-	 * Gets the week's start related to the specified date and time.
-	 * 
-	 * @param dateTime
-	 *            the date and time
-	 * @return a DateTime representing the week start
-	 */
-	public static DateTime getWeekStart(DateTime dateTime) {
-		// go back to this day's start
-		DateTime ret = dateTime.getStartOfDay();
-		// go back to last Monday
-		while (ret.getWeekDay() != WeekDayEnum.MONDAY.getValue()) {
-			ret = ret.minusDays(1);
-		}
-		return ret;
-	}
-
-	/**
-	 * Formats a {@link DateTime} to a String.
-	 * 
-	 * @param dateTime
-	 *            the input (may not be null)
+	 * @param date the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String dateTimeToString(DateTime dateTime) {
-		return dateTime.format("YYYY-MM-DD hh:mm:ss.ffff");
+	public static String formatLocalizedDate(LocalDate date) {
+		return date.format(LOCALIZED_DATE);
 	}
 
 	/**
-	 * Formats a {@link DateTime} to a String which contains the date only (omitting the time part).
-	 * 
-	 * @param dateTime
-	 *            the input (may not be null)
+	 * Formats a {@link OffsetDateTime} to a String.
+	 *
+	 * @param dateTime the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String dateTimeToDateString(DateTime dateTime) {
-		return dateTime.format("YYYY-MM-DD");
+	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
+		return dateTime.format(LOCALIZED_DATE) + " / " + dateTime.format(LOCALIZED_TIME);
 	}
 
 	/**
-	 * Formats a String to a {@link DateTime}.
-	 * 
-	 * @param string
-	 *            the input (may not be null)
-	 * @return the DateTime which corresponds to the given input
-	 */
-	public static DateTime stringToDateTime(String string) {
-		return new DateTime(string);
-	}
-
-	/**
-	 * Formats a {@link DateTime} to a String which contains the hour and minute only (omitting the date and the
-	 * seconds).
-	 * 
-	 * @param dateTime
-	 *            the input (may not be null)
+	 * Formats a {@link LocalDate} to a String.
+	 *
+	 * @param date the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String dateTimeToHourMinuteString(DateTime dateTime) {
-		// if the format is changed here, change it also in the method getCompleteDayAsHourMinuteString()
-		return dateTime.format("hh:mm");
+	@Deprecated
+	public static String dateToString(LocalDate date) {
+		return date.format(LOCALIZED_DATE);
 	}
 
 	/**
-	 * Parse a time as if it was today, resulting in a complete DateTime object containing date AND time.
-	 * 
-	 * @param timeString
-	 *            a String which contains the hour and minute only (omitting the date and the seconds), e.g.
-	 *            "14:30"
-	 * @return a DateTime which represents the given time on the current day
+	 * Formats a {@link LocalDate} to a String.
+	 *
+	 * @param date the input (may not be null)
+	 * @return the String which corresponds to the given input
 	 */
-	public static DateTime parseTimeForToday(String timeString) {
-		return parseTimeFor(getCurrentDateTime(), timeString);
+	public static String dateToULString(LocalDate date) {
+		return date.format(DATE);
 	}
 
 	/**
-	 * Parse a time as if it was on a specific day, resulting in a complete DateTime object containing date AND time.
-	 * 
-	 * @param day
-	 *            the date for which the time should be parsed (only the year, month and day fields are read)
-	 * @param timeString
-	 *            a String which contains the hour and minute only (omitting the date and the seconds), e.g.
-	 *            "14:30"
-	 * @return a DateTime which represents the given time on the given day
+	 * Formats a {@link ZonedDateTime} to a String.
+	 *
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
 	 */
-	public static DateTime parseTimeFor(DateTime day, String timeString) {
-		DateTime ret = new DateTime(dateTimeToDateString(day) + " " + refineTime(timeString));
-		ret.truncate(DateTime.Unit.MINUTE);
-		return ret;
+	public static String dateToULString(ZonedDateTime dateTime) {
+		return dateTime.format(DATE);
 	}
 
 	/**
-	 * Returns a {@code String} representing the amount of time for a complete day (24 hours). The format is the same as
-	 * in {@link #dateTimeToHourMinuteString(DateTime)}.
+	 * Formats a {@link LocalDateTime} to a String which contains the hour and minute only.
+	 *
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
 	 */
-	public static String getCompleteDayAsHourMinuteString() {
-		return "24:00";
+	public static String dateTimeToHourMinuteString(LocalDateTime dateTime) {
+		return dateTime.format(HOUR_MINUTES);
 	}
 
 	/**
-	 * Prepare the a user-entered time string to suffice for {@link #parseTimeForToday}.
+	 * Parse a time string to a LocalTime
+	 *
+	 * @param timeString a String which contains the hour and minute only, e.g. "14:30"
+	 * @return a LocalTime which represents the given time
+	 */
+	public static LocalTime parseTime(String timeString) {
+		return LocalTime.parse(refineTime(timeString));
+	}
+
+	/**
+	 * Prepare the a user-entered time string to suffice for {@link #parseTime}.
 	 */
 	public static String refineTime(String timeString) {
 		String ret = refineHourMinute(timeString);
@@ -197,6 +167,7 @@ public class DateTimeUtil {
 
 	/**
 	 * Prepare the a user-entered time string to represent "hours:minutes".
+	 * TODO DateTimeFormatterBuilder
 	 */
 	public static String refineHourMinute(String timeString) {
 		if (timeString == null || timeString.isEmpty()) {
@@ -220,37 +191,31 @@ public class DateTimeUtil {
 		if (number < 0) {
 			throw new IllegalArgumentException("number has to be >= 0");
 		} else if (number < 10) {
-			return "0" + String.valueOf(number);
+			return "0" + number;
 		} else {
 			return String.valueOf(number);
 		}
 	}
 
-	/**
-	 * Get the week start date of the first week of the given year, according to ISO 8601.
-	 */
-	public static DateTime getBeginOfFirstWeekFor(int year) {
-		DateTime date = new DateTime(String.valueOf(year) + "-01-01 00:00:00");
-		while (date.getWeekDay() != WeekDayEnum.THURSDAY.getValue()) {
-			date = date.plusDays(1);
+	public static boolean isDurationValid(String value) {
+		String[] pieces = value.split("[:.]");
+		if (pieces.length == 2) {
+			try {
+				Integer.parseInt(pieces[0]);
+				Integer.parseInt(pieces[1]);
+				return true;
+			} catch (NumberFormatException e) {
+				// ignore and return false
+			}
 		}
-		date.minusDays(3);
-		return date;
+		return false;
 	}
 
-	/**
-	 * Add number of weeks to provided date
-	 */
-	public static DateTime plusWeeks(DateTime fromDate, int weekCount) {
-		int plusDays = weekCount * 7;
-		return fromDate.plusDays(plusDays);
+	public static String formatDuration(Integer duration) {
+		if (duration != null) {
+			return String.format(Locale.US, "%d:%02d", duration / 60, duration % 60);
+		} else {
+			return "0:00";
+		}
 	}
-
-	/**
-	 * Subtract number of months from provided date
-	 */
-	public static DateTime minusMonths(DateTime fromDate, int monthCount) {
-		return fromDate.minus(0, monthCount, 0, 0, 0, 0, 0, DayOverflow.LastDay);
-	}
-
 }

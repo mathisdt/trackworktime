@@ -2,10 +2,10 @@ package org.zephyrsoft.trackworktime.options;
 
 import android.content.Context;
 import android.os.Build;
-import android.preference.ListPreference;
 import android.util.AttributeSet;
 
 import androidx.annotation.RequiresApi;
+import androidx.preference.ListPreference;
 
 import org.zephyrsoft.trackworktime.model.FlexiReset;
 

@@ -53,28 +53,13 @@
                 android:text="@string/from"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <LinearLayout
-                android:id="@+id/fromDateLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/fromWeekday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1.0"
-                    android:gravity="center"
-                    android:text="@string/monday"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <DatePicker
-                    android:id="@+id/fromDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_weight="0.0"
-					android:calendarViewShown="false" />
-            </LinearLayout>
+            <DatePicker
+                android:id="@+id/fromDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.0"
+                android:calendarViewShown="false" />
 
             <TextView
                 android:id="@+id/timeRangeToLabel"
@@ -83,28 +68,13 @@
                 android:text="@string/to"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <LinearLayout
-                android:id="@+id/toDateLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/toWeekday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1.0"
-                    android:gravity="center"
-                    android:text="@string/monday"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <DatePicker
-                    android:id="@+id/toDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_weight="0.0"
-					android:calendarViewShown="false" />
-            </LinearLayout>
+            <DatePicker
+                android:id="@+id/toDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.0"
+                android:calendarViewShown="false" />
 
             <TextView
                 android:id="@+id/taskLabel"

@@ -25,7 +25,8 @@ public class WeekTimesViewHolder extends RecyclerView.ViewHolder implements Obse
 		weekStateLiveData.observeForever(this);
 	}
 
-	@Override public void onChanged(WeekState weekState) {
+	@Override
+	public void onChanged(WeekState weekState) {
 		Objects.requireNonNull(weekState);
 		weekTimesView.setWeekState(weekState);
 	}

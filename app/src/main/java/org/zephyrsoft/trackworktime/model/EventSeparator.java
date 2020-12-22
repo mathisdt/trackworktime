@@ -38,11 +38,6 @@ public class EventSeparator extends Event {
 	}
 
 	@Override
-	public Integer getWeek() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Integer getTask() {
 		throw new UnsupportedOperationException();
 	}
@@ -53,17 +48,7 @@ public class EventSeparator extends Event {
 	}
 
 	@Override
-	public String getTime() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void setId(Integer id) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setWeek(Integer week) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -74,11 +59,6 @@ public class EventSeparator extends Event {
 
 	@Override
 	public void setType(Integer type) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setTime(String time) {
 		throw new UnsupportedOperationException();
 	}
 
