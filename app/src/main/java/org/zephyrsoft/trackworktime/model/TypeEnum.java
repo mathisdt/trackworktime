@@ -38,14 +38,10 @@ public enum TypeEnum {
 	 * clock-out now type of event used to display correct amount of worked time on current day when currently clocked
 	 * in - THIS TYPE NEVER COMES FROM THE DATABASE
 	 */
-	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)"),
-    /**
-     * flex type defines a individual flex time for this day
-     */
-    FLEX(Values.FLEX_VALUE, "flex");
+	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)");
 
-	private Integer value = null;
-	private String readableName = null;
+	private Integer value;
+	private String readableName;
 
 	TypeEnum(Integer value, String readableName) {
 		this.value = value;
@@ -92,8 +88,6 @@ public enum TypeEnum {
 			return CLOCK_OUT;
 		} else if (value == Values.CLOCK_OUT_NOW_VALUE) {
 			return CLOCK_OUT_NOW;
-        } else if (value == Values.FLEX_VALUE) {
-            return FLEX;
 		} else {
 			throw new IllegalArgumentException("unknown value");
 		}
@@ -102,7 +96,6 @@ public enum TypeEnum {
 	private static class Values {
 		private static final int CLOCK_IN_VALUE = 1;
 		private static final int CLOCK_OUT_VALUE = 0;
-		private static final int FLEX_VALUE = 2;
 		private static final int CLOCK_OUT_NOW_VALUE = -1;
 	}
 }

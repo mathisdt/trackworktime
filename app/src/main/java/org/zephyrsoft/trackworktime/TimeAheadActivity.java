@@ -18,11 +18,10 @@ package org.zephyrsoft.trackworktime;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.databinding.TimeAheadBinding;
 
 /**
  * Activity for querying the amount of time which the new event should be pre-dated.
@@ -31,10 +30,7 @@ import org.pmw.tinylog.Logger;
  */
 public class TimeAheadActivity extends AppCompatActivity {
 
-	private TextView type = null;
-	private EditText minutes = null;
-	private Button cancel = null;
-	private Button ok = null;
+	private TimeAheadBinding binding;
 
 	/** see {@link Constants#TYPE_EXTRA_KEY} for possible values **/
 	private int typeIndicator = 0;
@@ -43,13 +39,14 @@ public class TimeAheadActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.time_ahead);
-		type = findViewById(R.id.type);
-		minutes = findViewById(R.id.minutes);
-		cancel = findViewById(R.id.cancel);
-		ok = findViewById(R.id.ok);
-		cancel.setOnClickListener(v -> finish());
-		ok.setOnClickListener(v -> {
+
+		binding = TimeAheadBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
+		EditText minutes = binding.minutes;
+
+		binding.cancel.setOnClickListener(v -> finish());
+		binding.ok.setOnClickListener(v -> {
             int minutesValue = 0;
             try {
                 minutesValue = Integer.parseInt(minutes.getText().toString());
@@ -76,7 +73,7 @@ public class TimeAheadActivity extends AppCompatActivity {
 		super.onResume();
 		typeIndicator = getIntent().getIntExtra(Constants.TYPE_EXTRA_KEY, 0);
 		String typeString = getIntent().getStringExtra(Constants.TYPE_STRING_EXTRA_KEY);
-		type.setText(typeString);
+		binding.type.setText(typeString);
 	}
 
 	@Override

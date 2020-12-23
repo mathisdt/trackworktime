@@ -5,11 +5,11 @@ import android.content.SharedPreferences;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import org.zephyrsoft.trackworktime.Constants;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.ChronoUnit;
+import org.threeten.bp.temporal.TemporalAdjusters;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-
-import hirondelle.date4j.DateTime;
 
 public enum FlexiReset {
 	NONE(1, Unit.NULL, "none"),
@@ -35,58 +35,72 @@ public enum FlexiReset {
 		return friendlyName;
 	}
 
-	public boolean isResetDay(DateTime day) {
-		DateTime resetDay;
-		switch(intervalUnit) {
-			case NULL: return false;
-			case DAY: resetDay = calcLastResetDayForDay(day); break;
-			case WEEK: resetDay = calcLastResetDayForWeek(day); break;
-			case MONTH: resetDay = calcLastResetDayForMonth(day); break;
-			default: throw new UnsupportedOperationException(intervalUnit.toString());
-		}
-		return resetDay.isSameDayAs(day);
-	}
-
-	public @NonNull DateTime calcLastResetDayFromDay(@NonNull DateTime fromDay) {
-		switch(intervalUnit) {
-			case NULL: return Constants.EPOCH;
-			case DAY: return calcLastResetDayForDay(fromDay);
-			case WEEK: return calcLastResetDayForWeek(fromDay);
-			case MONTH: return calcLastResetDayForMonth(fromDay);
-			default: throw new UnsupportedOperationException(intervalUnit.toString());
+	public @NonNull LocalDate getLastResetDate(LocalDate fromDate) {
+		switch (intervalUnit) {
+			case NULL:
+				return LocalDate.ofEpochDay(0);
+			case DAY:
+				return calcLastResetDayForDay(fromDate);
+			case WEEK:
+				return calcLastResetDayForWeek(fromDate);
+			case MONTH:
+				return calcLastResetDayForMonth(fromDate);
+			default:
+				throw new UnsupportedOperationException(intervalUnit.toString());
 		}
 	}
 
-	private DateTime calcLastResetDayForDay(DateTime fromDay) {
-		int daysDelta = getCountSinceLastResetDay(fromDay);
-		return fromDay.minusDays(daysDelta).getStartOfDay();
+	public @NonNull LocalDate getNextResetDate(LocalDate fromDate) {
+		switch (intervalUnit) {
+			case NULL:
+				return LocalDate.ofEpochDay(0);
+			case DAY:
+				return calcLastResetDayForDay(fromDate).plusDays(intervalSize);
+			case WEEK:
+				return calcLastResetDayForWeek(fromDate).plusWeeks(intervalSize);
+			case MONTH:
+				return calcLastResetDayForMonth(fromDate).plusMonths(intervalSize);
+			default:
+				throw new UnsupportedOperationException(intervalUnit.toString());
+		}
 	}
 
-	private int getCountSinceLastResetDay(DateTime atDay) {
-		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
-		return zeroBasedDayIndex % intervalSize;
+	public boolean isResetDay(LocalDate day) {
+		LocalDate resetDay;
+		switch(intervalUnit) {
+			case NULL:
+				return false;
+			case DAY:
+				resetDay = calcLastResetDayForDay(day); break;
+			case WEEK:
+				resetDay = calcLastResetDayForWeek(day); break;
+			case MONTH:
+				resetDay = calcLastResetDayForMonth(day); break;
+			default: throw new UnsupportedOperationException(intervalUnit.toString());
+		}
+
+		return resetDay.isEqual(day);
 	}
 
-	private DateTime calcLastResetDayForWeek(DateTime fromDay) {
-		int weekDelta = getCountSinceLastResetWeek(fromDay);
-		DateTime resetWeek = fromDay.minusDays(weekDelta * 7);
-		return DateTimeUtil.getWeekStart(resetWeek);
+	private LocalDate calcLastResetDayForDay(LocalDate fromDate) {
+		int daysDelta = (fromDate.getDayOfYear() - 1) % intervalSize;
+		return fromDate.minusDays(daysDelta);
 	}
 
-	private int getCountSinceLastResetWeek(DateTime atDay) {
-		int zeroBasedDayIndex = atDay.getDayOfYear() - 1;
-		return zeroBasedDayIndex % intervalSize;
+	private LocalDate calcLastResetDayForWeek(LocalDate fromDate) {
+		// starting point is the first Monday of the year
+		// FIXME fails with intervalSize != 1
+		LocalDate startDate =
+				fromDate.withDayOfYear(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+
+		long weekDelta = ChronoUnit.WEEKS.between(startDate, fromDate) % intervalSize;
+
+		return fromDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(weekDelta);
 	}
 
-	private DateTime calcLastResetDayForMonth(DateTime fromDay) {
-		int monthDelta = getCountSinceLastResetMonth(fromDay);
-		DateTime resetMonth = DateTimeUtil.minusMonths(fromDay, monthDelta);
-		return resetMonth.getStartOfMonth();
-	}
-
-	private int getCountSinceLastResetMonth(DateTime atDay) {
-		int zeroBasedMonthIndex = atDay.getMonth() - 1;
-		return zeroBasedMonthIndex % intervalSize;
+	private LocalDate calcLastResetDayForMonth(LocalDate fromDate) {
+		int monthsDelta = (fromDate.getMonthValue() - 1) % intervalSize;
+		return fromDate.minusMonths(monthsDelta).withDayOfMonth(1);
 	}
 
 	public static FlexiReset loadFromPreferences(SharedPreferences preferences) {

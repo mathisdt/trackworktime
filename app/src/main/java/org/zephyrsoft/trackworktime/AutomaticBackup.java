@@ -5,28 +5,23 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.util.BackupUtil;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-
-import java.io.File;
-import java.util.TimeZone;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.work.Data;
-import androidx.work.ListenableWorker;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.utils.futures.SettableFuture;
+
+import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
+import org.zephyrsoft.trackworktime.util.BackupUtil;
+
+import java.io.File;
 
 public class AutomaticBackup extends Worker {
 
-    private static final String AUTOMATIC_BACKUP_FILE = "automatic-backup.csv";
+    private static final String AUTOMATIC_BACKUP_FILE = "automatic-";
 
-    private Context context;
+    private final Context context;
 
     public AutomaticBackup(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -44,11 +39,10 @@ public class AutomaticBackup extends Worker {
             Logger.warn("automatic backup failed because getExternalStorageDirectory() returned null");
             return Result.failure(new Data.Builder().putString("error", "external storage directory could not be found").build());
         }
-        final File backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
-        final File backupFile = new File(backupDir, AUTOMATIC_BACKUP_FILE);
+        final BackupFileInfo info = BackupFileInfo.getBackupFiles(false, AUTOMATIC_BACKUP_FILE);
 
         Logger.info("starting automatic backup");
-        BackupUtil.doBackup(context, backupFile);
+        BackupUtil.doBackup(context, info);
         return Result.success();
     }
 }

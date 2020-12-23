@@ -3,14 +3,10 @@ package org.zephyrsoft.trackworktime.weektimes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import org.zephyrsoft.trackworktime.database.DAO;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.ChronoUnit;
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-
-import java.util.TimeZone;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Converts week-index to {@link Week} and vice versa, where week-index is number of weeks after epoch,
@@ -19,63 +15,25 @@ import hirondelle.date4j.DateTime;
  * E.g. index of 0 means 1st week after epoch.
  */
 public class WeekIndexConverter {
+	private static final LocalDate epochDate = LocalDate.ofEpochDay(0);
 
-	private final DAO dao;
-	private final DateTime epochDate;
-
-	public WeekIndexConverter(@NonNull DAO dao, @NonNull TimeZone timeZone) {
-		this.dao = dao;
-		epochDate = DateTime.forInstant(0, timeZone);
-		verifyValues();
-	}
-
-	private void verifyValues() {
-		if(dao == null || epochDate == null) {
-			throw new IllegalStateException("Invalid class state, dao " + dao + ", epochDate "
-					+ epochDate);
-		}
-	}
-
-	public @NonNull Week getWeekForIndex(@IntRange(from=0) int weekIndex) {
-		checkWeekIndex(weekIndex);
-		DateTime weekOnIndex = getDateForIndex(weekIndex);
-		return getWeekForDate(weekOnIndex);
-	}
-
-	private void checkWeekIndex(int weekIndex) {
+	public static @NonNull Week getWeekForIndex(@IntRange(from=0) int weekIndex) {
 		if(weekIndex < 0) {
 			throw new IllegalArgumentException("Week index should be positive");
 		}
+		
+		return new Week(epochDate.plusWeeks(weekIndex));
 	}
 
-	private DateTime getDateForIndex(int weekIndex) {
-		return DateTimeUtil.plusWeeks(epochDate, weekIndex);
+	public static @IntRange(from=0) int getIndexForDate(LocalDate date) {
+		return (int) ChronoUnit.WEEKS.between(epochDate, date.with(DayOfWeek.MONDAY)) + 1;
 	}
 
-	private Week getWeekForDate(DateTime dateTime) {
-		DateTime weekStart = DateTimeUtil.getWeekStart(dateTime);
-		Week week = dao.getWeek(DateTimeUtil.dateTimeToString(weekStart));
-		if (week == null) {
-			week = new WeekPlaceholder(DateTimeUtil.dateTimeToString(weekStart));
-		}
-		return week;
-	}
-
-	public @IntRange(from=0) int getIndexForWeek(@NonNull Week week) {
-		checkWeek(week);
-		DateTime weekDate = getDateForWeek(week);
-		return weekDate.getWeekIndex(epochDate);
-	}
-
-	private void checkWeek(Week week) {
-		if(week == null || week.getStart() == null || week.getStart().isEmpty()) {
+	public static @IntRange(from=0) int getIndexForWeek(Week week) {
+		if(week == null || week.getStart() == null) {
 			throw new IllegalArgumentException("Invalid Week " + week);
 		}
-	}
 
-	private DateTime getDateForWeek(Week week) {
-		String start = week.getStart();
-		return DateTimeUtil.stringToDateTime(start);
+		return getIndexForDate(week.getStart());
 	}
-
 }

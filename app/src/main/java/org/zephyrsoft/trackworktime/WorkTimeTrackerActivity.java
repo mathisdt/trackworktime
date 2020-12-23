@@ -19,49 +19,52 @@ package org.zephyrsoft.trackworktime;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View.OnClickListener;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.navigation.NavigationView;
+
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.databinding.ActivityMainBinding;
 import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
@@ -69,18 +72,13 @@ import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateCalculatorFactory;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderFactory;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderManager;
+import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.List;
-import java.util.TimeZone;
 
 import static java.lang.Math.abs;
 
@@ -89,29 +87,27 @@ import static java.lang.Math.abs;
  *
  * @author Mathis Dirksen-Thedens
  */
-public class WorkTimeTrackerActivity extends AppCompatActivity {
+public class WorkTimeTrackerActivity extends AppCompatActivity
+		implements NavigationView.OnNavigationItemSelectedListener {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 
 	private static final String KEY_CURRENT_WEEK = "current_week";
 
 	private enum MenuAction {
-		EDIT_EVENTS, EDIT_TASKS, INSERT_DEFAULT_TIMES, OPTIONS, REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS,
-		USE_CURRENT_LOCATION, REPORTS, BACKUP, RESTORE, ABOUT, SEND_LOGS, RAISE_EXCEPTION, RECENTER_WEEK;
+		RECENTER_WEEK, RAISE_EXCEPTION, SHOW_DEBUG;
 
 		public static MenuAction byOrdinal(int ordinal) {
 			return values()[ordinal];
 		}
 	}
 
-	private Spinner task = null;
-	private EditText text = null;
-	private Button clockInButton = null;
-	private Button clockOutButton = null;
-	private ViewPager2 weekPager = null;
-	private MenuItem recenterMenuItem;
-
 	private static WorkTimeTrackerActivity instance = null;
+
+	private ActivityMainBinding binding;
+
+	private ActionBarDrawerToggle toggle;
+	private MenuItem recenterMenuItem;
 
 	private boolean visible = false;
 
@@ -122,7 +118,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
-	private WeekIndexConverter weekIndexConverter;
+	
 	private WeekAdapter weekAdapter;
 
 	private void checkAllOptions() {
@@ -135,7 +131,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 				.createMessageIntent(
 					disabledSections == 1
 						? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
-						: String.valueOf(disabledSections)
+						: disabledSections
 							+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
 					null);
 			startActivity(messageIntent);
@@ -151,20 +147,46 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		// fill basic data from central structures
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
-		weekIndexConverter = new WeekIndexConverter(dao, DateTimeUtil.getCurrentTimeZone());
 		timerManager = basics.getTimerManager();
 		externalNotificationManager = basics.getExternalNotificationManager();
 
-		setContentView(R.layout.main);
+		binding = ActivityMainBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
-		findAllViewsById();
+		// set toolbar as action bar
+		setSupportActionBar(binding.toolbar);
+
+		// configure navigation drawer
+		DrawerLayout drawer = binding.drawer;
+		toggle = new ActionBarDrawerToggle(this, drawer, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+		drawer.addDrawerListener(toggle);
+
+		// make entry visible
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			binding.navView.getMenu().findItem(R.id.nav_ignore_battery_optimizations).setVisible(true);
+		}
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setHomeButtonEnabled(true);
+		}
+
+		binding.navView.setNavigationItemSelectedListener(this);
+
+		// bind click listener for navigation buttons (may not be visible)
+		binding.main.today.setOnClickListener(v -> recenterWeek());
+		binding.main.previous.setOnClickListener(v -> changeDisplayedWeek(-1));
+		binding.main.next.setOnClickListener(v -> changeDisplayedWeek(1));
+
 
 		initWeekPager(savedInstanceState);
 
+		Button clockInButton = binding.main.clockInButton;
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
             Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
-            String typeString = null;
+            String typeString;
             if (timerManager.isTracking()) {
                 typeString = getString(R.string.clockInChange);
             } else {
@@ -176,10 +198,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
             return true;
         });
 
+		Button clockOutButton = binding.main.clockOutButton;
 		clockOutButton.setOnClickListener(v -> clockOutAction(0));
 		clockOutButton.setOnLongClickListener(v -> {
             Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
-            String typeString = null;
+            String typeString;
             if (timerManager.isTracking()) {
                 typeString = getString(R.string.clockOut);
                 i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
@@ -188,7 +211,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
             }
             return true;
         });
-
 
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
@@ -219,18 +241,29 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void initWeekPager(@Nullable Bundle state) {
+		ViewPager2 weekPager = binding.main.week;
+
 		weekPager.setOffscreenPageLimit(1);
 		initWeekPagerAdapter();
 		initWeekPagerAnimation();
 		initWeekPagerPosition(state);
-		initWeekPagerChangeCallback();
+
+		weekPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+			@Override
+			public void onPageSelected(int selectedWeekIndex) {
+				super.onPageSelected(selectedWeekIndex);
+				refreshRecenterMenuItem();
+			}
+		});
 	}
 
 	private void initWeekPagerAdapter() {
 		WeekStateLoaderManager weekStateLoaderManager = createWeekLoaderManger();
-		OnClickListener weekClickListener = v -> showCurrentEventList();
-		weekAdapter = new WeekAdapter(weekIndexConverter, weekStateLoaderManager, weekClickListener);
-		weekPager.setAdapter(weekAdapter);
+		View.OnClickListener weekClickListener = v -> showEventList();
+		WeekTimesView.OnDayClickListener dayClickListener = (v, day) -> setTarget(day);
+
+		weekAdapter = new WeekAdapter(weekStateLoaderManager, dayClickListener, weekClickListener);
+		binding.main.week.setAdapter(weekAdapter);
 	}
 
 	private WeekStateLoaderManager createWeekLoaderManger() {
@@ -246,7 +279,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void initWeekPagerAnimation() {
-		weekPager.setPageTransformer((view, position) -> {
+		binding.main.week.setPageTransformer((view, position) -> {
 			if(position >= 1 || position < -1) {
 				return;
 			}
@@ -268,42 +301,29 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	private void initWeekPagerPosition(@Nullable Bundle state) {
-		Week restoredWeek = state == null ? null : state.getParcelable(KEY_CURRENT_WEEK);
-		Week initialWeek = restoredWeek == null ? getTodaysWeek() : restoredWeek;
+		int restoredWeekIndex = (state != null) ? state.getInt(KEY_CURRENT_WEEK) : 0;
+		int initialWeek = (restoredWeekIndex == 0) ? getTodaysWeekIndex() : restoredWeekIndex;
+
 		showWeek(initialWeek, false);
 	}
 
-	private void recenterWeek(boolean animate) {
-		Week todaysWeek = getTodaysWeek();
-		showWeek(todaysWeek, animate);
+	private void recenterWeek() {
+		showWeek(getTodaysWeekIndex(), true);
 	}
 
-	private Week getTodaysWeek() {
-		final String todaysWeekStart = DateTimeUtil.getWeekStartAsString(DateTimeUtil.getCurrentDateTime());
-		Week todaysWeek = dao.getWeek(todaysWeekStart);
-		return todaysWeek != null
-				? todaysWeek
-				: new WeekPlaceholder(todaysWeekStart);
+	private int getTodaysWeekIndex() {
+		return WeekIndexConverter.getIndexForDate(LocalDate.now(timerManager.getHomeTimeZone()));
 	}
 
-	private void showWeek(@NonNull Week week, boolean animate) {
-		int weekIndex = weekIndexConverter.getIndexForWeek(week);
-		weekPager.setCurrentItem(weekIndex, animate);
+	private void showWeek(int weekIndex, boolean animate) {
+		binding.main.week.setCurrentItem(weekIndex, animate);
 	}
 
-	private void initWeekPagerChangeCallback() {
-		weekPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-			@Override
-			public void onPageSelected(int selectedWeekIndex) {
-				super.onPageSelected(selectedWeekIndex);
-				refreshRecenterMenuItem();
-			}
-		});
-	}
-
-	@Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+	@Override
+	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
-		outState.putParcelable(KEY_CURRENT_WEEK, getCurrentlyDisplayedWeek());
+
+		outState.putInt(KEY_CURRENT_WEEK, getCurrentWeekIndex());
 	}
 
 	@Override
@@ -322,6 +342,29 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		}
 	}
 
+	@Override
+	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		toggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		toggle.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onBackPressed() {
+		DrawerLayout drawer = binding.drawer;
+
+		if (drawer.isDrawerOpen(GravityCompat.START)) {
+			drawer.closeDrawer(GravityCompat.START);
+		} else {
+			super.onBackPressed();
+		}
+	}
+
 	/**
 	 * @param minutesToPredate
 	 *            if greater than 0, predate the event this many minutes
@@ -331,13 +374,35 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			throw new IllegalArgumentException("no negative argument allowed");
 		}
 		// commit text field
-		text.clearFocus();
+		binding.main.text.clearFocus();
 
-		Task selectedTask = (Task) task.getSelectedItem();
-		String description = text.getText().toString();
+		Task selectedTask = (Task) binding.main.task.getSelectedItem();
+		String description = binding.main.text.getText().toString();
 		timerManager.startTracking(minutesToPredate, selectedTask, description);
 		externalNotificationManager.notifyPebble("started tracking");
 		refreshView();
+	}
+
+	public void setTarget(DayOfWeek day) {
+		if (day == null) {
+			// add or change general target
+			Logger.debug("Starting to edit general target");
+
+			Intent i = new Intent(this, TargetEditActivity.class);
+			startActivity(i);
+
+		} else {
+			// add or change target of a day
+			Week currentWeek = getCurrentWeek();
+
+			if (currentWeek != null) {
+				LocalDate targetDay = currentWeek.getStart().plusDays(day.ordinal());
+
+				Intent i = new Intent(this, TargetEditActivity.class);
+				i.putExtra(Constants.DATE_EXTRA_KEY, targetDay.toEpochDay());
+				startActivity(i);
+			}
+		}
 	}
 
 	/**
@@ -354,6 +419,24 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		refreshView();
 	}
 
+	/**
+	 * @param interval position of the week relative to the currently displayed week, e.g. -2 for two weeks before the
+	 *                 currently displayed week
+	 */
+	private void changeDisplayedWeek(int interval) {
+		if (interval == 0) {
+			return;
+		}
+
+		// display a Toast indicating the change interval (helps the user for more than one week difference)
+		if (Math.abs(interval) > 1) {
+			CharSequence backwardOrForward = interval < 0 ? getText(R.string.backward) : getText(R.string.forward);
+			Toast.makeText(this, backwardOrForward + " " + Math.abs(interval) + " " + getText(R.string.weeks),
+					Toast.LENGTH_SHORT).show();
+		}
+
+		showWeek(getCurrentWeekIndex() + interval, true);
+	}
 
 	/**
 	 * Reloads the view's data if the view is currently shown.
@@ -366,25 +449,32 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	}
 
 	protected void refreshView() {
-		clockOutButton.setEnabled(timerManager.isTracking());
-		Task taskToSelect = null;
+		if (preferences.getBoolean(getString(R.string.keyShowNavigationButtons), false)) {
+			binding.main.navigation.setVisibility(View.VISIBLE);
+		} else {
+			binding.main.navigation.setVisibility(View.GONE);
+		}
+
+		binding.main.clockOutButton.setEnabled(timerManager.isTracking());
+		Task taskToSelect;
 		if (timerManager.isTracking()) {
-			clockInButton.setText(R.string.clockInChange);
+			binding.main.clockInButton.setText(R.string.clockInChange);
 			taskToSelect = timerManager.getCurrentTask();
 		} else {
-			clockInButton.setText(R.string.clockIn);
+			binding.main.clockInButton.setText(R.string.clockIn);
 			taskToSelect = dao.getDefaultTask();
 		}
 		if (taskToSelect != null) {
 			int i = 0;
 			for (Task oneTask : tasks) {
 				if (oneTask.getId().equals(taskToSelect.getId())) {
-					task.setSelection(i);
+					binding.main.task.setSelection(i);
 					break;
 				}
 				i++;
 			}
 		}
+
 		weekAdapter.notifyDataSetChanged();
 		refreshRecenterMenuItem();
 	}
@@ -395,7 +485,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			return;
 		}
 
-		int difference = getDisplayedToTodaysWeekDifference();
+		// 0, when current week is displayed
+		// negative value, when currently displayed week is in the past
+		// positive value, when displaying future week
+		int difference = getTodaysWeekIndex() - getCurrentWeekIndex();
 
 		boolean itemVisible = abs(difference) > 0;
 		recenterMenuItem.setVisible(itemVisible);
@@ -409,29 +502,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		recenterMenuItem.setIcon(icon);
 	}
 
-	/**
-	 * @return 0, when current week is displayed, negative value, when currently displayed week is
-	 * in the past, and positive value, when displaying future week */
-	private int getDisplayedToTodaysWeekDifference() {
-		Week todaysWeek = getTodaysWeek();
-		int todaysIndex = weekIndexConverter.getIndexForWeek(todaysWeek);
-		int shownIndex = getCurrentlyDisplayedWeekIndex();
-		return todaysIndex - shownIndex;
-	}
-
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		task.setAdapter(tasksAdapter);
-	}
-
-	private void findAllViewsById() {
-		task = findViewById(R.id.task);
-		text = findViewById(R.id.text);
-		clockInButton = findViewById(R.id.clockInButton);
-		clockOutButton = findViewById(R.id.clockOutButton);
-		weekPager = findViewById(R.id.week_pager);
+		binding.main.task.setAdapter(tasksAdapter);
 	}
 
 	/**
@@ -443,30 +518,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, MenuAction.EDIT_EVENTS.ordinal(), MenuAction.EDIT_EVENTS.ordinal(), R.string.edit_events)
-			.setIcon(R.drawable.ic_menu_edit);
-		menu.add(Menu.NONE, MenuAction.EDIT_TASKS.ordinal(), MenuAction.EDIT_TASKS.ordinal(), R.string.edit_tasks)
-			.setIcon(R.drawable.ic_menu_sort_by_size);
-		menu.add(Menu.NONE, MenuAction.INSERT_DEFAULT_TIMES.ordinal(), MenuAction.INSERT_DEFAULT_TIMES.ordinal(), R.string.insert_default_times)
-			.setIcon(R.drawable.ic_menu_mark);
-		menu.add(Menu.NONE, MenuAction.OPTIONS.ordinal(), MenuAction.OPTIONS.ordinal(), R.string.options)
-			.setIcon(R.drawable.ic_menu_preferences);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			menu.add(Menu.NONE, MenuAction.REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS.ordinal(), MenuAction.REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS.ordinal(), R.string.request_to_ignore_battery_optimizations)
-				.setIcon(R.drawable.ic_menu_preferences);
-		}
-		menu.add(Menu.NONE, MenuAction.USE_CURRENT_LOCATION.ordinal(), MenuAction.USE_CURRENT_LOCATION.ordinal(), R.string.use_current_location)
-			.setIcon(R.drawable.ic_menu_compass);
-		menu.add(Menu.NONE, MenuAction.REPORTS.ordinal(), MenuAction.REPORTS.ordinal(), R.string.reports)
-			.setIcon(R.drawable.ic_menu_agenda);
-		menu.add(Menu.NONE, MenuAction.BACKUP.ordinal(), MenuAction.BACKUP.ordinal(), R.string.backup);
-		menu.add(Menu.NONE, MenuAction.RESTORE.ordinal(), MenuAction.RESTORE.ordinal(), R.string.restore);
-		menu.add(Menu.NONE, MenuAction.ABOUT.ordinal(), MenuAction.ABOUT.ordinal(), R.string.about)
-			.setIcon(R.drawable.ic_menu_star);
-		menu.add(Menu.NONE, MenuAction.SEND_LOGS.ordinal(), MenuAction.SEND_LOGS.ordinal(), R.string.sendLogs);
+
 		if (Basics.getOrCreateInstance(this).isDevelopmentVersion()) {
 			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception")
-				.setIcon(R.drawable.ic_menu_star);
+					.setIcon(R.drawable.ic_menu_star);
+			menu.add(Menu.NONE, MenuAction.SHOW_DEBUG.ordinal(), MenuAction.SHOW_DEBUG.ordinal(), "[DEV] Show Debug")
+					.setIcon(R.drawable.ic_menu_info_details);
 		}
 
 		int recenterId = MenuAction.RECENTER_WEEK.ordinal();
@@ -480,73 +537,89 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		if (toggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+
 		switch (MenuAction.byOrdinal(item.getItemId())) {
 			case RECENTER_WEEK:
-				recenterWeek(true);
+				recenterWeek();
 				return true;
-			case EDIT_EVENTS:
-				showCurrentEventList();
-				return true;
-			case EDIT_TASKS:
-				showTaskList();
-				return true;
-			case INSERT_DEFAULT_TIMES:
-				showInsertDefaultTimes();
-				return true;
-			case OPTIONS:
-				showOptions();
-				return true;
-			case REQUEST_TO_IGNORE_BATTERY_OPTIMIZATIONS:
-				showRequestToIgnoreBatteryOptimizations();
-				return true;
-			case USE_CURRENT_LOCATION:
-				useCurrentLocationAsWorkplace();
-				return true;
-			case REPORTS:
-				showReports();
-				return true;
-			case BACKUP:
-				backupToSd();
-				return true;
-			case RESTORE:
-				restoreFromSd();
-				return true;
-			case ABOUT:
-				showAbout();
-				return true;
-			case SEND_LOGS:
-				sendLogs();
-				return true;
+
 			case RAISE_EXCEPTION:
 				throw new IllegalStateException("this exception is for testing purposes only");
+			case SHOW_DEBUG:
+				showDebug();
+				return true;
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");
 		}
 	}
 
-	private void showCurrentEventList() {
-		Week currentWeek = getCurrentlyDisplayedWeek();
-		showEventList(currentWeek);
-	}
+	@Override
+	public boolean onNavigationItemSelected(MenuItem menuItem) {
+		Logger.debug("onNavigationItemSelected");
 
-	private @NonNull Week getCurrentlyDisplayedWeek() {
-		int weekIndex = getCurrentlyDisplayedWeekIndex();
-		return weekIndexConverter.getWeekForIndex(weekIndex);
-	}
+		int itemId = menuItem.getItemId();
 
-	private int getCurrentlyDisplayedWeekIndex() {
-		return weekPager.getCurrentItem();
-	}
+		if (itemId == R.id.nav_about) {
+			showAbout();
 
-	private void showEventList(Week week) {
-		Logger.debug("showing EventList");
-		Intent i = new Intent(this, EventListActivity.class);
-		if(week == null) {
-			Logger.error("Trying to show event list for null week");
-			return;
+		} else if (itemId == R.id.nav_preferences) {
+			showOptions();
+
+		} else if (itemId == R.id.nav_set_work_location) {
+			useCurrentLocationAsWorkplace();
+
+		} else if (itemId == R.id.nav_edit_events) {
+			showEventList();
+
+		} else if (itemId == R.id.nav_edit_tasks) {
+				showTaskList();
+
+		} else if (itemId == R.id.nav_insert_default_times) {
+			showInsertDefaultTimes();
+
+		} else if (itemId == R.id.nav_reports) {
+			showReports();
+
+		} else if (itemId == R.id.nav_data_backup) {
+			backupToSd();
+
+		} else if (itemId == R.id.nav_data_restore) {
+			restoreFromSd();
+
+		} else if (itemId == R.id.nav_send_logs) {
+			sendLogs();
+
+		} else if (itemId == R.id.nav_ignore_battery_optimizations) {
+			showRequestToIgnoreBatteryOptimizations();
+
+		} else {
+			return false;
 		}
-		i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.getStart());
-		startActivity(i);
+
+		return true;
+	}
+
+	private Week getCurrentWeek() {
+		int weekIndex = getCurrentWeekIndex();
+		return (weekIndex > 0) ? WeekIndexConverter.getWeekForIndex(weekIndex) : null;
+	}
+
+	private int getCurrentWeekIndex() {
+		return binding.main.week.getCurrentItem();
+	}
+
+	private void showEventList() {
+		Logger.debug("showing EventList");
+
+		Week currentWeek = getCurrentWeek();
+		if (currentWeek != null) {
+			Intent i = new Intent(this, EventListActivity.class);
+			i.putExtra(Constants.WEEK_START_EXTRA_KEY, currentWeek.toEpochDay());
+			startActivity(i);
+		}
 	}
 
 	private void showTaskList() {
@@ -626,9 +699,15 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 		emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		emailIntent.setType("text/plain");
-		String to[] = {getString(R.string.email)};
+		String[] to = {getString(R.string.email)};
 		emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
 		startActivity(Intent.createChooser(emailIntent , getString(R.string.sendLogs)));
+	}
+
+	private void showDebug() {
+		Logger.debug("showing Debug");
+		Intent i = new Intent(this, DebugActivity.class);
+		startActivity(i);
 	}
 
 	@Override
@@ -641,6 +720,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		}
 
 		Basics.getInstance().safeCheckExternalControls();
+
+		// always start with closed navigation drawer
+		binding.drawer.closeDrawer(GravityCompat.START, false);
 
 		refreshView();
 		super.onResume();
@@ -671,21 +753,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 		return instance;
 	}
 
-	private Event getLastEventIfClockIn() {
-		Event event = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
-		if (event != null && event.getType() != null && event.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
-			return event;
-		} else {
-			return null;
-		}
-	}
-
-	private static boolean equalsWithNullEqualsEmptyString(String one, String two) {
-		return (one == null && two == null) || (one != null && one.length() == 0 && two == null)
-			|| (one != null && one.length() == 0 && two == null) || (one == null && two != null && two.length() == 0)
-			|| (one != null && one.equals(two));
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions,
 			int[] grantResults) {
@@ -708,7 +775,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 	// ---------------------------------------------------------------------------------------------
 	// Backup, Restore
 	// ---------------------------------------------------------------------------------------------
-	private static final String BACKUP_FILE = "backup.csv";
 
 	/**
 	 * Check if file exists and ask user if so.
@@ -719,28 +785,25 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_BACKUP);
 			return;
 		}
-		final File backupDir = new File(Environment.getExternalStorageDirectory(), Constants.DATA_DIR);
-		final File backupFile = new File(backupDir, BACKUP_FILE);
-		if (backupDir == null) {
-			Toast.makeText(this, R.string.backup_failed, Toast.LENGTH_LONG).show();
-			return;
-		}
-		if (backupFile.exists()) {
+
+		final BackupFileInfo info = BackupFileInfo.getBackupFiles(false);
+
+		if (info.eventsBackupFile.exists() || info.targetsBackupFile.exists()) {
 			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			final String msgBackupOverwrite = String.format(
-				getString(R.string.backup_overwrite), backupFile);
+			final String msgBackupOverwrite = getString(R.string.backup_overwrite) + "\n" + info.listAvailable();
+
 			builder.setMessage(msgBackupOverwrite)
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    backup(backupFile);
+                    backup(info);
                     dialog.dismiss();
                 })
 				.setNegativeButton(android.R.string.cancel, null).show();
 		} else {
-			backup(backupFile);
+			backup(info);
 		}
 	}
 
-	private void backup(final File backupFile) {
+	private void backup(final BackupFileInfo info) {
 		// do in background
 		new AsyncTask<Void, Void, Boolean>() {
 			private ProgressDialog dialog;
@@ -754,14 +817,14 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 
 			@Override
 			protected Boolean doInBackground(Void... none) {
-				return BackupUtil.doBackup(getApplicationContext(), backupFile);
+				return BackupUtil.doBackup(getApplicationContext(), info);
 			}
 
 			@Override
 			protected void onPostExecute(Boolean successful) {
 				if (successful) {
 					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this, backupFile.toString(), Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this, info.toString(), Toast.LENGTH_LONG).show();
 				} else {
 					Toast.makeText(WorkTimeTrackerActivity.this, R.string.backup_failed, Toast.LENGTH_LONG).show();
 				}
@@ -777,42 +840,32 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_RESTORE);
 			return;
 		}
-		final File backupDir = new File(Environment.getExternalStorageDirectory(), Constants.DATA_DIR);
-		final File backupFile = new File(backupDir, BACKUP_FILE);
-		if (backupDir == null) {
-			final String msgBackupOverwrite = String.format(
-				getString(R.string.restore_failed_file_not_found),
-				backupFile);
-			Toast.makeText(this, msgBackupOverwrite, Toast.LENGTH_LONG).show();
-			return;
-		}
-		if (backupFile.exists()) {
+		final BackupFileInfo info = BackupFileInfo.getBackupFiles(true);
+
+		if (info != null) {
 			final Cursor cur = dao.getAllEventsAndTasks();
 			final int medCount = cur.getCount();
 			cur.close();
 			if (medCount > 0) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				final String msgBackupOverwrite = String.format(
-					getString(R.string.restore_warning), backupFile);
+					getString(R.string.restore_warning), info.listAvailable());
 				builder.setMessage(msgBackupOverwrite)
 					.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        restore(backupFile);
+                        restore(info);
                         dialog.dismiss();
                     })
 					.setNegativeButton(android.R.string.cancel, null).show();
 			} else {
 				// no entries, skip warning
-				restore(backupFile);
+				restore(info);
 			}
 		} else {
-			final String msgBackupOverwrite = String.format(
-				getString(R.string.restore_failed_file_not_found),
-				backupFile);
-			Toast.makeText(this, msgBackupOverwrite, Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.restore_failed_file_not_found), Toast.LENGTH_LONG).show();
 		}
 	}
 
-	private void restore(final File backupFile) {
+	private void restore(final BackupFileInfo info) {
 		// do in background
 		new AsyncTask<Void, Void, Boolean>() {
 			private ProgressDialog dialog;
@@ -827,9 +880,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			@Override
 			protected Boolean doInBackground(Void... none) {
 				try {
-					final BufferedReader input = new BufferedReader(
-						new InputStreamReader(new FileInputStream(backupFile)));
-					dao.restoreFromReader(input);
+					if (info.eventsBackupFile.exists()) {
+						final BufferedReader input = new BufferedReader(
+								new InputStreamReader(new FileInputStream(info.eventsBackupFile)));
+
+						dao.restoreEventsFromReader(input);
+					}
+					if (info.targetsBackupFile.exists()) {
+						final BufferedReader input = new BufferedReader(
+								new InputStreamReader(new FileInputStream(info.targetsBackupFile)));
+
+						dao.restoreTargetsFromReader(input);
+					}
 					return true;
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -841,7 +903,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity {
 			protected void onPostExecute(Boolean successful) {
 				if (successful) {
 					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this, backupFile.toString(), Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this, info.listAvailable(), Toast.LENGTH_LONG).show();
 				} else {
 					Toast.makeText(WorkTimeTrackerActivity.this, R.string.restore_failed, Toast.LENGTH_LONG).show();
 				}

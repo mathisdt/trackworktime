@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="keyHomeTimezone">keyHomeTimezone</string>
     <string name="keyFlexiTimeCategory">keyFlexiTimeCategory</string>
     <string name="keyEnableFlexiTime">keyEnableFlexiTime</string>
     <string name="keyFlexiTimeToZeroOnEveryDay">keyFlexiTimeToZeroOnEveryDay</string>
@@ -46,5 +47,6 @@
     <string name="keyClockedInByWifi">keyClockedInByWifi</string>
     <string name="keyAutomaticTrackingCategory">keyAutomaticTrackingCategory</string>
     <string name="keyEachTrackingMethodGeneratesEventsSeparately">keyEachTrackingMethodGeneratesEventsSeparately</string>
-
+    <string name="keyAppearanceCategory">keyApperanceCategory</string>
+    <string name="keyShowNavigationButtons">keyShowNavigationButtons</string>
 </resources>

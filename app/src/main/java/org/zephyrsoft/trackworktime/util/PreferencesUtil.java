@@ -42,7 +42,7 @@ public class PreferencesUtil {
 		int disabledSections = 0;
 		for (String key : preferences.getAll().keySet()) {
 			Key sectionToDisable = PreferencesUtil.check(preferences, key);
-			if (sectionToDisable != null && PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
+			if (PreferencesUtil.getBooleanPreference(preferences, sectionToDisable)) {
 				Logger.warn("option {} is invalid => disabling option {}", key, sectionToDisable.getName());
 				disabledSections++;
 
@@ -103,7 +103,7 @@ public class PreferencesUtil {
 		// only two levels planned - either a pref is a parent or a child, it cannot be both!
 		boolean isParent = (key.getParent() == null);
 
-		Key keyToDisableIfInvalid = null;
+		Key keyToDisableIfInvalid;
 		boolean isValid = true;
 		if (isParent) {
 			keyToDisableIfInvalid = key;

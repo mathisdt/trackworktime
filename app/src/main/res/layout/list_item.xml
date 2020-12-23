@@ -6,6 +6,7 @@
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:gravity="center_vertical"
     android:paddingLeft="6dip"
-    android:background="?android:selectableItemBackground"
+    android:foreground="?attr/selectableItemBackground"
+    android:background="@drawable/item_drawable"
     android:minHeight="45dp"
 />

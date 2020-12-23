@@ -10,14 +10,8 @@
     <string name="onespace">" "</string>
     <string name="out">OUT</string>
     <string name="worked">Worked</string>
+    <string name="shortDate">E, MM/dd</string>
     <string name="flexi">Flexi</string>
-    <string name="monday">Mo, </string>
-    <string name="tuesday">Tu, </string>
-    <string name="wednesday">We, </string>
-    <string name="thursday">Th, </string>
-    <string name="friday">Fr, </string>
-    <string name="saturday">Sa, </string>
-    <string name="sunday">Su, </string>
     <string name="mondayLong">Monday</string>
     <string name="tuesdayLong">Tuesday</string>
     <string name="wednesdayLong">Wednesday</string>
@@ -27,6 +21,7 @@
     <string name="sundayLong">Sunday</string>
     <string name="flexiTimeDayDescription">check if you work on this day</string>
     <string name="total">Total</string>
+    <string name="target">Target</string>
     <string name="task">Task</string>
     <string name="text">Text</string>
     <string name="choose_task">Choose a task</string>
@@ -40,6 +35,7 @@
     <string name="insert_default_times">Multi-Insert</string>
     <string name="edit_tasks">Edit Tasks</string>
     <string name="edit_events">Edit Events</string>
+    <string name="edit_targets">Edit Targets</string>
     <string name="options">Options</string>
     <string name="request_to_ignore_battery_optimizations">Disable Restrictions</string>
     <string name="request_to_ignore_battery_optimizations_title">Disable Battery Optimization</string>
@@ -52,6 +48,7 @@
     <string name="cancel">Cancel</string>
     <string name="rename_task">Rename Task</string>
     <string name="edit_event">Edit Event</string>
+    <string name="edit_target">Edit Target</string>
     <string name="delete">Delete</string>
     <string name="delete_task">Delete Task</string>
     <string name="delete_event">Delete Event</string>
@@ -76,7 +73,7 @@
     <string name="backward">jumped backward</string>
     <string name="forward">jumped forward</string>
     <string name="weeks">weeks</string>
-    <string name="now">now</string>
+    <string name="now">NOW</string>
     <string name="locationBasedTracking">Location-based Tracking</string>
     <string name="enableLocationBasedTracking">Track by Location</string>
     <string name="workplaceLatitude">Latitude of Workplace</string>
@@ -109,6 +106,7 @@
     <string name="type">Type</string>
     <string name="time">Time</string>
     <string name="saveChanges">Save Changes</string>
+    <string name="comment_hint">Hint (optional)</string>
     <string name="optional">(optional)</string>
     <string name="notification">Notification</string>
     <string name="notificationEnabled">Notification enabled</string>
@@ -141,10 +139,12 @@
     <string name="restore">Data Restore</string>
     <string name="backup_failed">Backup failed.</string>
     <string name="restore_failed">Restore failed.</string>
-    <string name="restore_failed_file_not_found">Restore failed, file not found: \"%1$s\"</string>
-    <string name="backup_overwrite">Overwrite existing file \"%1$s\"?</string>
-    <string name="restore_warning">Delete everything and replace it with the content of the restore file \"%1$s\"?</string>
+    <string name="restore_failed_file_not_found">Restore failed, no backup files found.</string>
+    <string name="backup_overwrite">Overwrite existing backup files?</string>
+    <string name="restore_warning">Delete everything and replace it with the content of the restore files: \"%1$s\"?</string>
     <string name="please_wait">Please wait&#8230;</string>
+    <string name="appearance">Appearance</string>
+    <string name="show_navigation_buttons">Show navigation buttons</string>
     <string name="current">Current</string>
     <string name="last">Last</string>
     <string name="week">Week</string>
@@ -170,11 +170,32 @@
     <string name="serviceChannelDescription">The category used for service notifications of Track Work Time.</string>
     <string name="sendLogsQuestion">You are about to send the logs of everything that happened today in Track Work Time to the developer.\n\nThe logs may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n\nYou are also welcome to send the data to yourself first, check it, anonymize it where necessary and then forward it to android@zephyrsoft.org!</string>
     <string name="sendLogsSubject">Logs from Track Work Time</string>
-    <string name="sendLogs">Send Logs...</string>
+    <string name="sendLogs">Send Logs…</string>
     <string name="recenter_week">Recenter week</string>
     <string name="acraTitle">Oops!</string>
     <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please send an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>
     <string name="acraCommentPrompt">You can add a comment here, e.g. to describe which action produced the error:</string>
     <string name="allData">All data</string>
+    <string name="targetFlexiOverride">Ignore previous targets</string>
+    <string name="targetFlexiAdd">Include previous targets</string>
+    <string name="targetDate">Target date</string>
+    <string name="targetTimeAbs">Time target in hours:minutes</string>
+    <string name="targetTimeRel">Time target in percent</string>
+    <string name="homeTimezone">Home time zone</string>
+    <string-array name="day_targets">
+        <item>Holiday / vacation / non-working day</item>
+        <item>Set working time to target time</item>
+        <item>Change target time</item>
+    </string-array>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle">https://zephyrsoft.org/trackworktime</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="current_value">current value: %s</string>
+    <string name="upgrade">Upgrade</string>
+    <string name="upgradeText"><![CDATA[<b>TrackWorkTime was updated to version 2.0.</b><br>This version adds support for handling different time zones. Your existing data will be migrated now. Please check, that the currently selected <i>home timezone</i> is correct.]]></string>
+    <string name="startMigration">Start migration.</string>
+    <string name="tools">Tools</string>
+    <string name="data">Data</string>
 
 </resources>

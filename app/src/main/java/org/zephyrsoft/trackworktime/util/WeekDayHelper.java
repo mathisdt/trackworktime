@@ -16,11 +16,10 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import hirondelle.date4j.DateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.TextStyle;
 
-import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.R;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
+import java.util.Locale;
 
 /**
  * Utilities for handling week days.
@@ -32,26 +31,7 @@ public class WeekDayHelper {
 	/**
 	 * Get the complete name of the week day indicated by the given date.
 	 */
-	public static String getWeekDayLongName(DateTime date) {
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(date.getWeekDay());
-		switch (weekDay) {
-			case MONDAY:
-				return Basics.getInstance().getContext().getText(R.string.mondayLong).toString();
-			case TUESDAY:
-				return Basics.getInstance().getContext().getText(R.string.tuesdayLong).toString();
-			case WEDNESDAY:
-				return Basics.getInstance().getContext().getText(R.string.wednesdayLong).toString();
-			case THURSDAY:
-				return Basics.getInstance().getContext().getText(R.string.thursdayLong).toString();
-			case FRIDAY:
-				return Basics.getInstance().getContext().getText(R.string.fridayLong).toString();
-			case SATURDAY:
-				return Basics.getInstance().getContext().getText(R.string.saturdayLong).toString();
-			case SUNDAY:
-				return Basics.getInstance().getContext().getText(R.string.sundayLong).toString();
-			default:
-				throw new IllegalStateException("unknown weekday");
-		}
+	public static String getWeekDayLongName(OffsetDateTime datetime) {
+		return datetime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
 	}
-
 }

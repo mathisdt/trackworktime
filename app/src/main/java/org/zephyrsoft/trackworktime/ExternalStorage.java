@@ -20,7 +20,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +33,7 @@ import java.io.IOException;
  * @author Mathis Dirksen-Thedens
  */
 public class ExternalStorage {
+	private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 
 	public static File getDirectory(String subDirectory, Context context) {
 		File externalStorageDirectory = context.getExternalFilesDir(null);
@@ -67,7 +69,7 @@ public class ExternalStorage {
 			Logger.error("target {} is not writable", targetDirectory);
 			return null;
 		}
-		String timeStamp = DateTimeUtil.getCurrentDateTime().format("YYYY-MM-DD-hh-mm-ss");
+		String timeStamp = LocalDateTime.now().format(TIMESTAMP);
 		String fileName = fileNamePrefix + "-generated-at-" + timeStamp + fileNameSuffix;
 		File file = new File(targetDirectory, fileName);
 		return writeFile(fileContent, file);

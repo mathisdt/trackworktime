@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.zephyrsoft.trackworktime"
-    android:versionCode="29"
-    android:versionName="1.0.7-SNAPSHOT">
+    package="org.zephyrsoft.trackworktime" >
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -71,7 +69,8 @@
         <activity
             android:name="WorkTimeTrackerActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.trackworktime.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -92,6 +91,11 @@
             android:name="EventEditActivity"
             android:exported="false"
             android:label="@string/edit_event" >
+        </activity>
+        <activity
+            android:name="TargetEditActivity"
+            android:exported="false"
+            android:label="@string/edit_target" >
         </activity>
         <activity
             android:name="TaskListActivity"
@@ -124,6 +128,16 @@
             android:exported="false"
             android:label="@string/message"
             android:theme="@style/Theme.AppCompat.Dialog" >
+        </activity>
+        <activity
+            android:name="UpgradeActivity"
+            android:exported="false"
+            android:label="@string/upgrade" >
+        </activity>
+        <activity
+            android:name="DebugActivity"
+            android:exported="false"
+            android:label="Debug" >
         </activity>
     </application>
 

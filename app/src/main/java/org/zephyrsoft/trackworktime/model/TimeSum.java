@@ -30,6 +30,11 @@ public class TimeSum {
 	/** always counted positive */
 	private int minutes = 0;
 
+	public void set(int minutes) {
+		this.minutes = minutes;
+		balance();
+	}
+
 	/**
 	 * Set time to specific values
 	 * @param hours positive or negative
@@ -106,7 +111,7 @@ public class TimeSum {
 				minutesForDisplay = 60 - minutesForDisplay;
 			}
 		}
-		return (negative && hoursForDisplay == 0 ? "-" : "") + String.valueOf(hoursForDisplay) + ":"
+		return (negative && hoursForDisplay == 0 ? "-" : "") + hoursForDisplay + ":"
 			+ DateTimeUtil.padToTwoDigits(minutesForDisplay);
 	}
 

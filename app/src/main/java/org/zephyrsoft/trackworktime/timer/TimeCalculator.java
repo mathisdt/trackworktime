@@ -17,18 +17,16 @@
 package org.zephyrsoft.trackworktime.timer;
 
 import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.Basics;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.model.DayLine;
 import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Range;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Unit;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.util.HashMap;
@@ -36,8 +34,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
+import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfYear;
+import static org.threeten.bp.temporal.TemporalAdjusters.lastDayOfMonth;
 
 /**
  * Calculates the actual work times from events.
@@ -57,16 +58,16 @@ public class TimeCalculator {
 	/**
 	 * Calculate the time sums per task in a given time range.
 	 */
-	public Map<Task, TimeSum> calculateSums(DateTime beginOfPeriod, DateTime endOfPeriod, List<Event> events) {
+	public Map<Task, TimeSum> calculateSums(OffsetDateTime beginOfPeriod, OffsetDateTime endOfPeriod, List<Event> events) {
 		Map<Task, TimeSum> ret = new HashMap<>();
 		if (events == null || events.isEmpty()) {
 			return ret;
 		}
 
-		DateTime timeOfFirstEvent = DateTimeUtil.stringToDateTime(events.get(0).getTime());
+		OffsetDateTime timeOfFirstEvent = events.get(0).getDateTime();
 		Event lastEventBefore = dao.getLastEventBefore(timeOfFirstEvent);
 
-		DateTime clockedInSince = null;
+		OffsetDateTime clockedInSince = null;
 		Task currentTask = null;
 
 		if (TimerManager.isClockInEvent(lastEventBefore)) {
@@ -76,7 +77,7 @@ public class TimeCalculator {
 		}
 
 		for (Event event : events) {
-			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
+			OffsetDateTime eventTime = event.getDateTime();
 			if (clockedInSince != null) {
 				countTime(ret, currentTask, clockedInSince, eventTime);
 			}
@@ -96,7 +97,7 @@ public class TimeCalculator {
 		return ret;
 	}
 
-	private static void countTime(Map<Task, TimeSum> mapForCounting, Task task, DateTime from, DateTime to) {
+	private static void countTime(Map<Task, TimeSum> mapForCounting, Task task, OffsetDateTime from, OffsetDateTime to) {
 		// fetch sum up to now
 		TimeSum sumForTask = mapForCounting.get(task);
 		if (sumForTask == null) {
@@ -104,7 +105,7 @@ public class TimeCalculator {
 			mapForCounting.put(task, sumForTask);
 		}
 		// add new times to sum
-		long minutesWorked = from.numSecondsFrom(to) / 60;
+		long minutesWorked = MINUTES.between(from, to);
 		if (minutesWorked > Integer.MAX_VALUE - 60) {
 			// this is extremely unlikely, someone would have to work 4084 years without pause...
 			int correctedMinutesWorked = Integer.MAX_VALUE - 60;
@@ -114,120 +115,31 @@ public class TimeCalculator {
 		sumForTask.add(0, (int) minutesWorked);
 	}
 
-	/**
-	 * Calculate the time sum, flexi value and in/out times for one day.
-	 */
-	public DayLine calulateOneDay(DateTime day, List<Event> eventsOfOneDay) {
-		DayLine ret = new DayLine();
+	public ZonedDateTime[] calculateBeginAndEnd(Range range, Unit unit) {
+		ZonedDateTime now =  ZonedDateTime.now(timerManager.getHomeTimeZone());
+		ZonedDateTime beginOfTimeFrame;
+		ZonedDateTime endOfTimeFrame;
 
-        boolean foundDayFlexTime = false;
-        for (Event event : eventsOfOneDay) {
-            if (event.getType() == TypeEnum.FLEX.getValue()) {
-                DateTime flexTime = DateTimeUtil.stringToDateTime(event.getTime());
-                ret.getTimeFlexi().substract(flexTime.getHour(), flexTime.getMinute());
-                foundDayFlexTime = true;
-                break;
-            }
-        }
-
-        // get default flex time from settings
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(day.getWeekDay());
-		if (Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)
-			&& timerManager.isWorkDay(weekDay) && foundDayFlexTime == false) {
-			// substract the "normal" work time for one day
-			int normalWorkTimeInMinutes = timerManager.getNormalWorkDurationFor(weekDay);
-			ret.getTimeFlexi().substract(0, normalWorkTimeInMinutes);
-		}
-
-		if (eventsOfOneDay == null || eventsOfOneDay.isEmpty() || foundDayFlexTime && eventsOfOneDay.size() == 1) {
-			return ret;
-		}
-
-		DateTime timeOfFirstEvent = DateTimeUtil.stringToDateTime(eventsOfOneDay.get(0).getTime());
-		Event lastEventBeforeToday = dao.getLastEventBefore(timeOfFirstEvent);
-		DateTime lastEventBeforeTodayTime = (lastEventBeforeToday != null ? DateTimeUtil
-			.stringToDateTime(lastEventBeforeToday.getTime()) : null);
-		if (!eventsOfOneDay.isEmpty()) {
-			// take special care of the event type (CLOCK_IN vs. CLOCK_OUT/CLOCK_OUT_NOW)
-			Event firstClockInEvent = null;
-			for (Event event : eventsOfOneDay) {
-				if (TimerManager.isClockInEvent(event)) {
-					firstClockInEvent = event;
-					break;
-				}
-			}
-			Event effectiveClockOutEvent = null;
-			for (int i = eventsOfOneDay.size() - 1; i >= 0; i--) {
-				Event event = eventsOfOneDay.get(i);
-				if (TimerManager.isClockOutEvent(event)) {
-					effectiveClockOutEvent = event;
-				}
-				if (TimerManager.isClockInEvent(event)) {
-					break;
-				}
-			}
-
-			if (TimerManager.isClockInEvent(lastEventBeforeToday) && lastEventBeforeTodayTime != null
-				&& DateTimeUtil.isInPast(lastEventBeforeTodayTime)
-				&& !TimerManager.isClockInEvent(eventsOfOneDay.get(0))) {
-				// clocked in since begin of day
-				ret.setTimeIn(timeOfFirstEvent.getStartOfDay());
-			} else if (firstClockInEvent != null) {
-				ret.setTimeIn(DateTimeUtil.stringToDateTime(firstClockInEvent.getTime()));
-			} else {
-				// apparently not clocked in before begin of day and no clock-in event
-			}
-
-			if (effectiveClockOutEvent != null) {
-				ret.setTimeOut(DateTimeUtil.stringToDateTime(effectiveClockOutEvent.getTime()));
-			} else {
-				ret.setTimeOut(timeOfFirstEvent.getEndOfDay());
-			}
-
-			TimeSum amountWorked = timerManager.calculateTimeSum(timeOfFirstEvent, PeriodEnum.DAY);
-			ret.setTimeWorked(amountWorked);
-		} else if (TimerManager.isClockInEvent(lastEventBeforeToday)
-			&& DateTimeUtil.isInPast(timeOfFirstEvent.getStartOfDay())) {
-			// although there are no events on this day, the user is clocked in all day long - else there would be a
-			// CLOCK_OUT_NOW event!
-			ret.setTimeIn(timeOfFirstEvent.getStartOfDay());
-			ret.setTimeOut(timeOfFirstEvent.getEndOfDay());
-			ret.getTimeWorked().add(24, 0);
-		}
-
-		ret.getTimeFlexi().addOrSubstract(ret.getTimeWorked());
-
-		return ret;
-	}
-
-	public DateTime[] calculateBeginAndEnd(Range range, Unit unit) {
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		DateTime beginOfTimeFrame;
-		DateTime endOfTimeFrame;
-
-		int daysInLastUnit;
+		long daysInLastUnit;
 		switch (unit) {
-			case DAY:
-				beginOfTimeFrame = now.getStartOfDay();
-				endOfTimeFrame = now.getEndOfDay();
-				daysInLastUnit = 1;
-				break;
 			case WEEK:
 				beginOfTimeFrame = DateTimeUtil.getWeekStart(now);
 				endOfTimeFrame = beginOfTimeFrame.plusDays(7);
 				daysInLastUnit = 7;
 				break;
 			case MONTH:
-				beginOfTimeFrame = now.getStartOfMonth();
-				endOfTimeFrame = now.getEndOfMonth();
-				DateTime lastMonthBegin = beginOfTimeFrame.minus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
-				daysInLastUnit = lastMonthBegin.numDaysFrom(beginOfTimeFrame);
+				beginOfTimeFrame = now.with(firstDayOfMonth());
+				endOfTimeFrame = now.with(lastDayOfMonth());
+
+				ZonedDateTime lastMonthBegin = beginOfTimeFrame.minusMonths(1);
+				daysInLastUnit = DAYS.between(lastMonthBegin, beginOfTimeFrame);
 				break;
 			case YEAR:
-				beginOfTimeFrame = new DateTime(now.getYear(), 1, 1, 0, 0, 0, 0);
-				endOfTimeFrame = beginOfTimeFrame.plus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
-				DateTime lastYearBegin = beginOfTimeFrame.minus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
-				daysInLastUnit = lastYearBegin.numDaysFrom(beginOfTimeFrame);
+				beginOfTimeFrame = now.with(firstDayOfYear());
+				endOfTimeFrame = beginOfTimeFrame.plusYears(1);
+
+				ZonedDateTime lastYearBegin = beginOfTimeFrame.minusYears(1);
+				daysInLastUnit = DAYS.between(lastYearBegin, beginOfTimeFrame);
 				break;
 			default:
 				throw new IllegalArgumentException("unknown unit");
@@ -247,55 +159,53 @@ public class TimeCalculator {
 			case ALL_DATA:
 				List<Event> allEvents = dao.getAllEvents();
 				if (allEvents.isEmpty()) {
-					beginOfTimeFrame = DateTimeUtil.getCurrentDateTime().getStartOfDay();
-					endOfTimeFrame = DateTimeUtil.getCurrentDateTime().getEndOfDay();
+					// FIXME check twice
+					beginOfTimeFrame = now.with(LocalTime.MIN);
+					endOfTimeFrame = now.with(LocalTime.MAX);
 				} else {
-					beginOfTimeFrame = DateTimeUtil.stringToDateTime(allEvents.get(0).getTime()).getStartOfDay();
-					endOfTimeFrame = DateTimeUtil.stringToDateTime(allEvents.get(allEvents.size() - 1).getTime()).getEndOfDay();
+					// FIXME check twice
+					beginOfTimeFrame = allEvents.get(0).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MIN);
+					endOfTimeFrame = allEvents.get(allEvents.size() - 1).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).plusDays(1).with(LocalTime.MAX);
 				}
 				break;
 			default:
 				throw new IllegalArgumentException("unknown range");
 		}
-		return new DateTime[] { beginOfTimeFrame, endOfTimeFrame };
+		return new ZonedDateTime[]{beginOfTimeFrame, endOfTimeFrame};
 	}
 
 	/**
 	 * Includes the parameter "from" as this also is a range start (although it is not necessarily the start of a
 	 * complete range).
 	 */
-	public List<DateTime> calculateRangeBeginnings(Unit unit, DateTime from, DateTime to) {
-		List<DateTime> ret = new LinkedList<>();
+	public List<ZonedDateTime> calculateRangeBeginnings(Unit unit, ZonedDateTime from, ZonedDateTime to) {
+		List<ZonedDateTime> ret = new LinkedList<>();
 		ret.add(from);
 
-		DateTime current = null;
+		ZonedDateTime current;
 		switch (unit) {
-			case DAY:
-				current = from.getStartOfDay().plusDays(1);
-				while (current.lt(to)) {
-					ret.add(current);
-					current = current.plusDays(1);
-				}
-				break;
 			case WEEK:
 				current = DateTimeUtil.getWeekStart(from).plusDays(7);
-				while (current.lt(to)) {
+
+				while (current.isBefore(to)) {
 					ret.add(current);
 					current = current.plusDays(7);
 				}
 				break;
 			case MONTH:
-				current = from.getStartOfMonth().plus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
-				while (current.lt(to)) {
+				current = from.withDayOfMonth(1).plusMonths(1);
+
+				while (current.isBefore(to)) {
 					ret.add(current);
-					current = current.plus(0, 1, 0, 0, 0, 0, 0, DayOverflow.Spillover);
+					current = current.plusMonths(1);
 				}
 				break;
 			case YEAR:
-				current = new DateTime(from.getYear() + 1, 1, 1, 0, 0, 0, 0);
-				while (current.lt(to)) {
+				current = ZonedDateTime.of(LocalDate.of(from.getYear()+1,1,1), LocalTime.MIDNIGHT, from.getZone());
+
+				while (current.isBefore(to)) {
 					ret.add(current);
-					current = current.plus(1, 0, 0, 0, 0, 0, 0, DayOverflow.Spillover);
+					current = current.plusYears(1);
 				}
 				break;
 			default:

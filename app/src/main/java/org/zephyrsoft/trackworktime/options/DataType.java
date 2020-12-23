@@ -16,12 +16,11 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
-import hirondelle.date4j.DateTime;
-
 import java.util.regex.Pattern;
 
 import android.content.SharedPreferences;
 
+import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
@@ -32,6 +31,20 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
  */
 public enum DataType {
 
+	/** string */
+	TIMEZONEID {
+		@Override
+		public boolean validate(String value) {
+			// FIXME
+			return true;
+		}
+
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			// FIXME
+			return true;
+		}
+	},
 	/** boolean */
 	BOOLEAN {
 		@Override
@@ -109,8 +122,7 @@ public enum DataType {
 		public boolean validate(String value) {
 			String refinedValue = DateTimeUtil.refineTime(value);
 			try {
-				DateTime dateTime = new DateTime(refinedValue);
-				dateTime.getHour();
+				LocalTime.parse(refinedValue).getHour();
 				return true;
 			} catch (Exception nfe) {
 				return false;
@@ -127,7 +139,7 @@ public enum DataType {
 	HOUR_MINUTE {
 		@Override
 		public boolean validate(String value) {
-			return value != null && Pattern.matches("\\-?\\d+:\\d\\d", value);
+			return value != null && Pattern.matches("-?\\d+:\\d\\d", value);
 		}
 
 		@Override

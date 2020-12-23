@@ -49,43 +49,67 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	/** name of the default attribute of the task table */
 	public static final String TASK_DEFAULT = "isdefault";
 
-	/** name of the week table */
+	/** name of the week table, no longer used */
 	public static final String WEEK = "week";
-	/** name of the ID attribute of the week table */
-	public static final String WEEK_ID = "_id";
-	/** name of the start attribute of the week table - date and time of monday 0:00 AM */
-	public static final String WEEK_START = "start";
-	/** name of the sum attribute of the week table - in whole minutes */
-	public static final String WEEK_SUM = "sum";
-	/** name of the flexi attribute of the week table - in whole minutes */
-	public static final String WEEK_FLEXI = "flexi";
 
 	/** name of the event table */
 	public static final String EVENT = "event";
+	public static final String EVENT_V1 = "event_v1";
+
 	/** name of the ID attribute of the event table */
 	public static final String EVENT_ID = "_id";
-	/** name of the week attribute of the event table - reference to WEEK_ID */
-	public static final String EVENT_WEEK = "week";
 	/** name of the type attribute of the event table */
 	public static final String EVENT_TYPE = "type";
 	/** name of the time attribute of the event table */
 	public static final String EVENT_TIME = "time";
+	/** name of the time zone offset attribute of the event table */
+	public static final String EVENT_ZONE_OFFSET = "zone_offset";
 	/** name of the task attribute of the event table - reference to TASK_ID */
 	public static final String EVENT_TASK = "task";
 	/** name of the customtext attribute of the event table */
-	public static final String EVENT_TEXT = "customtext";
+	public static final String EVENT_TEXT = "comment";
+
+	/** name of the target table */
+	public static final String TARGET = "target";
+	/** name of the ID attribute of the target table */
+	public static final String TARGET_ID = "_id";
+	/** name of the time attribute of the target table */
+	public static final String TARGET_TIME = "time";
+	/* name of the type attribute of the target table */
+	public static final String TARGET_TYPE = "type";
+	/** name of the value attribute of the target table */
+	public static final String TARGET_VALUE = "value";
+	/** name of the comment attribute of the event table */
+	public static final String TARGET_TEXT = "comment";
+
+	/** name of the cache table */
+	public static final String CACHE = "cache";
+	/** name of the date attribute of the cache table, Android needs "_id" column */
+	public static final String CACHE_DATE = "_id";
+	/** name of the worked attribute of the cache table */
+	public static final String CACHE_WORKED = "worked";
+	/** name of the target attribute of the cache table */
+	public static final String CACHE_TARGET = "target";
+
 
 	static final String DATABASE_NAME = "trackworktime.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 
 	private static final String DATABASE_CREATE_TASK = "create table " + TASK + " (" + TASK_ID
 		+ " integer primary key autoincrement, " + TASK_NAME + " text not null, " + TASK_ACTIVE + " integer not null, "
 		+ TASK_ORDERING + " integer null);";
-	private static final String DATABASE_CREATE_WEEK = "create table " + WEEK + " (" + WEEK_ID
-		+ " integer primary key autoincrement, " + WEEK_START + " text not null, " + WEEK_SUM + " integer null, " + WEEK_FLEXI +" integer null);";
-	private static final String DATABASE_CREATE_EVENT = "create table " + EVENT + " (" + EVENT_ID
-		+ " integer primary key autoincrement, " + EVENT_WEEK + " integer null, " + EVENT_TYPE + " integer not null, "
-		+ EVENT_TIME + " text not null, " + EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
+
+	private static final String DATABASE_CREATE_EVENT = "create table " + EVENT + " ("
+		+ EVENT_ID + " integer primary key autoincrement, "
+		+ EVENT_TIME + " integer not null, " + EVENT_ZONE_OFFSET  + " integer not null, "
+		+ EVENT_TYPE + " integer not null, " + EVENT_TASK + " integer null, " + EVENT_TEXT + " text null);";
+
+	private static final String DATABASE_CREATE_TARGET = "create table " + TARGET + " (" + TARGET_ID
+		+ " integer primary key autoincrement, " + TARGET_TIME + " integer not null, " + TARGET_TYPE + " integer not null, "
+		+ TARGET_VALUE + " integer, " + TARGET_TEXT + " text null);";
+
+	private static final String DATABASE_CREATE_CACHE = "create table " + CACHE + " (" + CACHE_DATE
+		+ " integer primary key, " + CACHE_WORKED + " integer not null, " + CACHE_TARGET + " integer);";
 
 	private static final String DATABASE_INSERT_TASK = "insert into " + TASK + " (" + TASK_NAME + ", " + TASK_ACTIVE
 		+ ", " + TASK_ORDERING + ") values ('Default', 1, 0)";
@@ -96,7 +120,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		+ " set " + TASK_DEFAULT + "=1 where " + TASK_NAME + "='Default';";
 
 	private static final String DATABASE_ALTER_WEEK_3_TO_4 = "alter table " + WEEK
-		+ " add column " + WEEK_FLEXI + " integer null;";
+		+ " add column flexi integer null;";
 
 	/**
 	 * Constructor
@@ -130,6 +154,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			dbUpgradeFrom3to4(database);
 			currentVersion++;
 		}
+		if (currentVersion == 4) {
+			database.execSQL(DATABASE_CREATE_TARGET);
+			database.execSQL(DATABASE_CREATE_CACHE);
+			dbUpgradeFrom4to5(database);
+			currentVersion++;
+		}
 		if (currentVersion != newVersion) {
 			throw new IllegalStateException("could not upgrade database");
 		}
@@ -137,8 +167,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	private void dbSetup(SQLiteDatabase database) {
 		database.execSQL(DATABASE_CREATE_TASK);
-		database.execSQL(DATABASE_CREATE_WEEK);
 		database.execSQL(DATABASE_CREATE_EVENT);
+		database.execSQL(DATABASE_CREATE_TARGET);
+		database.execSQL(DATABASE_CREATE_CACHE);
 		// add default task
 		database.execSQL(DATABASE_INSERT_TASK);
 	}
@@ -153,4 +184,18 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		database.execSQL(DATABASE_ALTER_WEEK_3_TO_4);
 	}
 
+	private void dbUpgradeFrom4to5(SQLiteDatabase database) {
+		Logger.info("Upgrading database scheme to version 5");
+
+		// drop obsolete week table
+		database.execSQL("drop table if exists " + WEEK);
+
+		// rename existing event database
+		database.execSQL("ALTER TABLE " + EVENT + " RENAME TO " + EVENT_V1);
+
+		// create new event table
+		database.execSQL(DATABASE_CREATE_EVENT);
+
+		// event migration needs user interaction and will start on next app usage
+	}
 }

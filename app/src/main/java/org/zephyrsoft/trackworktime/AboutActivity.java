@@ -21,7 +21,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.text.util.Linkify;
-import android.widget.TextView;
+
+import org.zephyrsoft.trackworktime.databinding.AboutBinding;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,9 +43,9 @@ public class AboutActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.about);
+		AboutBinding binding = AboutBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
-		TextView about = findViewById(R.id.about_text);
 		String aboutText = readRawTextFile(R.raw.about);
 		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
 		CharSequence version = Basics.getInstance().getVersionName();
@@ -52,13 +53,12 @@ public class AboutActivity extends AppCompatActivity {
 		CharSequence website = getApplicationContext().getResources().getText(R.string.website);
 		CharSequence email = getApplicationContext().getResources().getText(R.string.email);
 		aboutText = MessageFormat.format(aboutText, name, version, website, email);
-		about.setText(Html.fromHtml(aboutText));
-		about.setLinkTextColor(Color.WHITE);
-		Linkify.addLinks(about, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+		binding.aboutText.setText(Html.fromHtml(aboutText));
+		binding.aboutText.setLinkTextColor(Color.WHITE);
+		Linkify.addLinks(binding.aboutText, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 
-		TextView help = findViewById(R.id.help_text);
-		help.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
-		help.setLinkTextColor(Color.WHITE);
+		binding.helpText.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
+		binding.helpText.setLinkTextColor(Color.WHITE);
 	}
 
 	private String readRawTextFile(int id) {

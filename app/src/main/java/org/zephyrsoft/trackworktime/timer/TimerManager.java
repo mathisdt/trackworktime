@@ -22,19 +22,24 @@ import android.content.SharedPreferences.Editor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.TemporalAdjusters;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.TrackingMethod;
+import org.zephyrsoft.trackworktime.model.CalcCacheEntry;
 import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.FlexiReset;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.model.TimeInfo;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekDayEnum;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
@@ -42,10 +47,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Locale;
 
-import hirondelle.date4j.DateTime;
-import hirondelle.date4j.DateTime.DayOverflow;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
 
 /**
  * Manages the time tracking.
@@ -67,20 +73,34 @@ public class TimerManager {
 		this.context = context;
 	}
 
-	public void insertDefaultWorkTimes(DateTime from, DateTime to, Integer taskId, String text) {
-		DateTime running = from.getStartOfDay();
-		DateTime target = to.getStartOfDay();
-		while (running.lteq(target)) {
-			// clock-in at start of day (00:00)
+	public ZoneId getHomeTimeZone() {
+		String homeTimeZone = preferences.getString(Key.HOME_TIME_ZONE.getName(),  null);
 
-			WeekDayEnum weekDay = WeekDayEnum.getByValue(running.getWeekDay());
+		if (homeTimeZone == null) {
+			// TODO start activity to select time zone?
+			return ZoneId.systemDefault();
+		} else {
+			return ZoneId.of(homeTimeZone);
+		}
+	}
+
+	public void insertDefaultWorkTimes(LocalDate from, LocalDate to, Integer taskId, String text) {
+		LocalDate running = from;
+
+		while (!running.isAfter(to)) {
+			// clock-in at start of day (00:00) in home time zone
+			// TODO current time zone?
+
+			DayOfWeek weekDay = running.getDayOfWeek();
 			int workDuration = getNormalWorkDurationFor(weekDay);
 			if (workDuration > 0) {
-				createEvent(running, taskId, TypeEnum.CLOCK_IN, text);
-				DateTime clockOutTime = running.plus(0, 0, 0, 0, workDuration, 0, 0, DayOverflow.Spillover);
+				OffsetDateTime clockInTime = running.atStartOfDay(getHomeTimeZone()).toOffsetDateTime();
+				createEvent(clockInTime, taskId, TypeEnum.CLOCK_IN, text);
+
+				OffsetDateTime clockOutTime = clockInTime.plusMinutes(workDuration);
 				if (isAutoPauseApplicable(clockOutTime)) {
-					int pauseDuration = getAutoPauseDuration(clockOutTime);
-					clockOutTime = clockOutTime.plus(0, 0, 0, 0, pauseDuration, 0, 0, DayOverflow.Spillover);
+					long pauseDuration = getAutoPauseDuration();
+					clockOutTime = clockOutTime.plusMinutes(pauseDuration);
 				}
 				createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null);
 			}
@@ -95,7 +115,7 @@ public class TimerManager {
 	 * @return {@code true} if currently clocked in, {@code false} otherwise
 	 */
 	public boolean isTracking() {
-		Event latestEvent = dao.getLastEventBeforeIncluding(DateTimeUtil.getCurrentDateTime());
+		Event latestEvent = dao.getLastEventUpTo(OffsetDateTime.now());
 		return latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue());
 	}
 
@@ -104,7 +124,7 @@ public class TimerManager {
 	 * existing event (not counting CLOCK_OUT_NOW).
 	 */
 	public boolean isInIgnorePeriodForLocationBasedTracking() {
-		DateTime now = DateTimeUtil.getCurrentDateTime();
+		OffsetDateTime now = OffsetDateTime.now();
 
 		// get first event AFTER now, subtract the minutes to ignore before events and check if the result is BEFORE now
 		Event firstAfterNow = dao.getFirstEventAfter(now);
@@ -117,13 +137,14 @@ public class TimerManager {
 			Logger.warn("illegal value - ignore before events: {}", ignoreBeforeString);
 		}
 		if (firstAfterNow != null) {
-			DateTime firstAfterNowTime = DateTimeUtil.stringToDateTime(firstAfterNow.getTime());
-			if (firstAfterNowTime.minus(0, 0, 0, 0, ignoreBefore, 0, 0, DayOverflow.Spillover).lt(now)) {
+			OffsetDateTime firstAfterNowTime = firstAfterNow.getDateTime();
+
+			if (firstAfterNowTime.minusMinutes(ignoreBefore).isBefore(now)) {
 				return true;
 			}
 		}
 		// get the last event BEFORE now, add the minutes to ignore after events and check if the result is AFTER now
-		Event lastBeforeNow = dao.getLastEventBefore(now);
+		Event lastBeforeNow = dao.getLastEventBefore(OffsetDateTime.now());
 		String ignoreAfterString = preferences
 			.getString(Key.LOCATION_BASED_TRACKING_IGNORE_AFTER_EVENTS.getName(), "0");
 		int ignoreAfter = 0;
@@ -133,10 +154,9 @@ public class TimerManager {
 			Logger.warn("illegal value - ignore after events: {}", ignoreAfterString);
 		}
 		if (lastBeforeNow != null) {
-			DateTime lastBeforeNowTime = DateTimeUtil.stringToDateTime(lastBeforeNow.getTime());
-			if (lastBeforeNowTime.plus(0, 0, 0, 0, ignoreAfter, 0, 0, DayOverflow.Spillover).gt(now)) {
-				return true;
-			}
+			OffsetDateTime lastBeforeNowTime = lastBeforeNow.getDateTime();
+
+			return lastBeforeNowTime.plusMinutes(ignoreAfter).isAfter(now);
 		}
 
 		return false;
@@ -146,7 +166,7 @@ public class TimerManager {
 	 * Returns the currently active task or {@code null} if tracking is disabled at the moment.
 	 */
 	public Task getCurrentTask() {
-		Event latestEvent = dao.getLastEventBefore(DateTimeUtil.getCurrentDateTime());
+		Event latestEvent = dao.getLastEventBefore(OffsetDateTime.now());
 		if (latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())) {
 			return dao.getTask(latestEvent.getTask());
 		} else {
@@ -202,221 +222,97 @@ public class TimerManager {
 	}
 
 	/**
-	* Is the event a flexi time event? {@code null} as argument will return {@code false}.
-	*/
-	public static boolean isFlexEvent(Event event) {
-		return event != null && event.getType().equals(TypeEnum.FLEX.getValue());
-	}
-
-	/**
 	 * Calculate a time sum for a given period.
 	 */
-	public TimeSum calculateTimeSum(DateTime date, PeriodEnum periodEnum) {
-		// TODO restructure to clarify!
-		Logger.debug("calculating time sum for {} containing {}", periodEnum.name(), DateTimeUtil
-			.dateTimeToString(date));
-		TimeSum ret = new TimeSum();
+	public long calculateTimeSum(LocalDate date, PeriodEnum periodEnum) {
+		// TODO restructure for clarity!
+		// TODO improve performance
+		if (periodEnum != PeriodEnum.ALL_TIME) {
+			Logger.debug("calculating time sum for {} containing {}", periodEnum.name(), date);
+		} else {
+			Logger.debug("calculation time sum for all time");
+		}
 
-		DateTime beginOfPeriod = null;
-		DateTime endOfPeriod = null;
-		List<Event> events = null;
+		TimeInfo infoStart;
+		TimeInfo infoEnd;
+
 		switch (periodEnum) {
-			case DAY:
-				beginOfPeriod = date.getStartOfDay();
-				endOfPeriod = beginOfPeriod.plusDays(1);
-				events = dao.getEventsOnDay(date);
+			case DAY: {
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, true);
+				timeCalc.calculatePeriod(PeriodEnum.DAY, false);
+				return timeCalc.getTimeWorked();
+			}
+
+			case WEEK: {
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, true);
+				timeCalc.calculatePeriod(PeriodEnum.WEEK, false);
+				return timeCalc.getTimeWorked();
+			}
+
+			case MONTH:
+				infoStart = getTimesAt(date.with(firstDayOfMonth()));
+
+				LocalDate endDate = date.with(date.with(TemporalAdjusters.firstDayOfNextMonth()));
+				if (endDate.isAfter(LocalDate.now())) {
+					endDate = LocalDate.now().plusDays(1);
+				}
+
+				infoEnd = getTimesAt(endDate);
 				break;
-			case WEEK:
-				beginOfPeriod = DateTimeUtil.getWeekStart(date);
-				endOfPeriod = beginOfPeriod.plusDays(7);
-				Week week = dao.getWeek(DateTimeUtil.dateTimeToString(beginOfPeriod));
-				events = dao.getEventsInWeek(week);
+			case ALL_TIME:
+				// FIXME better solution
+				infoStart = getTimesAt(null);
+				infoEnd = getTimesAt(LocalDate.now().plusDays(1));
 				break;
 			default:
 				throw new IllegalArgumentException("unknown period type");
 		}
-		Event lastEventBefore = dao.getLastEventBefore(beginOfPeriod);
-		DateTime lastEventBeforeTime = (lastEventBefore == null ? null : DateTimeUtil.stringToDateTime(lastEventBefore
-			.getTime()));
-		Event firstEventAfterNow = dao.getFirstEventAfter(DateTimeUtil.getCurrentDateTime());
-		DateTime firstEventAfterNowTime = (firstEventAfterNow == null ? null : DateTimeUtil
-			.stringToDateTime(firstEventAfterNow.getTime()));
 
-		DateTime clockedInSince = null;
-		if (isClockInEvent(lastEventBefore)
-			// but only if no CLOCK_OUT_NOW would be in between:
-			&& !(lastEventBeforeTime != null && DateTimeUtil.isInPast(lastEventBeforeTime) && ((events.isEmpty() && (firstEventAfterNow == null || DateTimeUtil
-				.isInFuture(firstEventAfterNowTime))) || (!events.isEmpty()
-				&& DateTimeUtil.isInFuture(DateTimeUtil.stringToDateTime(events.get(0).getTime())) && isClockInEvent(events
-					.get(0)))))) {
-			clockedInSince = beginOfPeriod;
-		}
-
-		Event lastEvent = (events.isEmpty() ? null : events.get(events.size() - 1));
-		DateTime lastEventTime = (lastEvent == null ? null : DateTimeUtil.stringToDateTime(lastEvent.getTime()));
-
-		// insert CLOCK_OUT_NOW event if applicable
-		if (isClockInEvent(lastEvent) && DateTimeUtil.isInPast(lastEventTime) && DateTimeUtil.isInFuture(endOfPeriod)) {
-			Event clockOutNowEvent = createClockOutNowEvent();
-			events.add(clockOutNowEvent);
-			lastEvent = clockOutNowEvent;
-		}
-
-		Event eventBefore = null;
-		for (Event event : events) {
-			DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-
-			// clock-in event while not clocked in? => remember time
-			if (clockedInSince == null && isClockInEvent(event)) {
-				clockedInSince = eventTime;
-			}
-			// clock-out event while clocked in? => add time since last clock-in to result
-			if (clockedInSince != null && isClockOutEvent(event)) {
-				ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
-				ret.add(eventTime.getHour(), eventTime.getMinute());
-				if (eventBefore != null) {
-					DateTime eventBeforeTime = DateTimeUtil.stringToDateTime(eventBefore.getTime());
-					// handle events which are on different days
-					int differenceInDays = eventTime.getDay() - eventBeforeTime.getDay();
-					if (differenceInDays > 0) {
-						ret.add(24 * differenceInDays, 0);
-						Logger.info("events on different days: {} => {}", eventBefore, event);
-					}
-				}
-				clockedInSince = null;
-			}
-			eventBefore = event;
-		}
-
-		if (lastEvent != null && lastEvent.getType().equals(TypeEnum.CLOCK_OUT_NOW.getValue())) {
-			// try to substract the auto-pause for today because it might be not counted in the database yet
-			DateTime eventTime = DateTimeUtil.stringToDateTime(lastEvent.getTime());
-			if (isAutoPauseEnabled() && isAutoPauseApplicable(eventTime)) {
-				DateTime autoPauseBegin = getAutoPauseBegin(eventTime);
-				DateTime autoPauseEnd = getAutoPauseEnd(eventTime);
-				ret.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
-				ret.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
-			}
-		}
-
-		if (clockedInSince != null) {
-			// still clocked in at end of period: count hours and minutes
-			ret.substract(clockedInSince.getHour(), clockedInSince.getMinute());
-			ret.add(24, 0);
-			if (periodEnum == PeriodEnum.WEEK) {
-				// calculating for week: also count days
-				DateTime counting = clockedInSince.plusDays(1);
-				while (counting.lt(endOfPeriod)) {
-					ret.add(24, 0);
-					counting = counting.plusDays(1);
-				}
-			}
-		}
-
-		return ret;
+		return (int) (infoEnd.getActual() - infoStart.getActual());
 	}
 
 	/**
-	* Calculate a flexi (needed worktime) time sum for a given period.
-	*/
-	public TimeSum calculateFlexTimeSum(DateTime date) {
-		Logger.debug("calculating flexi time sum for week containing {}", DateTimeUtil
-		.dateTimeToString(date));
-
-		TimeSum ret = new TimeSum();
-		List<Event> events = null;
-
-		// make date the first day of this week
-		date = date.minusDays(date.getWeekDay() - 1);
-
-		for (WeekDayEnum weekDay : WeekDayEnum.values()) {
-			DateTime day = date.plusDays(weekDay.getValue() - 1);
-			events = dao.getEventsOnDay(day);
-			boolean foundFlexTime = false;
-			for (Event event : events) {
-				DateTime eventTime = DateTimeUtil.stringToDateTime(event.getTime());
-
-				// skip all events that are not flex events
-				if (!isFlexEvent(event)) {
-					continue;
-				}
-
-				DateTime flexTime = DateTimeUtil.stringToDateTime(event.getTime());
-				ret.add(eventTime.getHour(), eventTime.getMinute());
-				Logger.debug("calculating flexi time for {} {} event found: {}", day.toString(), weekDay.getValue(), flexTime.toString());
-				foundFlexTime = true;
-				break;  // there can only be one flext time per day
-			}
-			if (foundFlexTime == false) {
-				int normalWorkTimeInMinutes = getNormalWorkDurationFor(weekDay);
-				ret.add(0, normalWorkTimeInMinutes);
-				Logger.debug("calculating flexi time for {} {} no event found, use default: {}", day.toString(), weekDay.getValue(), normalWorkTimeInMinutes);
-			}
-		}
-		return ret;
-	}
-
-	/**
-	 * Get the remaining time for today (in minutes). Takes into account the target work time for the week and also if
-	 * this
-	 * is the last day in the working week.
+	 * Get the remaining time for today (in minutes). Takes into account the target work time for
+	 * the week and also if this is the last day in the working week.
 	 *
-	 * @param includeFlexiTime
-	 *            use flexi overtime to reduce the working time - ONLY ON LAST WORKING DAY OF THE WEEK!
-	 * @return {@code null} either if today is not a work day (as defined in the options) or if the regular working time
-	 *         for today is already over
+	 * @param includeFlexiTime use flexi overtime to reduce the working time
+	 * @return {@code null} if today is not a work day (as defined in the options)
 	 */
 	public Integer getMinutesRemaining(boolean includeFlexiTime) {
-		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
+		OffsetDateTime dateTime = OffsetDateTime.now();
+		DayOfWeek weekDay = dateTime.getDayOfWeek();
 		if (isWorkDay(weekDay)) {
-			TimeSum alreadyWorked = null;
-			TimeSum target = null;
-			boolean onEveryWorkingDayOfTheWeek = preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
-				false);
-			if (!isFollowedByWorkDay(weekDay) || onEveryWorkingDayOfTheWeek) {
-				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.WEEK);
-				if (includeFlexiTime) {
-					// add flexi balance from week start
-					TimeSum flexiBalance = getFlexiBalanceAtWeekStart(DateTimeUtil.getWeekStart(dateTime));
-					alreadyWorked.addOrSubstract(flexiBalance);
-				}
+			boolean toZeroEveryDay = preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
+					false);
 
-				final String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
-				final TimeSum targetTimePerWeek = parseHoursMinutesString(targetValueString);
-				final TimeSum targetTimePerDay = new TimeSum();
-				targetTimePerDay.add(0, targetTimePerWeek.getAsMinutes() / countWorkDays());
-				DateTime weekStart = DateTimeUtil.getWeekStart(dateTime);
-				target = new TimeSum();
-				target.addOrSubstract(targetTimePerDay); // add today as well
-				while (weekStart.getWeekDay().intValue() != dateTime.getWeekDay().intValue()) {
-					target.addOrSubstract(targetTimePerDay);
-					weekStart = weekStart.plusDays(1);
-				}
-			} else {
-				// not the last work day of the week, only calculate the rest of the daily working time
-				alreadyWorked = calculateTimeSum(dateTime, PeriodEnum.DAY);
-				int targetMinutes = getNormalWorkDurationFor(weekDay);
-				target = new TimeSum();
-				target.add(0, targetMinutes);
-			}
-
-			Logger.debug("alreadyWorked={}", alreadyWorked.toString());
-			Logger.debug("target={}", target.toString());
-
+			int minutesRemaining = 0;
 			Logger.debug("isAutoPauseEnabled={}", isAutoPauseEnabled());
 			Logger.debug("isAutoPauseTheoreticallyApplicable={}", isAutoPauseTheoreticallyApplicable(dateTime));
 			Logger.debug("isAutoPauseApplicable={}", isAutoPauseApplicable(dateTime));
 			if (isAutoPauseEnabled() && isAutoPauseTheoreticallyApplicable(dateTime)
-				&& !isAutoPauseApplicable(dateTime)) {
-				// auto-pause is necessary, but was NOT already taken into account by calculateTimeSum():
+					&& !isAutoPauseApplicable(dateTime)) {
+				// auto-pause is necessary, but was NOT already taken into account by calculatePeriod():
 				Logger.debug("auto-pause is necessary, but was NOT already taken into account by calculateTimeSum()");
-				DateTime autoPauseBegin = getAutoPauseBegin(dateTime);
-				DateTime autoPauseEnd = getAutoPauseEnd(dateTime);
-				alreadyWorked.substract(autoPauseEnd.getHour(), autoPauseEnd.getMinute());
-				alreadyWorked.add(autoPauseBegin.getHour(), autoPauseBegin.getMinute());
+				minutesRemaining += getAutoPauseDuration();
 			}
-			int minutesRemaining = target.getAsMinutes() - alreadyWorked.getAsMinutes();
+
+			if (!isFollowedByWorkDay(weekDay) || toZeroEveryDay) {
+				// reach zero today
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
+				timeCalc.calculatePeriod(PeriodEnum.DAY, includeFlexiTime);
+
+				minutesRemaining += (int)-timeCalc.getBalance();
+			} else {
+				// not the last work day of the week, distribute remaining work time
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
+				timeCalc.calculatePeriod(PeriodEnum.WEEK, includeFlexiTime);
+
+				long remainingWeekPerDay = -timeCalc.getBalance() / (timeCalc.getFutureWorkDays() + 1);
+				long remainingToday      = -timeCalc.getCurrentDayBalance() + minutesRemaining;
+
+				minutesRemaining = (int)Math.min(remainingToday,remainingWeekPerDay);
+			}
+
 			Logger.debug("minutesRemaining={}", minutesRemaining);
 
 			return minutesRemaining;
@@ -426,40 +322,94 @@ public class TimerManager {
 	}
 
 	/**
-	 * Get the flexi-time balance which is effective at the given week start.
+	 * Get the time info at the start of the specific day.
 	 */
-	public TimeSum getFlexiBalanceAtWeekStart(DateTime weekStart) {
-		TimeSum ret = new TimeSum();
-		String startValueString = preferences.getString(Key.FLEXI_TIME_START_VALUE.getName(), "0:00");
-		String targetWorkTimeString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
-		TimeSum startValue = parseHoursMinutesString(startValueString);
-		TimeSum targetWorkTime = parseHoursMinutesString(targetWorkTimeString);
-		ret.addOrSubstract(startValue);
+	public synchronized TimeInfo getTimesAt(LocalDate targetDate) {
+		Logger.debug("Calculating times at {}", targetDate);
 
-		FlexiReset flexiReset = FlexiReset.loadFromPreferences(preferences);
-		DateTime from = flexiReset.calcLastResetDayFromDay(weekStart);
-		DateTime upTo = weekStart.minusDays(1);
-		List<Week> weeksToCount = dao.getWeeksBetween(
-				DateTimeUtil.dateTimeToString(from), DateTimeUtil.dateTimeToString(upTo));
+		TimeInfo ret = new TimeInfo();
+		LocalDate startDate;
+		CalcCacheEntry cache = null;
 
-		for (Week week : weeksToCount) {
-			Integer weekWorkedMinutes = week.getSum();
-			if (weekWorkedMinutes != null) {
-				// add the actual work time
-				ret.add(0, weekWorkedMinutes);
-			} else {
-				Logger.warn("week {} (starting at {}) has a null sum", week.getId(), week.getStart());
-			}
-			// substract the target work time
-			Integer weekFlexiMinutes = week.getFlexi();
-			if (weekFlexiMinutes != null) {
-				ret.substract(0, weekFlexiMinutes);
-			} else {
-				ret.substract(0, targetWorkTime.getAsMinutes());
-				Logger.warn("week {} (starting at {}) has a null flexi sum using default {}", week.getId(),
-					week.getStart(), targetWorkTimeString);
-			}
+		Event event = dao.getFirstEvent();
+		if (event == null) {
+			return ret;
 		}
+
+		if (targetDate != null) {
+			cache = dao.getCacheAt(targetDate);
+		}
+
+		if (cache == null) {
+			Logger.debug("No cache for date {}", targetDate);
+
+			// Start value assumed at start of week
+			startDate =  DateTimeUtil.getWeekStart(event.getDateTime().toLocalDate());
+
+			String startValueString = preferences.getString(Key.FLEXI_TIME_START_VALUE.getName(), "0:00");
+			int startValue = parseHoursMinutesString(startValueString);
+
+			ret.setActual(startValue);
+		} else {
+			startDate = cache.getDate();
+			Logger.debug("Cache entry found for date {}: {}", startDate, cache.getWorked());
+
+			ret.setActual(cache.getWorked());
+			ret.setTarget(cache.getTarget());
+		}
+
+		if (targetDate == null || !startDate.isBefore(targetDate)) {
+			return ret;
+		}
+
+		Logger.debug("Start sum: {}", formatTime(ret.getBalance()));
+
+		long iter = DAYS.between(startDate, targetDate);
+		Logger.debug("Date range to calculate: {} -> {}", startDate, targetDate);
+		Logger.debug("Number of days to calculate: {}", iter);
+
+		TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, startDate,true);
+		timeCalc.setStartSums(ret);
+
+		// FIXME background task
+		LocalDate currentDate = startDate;
+		iter = 0;
+		while (currentDate.isBefore(targetDate)) {
+			timeCalc.calculateNextDay();
+
+			Logger.debug("Sum at {}: {} = {} - {}", currentDate, timeCalc.getBalance(), timeCalc.getTotalTimeWorked(), timeCalc.getTotalTarget());
+
+
+			currentDate = currentDate.plusDays(1);
+
+			// save checkpoint in cache on Mondays and first day of month,
+			// data from the **beginning** of the day (= 0:00)
+			// currentDay is one ahead, so if it is today, we can already write the cache
+
+			if (!currentDate.isAfter(LocalDate.now()) &&
+					(currentDate.getDayOfWeek() == DayOfWeek.MONDAY || currentDate.getDayOfMonth() == 1)) {
+				Logger.debug("Saving checkpoint for date: {}", currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+				CalcCacheEntry cacheEntry = new CalcCacheEntry(currentDate, timeCalc.getTotalTimeWorked(), timeCalc.getTotalTarget());
+				Logger.debug("Data: {}", cacheEntry);
+
+				dao.insertCache(cacheEntry);
+			}
+
+			iter++;
+		}
+		Logger.debug("Calculated {} days", iter);
+
+		if (timeCalc.withFlexiTime()) {
+			Logger.debug("Calculated flexi time:       {}", timeCalc.getBalance());
+		}
+
+		ret.setActual(timeCalc.getTotalTimeWorked());
+		ret.setTarget(timeCalc.getTotalTarget());
+
+		Logger.debug("DONE getTimesAt({}): actual={}, target={}",
+				targetDate, ret.getActual(), ret.getTarget());
+		Logger.debug("--");
 
 		return ret;
 	}
@@ -467,30 +417,30 @@ public class TimerManager {
 	/**
 	 * Parse a value of hours and minutes (positive or negative).
 	 */
-	public static TimeSum parseHoursMinutesString(String hoursMinutes) {
-		TimeSum ret = new TimeSum();
+	public static int parseHoursMinutesString(String hoursMinutes) {
 		if (hoursMinutes != null) {
-			String[] startValueArray = hoursMinutes.split("[:\\.]");
+			String[] startValueArray = hoursMinutes.split("[:.]");
 			int hours = Integer.parseInt(startValueArray[0]);
 			int minutes = startValueArray.length > 1 ? Integer.parseInt(startValueArray[1]) : 0;
+
 			if (hoursMinutes.trim().startsWith("-")) {
-				ret.substract(-1 * hours, minutes);
+				return -1 * hours * 60 + minutes;
 			} else {
-				ret.add(hours, minutes);
+				return      hours * 60 + minutes;
 			}
 		}
-		return ret;
+		return 0;
 	}
 
 	/**
 	 * Get the normal work time (in minutes) for a specific week day.
 	 */
-	public int getNormalWorkDurationFor(WeekDayEnum weekDay) {
+	public int getNormalWorkDurationFor(DayOfWeek weekDay) {
 		if (isWorkDay(weekDay)) {
 			String targetValueString = preferences.getString(Key.FLEXI_TIME_TARGET.getName(), "0:00");
 			targetValueString = DateTimeUtil.refineHourMinute(targetValueString);
-			TimeSum targetValue = parseHoursMinutesString(targetValueString);
-			BigDecimal minutes = new BigDecimal(targetValue.getAsMinutes()).divide(new BigDecimal(countWorkDays()),
+			int targetValue = parseHoursMinutesString(targetValueString);
+			BigDecimal minutes = new BigDecimal(targetValue).divide(new BigDecimal(countWorkDays()),
 				RoundingMode.HALF_UP);
 			return minutes.intValue();
 		} else {
@@ -500,7 +450,7 @@ public class TimerManager {
 
 	private int countWorkDays() {
 		int ret = 0;
-		for (WeekDayEnum day : WeekDayEnum.values()) {
+		for (DayOfWeek day : DayOfWeek.values()) {
 			if (isWorkDay(day)) {
 				ret++;
 			}
@@ -512,31 +462,23 @@ public class TimerManager {
 	 * Is there a day in the week after the given day which is also marked as work day? That means, is the given day NOT
 	 * the last work day in the week?
 	 */
-	private boolean isFollowedByWorkDay(WeekDayEnum day) {
-		WeekDayEnum nextDay = day.getNextWeekDay();
-		while (nextDay != null) {
+	private boolean isFollowedByWorkDay(DayOfWeek day) {
+		DayOfWeek nextDay = day.plus(1);
+
+		while (nextDay != DayOfWeek.MONDAY) {
 			if (isWorkDay(nextDay)) {
 				return true;
 			}
-			nextDay = nextDay.getNextWeekDay();
+			nextDay = nextDay.plus(1);
 		}
 		return false;
 	}
 
 	/**
-	 * Is today a work day?
-	 */
-	public boolean isTodayWorkDay() {
-		DateTime dateTime = DateTimeUtil.getCurrentDateTime();
-		WeekDayEnum weekDay = WeekDayEnum.getByValue(dateTime.getWeekDay());
-		return isWorkDay(weekDay);
-	}
-
-	/**
 	 * Is this a work day?
 	 */
-	public boolean isWorkDay(WeekDayEnum weekDay) {
-		Key key = null;
+	public boolean isWorkDay(DayOfWeek weekDay) {
+		Key key;
 		switch (weekDay) {
 			case MONDAY:
 				key = Key.FLEXI_TIME_DAY_MONDAY;
@@ -581,9 +523,8 @@ public class TimerManager {
 		if (minutesToPredate < 0) {
 			throw new IllegalArgumentException("no negative minute amount allowed");
 		}
-		DateTime targetTime = DateTimeUtil.getCurrentDateTime();
-		targetTime = targetTime.plus(0, 0, 0, 0, minutesToPredate, 0, 0, DayOverflow.Spillover);
-		createEvent(targetTime, taskId, type, text);
+		ZonedDateTime targetTime = ZonedDateTime.now().plusMinutes(minutesToPredate);
+		createEvent(targetTime.toOffsetDateTime(), taskId, type, text);
 	}
 
 	/**
@@ -598,7 +539,7 @@ public class TimerManager {
 	 * @param text
 	 *            the text (may be {@code null})
 	 */
-	public void createEvent(DateTime dateTime, Integer taskId, TypeEnum type, String text) {
+	public void createEvent(OffsetDateTime dateTime, Integer taskId, TypeEnum type, String text) {
 		createEvent(dateTime, taskId, type, text, false);
 	}
 
@@ -617,87 +558,55 @@ public class TimerManager {
 	 *            true if the event is inserted by a restore. In that case, auto pause and refresh of notifications are
 	 *            suppressed.
 	 */
-	public void createEvent(DateTime dateTime, Integer taskId, TypeEnum type, String text, boolean insertedByRestore) {
+	public void createEvent(OffsetDateTime dateTime, Integer taskId, TypeEnum type, String text, boolean insertedByRestore) {
 		if (dateTime == null) {
 			throw new IllegalArgumentException("date/time has to be given");
 		}
 		if (type == null) {
 			throw new IllegalArgumentException("type has to be given");
 		}
-		String weekStart = DateTimeUtil.getWeekStartAsString(dateTime);
-		String time = DateTimeUtil.dateTimeToString(dateTime);
-		Week currentWeek = dao.getWeek(weekStart);
-		if (currentWeek == null) {
-			currentWeek = createPersistentWeek(weekStart);
-		}
 
 		if (!insertedByRestore && type == TypeEnum.CLOCK_OUT) {
 			tryToInsertAutoPause(dateTime);
 		}
 
-		Event event = new Event(null, currentWeek.getId(), taskId, type.getValue(), time, text);
-		Logger.debug("TRACKING: {} @ {} taskId={} text={}", type.name(), time, taskId, text);
-		event = dao.insertEvent(event);
+		Event event = new Event(null, taskId, type.getValue(), dateTime, text);
+		Logger.debug("TRACKING: {} @ {} taskId={} text={}", type.name(), dateTime, taskId, text);
+		dao.insertEvent(event);
+		dao.deleteCacheFrom(event.getDateTime().toLocalDate());
 
-		updateWeekSum(currentWeek);
 		if (!insertedByRestore) {
 			Basics.getInstance().safeCheckExternalControls();
 		}
 	}
 
-	/**
-	 * Update the week's total worked sum.
-	 */
-	public void updateWeekSum(final Week week) {
-		TimeSum sum = calculateTimeSum(DateTimeUtil.stringToDateTime(week.getStart()), PeriodEnum.WEEK);
-		int minutes = sum.getAsMinutes();
-		Logger.info("updating the time sum to {} minutes for the week beginning at {}", minutes, week.getStart());
-		Week weekToUse = week;
-		if (weekToUse instanceof WeekPlaceholder) {
-			weekToUse = createPersistentWeek(weekToUse.getStart());
-		}
-		if (minutes >= 0) {
-			weekToUse.setSum(minutes);
-		} else {
-			Logger.warn("NOT setting the sum of the week starting {} to {} minutes (the sum cannot be negative)", weekToUse.getStart(), minutes);
-			weekToUse.setSum(0);
-		}
-
-		TimeSum flexiSum = calculateFlexTimeSum(DateTimeUtil.stringToDateTime(week.getStart()));
-		int flexiMinutes = flexiSum.getAsMinutes();
-		Logger.info("updating the flexi time sum to {} minutes for the week beginning at {}", flexiMinutes, week.getStart());
-		weekToUse.setFlexi(flexiMinutes);
-
-		dao.updateWeek(weekToUse);
-		// TODO update the sum of the last week(s) if type is CLOCK_OUT?
-		// TODO update the sum of the next week(s) if type is CLOCK_IN?
+	// TODO General invalidate function (possibly with notification)
+	public void invalidateCacheFrom(OffsetDateTime date) {
+		// convert date to home time zone
+		LocalDate dbDate = date.atZoneSameInstant(getHomeTimeZone()).toLocalDate();
+		dao.deleteCacheFrom(dbDate);
 	}
 
-	private Week createPersistentWeek(String weekStart) {
-		Week week = new Week(null, weekStart, 0, 0);
-		week = dao.insertWeek(week);
-		return week;
+	public void invalidateCacheFrom(LocalDate date) {
+		dao.deleteCacheFrom(date);
 	}
 
 	/**
 	 * Create a new NON-PERSISTENT (!) event of the type CLOCK_OUT_NOW.
 	 */
-	public Event createClockOutNowEvent() {
-		DateTime now = DateTimeUtil.getCurrentDateTime();
-		String weekStart = DateTimeUtil.getWeekStartAsString(now);
-		Week currentWeek = dao.getWeek(weekStart);
-		return new Event(null, (currentWeek == null ? null : currentWeek.getId()), null, TypeEnum.CLOCK_OUT_NOW
-			.getValue(), DateTimeUtil.dateTimeToString(now), null);
+	public static Event createClockOutNowEvent() {
+		return new Event(null, null, TypeEnum.CLOCK_OUT_NOW.getValue(), OffsetDateTime.now(), null);
 	}
 
-	private void tryToInsertAutoPause(DateTime dateTime) {
+	private void tryToInsertAutoPause(OffsetDateTime dateTime) {
 		if (isAutoPauseEnabled() && isAutoPauseApplicable(dateTime)) {
 			// insert auto-pause events
-			DateTime begin = getAutoPauseBegin(dateTime);
-			DateTime end = getAutoPauseEnd(dateTime);
+			OffsetDateTime begin = dateTime.with(getAutoPauseBegin());
+			OffsetDateTime end   = dateTime.with(getAutoPauseEnd());
 			Logger.debug("inserting auto-pause, begin={}, end={}", begin, end);
+
 			Event lastBeforePause = dao.getLastEventBefore(begin);
-			createEvent(begin, null, TypeEnum.CLOCK_OUT, null);
+			createEvent(begin, null,TypeEnum.CLOCK_OUT, null);
 			createEvent(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
 				(lastBeforePause == null ? null : lastBeforePause.getText()));
 		} else {
@@ -715,21 +624,22 @@ public class TimerManager {
 	/**
 	 * Determines if the auto-pause can be applied to the given day.
 	 */
-	public boolean isAutoPauseApplicable(DateTime dateTime) {
-		DateTime end = getAutoPauseEnd(dateTime);
+	public boolean isAutoPauseApplicable(OffsetDateTime dateTime) {
+		OffsetDateTime end = dateTime.with(getAutoPauseEnd());
 		// auto-pause is theoretically applicable
 		return isAutoPauseTheoreticallyApplicable(dateTime)
 			// given time is after auto-pause end, so auto-pause should really be applied
-			&& dateTime.gt(end);
+			&& dateTime.isAfter(end);
 	}
 
-	private boolean isAutoPauseTheoreticallyApplicable(DateTime dateTime) {
-		DateTime begin = getAutoPauseBegin(dateTime);
-		DateTime end = getAutoPauseEnd(dateTime);
-		if (begin.lt(end)) {
+	private boolean isAutoPauseTheoreticallyApplicable(OffsetDateTime date) {
+		OffsetDateTime begin = date.with(getAutoPauseBegin());
+		OffsetDateTime end   = date.with(getAutoPauseEnd());
+
+		if (begin.isBefore(end)) {
 			Event lastEventBeforeBegin = dao.getLastEventBefore(begin);
 			Event lastEventBeforeEnd = dao.getLastEventBefore(end);
-			// is clocked in before begin
+				// is clocked in before begin
 			return lastEventBeforeBegin != null && lastEventBeforeBegin.getType().equals(TypeEnum.CLOCK_IN.getValue())
 				// no event is in auto-pause interval
 				&& lastEventBeforeBegin.getId().equals(lastEventBeforeEnd.getId());
@@ -740,27 +650,25 @@ public class TimerManager {
 	}
 
 	/**
-	 * Calculates the begin of the auto-pause for the given day.
+	 * Calculates the begin of the auto-pause
 	 */
-	public DateTime getAutoPauseBegin(DateTime dateTime) {
-		return DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "23.59"));
+	public LocalTime getAutoPauseBegin() {
+		return DateTimeUtil.parseTime(getAutoPauseData(Key.AUTO_PAUSE_BEGIN.getName(), "23.59"));
+	}
+
+	/**
+	 * Calculates the end of the auto-pause
+	 */
+	public LocalTime getAutoPauseEnd() {
+		return DateTimeUtil.parseTime(getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
 	}
 
 	/**
 	 * Calculates the length of the auto-pause for the given day (in minutes).
+	 * @note does *not* account for time changeovers
 	 */
-	public int getAutoPauseDuration(DateTime dateTime) {
-		DateTime pauseBegin = getAutoPauseBegin(dateTime);
-		DateTime pauseEnd = getAutoPauseEnd(dateTime);
-		long pauseSeconds = pauseBegin.numSecondsFrom(pauseEnd);
-		return (int) (pauseSeconds / 60);
-	}
-
-	/**
-	 * Calculates the end of the auto-pause for the given day.
-	 */
-	public DateTime getAutoPauseEnd(DateTime dateTime) {
-		return DateTimeUtil.parseTimeFor(dateTime, getAutoPauseData(Key.AUTO_PAUSE_END.getName(), "00.00"));
+	public long getAutoPauseDuration() {
+		return TimerManager.timeDiff(getAutoPauseBegin(), getAutoPauseEnd());
 	}
 
 	private String getAutoPauseData(String key, String defaultTime) {
@@ -936,5 +844,18 @@ public class TimerManager {
 
 	private boolean isClockedInWithTrackingMethod(TrackingMethod method) {
 		return getTrackingMethodClockInState(method);
+	}
+
+	public static String formatTime(long time) {
+		String sgn = (time < 0) ? "-" : "";
+		return String.format(Locale.US, "%s%02d:%02d", sgn, Math.abs(time / 60), Math.abs(time % 60));
+	}
+
+	public static long timeDiff(OffsetDateTime startTime, OffsetDateTime endTime) {
+		return MINUTES.between(startTime.truncatedTo(MINUTES), endTime.truncatedTo(MINUTES));
+	}
+
+	public static long timeDiff(LocalTime startTime, LocalTime endTime) {
+		return MINUTES.between(startTime.truncatedTo(MINUTES), endTime.truncatedTo(MINUTES));
 	}
 }

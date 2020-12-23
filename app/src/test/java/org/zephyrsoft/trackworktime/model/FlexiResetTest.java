@@ -1,29 +1,29 @@
 package org.zephyrsoft.trackworktime.model;
 
 import org.junit.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import java.util.TimeZone;
-
-import hirondelle.date4j.DateTime;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 public class FlexiResetTest {
 
 	// Date, where day is start of the year, month, week
-	private static final DateTime startOfEverything = DateTime.forDateOnly(2018, 1, 1).getStartOfDay();
-	private static final DateTime endLoopDate = DateTime.forDateOnly(2019, 1, 1);
+	private static final LocalDate startOfEverything = LocalDate.of(2018,1,1);
+	private static final LocalDate endLoopDate = LocalDate.of(2019,1,1);
 
 	@Test
 	public void isResetDay() {
-		for(DateTime date = startOfEverything; date.lt(endLoopDate); date=date.plusDays(1)) {
-			int month = date.getMonth();
-			int monthDay = date.getDay();
+		for (LocalDate date = startOfEverything; date.isBefore(endLoopDate); date=date.plusDays(1)) {
+			int month = date.getMonthValue();
+			int monthDay = date.getDayOfMonth();
 			boolean firstDayOfMonth = monthDay==1;
 
 			checkIsResetDay(FlexiReset.NONE, date, false);
 			checkIsResetDay(FlexiReset.DAILY, date, true);
-			checkIsResetDay(FlexiReset.WEEKLY, date, date.getWeekDay()==2);
+			checkIsResetDay(FlexiReset.WEEKLY, date, date.getDayOfWeek() == DayOfWeek.MONDAY);
 			checkIsResetDay(FlexiReset.MONTHLY, date, firstDayOfMonth);
 			checkIsResetDay(FlexiReset.QUARTERLY, date, month%3==1 && firstDayOfMonth);
 			checkIsResetDay(FlexiReset.HALF_YEARLY, date, month%6==1 && firstDayOfMonth);
@@ -31,7 +31,7 @@ public class FlexiResetTest {
 		}
 	}
 
-	private void checkIsResetDay(FlexiReset flexiReset, DateTime date, boolean expectedResetDay) {
+	private void checkIsResetDay(FlexiReset flexiReset, LocalDate date, boolean expectedResetDay) {
 		boolean actualResetDay = flexiReset.isResetDay(date);
 		assertWithMessage(flexiReset + ", " + date)
 				.that(actualResetDay)
@@ -40,29 +40,29 @@ public class FlexiResetTest {
 
 	@Test
 	public void calcLastResetDayFromDay() {
-		DateTime epoch = DateTime.forInstant(0, TimeZone.getTimeZone("UTC"));
+		LocalDate epoch = LocalDate.ofEpochDay(0);
 
-		for(DateTime date = startOfEverything; date.lt(endLoopDate); date=date.plusDays(1)) {
+		for (LocalDate date = startOfEverything; date.isBefore(endLoopDate); date=date.plusDays(1)) {
 			checkLastResetDay(FlexiReset.NONE, date, epoch);
-			checkLastResetDay(FlexiReset.DAILY, date, date.getStartOfDay());
+			checkLastResetDay(FlexiReset.DAILY, date, date);
 			checkLastResetDay(FlexiReset.WEEKLY, date, getStartOfWeek(date));
-			checkLastResetDay(FlexiReset.MONTHLY, date, date.getStartOfMonth());
+			checkLastResetDay(FlexiReset.MONTHLY, date, date.withDayOfMonth(1));
 			checkLastResetDay(FlexiReset.QUARTERLY, date, getMonthResetDayForInterval(date, 3));
 			checkLastResetDay(FlexiReset.HALF_YEARLY, date, getMonthResetDayForInterval(date, 6));
 			checkLastResetDay(FlexiReset.YEARLY, date, startOfEverything);
 		}
 	}
 
-	private void checkLastResetDay(FlexiReset flexiReset, DateTime fromDate, DateTime expectedDate) {
-		DateTime actualDate = flexiReset.calcLastResetDayFromDay(fromDate);
+	private void checkLastResetDay(FlexiReset flexiReset, LocalDate fromDate, LocalDate expectedDate) {
+		LocalDate actualDate = flexiReset.getLastResetDate(fromDate);
 		assertWithMessage(flexiReset + ", " + fromDate)
 				.that(actualDate)
 				.isEqualTo(expectedDate);
 	}
 
-	private DateTime getStartOfWeek(DateTime dateTime) {
-		DateTime date = dateTime.getStartOfDay();
-		while (date.getWeekDay() != 2) {
+	private LocalDate getStartOfWeek(LocalDate dateTime) {
+		LocalDate date = dateTime;
+		while (date.getDayOfWeek() != DayOfWeek.MONDAY) {
 			date = date.minusDays(1);
 		}
 		return date;
@@ -75,13 +75,13 @@ public class FlexiResetTest {
 	 * @return last reset date. E.g. when #interval is 3, and #forDate-s is 1.1., 2.2., 3.3., 4.4.,
 	 * it will return 1.1., 1.1., 1.1., 4.1.
 	 */
-	private DateTime getMonthResetDayForInterval(DateTime forDate, int interval) {
-		int monthIndex = forDate.getMonth() - 1;
+	private LocalDate getMonthResetDayForInterval(LocalDate forDate, int interval) {
+		int monthIndex = forDate.getMonthValue() - 1;
 		// Subtract and multiply, to lose decimals. If month is 8 and interval is 6, it becomes 6
 		int resetMonthIndex = monthIndex / interval * interval;
 		// Adjust back to 1-12 month values
 		int month = resetMonthIndex + 1;
-		return DateTime.forDateOnly(forDate.getYear(), month, 1).getStartOfDay();
+		return LocalDate.of(forDate.getYear(), month, 1);
 	}
 
 }

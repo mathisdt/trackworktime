@@ -25,7 +25,7 @@ import android.content.SharedPreferences;
  */
 public abstract class Check {
 
-	private String description = null;
+	private String description;
 
 	/**
 	 * Constructor

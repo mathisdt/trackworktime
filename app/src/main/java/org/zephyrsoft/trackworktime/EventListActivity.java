@@ -18,34 +18,35 @@ package org.zephyrsoft.trackworktime;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import androidx.core.content.ContextCompat;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.StateSet;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
-import com.bignerdranch.android.multiselector.MultiSelector;
-import com.bignerdranch.android.multiselector.SwappingHolder;
-
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.model.WeekPlaceholder;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.WeekDayHelper;
@@ -53,8 +54,6 @@ import org.zephyrsoft.trackworktime.util.WeekDayHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-
-import hirondelle.date4j.DateTime;
 
 /**
  * Activity for managing the events of a week.
@@ -72,12 +71,11 @@ public class EventListActivity extends AppCompatActivity {
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 
-	private String weekStart;
 	private Week week;
 	private List<Event> events = null;
 
-	private RecyclerView myRecyclerView;
 	private EventAdapter myEventAdapter;
+	private SelectionTracker<Long> selectionTracker;
 
 	@Override
 	protected void onPause() {
@@ -88,18 +86,81 @@ public class EventListActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.list_activity);
-		myRecyclerView = findViewById(R.id.recycler_view);
+
+		ListActivityBinding binding = ListActivityBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
+		RecyclerView myRecyclerView = binding.recyclerView;
 
 		instance = this;
 
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
-		weekStart = getIntent().getStringExtra(Constants.WEEK_START_EXTRA_KEY);
+
+		long epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
+		if (epochDay == -1) {
+			throw new IllegalArgumentException("Week start must be given.");
+		}
+
+		week = new Week(epochDay);
 		events = new ArrayList<>();
+		refreshView();
 		myEventAdapter = new EventAdapter();
+		myEventAdapter.setHasStableIds(true);
+		myRecyclerView.setHasFixedSize(true);
 		myRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		myRecyclerView.setAdapter(myEventAdapter);
+
+		selectionTracker = new SelectionTracker.Builder<>(
+				"event-selection",
+				myRecyclerView,
+				new EventKeyProvider(myRecyclerView),
+				new EventDetailsLookup(myRecyclerView),
+				StorageStrategy.createLongStorage()
+		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<Long>() {
+			@Override
+			public boolean canSetStateForKey(Long key, boolean nextState) {
+				if (key != null) {
+					return !(events.get(key.intValue()) instanceof EventSeparator);
+				}
+
+				return false;
+			}
+
+			@Override
+			public boolean canSetStateAtPosition(int position, boolean nextState) {
+				return !(events.get(position) instanceof EventSeparator);
+			}
+
+			@Override
+			public boolean canSelectMultiple() {
+				return true;
+			}
+		}).build();
+
+		// restore previous state
+		if (savedInstanceState != null) {
+			selectionTracker.onRestoreInstanceState(savedInstanceState);
+		}
+
+		selectionTracker.addObserver(new SelectionTracker.SelectionObserver() {
+			@Override
+			public void onSelectionChanged() {
+				if (selectionTracker.hasSelection() && myActionMode == null) {
+					myActionMode = startSupportActionMode(mActionModeCallback);
+
+				} else if (!selectionTracker.hasSelection() && myActionMode != null) {
+					myActionMode.finish();
+					myActionMode = null;
+				}
+			}
+		});
+	}
+
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		selectionTracker.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -108,7 +169,7 @@ public class EventListActivity extends AppCompatActivity {
 			case NEW_EVENT:
 				Logger.debug("starting to enter a new event");
 				Intent i = new Intent(this, EventEditActivity.class);
-				i.putExtra(Constants.WEEK_START_EXTRA_KEY, weekStart);
+				i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.toEpochDay());
 				startActivity(i);
 				return true;
 			default:
@@ -118,24 +179,17 @@ public class EventListActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, NEW_EVENT, NEW_EVENT, getString(R.string.new_event)).setIcon(
-				R.drawable.ic_menu_add);
+		menu.add(Menu.NONE, NEW_EVENT, NEW_EVENT, getString(R.string.new_event)).setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	private void startEditing(Event event) {
 		Logger.debug("starting to edit the existing event with ID {} ({} @ {})", event.getId(),
-				TypeEnum.byValue(
-						event.getType()).toString(), event.getTime());
+				TypeEnum.byValue(event.getType()).toString(), event.getDateTime());
+
 		Intent i = new Intent(this, EventEditActivity.class);
 		i.putExtra(Constants.EVENT_ID_EXTRA_KEY, event.getId());
 		startActivity(i);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		refreshView();
 	}
 
 	/**
@@ -143,13 +197,7 @@ public class EventListActivity extends AppCompatActivity {
 	 */
 	public void refreshView() {
 		events.clear();
-		// re-read the week in case the first event for a week was just created
-		// (then the week would have been created just now)
-		week = dao.getWeek(weekStart);
-		if (weekStart != null && week == null) {
-			week = new WeekPlaceholder(weekStart);
-		}
-		events.addAll(dao.getEventsInWeek(week));
+		events.addAll(dao.getEventsInWeek(week, timerManager.getHomeTimeZone()));
 
 		insertSeparators(events);
 		if (myEventAdapter != null) {
@@ -160,14 +208,11 @@ public class EventListActivity extends AppCompatActivity {
 	private static void insertSeparators(List<Event> eventList) {
 		ListIterator<Event> iter = eventList.listIterator();
 		Event prev = null;
-		Event cur = null;
 		while (iter.hasNext()) {
-			cur = iter.next();
+			Event cur = iter.next();
 			if (prev == null || !isOnSameDay(prev, cur)) {
 				iter.previous();
-				iter.add(new EventSeparator(
-						WeekDayHelper.getWeekDayLongName(DateTimeUtil.stringToDateTime(cur
-								.getTime()))));
+				iter.add(new EventSeparator(WeekDayHelper.getWeekDayLongName(cur.getDateTime())));
 				iter.next();
 			}
 			prev = cur;
@@ -175,9 +220,7 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	private static boolean isOnSameDay(Event e1, Event e2) {
-		DateTime d1 = DateTimeUtil.stringToDateTime(e1.getTime());
-		DateTime d2 = DateTimeUtil.stringToDateTime(e2.getTime());
-		return d1.isSameDayAs(d2);
+		return e1.getDateTime().toLocalDate().isEqual(e2.getDateTime().toLocalDate());
 	}
 
 	/**
@@ -187,68 +230,69 @@ public class EventListActivity extends AppCompatActivity {
 		return instance;
 	}
 
-	private MultiSelector myMultiSelector = new MultiSelector();
 	private ActionMode myActionMode;
-
-	private ModalMultiSelectorCallback mActionModeCallback
-			= new ModalMultiSelectorCallback(myMultiSelector) {
-
+	private final ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 		@Override
 		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-			super.onCreateActionMode(actionMode, menu);
 			getMenuInflater().inflate(R.menu.list_context_menu, menu);
 			return true;
 		}
 
 		@Override
+		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+			return false;
+		}
+
+		@Override
 		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-			switch (menuItem.getItemId()) {
-				case R.id.menu_item_delete:
-					AlertDialog.Builder alert = new AlertDialog.Builder(EventListActivity.this);
-					alert.setTitle(getString(R.string.delete_event));
-					alert.setMessage(getString(R.string.really_delete_event));
+			if (menuItem.getItemId() == R.id.menu_item_delete) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(EventListActivity.this);
+				alert.setTitle(getString(R.string.delete_event));
+				alert.setMessage(getString(R.string.really_delete_event));
 
-					alert.setPositiveButton(getString(R.string.ok),
-                        (dialog, whichButton) -> {
-                            for (int i = events.size(); i >= 0; i--) {
-                                if (myMultiSelector.isSelected(i, 0)) {
-                                    Event event = events.remove(i);
-                                    // delete event in DB
-                                    boolean success = dao.deleteEvent(event);
-                                    // we have to call this manually when using the DAO directly:
-                                    timerManager.updateWeekSum(week);
-                                    Basics.getInstance().safeCheckExternalControls();
-                                    if (success) {
-                                        Logger.debug("deleted event with ID {}",
-                                                event.getId());
-                                    } else {
-                                        Logger.warn("could not delete event with ID {}",
-                                                event.getId());
-                                    }
-                                    myRecyclerView.getAdapter().notifyItemRemoved(i);
-                                }
-                            }
+				alert.setPositiveButton(getString(R.string.ok),
+						(dialog, whichButton) -> {
+							for (int i = events.size(); i >= 0; i--) {
+								if (selectionTracker.isSelected((long) i)) {
 
-                            myMultiSelector.clearSelections();
-                        });
-					alert.setNegativeButton(getString(R.string.cancel),
-                        (dialog, which) -> {
-                            // do nothing
-                        });
-					alert.show();
+									// delete event in list and DB
+									Event event = events.remove(i);
+									boolean success = dao.deleteEvent(event);
 
-					actionMode.finish();
+									Basics.getInstance().safeCheckExternalControls();
 
-					return true;
-				default:
-					return false;
+									if (success) {
+										Logger.debug("deleted event with ID {}",
+												event.getId());
+
+										// we have to call this manually when using the DAO directly:
+										timerManager.invalidateCacheFrom(event.getDateTime());
+									} else {
+										Logger.warn("could not delete event with ID {}",
+												event.getId());
+									}
+									myEventAdapter.notifyItemRemoved(i);
+								}
+							}
+
+							selectionTracker.clearSelection();
+						});
+				alert.setNegativeButton(getString(R.string.cancel),
+						(dialog, which) -> {
+							// do nothing
+						});
+				alert.show();
+
+				return true;
+
+			} else {
+				return false;
 			}
 		}
 
 		@Override
 		public void onDestroyActionMode(ActionMode actionMode) {
-			myMultiSelector.setSelectable(false);
-			myActionMode = null;
+			selectionTracker.clearSelection();
 		}
 	};
 
@@ -256,43 +300,42 @@ public class EventListActivity extends AppCompatActivity {
 		private static final int VIEW_TYPE_SEPARATOR = 0;
 		private static final int VIEW_TYPE_EVENT = 1;
 
-		class EventViewHolder extends SwappingHolder
-				implements View.OnLongClickListener, View.OnClickListener {
+		class EventViewHolder extends RecyclerView.ViewHolder
+				implements View.OnClickListener {
 
 			public EventViewHolder(View itemView, int viewType) {
-				super(itemView, myMultiSelector);
+				super(itemView);
+
 				if (viewType == VIEW_TYPE_EVENT) {
-					itemView.setLongClickable(true);
-					itemView.setOnLongClickListener(this);
 					itemView.setOnClickListener(this);
 				}
-				setSelectionModeBackgroundDrawable(getSelectedStateDrawable());
-			}
-
-			@Override
-			public boolean onLongClick(View view) {
-				if (!myMultiSelector.isSelectable()) {
-					myActionMode = startSupportActionMode(mActionModeCallback);
-					myMultiSelector.setSelectable(true);
-					myMultiSelector.setSelected(this, true);
-					return true;
-				}
-				return false;
 			}
 
 			@Override
 			public void onClick(View v) {
+				Logger.debug("View onClick");
 
-				if (!myMultiSelector.tapSelection(this)) {
-					Event event = events.get(getAdapterPosition());
+				if (!selectionTracker.hasSelection()) {
+					Event event = events.get((int)getItemId());
 					if (!(event instanceof EventSeparator)) {
 						startEditing(event);
 					}
-				} else if (myMultiSelector.getSelectedPositions().isEmpty()) {
-					if (myActionMode != null) {
-						myActionMode.finish();
-					}
 				}
+			}
+
+			public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+
+				return new ItemDetailsLookup.ItemDetails<Long>() {
+					@Override
+					public int getPosition() {
+						return getAdapterPosition();
+					}
+
+					@Override
+					public Long getSelectionKey() {
+						return getItemId();
+					}
+				};
 			}
 		}
 
@@ -307,8 +350,9 @@ public class EventListActivity extends AppCompatActivity {
 
 		@Override
 		public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			final View itemView = LayoutInflater.from(parent.getContext()).inflate(
-					R.layout.list_item, parent, false);
+			final View itemView = LayoutInflater.from(parent.getContext())
+					.inflate(R.layout.list_item, parent, false);
+
 			return new EventViewHolder(itemView, viewType);
 		}
 
@@ -320,6 +364,13 @@ public class EventListActivity extends AppCompatActivity {
 			} else {
 				((TextView) holder.itemView).setText(extractText(event));
 			}
+
+			holder.itemView.setActivated(selectionTracker.isSelected((long)position));
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
 		}
 
 		@Override
@@ -327,9 +378,8 @@ public class EventListActivity extends AppCompatActivity {
 			return events.size();
 		}
 
-		private String extractText(Event object) {
-			DateTime dateTime = DateTimeUtil.stringToDateTime(object.getTime());
-			TypeEnum type = TypeEnum.byValue(object.getType());
+		private String extractText(Event event) {
+			TypeEnum type = TypeEnum.byValue(event.getType());
 			String typeString;
 			switch (type) {
 				case CLOCK_IN:
@@ -338,24 +388,57 @@ public class EventListActivity extends AppCompatActivity {
 				case CLOCK_OUT:
 					typeString = "OUT";
 					break;
-                case FLEX:
-                    typeString = "FLEX";
-                    break;
 				default:
 					throw new IllegalStateException("unrecognized event type");
 			}
-			return DateTimeUtil.dateTimeToDateString(dateTime) + " / "
-					+ DateTimeUtil.dateTimeToHourMinuteString(dateTime) + ": " + typeString;
+
+			OffsetDateTime dateTime = event.getDateTime();
+			return DateTimeUtil.formatLocalizedDateTime(dateTime) + ": " + typeString;
 		}
-		private Drawable getSelectedStateDrawable() {
-			Drawable colorDrawable = new ColorDrawable(
-					ContextCompat.getColor(EventListActivity.this, R.color.selected_background));
+	}
 
-			StateListDrawable stateListDrawable = new StateListDrawable();
-			stateListDrawable.addState(new int[]{android.R.attr.state_activated}, colorDrawable);
-			stateListDrawable.addState(StateSet.WILD_CARD, null);
+	private final class EventDetailsLookup extends ItemDetailsLookup<Long> {
 
-			return stateListDrawable;
+		private final RecyclerView mRecyclerView;
+
+		EventDetailsLookup(RecyclerView recyclerView) {
+			mRecyclerView = recyclerView;
+		}
+
+		@Override
+		public ItemDetails<Long> getItemDetails(MotionEvent e) {
+			View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
+
+			if (view != null) {
+				ViewHolder holder = mRecyclerView.getChildViewHolder(view);
+
+				if (holder instanceof EventAdapter.EventViewHolder) {
+					return ((EventAdapter.EventViewHolder) holder).getItemDetails();
+				}
+			}
+
+			return null;
+		}
+	}
+
+	private final class EventKeyProvider extends ItemKeyProvider<Long> {
+
+		private final RecyclerView mRecyclerView;
+
+		public EventKeyProvider(RecyclerView recyclerView) {
+			super(SCOPE_MAPPED);
+			mRecyclerView = recyclerView;
+		}
+
+		@Override
+		public Long getKey(int position) {
+			return myEventAdapter.getItemId(position);
+		}
+
+		@Override
+		public int getPosition(@NonNull Long key) {
+			RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForItemId(key);
+			return (viewHolder == null) ? RecyclerView.NO_POSITION : viewHolder.getLayoutPosition();
 		}
 	}
 }

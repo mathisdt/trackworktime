@@ -16,116 +16,60 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import android.annotation.SuppressLint;
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import org.zephyrsoft.trackworktime.database.DAO;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 /**
  * Data class for a week.
  *
- * @see DAO
  * @author Mathis Dirksen-Thedens
  */
-public class Week extends Base implements Comparable<Week>, Parcelable {
-	private Integer id = null;
-	private String start = null;
-	/** amount of minutes worked in this week */
-	private Integer sum = null;
-	private Integer flexi = null;
+public class Week extends Base implements Comparable<Week> {
+	private final LocalDate startDay;
 
-	public Week() {
-		// do nothing
+	public Week(LocalDate date) {
+		// TODO consider locale
+		startDay = date.with(DayOfWeek.MONDAY);
 	}
 
-	public Week(Integer id, String start, Integer sum, Integer flexi) {
-		this.id = id;
-		this.start = start;
-		this.sum = sum;
-		this.flexi = flexi;
+	public Week(long epochDay) {
+		startDay = LocalDate.ofEpochDay(epochDay);
 	}
 
-	@SuppressLint("ParcelClassLoader") // Ok, since not restoring custom classes
-	protected Week(Parcel in) {
-		id = (Integer)in.readValue(null);
-		start = in.readString();
-		sum = (Integer)in.readValue(null);
-		flexi = (Integer)in.readValue(null);
+	public LocalDate getStart() {
+		return startDay;
 	}
 
-	public Integer getId() {
-		return id;
+	public LocalDate getEnd() {
+		// // TODO consider locale
+		return startDay.with(DayOfWeek.SUNDAY);
 	}
 
-	public String getStart() {
-		return start;
+	public long toEpochDay() {
+		return startDay.toEpochDay();
 	}
 
-	public Integer getSum() {
-		return sum;
+	public Week plusWeeks(long weeksToAdd) {
+		return new Week(startDay.plusWeeks(weeksToAdd));
 	}
 
-	public Integer getFlexi() {
-		return flexi;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public void setStart(String start) {
-		this.start = start;
-	}
-
-	public void setSum(Integer sum) {
-		if (sum==null || sum <0) {
-			throw new IllegalArgumentException("sum of a week may not be negative");
-		}
-		this.sum = sum;
-	}
-
-	public void setFlexi(Integer flexi) {
-		this.flexi = flexi;
+	public boolean isInWeek(LocalDate date) {
+		return !date.isBefore(startDay) && !date.isAfter(getEnd());
 	}
 
 	@Override
 	public int compareTo(Week another) {
-		return compare(getStart(), another.getStart(), compare(getId(), another.getId(), 0));
+		//return compare(getStart(), another.getStart(), compare(getId(), another.getId(), 0));
+		return compare(getStart(), another.getStart(), 0);
 	}
 
 	/**
 	 * This is used e.g. by an ArrayAdapter in a ListView and it is also useful for debugging.
 	 *
-	 * @see org.zephyrsoft.trackworktime.model.Base#toString()
+	 * @see Base#toString()
 	 */
 	@Override
 	public String toString() {
-		return getStart() + " - " + getSum();
-	}
-
-	public static final Creator<Week> CREATOR = new Creator<Week>() {
-		@Override
-		public Week createFromParcel(Parcel in) {
-			return new Week(in);
-		}
-
-		@Override
-		public Week[] newArray(int size) {
-			return new Week[size];
-		}
-	};
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeValue(id);
-		dest.writeString(start);
-		dest.writeValue(sum);
-		dest.writeValue(flexi);
+		return startDay.toString();
 	}
 }

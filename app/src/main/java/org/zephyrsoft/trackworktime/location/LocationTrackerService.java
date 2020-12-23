@@ -93,7 +93,7 @@ public class LocationTrackerService extends Service {
 			Logger.debug("LocationTrackerService is already running and nothing has to be updated - no action");
 		}
 
-		if (result != null && result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
+		if (result == Result.FAILURE_INSUFFICIENT_RIGHTS) {
 			// disable the tracking and notify user of it
 			basics.disableLocationBasedTracking();
 			basics

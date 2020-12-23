@@ -42,7 +42,10 @@ import org.zephyrsoft.trackworktime.database.DAO;
  */
 @TargetApi(Build.VERSION_CODES.FROYO)
 public class DbBackupHelper implements BackupHelper {
-	private static final String KEY = "db_key";
+	private static final String KEY_EVENTS = "db_events";
+	private static final String KEY_TARGETS = "db_targets";
+	private static final String KEY_OLD = "db_key";
+
 	private final Context context;
 	private final WorkTimeTrackerBackupManager backupManager;
 
@@ -57,7 +60,11 @@ public class DbBackupHelper implements BackupHelper {
 		// delete backup if not enabled
 		if (!backupManager.isEnabled()) {
 			try {
-				data.writeEntityHeader(KEY, -1); // delete existing data if any
+				// delete existing data if any
+				data.writeEntityHeader(KEY_OLD, -1);
+				data.writeEntityHeader(KEY_EVENTS, -1);
+				data.writeEntityHeader(KEY_TARGETS, -1);
+
 				writeNewState(0, newState);
 			} catch (IOException e) {
 				// ignored, delete data next time
@@ -81,17 +88,29 @@ public class DbBackupHelper implements BackupHelper {
 		long fileModified = dao.getLastDbModification();
 
 		if (stateModified != fileModified) {
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			final Writer writer = new OutputStreamWriter(byteArrayOutputStream);
+			ByteArrayOutputStream byteSteam = new ByteArrayOutputStream();
 
 			try {
-				dao.backupToWriter(writer);
-				writer.close();
+				{
+					// Events
+					final Writer writer = new OutputStreamWriter(byteSteam);
+					dao.backupEventsToWriter(writer);
+					writer.close();
 
-				data.writeEntityHeader(KEY, byteArrayOutputStream.size());
-				data.writeEntityData(byteArrayOutputStream.toByteArray(),
-					byteArrayOutputStream.size());
-				byteArrayOutputStream.close();
+					data.writeEntityHeader(KEY_EVENTS, byteSteam.size());
+					data.writeEntityData(byteSteam.toByteArray(), byteSteam.size());
+					byteSteam.reset();
+				}
+				{
+					// Targets
+					final Writer writer = new OutputStreamWriter(byteSteam);
+					dao.backupTargetsToWriter(writer);
+					writer.close();
+
+					data.writeEntityHeader(KEY_TARGETS, byteSteam.size());
+					data.writeEntityData(byteSteam.toByteArray(), byteSteam.size());
+					byteSteam.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -118,11 +137,20 @@ public class DbBackupHelper implements BackupHelper {
 	public void restoreEntity(final BackupDataInputStream data) {
 		final DAO dao = new DAO(context);
 
-		if (KEY.equals(data.getKey())) {
+		if (KEY_OLD.equals(data.getKey()) || KEY_EVENTS.equals(data.getKey())) {
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(data));
 
 			try {
-				dao.restoreFromReader(reader);
+				dao.restoreEventsFromReader(reader);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} else if (KEY_TARGETS.equals(data.getKey())) {
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(data));
+
+			try {
+				dao.restoreTargetsFromReader(reader);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

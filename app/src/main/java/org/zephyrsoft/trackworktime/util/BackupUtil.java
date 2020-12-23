@@ -3,9 +3,10 @@ package org.zephyrsoft.trackworktime.util;
 import android.content.Context;
 
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
+import org.zephyrsoft.trackworktime.database.DAO;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,14 +18,30 @@ public class BackupUtil {
         // only static usage
     }
 
-    public static Boolean doBackup(Context context, File backupFile) {
+    public static Boolean doBackup(Context context, BackupFileInfo info) {
         try {
-            backupFile.getParentFile().mkdirs();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(backupFile)));
+            info.eventsBackupFile.getParentFile().mkdirs();
 
-            Basics.getOrCreateInstance(context).getDao().backupToWriter(writer);
-            writer.close();
+            DAO dao = Basics.getOrCreateInstance(context).getDao();
+
+            // Events
+            {
+                final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(info.eventsBackupFile)));
+
+                dao.backupEventsToWriter(writer);
+                writer.close();
+            }
+
+            // Targets
+            {
+                final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(info.targetsBackupFile)));
+
+                dao.backupTargetsToWriter(writer);
+                writer.close();
+            }
+
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();

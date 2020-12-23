@@ -22,14 +22,14 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
  * Also handles actions triggered directly from the notification of TWT.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class ThirdPartyReceiver extends BroadcastReceiver {
@@ -43,7 +43,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
-			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
+			Basics.getOrCreateInstance(context).getTimerManager().createEvent(OffsetDateTime.now(),
 				taskId, TypeEnum.CLOCK_IN, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {
@@ -54,7 +54,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-out via broadcast / taskId={} / text={}", taskId, text);
-			Basics.getOrCreateInstance(context).getTimerManager().createEvent(DateTimeUtil.getCurrentDateTime(),
+			Basics.getOrCreateInstance(context).getTimerManager().createEvent(OffsetDateTime.now(),
 				taskId, TypeEnum.CLOCK_OUT, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {

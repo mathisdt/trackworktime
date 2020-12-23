@@ -1,16 +1,16 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,13 +21,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.databinding.ReportsBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Range;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -43,24 +42,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hirondelle.date4j.DateTime;
-
 /**
  * Reports dialog.
- * 
+ *
  * @author Mathis Dirksen-Thedens
  */
 public class ReportsActivity extends AppCompatActivity {
 
-	private RadioButton rangeLast;
-	private RadioButton rangeCurrent;
-	private RadioButton rangeLastAndCurrent;
-	private RadioButton rangeAllData;
-	private RadioButton unitWeek;
-	private RadioButton unitMonth;
-	private RadioButton unitYear;
-	private RadioGroup groupingRadioGroup;
-	private Button exportButton;
+	private ReportsBinding binding;
 
 	private DAO dao;
 	private TimeCalculator timeCalculator;
@@ -70,34 +59,24 @@ public class ReportsActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.reports);
-
-		rangeLast = findViewById(R.id.rangeLast);
-		rangeCurrent = findViewById(R.id.rangeCurrent);
-		rangeLastAndCurrent = findViewById(R.id.rangeLastAndCurrent);
-		rangeAllData = findViewById(R.id.rangeAllData);
-		unitWeek = findViewById(R.id.unitWeek);
-		unitMonth = findViewById(R.id.unitMonth);
-		unitYear = findViewById(R.id.unitYear);
-		groupingRadioGroup = findViewById(R.id.grouping);
-		exportButton = findViewById(R.id.reportExport);
-
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
 		csvGenerator = new CsvGenerator(dao);
 
-		rangeAllData.setOnCheckedChangeListener((buttonView, isChecked) -> {
-			unitWeek.setEnabled(!isChecked);
-			unitMonth.setEnabled(!isChecked);
-			unitYear.setEnabled(!isChecked);
+		binding = ReportsBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
+		binding.rangeAllData.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			binding.unitWeek.setEnabled(!isChecked);
+			binding.unitMonth.setEnabled(!isChecked);
+			binding.unitYear.setEnabled(!isChecked);
 		});
 
-		exportButton.setOnClickListener(v -> export());
+		binding.reportExport.setOnClickListener(v -> export());
 	}
 
 	private void export() {
-		int selectedId = groupingRadioGroup.getCheckedRadioButtonId();
-		switch (selectedId) {
+		switch (binding.grouping.getCheckedRadioButtonId()) {
 			case R.id.groupingNone:
 				exportAllEvents();
 				break;
@@ -122,8 +101,8 @@ public class ReportsActivity extends AppCompatActivity {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
-		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-		List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Event> events = dao.getEvents(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
 
 		String report = csvGenerator.createEventCsv(events);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -146,9 +125,9 @@ public class ReportsActivity extends AppCompatActivity {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
-		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-		List<Event> events = dao.getEvents(beginAndEnd[0], beginAndEnd[1]);
-		Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0], beginAndEnd[1], events);
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Event> events = dao.getEvents(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
+		Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0].toOffsetDateTime(), beginAndEnd[1].toOffsetDateTime(), events);
 
 		String report = csvGenerator.createSumsCsv(sums);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -171,10 +150,10 @@ public class ReportsActivity extends AppCompatActivity {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
-		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
 				beginAndEnd[1]);
-		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -197,10 +176,10 @@ public class ReportsActivity extends AppCompatActivity {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
-		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
 			beginAndEnd[1]);
-		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -223,10 +202,10 @@ public class ReportsActivity extends AppCompatActivity {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
-		DateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
-		List<DateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
 			beginAndEnd[1]);
-		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -245,14 +224,14 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private Map<DateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<DateTime> rangeBeginnings, DateTime end) {
-		Map<DateTime, Map<Task, TimeSum>> sumsPerRange = new HashMap<>();
+	private Map<ZonedDateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<ZonedDateTime> rangeBeginnings, ZonedDateTime end) {
+		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = new HashMap<>();
 
 		for (int i = 0; i < rangeBeginnings.size(); i++) {
-			DateTime rangeStart = rangeBeginnings.get(i);
-			DateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
-			List<Event> events = dao.getEvents(rangeStart, rangeEnd);
-			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart, rangeEnd, events);
+			ZonedDateTime rangeStart = rangeBeginnings.get(i);
+			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
+			List<Event> events = dao.getEvents(rangeStart.toInstant(), rangeEnd.toInstant());
+			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
 			sumsPerRange.put(rangeStart, sums);
 		}
 		return sumsPerRange;
@@ -264,13 +243,13 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private Range getSelectedRange() {
-		if (rangeLast.isChecked()) {
+		if (binding.rangeLast.isChecked()) {
 			return Range.LAST;
-		} else if (rangeCurrent.isChecked()) {
+		} else if (binding.rangeCurrent.isChecked()) {
 			return Range.CURRENT;
-		} else if (rangeLastAndCurrent.isChecked()) {
+		} else if (binding.rangeLastAndCurrent.isChecked()) {
 			return Range.LAST_AND_CURRENT;
-		} else if (rangeAllData.isChecked()) {
+		} else if (binding.rangeAllData.isChecked()) {
 			return Range.ALL_DATA;
 		} else {
 			throw new IllegalStateException("unknown range");
@@ -278,11 +257,11 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private Unit getSelectedUnit() {
-		if (unitWeek.isChecked()) {
+		if (binding.unitWeek.isChecked()) {
 			return Unit.WEEK;
-		} else if (unitMonth.isChecked()) {
+		} else if (binding.unitMonth.isChecked()) {
 			return Unit.MONTH;
-		} else if (unitYear.isChecked()) {
+		} else if (binding.unitYear.isChecked()) {
 			return Unit.YEAR;
 		} else {
 			throw new IllegalStateException("unknown unit");
@@ -320,8 +299,7 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private static String getWeekName(Week week) {
-		DateTime weekStart = DateTimeUtil.stringToDateTime(week.getStart());
-		return "week-beginning-on-" + weekStart.format("YYYY-MM-DD");
+		return "week-beginning-on-" + DateTimeUtil.dateToULString(week.getStart());
 	}
 
 }

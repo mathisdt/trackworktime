@@ -21,6 +21,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
 import org.acra.ACRA;
 import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraDialog;
@@ -33,6 +35,7 @@ import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
 
 import java.util.concurrent.TimeUnit;
 
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -76,6 +79,8 @@ public class WorkTimeTrackerApplication extends Application {
 	public void onCreate() {
 		Logger.info("creating application");
 
+		AndroidThreeTen.init(this);
+
 		NotificationChannel notificationChannel = null;
 		NotificationChannel serviceNotificationChannel = null;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -101,9 +106,16 @@ public class WorkTimeTrackerApplication extends Application {
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
 
-		PeriodicWorkRequest automaticBackup = new PeriodicWorkRequest.Builder(AutomaticBackup.class, 1, TimeUnit.DAYS, 6, TimeUnit.HOURS)
-			.build();
-		WorkManager.getInstance(getApplicationContext()).enqueue(automaticBackup);
+		try {
+			PeriodicWorkRequest automaticBackup = new PeriodicWorkRequest.Builder(AutomaticBackup.class, 24, TimeUnit.HOURS, 6, TimeUnit.HOURS)
+					.build();
+			WorkManager.getInstance(getApplicationContext()).enqueueUniquePeriodicWork(Constants.WORK_AUTOBACKUP, ExistingPeriodicWorkPolicy.KEEP, automaticBackup);
+
+			Logger.info("Successfully installed periodic work request.");
+		} catch (IllegalStateException e) {
+			Logger.error(e.getMessage());
+		}
+
 
 		Logger.info("handing off to super");
 		super.onCreate();

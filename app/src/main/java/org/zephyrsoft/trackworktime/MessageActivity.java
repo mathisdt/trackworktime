@@ -25,6 +25,8 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TextView;
 
+import org.zephyrsoft.trackworktime.databinding.MessageBinding;
+
 /**
  * Activity for showing a message to the user.
  * 
@@ -32,16 +34,18 @@ import android.widget.TextView;
  */
 public class MessageActivity extends AppCompatActivity implements OnClickListener {
 
-	private TextView textView = null;
+	private MessageBinding binding;
 	private int id = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.message);
-		textView = findViewById(R.id.dialogMessage);
-		textView.setOnClickListener(this);
+
+		binding = MessageBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
+
+		binding.message.setOnClickListener(this);
 	}
 
 	@Override
@@ -49,7 +53,8 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 		super.onResume();
 		String message = getIntent().getStringExtra(Constants.MESSAGE_EXTRA_KEY);
 		id = getIntent().getIntExtra(Constants.ID_EXTRA_KEY, -1);
-		textView.setText(message);
+
+		binding.message.setText(message);
 	}
 
 	@Override

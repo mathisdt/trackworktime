@@ -16,110 +16,58 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.os.Bundle;
-import android.preference.DialogPreference;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
-/**
- * @author Peter Rosenberg
- */
+import androidx.preference.DialogPreference;
+
+import org.zephyrsoft.trackworktime.R;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
 public class DurationPreference extends DialogPreference {
-    private String myDuration = "0:00";
-    private EditText myEditText;
+	private String duration = "0:00";
 
-    public DurationPreference(Context ctxt, AttributeSet attrs) {
-        super(ctxt, attrs);
-    }
+	public DurationPreference(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    @Override
-    protected View onCreateDialogView() {
-        myEditText =  new EditText(getContext());
-        return myEditText;
-    }
+	@Override
+	protected Object onGetDefaultValue(TypedArray a, int index) {
+		return a.getString(index);
+	}
 
-    @Override
-    protected void onBindDialogView(View v) {
-        super.onBindDialogView(v);
-        myEditText.setText(myDuration);
-    }
+	@Override
+	protected void onSetInitialValue(Object defaultValue) {
+		String value;
 
-    @Override
-    protected void showDialog(Bundle state) {
-        super.showDialog(state);
+		if (defaultValue == null) {
+			value = getPersistedString("00:00");
+		} else {
+			value = getPersistedString(defaultValue.toString());
+		}
 
-        // deactivate buttonPositive if input string invalid
-        final Button buttonPositive = ((AlertDialog)getDialog()).getButton(DialogInterface.BUTTON_POSITIVE);
-        myEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // not used
-            }
+		if (DateTimeUtil.isDurationValid(value)) {
+			duration = value;
+			updateSummary();
+		}
+	}
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                buttonPositive.setEnabled(isDurationValid(String.valueOf(s)));
-            }
+	private void updateSummary() {
+		setSummary(String.format(getContext().getString(R.string.current_value), duration));
+	}
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                // not used
-            }
-        });
-    }
+	void updateValue(String value) {
+		if (DateTimeUtil.isDurationValid(value) && callChangeListener(value)) {
+			duration = value;
 
-    @Override
-    protected void onDialogClosed(boolean positiveResult) {
-        super.onDialogClosed(positiveResult);
+			if (persistString(value)) {
+				updateSummary();
+			}
+		}
+	}
 
-        final String duration = String.valueOf(myEditText.getText());
-        if (isDurationValid(duration)) {
-            myDuration = duration;
-            if (positiveResult) {
-                if (callChangeListener(myDuration)) {
-                    persistString(myDuration);
-                }
-            }
-        }
-    }
-
-    private boolean isDurationValid(String duration) {
-        String[] pieces = duration.split("[:\\.]");
-        if (pieces.length == 2){
-            try {
-                Integer.parseInt(pieces[0]);
-                Integer.parseInt(pieces[1]);
-                return true;
-            } catch (NumberFormatException e) {
-                // ignore and return false
-            }
-        }
-        return false;
-    }
-
-    @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        return (a.getString(index));
-    }
-
-    @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        if (restoreValue) {
-            if (defaultValue == null) {
-                myDuration = getPersistedString("00:00");
-            } else {
-                myDuration = getPersistedString(defaultValue.toString());
-            }
-        } else {
-            myDuration = defaultValue.toString();
-        }
-    }
+	String getDuration() {
+		return duration;
+	}
 }

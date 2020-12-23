@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_menu_info_details"
+        android:title="@string/about" />
+    <item
+        android:id="@+id/nav_preferences"
+        android:icon="@drawable/ic_menu_preferences"
+        android:title="@string/preferences" />
+    <item
+        android:id="@+id/nav_set_work_location"
+        android:icon="@drawable/ic_menu_compass"
+        android:title="@string/use_current_location" />
+
+    <item android:title="@string/tools">
+        <menu>
+            <item
+                android:id="@+id/nav_edit_events"
+                android:icon="@drawable/ic_menu_edit"
+                android:title="@string/edit_events" />
+            <item
+                android:id="@+id/nav_edit_tasks"
+                android:icon="@drawable/ic_menu_sort_by_size"
+                android:title="@string/edit_tasks" />
+            <item
+                android:id="@+id/nav_insert_default_times"
+                android:icon="@drawable/ic_menu_mark"
+                android:title="@string/insert_default_times" />
+        </menu>
+    </item>
+
+    <item android:title="@string/data">
+        <menu>
+            <item
+                android:id="@+id/nav_reports"
+                android:icon="@drawable/ic_menu_agenda"
+                android:title="@string/reports" />
+            <item
+                android:id="@+id/nav_data_backup"
+                android:title="@string/backup" />
+            <item
+                android:id="@+id/nav_data_restore"
+                android:title="@string/restore" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_send_logs"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="@string/sendLogs" />
+
+    <item
+        android:id="@+id/nav_ignore_battery_optimizations"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/request_to_ignore_battery_optimizations"
+        android:visible="false" />
+</menu>
