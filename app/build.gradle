@@ -9,7 +9,7 @@ static def buildTime() {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion '29.0.2'
 
     compileOptions {
@@ -28,10 +28,10 @@ android {
     defaultConfig {
         applicationId "org.zephyrsoft.trackworktime"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
 
-        versionCode 34                      // increment with every release
-        versionName '1.9.0-SNAPSHOT-7'      // change with every release
+        versionCode 35                      // increment with every release
+        versionName '1.1.0-SNAPSHOT'        // change with every release
     }
 
     buildTypes {
