@@ -1,18 +1,42 @@
-This app can track your work time easily! It lets you categorize each recorded interval by a client/task and a free text. Of course, the list of clients/tasks can be edited to suit your needs.<br>
+This app can track your work time easily! You can automate time tracking using geo-fencing functions (see below).
+You may also <b>categorize each recorded interval</b> by a predefined client/task and a free text.
+Of course, the list of clients/tasks can be edited to suit your needs.<br>
 <br>
-Additionally, if you wish, your flexible time account is taken care of: you always see how much you worked. You can also keep an eye on how much work time is left for today or for the current week (by a notification which you can enable).<br>
+Additionally, if you wish, your <b>flexible time account is taken care of</b>: you always see how much you worked.
+You can also keep an eye on how much work time is left for today or for the current week (by a <b>notification</b>
+which you can enable).<br>
 <br>
-You even may provide the geo-coordinates of your work place and the app can automatically clock you in while you are at work. This is done without using GPS, so your battery won't be emptied by this app.<br>
+The app enables you to modify the planned working time effortlessly - just tap on the date you want to edit in the
+main table.<br>
 <br>
-You also may provide a Wi-Fi network name which is visible at your work place the app can use to clock in automatically when this SSID is in range (you don't need to be connected to this network). Of course you should have Wi-Fi enabled for this to work.<br>
+You may provide the <b>geo-coordinates</b> of your work place and the app can
+automatically clock you in while you are at work. This is done <b>without using GPS</b>, so your battery won't
+be emptied by this app.<br>
 <br>
-If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - TWT can be triggered from these apps and just do the book-keeping of your work time. In this case, you have to create broadcast intents called org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOut. When using ClockIn, you can also set the parameters task=... and text=... in the "extra" section of the intent so your events are more meaningful. For more details on this, see the web site.<br>
+You also may provide a <b>Wi-Fi network name</b> which is visible at your work place the app can use to clock in automatically
+when this SSID is in range (you don't need to be connected to this network). Of course you should have Wi-Fi enabled
+for this to work.<br>
 <br>
-The latest version even can notify you via your Pebble smart watch on clock-in and clock-out events!
+If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - <b>TWT can be triggered
+from other apps</b> and just do the book-keeping of your work time. In this case, you have to create broadcast intents
+called org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOut. When using ClockIn,
+you can also set the parameters task=... and text=... in the "extra" section of the intent so your events are
+more meaningful. For more details on this, see the web site.<br>
 <br>
-Finally, the app can generate reports for you. The raw events report is the right thing if you want to import your data somewhere else, while year/month/week reports are fine if you want to keep track of your task progress.
+If you have a <b>Pebble</b> smart watch, the app will notify you on clock-in and clock-out events which is especially
+useful if you want to be in the know about automatic time tracking via location and/or WiFi.
 <br>
+Finally, the app can generate <b>reports</b> for you. The raw events report is the right thing if you want to
+import your data somewhere else, while year/month/week reports are fine if you want to keep track of your
+task progress.<br>
 <br>
-<b>This is an open source project</b>, so if there is anything you don't like, you are very welcome to contact me or even write some code yourself and contribute it. Please don't try to communicate with me via reviews, that doesn't work in both directions. Just write me an email, and I'll see what I can do - web site and email address as stated above.<br>
+Important note: <b>This app definitely won't use your personal data for anything you don't want!</b>
+It uses the INTERNET permission only to offer you to send some information about crashes to the developer
+(and does that only if you agree, you will be asked every time). The app does NOT include tracked times or
+places in the bug report, but the general log file is appended and might potentially include personal data -
+if so, it will be kept strictly confidential and only used to identify the problem.<br>
 <br>
-Important note: This app definitely won't send your personal data anywhere. It uses the INTERNET permission only to offer you to send some information about the problem to the developer. The log file appended to the bug report may include personal data - if so, it will kept strictly confidential and only used to identify the problem.<br>
+<b>This is an open source project</b>, so if there's something you don't like, you are very welcome to
+file an issue or even fix things yourself and create a pull request.
+Please don't try to communicate with me via reviews, that doesn't work in both directions.
+You can always write me an email and I'll see what I can do. - web site and email address as stated above.<br>

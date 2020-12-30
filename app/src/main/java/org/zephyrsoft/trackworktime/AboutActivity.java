@@ -69,7 +69,7 @@ public class AboutActivity extends AppCompatActivity {
 		StringBuilder text = new StringBuilder();
 		try {
 			while ((line = buf.readLine()) != null) {
-				text.append(line);
+				text.append(line).append(' ');
 			}
 		} catch (IOException e) {
 			return null;
