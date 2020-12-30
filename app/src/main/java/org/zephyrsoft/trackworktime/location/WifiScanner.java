@@ -41,14 +41,14 @@ public class WifiScanner extends BroadcastReceiver {
 	 * {@code true} if registered, {@code false} otherwise. */
 	private boolean registered = false;
 	/** Most recently received scan results */
-	@NonNull private List<ScanResult> latestScanResults = new ArrayList<>();
+	@NonNull private final List<ScanResult> latestScanResults = new ArrayList<>();
 	/** Most recent update date time of {@link #latestScanResults} */
 	@NonNull private LocalDateTime latestScanResultTime = LocalDateTime.now().minusYears(1);
 	/** Listener reference, for anyone who is interested in scanning results */
 	@Nullable private WifiScanListener wifiScanListener;
 	/** Flag, when set to {@code true}, disables scan requests to prevent flooding. */
 	private boolean scanRequested = false;
-	@NonNull private LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
+	@NonNull private final LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
 
 	public enum Result {
 		/** When {@link WifiManager#isWifiEnabled()} returns false */

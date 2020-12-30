@@ -160,6 +160,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			dbUpgradeFrom4to5(database);
 			currentVersion++;
 		}
+
+		// TODO drop old event table on newer database versions
+		//database.execSQL("drop table if exists " + EVENT_V1);
+
 		if (currentVersion != newVersion) {
 			throw new IllegalStateException("could not upgrade database");
 		}

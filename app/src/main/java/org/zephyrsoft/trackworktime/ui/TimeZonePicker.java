@@ -28,7 +28,7 @@ public class TimeZonePicker extends LinearLayout
 
 	private String timeZoneId = ZoneId.systemDefault().getId();
 
-	private TextView timeZone;
+	private final TextView timeZone;
 
 	public TimeZonePicker(Context context, AttributeSet attrs) {
 		super(context, attrs);

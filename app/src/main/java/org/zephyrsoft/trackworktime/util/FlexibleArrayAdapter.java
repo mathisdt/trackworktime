@@ -33,7 +33,7 @@ import android.widget.TextView;
  */
 public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 
-	private StringExtractionMethod<T> extractionMethod;
+	private final StringExtractionMethod<T> extractionMethod;
 	private final int resource;
 	private int dropDownResource;
 	private final Context context;

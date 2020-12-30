@@ -28,7 +28,7 @@ public enum TrackingMethod {
 	LOCATION(R.string.keyClockedInByLocation),
 	WIFI(R.string.keyClockedInByWifi);
 
-	private int preferenceKeyId;
+	private final int preferenceKeyId;
 
 	TrackingMethod(int preferenceKeyId) {
 		this.preferenceKeyId = preferenceKeyId;

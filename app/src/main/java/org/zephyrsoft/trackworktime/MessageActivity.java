@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.TextView;
 
 import org.zephyrsoft.trackworktime.databinding.MessageBinding;
 

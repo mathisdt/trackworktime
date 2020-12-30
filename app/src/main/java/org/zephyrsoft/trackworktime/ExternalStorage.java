@@ -25,7 +25,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Can manage directories and files on external storage.
@@ -66,7 +65,7 @@ public class ExternalStorage {
 	public static File writeFile(String subDirectory, String fileNamePrefix, String fileNameSuffix, byte[] fileContent, Context context) {
 		File targetDirectory = getDirectory(subDirectory, context);
 		if (targetDirectory == null) {
-			Logger.error("target {} is not writable", targetDirectory);
+			Logger.error("target {} is not writable", subDirectory);
 			return null;
 		}
 		String timeStamp = LocalDateTime.now().format(TIMESTAMP);
@@ -76,21 +75,11 @@ public class ExternalStorage {
 	}
 
 	private static File writeFile(byte[] fileContent, File file) {
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(file);
+		try (FileOutputStream fos = new FileOutputStream(file)) {
 			fos.write(fileContent);
 		} catch (Exception e) {
 			Logger.error("file {} could not be written", file);
 			return null;
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// do nothing
-				}
-			}
 		}
 		return file;
 	}

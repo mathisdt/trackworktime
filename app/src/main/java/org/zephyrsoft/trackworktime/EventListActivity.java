@@ -143,7 +143,7 @@ public class EventListActivity extends AppCompatActivity {
 			selectionTracker.onRestoreInstanceState(savedInstanceState);
 		}
 
-		selectionTracker.addObserver(new SelectionTracker.SelectionObserver() {
+		selectionTracker.addObserver(new SelectionTracker.SelectionObserver<Long>() {
 			@Override
 			public void onSelectionChanged() {
 				if (selectionTracker.hasSelection() && myActionMode == null) {
