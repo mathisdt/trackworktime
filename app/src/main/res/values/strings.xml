@@ -193,8 +193,8 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="current_value">current value: %s</string>
     <string name="upgrade">Upgrade</string>
-    <string name="upgradeText"><![CDATA[<b>TrackWorkTime was updated to version 2.0.</b><br>This version adds support for handling different time zones. Your existing data will be migrated now. Please check, that the currently selected <i>home timezone</i> is correct.]]></string>
-    <string name="startMigration">Start migration.</string>
+    <string name="upgradeText"><![CDATA[<b>TrackWorkTime was updated.</b><br>The new version adds support for handling different time zones. Your existing data will be migrated now. Please check that the currently selected <i>home timezone</i> is correct!]]></string>
+    <string name="startMigration">Start Migration</string>
     <string name="tools">Tools</string>
     <string name="data">Data</string>
 
