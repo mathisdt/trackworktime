@@ -1032,26 +1032,6 @@ public class DAO {
 		return getCacheWithConstraint(CACHE_DATE + "<=" + date.toEpochDay());
 	}
 
-	/*
-	 *//**
-	 * Update an target.
-	 *
-	 * @param target
-	 *            the target to update - the ID has to be set!
-	 * @return the target as newly read from the database
-	 **
-	public Target updateTarget(Target target) {
-	open();
-	ContentValues args = targetToContentValues(target);
-	db.update(TARGET, args, TARGET_ID + "=" + target.getId(), null);
-
-	// now fetch the newly updated row and return it as Target object
-	List<Target> updated = getTargetsWithConstraint(TARGET_ID + "=" + target.getId());
-	//dataChanged(); // TODO
-	return updated.get(0);
-	}
-	 */
-
 	/**
 	 * Remove cache entries.
 	 *
@@ -1098,8 +1078,8 @@ public class DAO {
 		private final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
 		private final int TYPE_FLEX = 2;
 
-		private ZoneId zoneId;
-		private WeakReference<MigrationCallback> callback;
+		private final ZoneId zoneId;
+		private final WeakReference<MigrationCallback> callback;
 
 		private MigrateEventsV2(ZoneId zoneId, MigrationCallback callback) {
 			this.zoneId = zoneId;
@@ -1124,7 +1104,7 @@ public class DAO {
 				while (!cursor.isAfterLast()) {
 					publishProgress((int)((count * 100) / numEntries));
 
-					Integer type = cursor.getInt(2);
+					int type = cursor.getInt(2);
 					LocalDateTime eventDateTime =
 							LocalDateTime.parse(cursor.getString(3), DATETIME_FORMAT);
 
@@ -1169,11 +1149,8 @@ public class DAO {
 				}
 				cursor.close();
 
-				// FIXME drop old table
-				//db.execSQL("drop table if exists " + EVENT_V1);
-
+				// for now only rename the old event table
 				db.execSQL("ALTER TABLE " + EVENT_V1 + " RENAME TO " + EVENT_V1 + "_mig");
-				db.execSQL("drop table if exists event_new");
 
 				db.setTransactionSuccessful();
 			} finally {
@@ -1189,7 +1166,7 @@ public class DAO {
 
 			if (cb != null) {
 				cb.onProgressUpdate(values[0]);
-			};
+			}
 		}
 
 		@Override

@@ -35,8 +35,8 @@ import java.util.Map;
  */
 public class ExternalNotificationManager {
 
-	private Vibrator vibratorService;
-	private Context context;
+	private final Vibrator vibratorService;
+	private final Context context;
 
 	/**
 	 * Create the manager.

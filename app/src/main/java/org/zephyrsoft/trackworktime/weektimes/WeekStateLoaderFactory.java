@@ -8,7 +8,7 @@ import org.zephyrsoft.trackworktime.model.WeekState;
 
 public class WeekStateLoaderFactory {
 
-	private WeekStateCalculatorFactory weekStateCalculatorFactory;
+	private final WeekStateCalculatorFactory weekStateCalculatorFactory;
 
 	public WeekStateLoaderFactory(@NonNull WeekStateCalculatorFactory weekStateCalculatorFactory) {
 		this.weekStateCalculatorFactory = weekStateCalculatorFactory;

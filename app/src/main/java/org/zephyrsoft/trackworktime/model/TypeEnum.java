@@ -40,8 +40,8 @@ public enum TypeEnum {
 	 */
 	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)");
 
-	private Integer value;
-	private String readableName;
+	private final Integer value;
+	private final String readableName;
 
 	TypeEnum(Integer value, String readableName) {
 		this.value = value;

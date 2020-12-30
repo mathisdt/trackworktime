@@ -36,9 +36,9 @@ public class WeekState {
 	}
 	
 	public String topLeftCorner = "";
-	public SummaryRowState totals = new SummaryRowState();
+	public final SummaryRowState totals = new SummaryRowState();
 
-	private DayRowState[] dayRowStates = {
+	private final DayRowState[] dayRowStates = {
 			new DayRowState(), new DayRowState(), new DayRowState(), new DayRowState(),
 			new DayRowState(), new DayRowState(), new DayRowState()
 	};

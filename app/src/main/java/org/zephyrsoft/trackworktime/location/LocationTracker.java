@@ -99,7 +99,7 @@ public class LocationTracker implements LocationListener {
 				timerManager.activateTrackingMethod(TrackingMethod.LOCATION);
 				Logger.info("started location-based tracking");
 				return Result.SUCCESS;
-			} catch (RuntimeException re) {
+			} catch (SecurityException se) {
 				Logger.info("NOT started location-based tracking, insufficient privileges detected");
 				isTrackingByLocation.set(false);
 				return Result.FAILURE_INSUFFICIENT_RIGHTS;

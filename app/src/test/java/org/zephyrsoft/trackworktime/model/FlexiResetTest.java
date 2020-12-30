@@ -4,8 +4,6 @@ import org.junit.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
-import java.util.TimeZone;
-
 import static com.google.common.truth.Truth.assertWithMessage;
 
 public class FlexiResetTest {

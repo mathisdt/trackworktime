@@ -10,7 +10,7 @@ import org.zephyrsoft.trackworktime.model.WeekState;
 public class WeekStateLoader extends AsyncTask<Void, Void, WeekState> {
 
 	private final WeekStateCalculator weekStateCalculator;
-	private Consumer<WeekState> onWeekStateLoaded;
+	private final Consumer<WeekState> onWeekStateLoaded;
 
 	public WeekStateLoader(@NonNull WeekStateCalculator weekStateCalculator,
 			@NonNull Consumer<WeekState> onWeekStateLoaded) {

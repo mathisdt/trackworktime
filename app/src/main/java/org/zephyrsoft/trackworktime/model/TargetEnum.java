@@ -50,8 +50,8 @@ public enum TargetEnum {
 	 */
 	FLEXI_ADD(Values.FLEXI_ADD, "flexi-add");
 
-	private Integer value;
-	private String readableName;
+	private final Integer value;
+	private final String readableName;
 
 	TargetEnum(Integer value, String readableName) {
 		this.value = value;

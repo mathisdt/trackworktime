@@ -307,7 +307,6 @@ public class TimeCalculatorV2 {
 			Logger.debug("Fetching events for day: {}", currentDate);
 			events = dao.getEventsOnDay(currentDate.atStartOfDay(zoneId));
 
-			currentDayHasEvents = (events != null && !events.isEmpty());
 		} else {
 			Logger.debug("Fetching events for today");
 			events = dao.getEventsOnDayUpTo(now);
@@ -340,9 +339,9 @@ public class TimeCalculatorV2 {
 			// add remaining events for today
 			List<Event> eventsAfter = dao.getEventsOnDayAfter(now);
 			events.addAll(eventsAfter);
-
-			currentDayHasEvents = (events != null && !events.isEmpty());
 		}
+
+		currentDayHasEvents = (events != null && !events.isEmpty());
 
 		workedTime += calculateWorkTime(events);
 
