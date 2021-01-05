@@ -417,7 +417,7 @@ public class DAO {
 		long instantB = date.with(LocalTime.MAX).toEpochSecond();
 
 
-		return getEventsWithConstraint(EVENT_TIME + " >= \"" + instantA +
+		return getEventsWithConstraint(EVENT_TIME + " > \"" + instantA +
 				"\" AND " + EVENT_TIME + "<= \"" + instantB + "\"");
 	}
 
