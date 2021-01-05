@@ -141,6 +141,9 @@ public class TimeCalculatorV2 {
 		this.timerManager = timerManager;
 
 		this.handleFlexiTime = handleFlexiTime;
+		if (handleFlexiTime) {
+			this.flexiReset = timerManager.getFlexiReset();
+		}
 
 		this.zoneId = timerManager.getHomeTimeZone();
 
@@ -154,6 +157,11 @@ public class TimeCalculatorV2 {
 		// get last event before start
 		this.lastEventBeforeDay =
 				dao.getLastEventBefore(this.currentDate.atStartOfDay(zoneId).toOffsetDateTime());
+
+		// get next flexi reset
+		if (flexiReset != FlexiReset.NONE) {
+			nextFlexiReset = flexiReset.getNextResetDate(currentDate);
+		}
 	}
 
 	public void setStartSums(long actual, long target) {
@@ -362,7 +370,7 @@ public class TimeCalculatorV2 {
 		if (handleFlexiTime) {
 			// handle flexi reset
 			if (nextFlexiReset != null && nextFlexiReset.isEqual(currentDate)) {
-				target = actual;    // reset target work time
+				target = actual;	// reset target work time
 
 				nextFlexiReset = flexiReset.getNextResetDate(currentDate);
 			}

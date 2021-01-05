@@ -36,6 +36,7 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.TrackingMethod;
 import org.zephyrsoft.trackworktime.model.CalcCacheEntry;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.FlexiReset;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeInfo;
@@ -82,6 +83,10 @@ public class TimerManager {
 		} else {
 			return ZoneId.of(homeTimeZone);
 		}
+	}
+
+	public FlexiReset getFlexiReset() {
+		return FlexiReset.loadFromPreferences(preferences);
 	}
 
 	public void insertDefaultWorkTimes(LocalDate from, LocalDate to, Integer taskId, String text) {
