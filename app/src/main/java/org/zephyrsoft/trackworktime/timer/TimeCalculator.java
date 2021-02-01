@@ -182,12 +182,21 @@ public class TimeCalculator {
 		List<ZonedDateTime> ret = new LinkedList<>();
 		ret.add(from);
 
+		ZonedDateTime toEndOfDay = to.with(LocalTime.MAX);
 		ZonedDateTime current;
 		switch (unit) {
+			case DAY:
+				current = from.plusDays(1);
+
+				while (current.isBefore(toEndOfDay)) {
+					ret.add(current);
+					current = current.plusDays(1);
+				}
+				break;
 			case WEEK:
 				current = DateTimeUtil.getWeekStart(from).plusDays(7);
 
-				while (current.isBefore(to)) {
+				while (current.isBefore(toEndOfDay)) {
 					ret.add(current);
 					current = current.plusDays(7);
 				}
@@ -195,7 +204,7 @@ public class TimeCalculator {
 			case MONTH:
 				current = from.withDayOfMonth(1).plusMonths(1);
 
-				while (current.isBefore(to)) {
+				while (current.isBefore(toEndOfDay)) {
 					ret.add(current);
 					current = current.plusMonths(1);
 				}
@@ -203,7 +212,7 @@ public class TimeCalculator {
 			case YEAR:
 				current = ZonedDateTime.of(LocalDate.of(from.getYear()+1,1,1), LocalTime.MIDNIGHT, from.getZone());
 
-				while (current.isBefore(to)) {
+				while (current.isBefore(toEndOfDay)) {
 					ret.add(current);
 					current = current.plusYears(1);
 				}
