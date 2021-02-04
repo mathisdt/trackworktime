@@ -20,10 +20,9 @@ cache:
 
 install:
   - echo y | android update sdk -u -a -t tools
-  - echo y | android update sdk -u -a -t build-tools-30.0.3
-  - echo y | android update sdk -u -a -t android-30
-  - echo y | android update sdk -u -a -t extra-android-support
-  - echo y | android update sdk -u -a -t extra-android-m2repository
+  - echo y | android update sdk -u -a -t build-tools;30.0.3
+  - echo y | android update sdk -u -a -t platforms;android-30
+  - echo y | android update sdk -u -a -t extras;android;m2repository
 
 script: git submodule update --init --recursive && ./gradlew test && ./gradlew assemble
 
