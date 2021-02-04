@@ -777,6 +777,7 @@ public class Basics extends BroadcastReceiver {
     public void openBatterySettings() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			Intent intent = new Intent();
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
 			context.startActivity(intent);
 		}
