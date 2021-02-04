@@ -10,24 +10,20 @@ machine:
 jdk:
 - oraclejdk8
 
-android:
-  components:
-  - tools
-  - build-tools-30.0.3
-  - android-30
-  - extra-android-support
-  - extra-android-m2repository
-  licenses:
-  - android-sdk-license-.+
-  - android-sdk-build-tools-.+
-
 before_cache:
-- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-- rm -rf $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+
+install:
+  - echo y | android update sdk -u -a -t tools
+  - echo y | android update sdk -u -a -t build-tools-30.0.3
+  - echo y | android update sdk -u -a -t android-30
+  - echo y | android update sdk -u -a -t extra-android-support
+  - echo y | android update sdk -u -a -t extra-android-m2repository
 
 script: git submodule update --init --recursive && ./gradlew test && ./gradlew assemble
 
