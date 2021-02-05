@@ -37,7 +37,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
       - name: Find APKs
-        run: find . -type f -name '*.apk'
+        run: find $(pwd) -type f -name '*.apk'
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
