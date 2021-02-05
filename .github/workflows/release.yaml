@@ -9,7 +9,7 @@ on:
 
 jobs:
   apk:
-    name: Generate APK
+    name: Test, Assemble, Release
     runs-on: ubuntu-latest
 
     steps:
