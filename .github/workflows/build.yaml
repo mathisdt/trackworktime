@@ -33,6 +33,6 @@ jobs:
       - name: assemble
         run: ./gradlew assemble
       - name: cleanup Gradle cache
-          run: |
-            rm -f ~/.gradle/caches/modules-2/modules-2.lock
-            rm -f ~/.gradle/caches/modules-2/gc.properties
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
