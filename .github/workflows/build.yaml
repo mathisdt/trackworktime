@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  apk:
+    name: Generate APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v2
+      - name: init submodules
+        run: git submodule update --init --recursive
+      - name: set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: set up Gradle cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: test
+        run: ./gradlew test
+      - name: assemble
+        run: ./gradlew assemble
+      - name: cleanup Gradle cache
+          run: |
+            rm -f ~/.gradle/caches/modules-2/modules-2.lock
+            rm -f ~/.gradle/caches/modules-2/gc.properties
