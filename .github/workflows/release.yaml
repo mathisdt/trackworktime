@@ -38,6 +38,11 @@ jobs:
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
+      - name: Upload APKs
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: app/build/outputs/apk/**/*.apk
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
