@@ -11,15 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: check out repository
+      - name: Check out repository
         uses: actions/checkout@v2
-      - name: init submodules
+      - name: Init submodules
         run: git submodule update --init --recursive
-      - name: set up JDK
+      - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: set up Gradle cache
+      - name: Set up Gradle cache
         uses: actions/cache@v2
         with:
           path: |
@@ -28,11 +28,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: test
+      - name: Test
         run: ./gradlew test
-      - name: assemble
+      - name: Assemble
         run: ./gradlew assemble
-      - name: cleanup Gradle cache
+      - name: Cleanup Gradle cache
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
