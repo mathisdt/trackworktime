@@ -36,10 +36,8 @@ jobs:
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
-      - name: Find APKs
-        run: find $(pwd) -type f -name '*.apk'
       - name: Upload APK
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: app
           path: app/build/outputs/apk/debug/*.apk
