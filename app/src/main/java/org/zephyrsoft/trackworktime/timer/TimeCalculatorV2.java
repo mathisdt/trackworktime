@@ -158,7 +158,7 @@ public class TimeCalculatorV2 {
 
 		// get last event before start
 		this.lastEventBeforeDay =
-				dao.getLastEventBefore(this.currentDate.atStartOfDay(zoneId).toOffsetDateTime());
+				dao.getLastEventBefore(this.startDate.atStartOfDay(zoneId).toOffsetDateTime());
 
 		// get next flexi reset
 		if (flexiReset != FlexiReset.NONE) {
