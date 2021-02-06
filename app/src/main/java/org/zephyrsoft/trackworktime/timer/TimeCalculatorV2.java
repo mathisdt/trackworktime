@@ -143,6 +143,8 @@ public class TimeCalculatorV2 {
 		this.handleFlexiTime = handleFlexiTime;
 		if (handleFlexiTime) {
 			this.flexiReset = timerManager.getFlexiReset();
+		} else {
+			this.flexiReset = FlexiReset.NONE;
 		}
 
 		this.zoneId = timerManager.getHomeTimeZone();
@@ -156,10 +158,10 @@ public class TimeCalculatorV2 {
 
 		// get last event before start
 		this.lastEventBeforeDay =
-				dao.getLastEventBefore(this.currentDate.atStartOfDay(zoneId).toOffsetDateTime());
+				dao.getLastEventBefore(this.startDate.atStartOfDay(zoneId).toOffsetDateTime());
 
 		// get next flexi reset
-		if (flexiReset != null && flexiReset != FlexiReset.NONE) {
+		if (flexiReset != FlexiReset.NONE) {
 			nextFlexiReset = flexiReset.getNextResetDate(currentDate);
 		}
 	}
