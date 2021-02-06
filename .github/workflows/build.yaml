@@ -6,9 +6,9 @@ on:
       - "**"
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
-    name: Setup
+    name: Build
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -27,36 +27,16 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-  test:
-    needs: setup
-    runs-on: ubuntu-latest
-    name: Test
-    steps:
       - name: Test
         run: ./gradlew test
-  assemble:
-    needs: test
-    runs-on: ubuntu-latest
-    name: Assemble
-    steps:
       - name: Assemble
         run: ./gradlew assemble
-  upload:
-    needs: assemble
-    runs-on: ubuntu-latest
-    name: Upload
-    steps:
       - name: Upload APKs
         uses: actions/upload-artifact@v2
         with:
           name: packages
           path: app/build/outputs/apk/**/*.apk
-  cleanup:
-    needs: upload
-    runs-on: ubuntu-latest
-    name: Cleanup
-    steps:
-        - name: Cleanup Gradle cache
-          run: |
-            rm -f ~/.gradle/caches/modules-2/modules-2.lock
-            rm -f ~/.gradle/caches/modules-2/gc.properties
+      - name: Cleanup Gradle cache
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
