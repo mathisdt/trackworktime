@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    branches:
-      - "!**"
     tags:
       - "v*"
 
@@ -46,8 +44,11 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+      - name: Identify release artifact
+        id: identify_apk
+        run: |
+          echo "release_apk=$(ls app/build/outputs/apk/release/*.apk)" >> $GITHUB_ENV
+          echo "release_apk_short=$(ls app/build/outputs/apk/release/*.apk | sed -e 's#^.*/##g')" >> $GITHUB_ENV
       - name: Upload release artifact
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -55,7 +56,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app/build/outputs/apk/release/*.apk
+          asset_path: ${{ env.release_apk }}
+          asset_name: ${{ env.release_apk_short }}
+          asset_content_type: application/vnd.android.package-archive
       - name: Cleanup Gradle cache
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
