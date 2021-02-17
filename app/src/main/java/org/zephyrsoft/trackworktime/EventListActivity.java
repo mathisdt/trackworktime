@@ -120,7 +120,7 @@ public class EventListActivity extends AppCompatActivity {
 		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<Long>() {
 			@Override
 			public boolean canSetStateForKey(Long key, boolean nextState) {
-				if (key != null) {
+				if (key != null && key.intValue() >= 0 && key.intValue() < events.size()) {
 					return !(events.get(key.intValue()) instanceof EventSeparator);
 				}
 
@@ -129,7 +129,10 @@ public class EventListActivity extends AppCompatActivity {
 
 			@Override
 			public boolean canSetStateAtPosition(int position, boolean nextState) {
-				return !(events.get(position) instanceof EventSeparator);
+				if (position >=0 && position < events.size()){
+					return !(events.get(position) instanceof EventSeparator);
+				}
+				return false;
 			}
 
 			@Override
