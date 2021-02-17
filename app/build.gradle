@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         applicationId "org.zephyrsoft.trackworktime"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 30
 
         versionCode 41                      // increment with every release
