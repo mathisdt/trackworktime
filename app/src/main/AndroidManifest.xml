@@ -16,6 +16,8 @@
         android:name="WorkTimeTrackerApplication"
         android:allowBackup="true"
         android:backupAgent="org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupAgentHelper"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         android:hasCode="true"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/Theme.trackworktime"
