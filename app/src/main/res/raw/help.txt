@@ -1,6 +1,6 @@
 This app can track your work time easily! You can automate time tracking using geo-fencing functions (see below).
 You may also <b>categorize each recorded interval</b> by a predefined client/task and a free text.
-Of course, the list of clients/tasks can be edited to suit your needs.<br>
+Of course, the list of clients/tasks can be edited to suit your needs, and the app has a widget for your home screen.<br>
 <br>
 Additionally, if you wish, your <b>flexible time account is taken care of</b>: you always see how much you worked.
 You can also keep an eye on how much work time is left for today or for the current week (by a <b>notification</b>
@@ -39,4 +39,4 @@ if so, it will be kept strictly confidential and only used to identify the probl
 <b>This is an open source project</b>, so if there's something you don't like, you are very welcome to
 file an issue or even fix things yourself and create a pull request.
 Please don't try to communicate with me via reviews, that doesn't work in both directions.
-You can always write me an email and I'll see what I can do. - web site and email address as stated above.<br>
+You can always write me an email and I'll see what I can do. Web site and email address as stated above.<br>
