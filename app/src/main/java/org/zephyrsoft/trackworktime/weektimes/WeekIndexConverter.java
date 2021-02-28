@@ -29,11 +29,7 @@ public class WeekIndexConverter {
 		return (int) ChronoUnit.WEEKS.between(epochDate, date.with(DayOfWeek.MONDAY)) + 1;
 	}
 
-	public static @IntRange(from=0) int getIndexForWeek(Week week) {
-		if(week == null || week.getStart() == null) {
-			throw new IllegalArgumentException("Invalid Week " + week);
-		}
-
-		return getIndexForDate(week.getStart());
+	public static @NonNull Week getWeekForDate(LocalDate date) {
+		return new Week(date);
 	}
 }

@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.pmw.tinylog.Logger;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
@@ -50,6 +51,7 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.WeekDayHelper;
+import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,8 @@ public class EventListActivity extends AppCompatActivity {
 	private static final int NEW_EVENT = 0;
 	private static final int EDIT_EVENT = 1;
 	private static final int DELETE_EVENT = 2;
+
+	private static final String BUNDLE_KEY_WEEK_START_DATE = "BUNDLE_KEY_WEEK_START_DATE";
 
 	private static EventListActivity instance = null;
 
@@ -98,11 +102,17 @@ public class EventListActivity extends AppCompatActivity {
 		timerManager = Basics.getInstance().getTimerManager();
 
 		long epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
-		if (epochDay == -1) {
-			throw new IllegalArgumentException("Week start must be given.");
+		if (epochDay >= 0) {
+			week = new Week(epochDay);
+		} else if (savedInstanceState.containsKey(BUNDLE_KEY_WEEK_START_DATE)) {
+			Logger.debug("using week from bundle");
+			week = new Week(savedInstanceState.getLong(BUNDLE_KEY_WEEK_START_DATE));
+		} else {
+			// we don't know which week is meant - let's just use the current one
+			Logger.debug("using current week");
+			week = WeekIndexConverter.getWeekForDate(LocalDate.now());
 		}
 
-		week = new Week(epochDay);
 		events = new ArrayList<>();
 		refreshView();
 		myEventAdapter = new EventAdapter();
@@ -163,6 +173,7 @@ public class EventListActivity extends AppCompatActivity {
 	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 
+		outState.putLong(BUNDLE_KEY_WEEK_START_DATE, week.toEpochDay());
 		selectionTracker.onSaveInstanceState(outState);
 	}
 
