@@ -197,5 +197,6 @@
     <string name="startMigration">Start Migration</string>
     <string name="tools">Tools</string>
     <string name="data">Data</string>
+    <string name="locationPermissionsUngranted">You did not grant the requested permissions - this makes the app behave badly. You can either disable tracking by location and/or Wi-Fi, or grant the permissions asked for.</string>
 
 </resources>

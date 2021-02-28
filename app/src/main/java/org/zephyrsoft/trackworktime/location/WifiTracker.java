@@ -96,7 +96,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 				Logger.info("started wifi-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
-				Logger.info("NOT started wifi-based tracking, insufficient privileges detected");
+				Logger.info("NOT started wifi-based tracking, insufficient privileges detected: {}", re);
 				isTrackingByWifi.set(false);
 				return Result.FAILURE_INSUFFICIENT_RIGHTS;
 			}

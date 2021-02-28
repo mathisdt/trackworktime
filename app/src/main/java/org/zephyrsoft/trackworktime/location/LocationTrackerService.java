@@ -103,7 +103,7 @@ public class LocationTrackerService extends Service {
 					"(open to see details)",
 					basics
 						.createMessagePendingIntent(
-							"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permission ACCESS_COARSE_LOCATION is granted.",
+							"Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options when the permissions ACCESS_COARSE_LOCATION and ACCESS_BACKGROUND_LOCATION are granted.",
 							Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
 					Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID, false, null, null, null, null, null, null);
 		}

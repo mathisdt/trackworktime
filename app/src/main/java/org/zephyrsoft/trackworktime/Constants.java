@@ -45,9 +45,9 @@ public class Constants {
 	/** used for the status notification when clocked in */
 	public static final int PERSISTENT_STATUS_ID = 2;
 	/** used for the message about ACCESS_COARSE_LOCATION */
-	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 3;
+	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 4;
 	/** used for the message about ACCESS_WIFI_STATE */
-	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 4;
+	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 8;
 
 	// intent extra keys
 	/** used to transport the date via an intent's extended data */

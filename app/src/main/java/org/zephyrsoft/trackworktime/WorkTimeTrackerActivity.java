@@ -66,6 +66,7 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
@@ -78,7 +79,10 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Math.abs;
 
@@ -91,6 +95,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
+	private static final int PERMISSION_REQUEST_CODE_LOCATION_TRACKING = 4;
 
 	private static final String KEY_CURRENT_WEEK = "current_week";
 
@@ -333,12 +338,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		// request location permission if it was removed in the meantime
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
-				|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)
-				) {
-			if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
+				requestMissingPermissions();
+		}
+	}
+
+	private void requestMissingPermissions() {
+		List<String> permissionsToRequest = PermissionsUtil.missingPermissionsForTracking(this);
+
+		if (!permissionsToRequest.isEmpty()) {
 				ActivityCompat.requestPermissions(this,
-						new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-			}
+					permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
+					PERMISSION_REQUEST_CODE_LOCATION_TRACKING);
 		}
 	}
 
@@ -766,6 +777,15 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			case PERMISSION_REQUEST_CODE_RESTORE:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					restoreFromSd();
+				}
+				break;
+			case PERMISSION_REQUEST_CODE_LOCATION_TRACKING:
+				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
+				if (ungranted.isEmpty()) {
+					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
+						getString(R.string.locationPermissionsUngranted), null);
+					startActivity(messageIntent);
+					Logger.debug("ungranted tracking permissions: {}", ungranted);
 				}
 				break;
 			default:

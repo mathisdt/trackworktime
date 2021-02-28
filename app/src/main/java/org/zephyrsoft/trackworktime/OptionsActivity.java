@@ -40,10 +40,12 @@ import org.zephyrsoft.trackworktime.options.TimePreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.TimePreference;
 import org.zephyrsoft.trackworktime.options.TimeZonePreference;
 import org.zephyrsoft.trackworktime.options.TimeZonePreferenceDialogFragment;
+import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Activity to set the preferences of the application.
@@ -151,10 +153,11 @@ public class OptionsActivity extends AppCompatActivity {
 						Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName)
 								&& sharedPreferences.getBoolean(keyName, false)
 				) {
-					if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-						requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+					List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
+					if (!missingPermissions.isEmpty()) {
+						requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
+							Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
 					}
-
 				}
 			}
 
@@ -171,22 +174,21 @@ public class OptionsActivity extends AppCompatActivity {
 
 		@Override
 		public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-			for (int i = 0; i < permissions.length; i++) {
-				if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(permissions[i])) {
-					if (grantResults != null && grantResults.length > i && grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-						final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
-						editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
-						editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
-						editor.apply();
+			if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID) {
+				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
+				if (!ungranted.isEmpty()) {
+					final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
+					editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
+					editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+					editor.apply();
 
-						Intent messageIntent = Basics.getInstance()
-								.createMessageIntent("This option needs location permission.", null);
-						startActivity(messageIntent);
+					Intent messageIntent = Basics.getInstance()
+						.createMessageIntent("This option needs location permission.", null);
+					startActivity(messageIntent);
 
-						// reload data in options view
-						setPreferenceScreen(null);
-						addPreferencesFromResource(R.xml.options);
-					}
+					// reload data in options view
+					setPreferenceScreen(null);
+					addPreferencesFromResource(R.xml.options);
 				}
 			}
 			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
