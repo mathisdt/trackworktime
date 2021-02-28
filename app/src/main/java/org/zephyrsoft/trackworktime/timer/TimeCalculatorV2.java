@@ -247,7 +247,7 @@ public class TimeCalculatorV2 {
 				timeOut = currentDate.atTime(LocalTime.MAX).atZone(zoneId).toOffsetDateTime();
 
 				workedTime += TimerManager.timeDiff(clockedInSince, timeOut);
-			} else {
+			} else if (effectiveClockOutEvent != null) {
 				timeOut = effectiveClockOutEvent.getDateTime();
 			}
 
