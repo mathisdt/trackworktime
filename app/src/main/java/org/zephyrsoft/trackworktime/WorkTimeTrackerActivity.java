@@ -692,6 +692,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void doSendLogs() {
+		Logger.info("app version: {}", Basics.getOrCreateInstance(getApplicationContext()).getVersionName());
 		Intent emailIntent = new Intent(Intent.ACTION_SEND);
 		emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendLogsSubject));
 		Uri fileUri = FileProvider.getUriForFile(this,
