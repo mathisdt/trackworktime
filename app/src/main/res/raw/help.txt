@@ -24,7 +24,13 @@ you can also set the parameters task=... and text=... in the "extra" section of 
 more meaningful. For more details on this, see the web site.<br>
 <br>
 If you have a <b>Pebble</b> smart watch, the app will notify you on clock-in and clock-out events which is especially
-useful if you want to be in the know about automatic time tracking via location and/or WiFi.
+useful if you want to be in the know about automatic time tracking via location and/or WiFi.<br>
+<br>
+If you want to <b>back up your data</b>, you have the choice: use Google's mechanism or do it on your own. To use Google's
+servers just enable the corresponding option. And if you don't want to give your data to Google: The app automatically
+creates a backup each day which is written to external storage. You could use a synchronization app of your choice to
+periodically copy the whole directory <i>trackworktime</i> - or just the files <i>automatic-backup.*</i> and
+<i>backup.*</i> (the latter are created when you manually trigger a backup).<br>
 <br>
 Finally, the app can generate <b>reports</b> for you. The raw events report is the right thing if you want to
 import your data somewhere else, while year/month/week reports are fine if you want to keep track of your
