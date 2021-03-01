@@ -79,10 +79,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static java.lang.Math.abs;
 
@@ -96,6 +93,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
 	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
 	private static final int PERMISSION_REQUEST_CODE_LOCATION_TRACKING = 4;
+	private static final int PERMISSION_REQUEST_CODE_LOG_WRITING = 8;
 
 	private static final String KEY_CURRENT_WEEK = "current_week";
 
@@ -335,11 +333,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	protected void onStart() {
 		super.onStart();
 
-		// request location permission if it was removed in the meantime
+		// request location permissions if necessary
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
 			|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
 				requestMissingPermissions();
+		}
+
+		// request file permission if necessary
+		if (PermissionsUtil.missingPermissionForLogging(this)) {
+			ActivityCompat.requestPermissions(this,
+				new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+				PERMISSION_REQUEST_CODE_LOG_WRITING);
 		}
 	}
 
@@ -786,6 +791,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 						getString(R.string.locationPermissionsUngranted), null);
 					startActivity(messageIntent);
 					Logger.debug("ungranted tracking permissions: {}", ungranted);
+				}
+				break;
+			case PERMISSION_REQUEST_CODE_LOG_WRITING:
+				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					Basics.getOrCreateInstance(this).initTinyLog();
 				}
 				break;
 			default:

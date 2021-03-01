@@ -36,6 +36,13 @@ import androidx.core.app.ActivityCompat;
 public class PermissionsUtil {
 
     /**
+     * @return {@code true} if the log can't be written into external storage
+     */
+    public static boolean missingPermissionForLogging(Context context) {
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
      * @return the permissions which are not granted currently in order to enable tracking by location and/or Wi-Fi
      */
     public static List<String> missingPermissionsForTracking(Context context) {

@@ -140,7 +140,12 @@ public class Basics extends BroadcastReceiver {
 		timeCalculator = new TimeCalculator(dao, timerManager);
 		externalNotificationManager = new ExternalNotificationManager(context);
 
-		// init TinyLog
+		initTinyLog();
+
+		registerThirdPartyReceiver();
+	}
+
+	public void initTinyLog() {
 		String threadToObserve = Thread.currentThread().getName();
 		Configurator.defaultConfig()
 			.writer(new RollingFileWriter(getDataDirectory().getAbsolutePath() + File.separatorChar + Constants.CURRENT_LOG_FILE_NAME,
@@ -150,8 +155,6 @@ public class Basics extends BroadcastReceiver {
 			.writingThread(threadToObserve, 1)
 			.activate();
 		Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
-
-		registerThirdPartyReceiver();
 	}
 
 	private void registerThirdPartyReceiver() {
