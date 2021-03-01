@@ -36,9 +36,9 @@ import androidx.core.app.ActivityCompat;
 public class PermissionsUtil {
 
     /**
-     * @return {@code true} if the log can't be written into external storage
+     * @return {@code true} if files (backups, logs) can't be written to external storage
      */
-    public static boolean missingPermissionForLogging(Context context) {
+    public static boolean missingPermissionForExternalStorage(Context context) {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
     }
 

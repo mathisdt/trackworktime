@@ -341,7 +341,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 
 		// request file permission if necessary
-		if (PermissionsUtil.missingPermissionForLogging(this)) {
+		if (PermissionsUtil.missingPermissionForExternalStorage(this)) {
 			ActivityCompat.requestPermissions(this,
 				new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
 				PERMISSION_REQUEST_CODE_LOG_WRITING);
