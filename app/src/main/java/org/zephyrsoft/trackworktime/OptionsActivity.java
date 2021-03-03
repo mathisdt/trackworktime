@@ -169,6 +169,7 @@ public class OptionsActivity extends AppCompatActivity {
                                     : ""))
                             .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                                 Basics.getOrCreateInstance(getContext()).disableLocationBasedTracking();
+                                reloadData();
                             })
                             .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                                 requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
@@ -213,12 +214,15 @@ public class OptionsActivity extends AppCompatActivity {
                         .createMessageIntent("This option needs location permission.", null);
                     startActivity(messageIntent);
 
-                    // reload data in options view
-                    setPreferenceScreen(null);
-                    addPreferencesFromResource(R.xml.options);
+                    reloadData();
                 }
             }
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private void reloadData() {
+            setPreferenceScreen(null);
+            addPreferencesFromResource(R.xml.options);
         }
 
         private void setTimestamps() {
