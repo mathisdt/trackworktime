@@ -37,6 +37,7 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.service.notification.StatusBarNotification;
 
 import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
@@ -638,6 +639,31 @@ public class Basics extends BroadcastReceiver {
 		notificationManager.notify(notificationId, notification);
 	}
 
+	public Boolean isNotificationActive(int id) {
+		NotificationManager notificationManager = (NotificationManager) context
+			.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			for (StatusBarNotification n : notificationManager.getActiveNotifications()) {
+				if (n.getId() == id) {
+					return Boolean.TRUE;
+				}
+			}
+			return Boolean.FALSE;
+		} else {
+			return null;
+		}
+	}
+
+	public void removeNotification(int id) {
+		NotificationManager notificationManager = (NotificationManager) context
+			.getSystemService(Context.NOTIFICATION_SERVICE);
+		try {
+			notificationManager.cancel(id);
+		} catch(Exception e) {
+			Logger.warn(e, "could not remove notification {}", id);
+		}
+	}
+
 	public Notification createNotificationTracking() {
 		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
 		clickIntent.setAction(Intent.ACTION_MAIN);
@@ -684,6 +710,17 @@ public class Basics extends BroadcastReceiver {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
 		editor.commit();
+	}
+
+	/**
+	 * Enable the location-based tracking if it's disabled.
+	 */
+	public void enableLocationBasedTracking() {
+		if (!preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), true)) {
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), true);
+			editor.commit();
+		}
 	}
 
 	/**
