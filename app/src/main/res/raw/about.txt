@@ -3,7 +3,6 @@
 
 Version {1}<br>
 <br>
+Feedback:<br>
 {2}<br>
-<br>
-{3}<br>
 <br>

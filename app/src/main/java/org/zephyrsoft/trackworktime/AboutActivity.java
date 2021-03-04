@@ -50,15 +50,15 @@ public class AboutActivity extends AppCompatActivity {
 		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
 		CharSequence version = Basics.getInstance().getVersionName();
 
-		CharSequence website = getApplicationContext().getResources().getText(R.string.website);
 		CharSequence email = getApplicationContext().getResources().getText(R.string.email);
-		aboutText = MessageFormat.format(aboutText, name, version, website, email);
+		aboutText = MessageFormat.format(aboutText, name, version, email);
 		binding.aboutText.setText(Html.fromHtml(aboutText));
 		binding.aboutText.setLinkTextColor(Color.WHITE);
 		Linkify.addLinks(binding.aboutText, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 
 		binding.helpText.setText(Html.fromHtml(readRawTextFile(R.raw.help)));
 		binding.helpText.setLinkTextColor(Color.WHITE);
+		Linkify.addLinks(binding.helpText, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 	}
 
 	private String readRawTextFile(int id) {
