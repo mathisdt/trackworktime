@@ -41,7 +41,7 @@ import your data somewhere else, while year/month/week reports are fine if you w
 task progress.<br>
 <br>
 Important note: <b>This app definitely won't use your personal data for anything you don't want!</b>
-It uses the INTERNET permission only to offer you to send some information about crashes to the developer
+If the app crashes, it will offer you to send some information about the crash circumstances to the developer
 (and does that only if you agree, you will be asked every time). The app does NOT include tracked times or
 places in the bug report, but the general log file is appended and might potentially include personal data -
 if so, it will be kept strictly confidential and only used to identify the problem.<br>

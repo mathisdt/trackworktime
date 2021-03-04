@@ -1,6 +1,6 @@
-![license](https://img.shields.io/github/license/mathisdt/trackworktime.svg?style=flat)
-[![Travis-CI Build](https://img.shields.io/travis/mathisdt/trackworktime.svg?label=Travis-CI%20Build&style=flat)](https://travis-ci.org/mathisdt/trackworktime/)
+[![license](https://img.shields.io/github/license/mathisdt/trackworktime.svg?style=flat)](https://github.com/mathisdt/trackworktime/blob/master/LICENSE)
 [![last released](https://img.shields.io/github/release-date/mathisdt/trackworktime.svg?label=last%20released&style=flat)](https://github.com/mathisdt/trackworktime/releases)
+[![build](https://github.com/mathisdt/trackworktime/actions/workflows/build.yaml/badge.svg)](https://github.com/mathisdt/trackworktime/actions/)
 
 # Track Work Time
   
@@ -38,7 +38,7 @@ import your data somewhere else, while year/month/week reports are fine if you w
 task progress.
 
 Important note: **This app definitely won't use your personal data for anything you don't want!**
-It uses the INTERNET permission only to offer you to send some information about crashes to the developer
+If the app crashes, it will offer you to send some information about the crash circumstances to the developer
 (and does that only if you agree, you will be asked every time). The app does NOT include tracked times or
 places in the bug report, but the general log file is appended and might potentially include personal data -
 if so, it will be kept strictly confidential and only used to identify the problem.
