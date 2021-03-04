@@ -118,7 +118,7 @@
     <string name="longClickHint">(long click to schedule an event)</string>
     <string name="availableActions">Available Actions</string>
     <string name="logo">Logo</string>
-    <string name="about">About</string>
+    <string name="about">About / Help</string>
     <string name="use_current_location">Here = Work</string>
     <string name="really_use_current_location">Do you want to use your current location as work place? The work place coordinates you may have entered before will be overwritten! (It could take some seconds to find out your current location.)</string>
     <string name="timeRange">Time Range</string>
