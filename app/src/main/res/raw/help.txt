@@ -1,8 +1,8 @@
-FAQ: https://zephyrsoft.org/trackworktime/faq</b>
+FAQ: https://zephyrsoft.org/trackworktime/faq<br>
 <br>
 Privacy Policy: https://zephyrsoft.org/trackworktime/privacy<br>
 <br>
-Web Site: https://zephyrsoft.org/trackworktime</b>
+Web Site: https://zephyrsoft.org/trackworktime</b><br>
 <br>
 This app can track your work time easily! You can automate time tracking using geo-fencing functions (see below).
 You may also <b>categorize each recorded interval</b> by a predefined client/task and a free text.
