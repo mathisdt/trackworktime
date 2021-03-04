@@ -152,31 +152,16 @@ public class OptionsActivity extends AppCompatActivity {
                 setPreferenceScreen(null);
                 addPreferencesFromResource(R.xml.options);
             } else {
-                if (Key.LOCATION_BASED_TRACKING_ENABLED.getName().equals(keyName)
-                    && sharedPreferences.getBoolean(keyName, false)
-                    ||
-                    Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName)
-                        && sharedPreferences.getBoolean(keyName, false)
-                ) {
-                    // TODO put this also into WorkTimeTrackerActivity.requestMissionPermissions()
+                if ((Key.LOCATION_BASED_TRACKING_ENABLED.getName().equals(keyName)
+                    || Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName))
+                    && sharedPreferences.getBoolean(keyName, false)) {
+
                     List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
                     if (!missingPermissions.isEmpty()) {
-                        new AlertDialog.Builder(getContext())
-                            .setTitle(getString(R.string.locationPermissionsRequestTitle))
-                            .setMessage(getString(R.string.locationPermissionsRequestText)
-                                + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                                    ? getString(R.string.locationPermissionsRequestTextSupplement)
-                                    : ""))
-                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                                Basics.getOrCreateInstance(getContext()).disableLocationBasedTracking();
-                                reloadData();
-                            })
-                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
-                                    Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
-                            })
-                            .create()
-                            .show();
+                        PermissionsUtil.askForLocationPermission(getContext(),
+                            () -> requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
+                                Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+                            () -> locationPermissionNotGranted());
                     }
                 }
             }
@@ -195,29 +180,30 @@ public class OptionsActivity extends AppCompatActivity {
         @Override
         public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
             if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID) {
-                // TODO put this also into WorkTimeTrackerActivity.onRequestPermissionsResult()
                 List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
                 if (ungranted.isEmpty()) {
-                    Basics basics = Basics.getOrCreateInstance(requireContext().getApplicationContext());
-                    Boolean isActive = basics.isNotificationActive(Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
-                    if (isActive == null || isActive) {
-                        basics.removeNotification(Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID);
-                    }
-                    basics.enableLocationBasedTracking();
-                } else {
-                    final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
-                    editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
-                    editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
-                    editor.apply();
-
-                    Intent messageIntent = Basics.getInstance()
-                        .createMessageIntent("This option needs location permission.", null);
-                    startActivity(messageIntent);
-
                     reloadData();
+                    Intent messageIntent = Basics.getInstance()
+                        .createMessageIntent(getString(R.string.locationPermissionsGranted), null);
+                    startActivity(messageIntent);
+                } else {
+                    locationPermissionNotGranted();
                 }
             }
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private void locationPermissionNotGranted() {
+            final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
+            editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
+            editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+            editor.apply();
+
+            Intent messageIntent = Basics.getInstance()
+                .createMessageIntent(getString(R.string.locationPermissionsUngranted), null);
+            startActivity(messageIntent);
+
+            reloadData();
         }
 
         private void reloadData() {

@@ -200,6 +200,9 @@
     <string name="locationPermissionsRequestTitle">Location Permission</string>
     <string name="locationPermissionsRequestText">This app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use.</string>
     <string name="locationPermissionsRequestTextSupplement">\n\nPlease allow it for all the time, even when you\'re not using the app actively (read the following dialog carefully).</string>
-    <string name="locationPermissionsUngranted">You did not grant the requested permissions - this makes the app behave badly. You can either disable tracking by location and/or Wi-Fi, or grant the permissions asked for.</string>
+    <string name="locationPermissionsGranted">Please re-enable the automatic time tracking method you want - it was automatically disabled because the permission was missing until now.</string>
+    <string name="locationPermissionsUngranted">You did not grant the requested permissions. Automatic time tracking is disabled now.\n\nIf you change your mind, you can re-enable it later in the options.\n\nIf you didn\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
+    <string name="storagePermissionsRequestTitle">Storage Permission</string>
+    <string name="storagePermissionsRequestText">It\'s recommended to let this app write a daily backup of your data to your device or to your SD card (if present).\n\nIf you want that, please allow it in the following dialog.\n\nIf you don\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
 
 </resources>

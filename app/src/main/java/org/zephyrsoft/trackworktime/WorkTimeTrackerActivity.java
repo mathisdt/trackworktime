@@ -90,10 +90,6 @@ import static java.lang.Math.abs;
  */
 public class WorkTimeTrackerActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
-	private static final int PERMISSION_REQUEST_CODE_BACKUP = 1;
-	private static final int PERMISSION_REQUEST_CODE_RESTORE = 2;
-	private static final int PERMISSION_REQUEST_CODE_LOCATION_TRACKING = 4;
-	private static final int PERMISSION_REQUEST_CODE_LOG_WRITING = 8;
 
 	private static final String KEY_CURRENT_WEEK = "current_week";
 
@@ -337,24 +333,28 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
 			|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
-				requestMissingPermissions();
+				requestMissingPermissionsForTracking();
 		}
 
 		// request file permission if necessary
 		if (PermissionsUtil.missingPermissionForExternalStorage(this)) {
-			ActivityCompat.requestPermissions(this,
-				new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-				PERMISSION_REQUEST_CODE_LOG_WRITING);
+			PermissionsUtil.askForStoragePermission(this,
+				() -> ActivityCompat.requestPermissions(this,
+					new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					Constants.MISSING_PRIVILEGE_ACCESS_STORAGE_ID));
 		}
 	}
 
-	private void requestMissingPermissions() {
-		List<String> permissionsToRequest = PermissionsUtil.missingPermissionsForTracking(this);
-
-		if (!permissionsToRequest.isEmpty()) {
-				ActivityCompat.requestPermissions(this,
-					permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
-					PERMISSION_REQUEST_CODE_LOCATION_TRACKING);
+	private void requestMissingPermissionsForTracking() {
+		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
+		if (!missingPermissions.isEmpty()) {
+			PermissionsUtil.askForLocationPermission(this,
+				() -> ActivityCompat.requestPermissions(this,
+					missingPermissions.toArray(new String[missingPermissions.size()]),
+					Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+				() -> {
+					// do nothing
+				});
 		}
 	}
 
@@ -774,26 +774,30 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	public void onRequestPermissionsResult(int requestCode, String[] permissions,
 			int[] grantResults) {
 		switch (requestCode) {
-			case PERMISSION_REQUEST_CODE_BACKUP:
+			case Constants.PERMISSION_REQUEST_CODE_BACKUP:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupToSd();
 				}
 				break;
-			case PERMISSION_REQUEST_CODE_RESTORE:
+			case Constants.PERMISSION_REQUEST_CODE_RESTORE:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					restoreFromSd();
 				}
 				break;
-			case PERMISSION_REQUEST_CODE_LOCATION_TRACKING:
+			case Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID:
 				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
 				if (ungranted.isEmpty()) {
+					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
+						getString(R.string.locationPermissionsGranted), null);
+					startActivity(messageIntent);
+				} else {
 					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
 						getString(R.string.locationPermissionsUngranted), null);
 					startActivity(messageIntent);
 					Logger.debug("ungranted tracking permissions: {}", ungranted);
 				}
 				break;
-			case PERMISSION_REQUEST_CODE_LOG_WRITING:
+			case Constants.MISSING_PRIVILEGE_ACCESS_STORAGE_ID:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					Basics.getOrCreateInstance(this).initTinyLog();
 				}
@@ -813,7 +817,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private void backupToSd() {
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_BACKUP);
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_CODE_BACKUP);
 			return;
 		}
 
@@ -868,7 +872,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private void restoreFromSd() {
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE_RESTORE);
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_CODE_RESTORE);
 			return;
 		}
 		final BackupFileInfo info = BackupFileInfo.getBackupFiles(true);

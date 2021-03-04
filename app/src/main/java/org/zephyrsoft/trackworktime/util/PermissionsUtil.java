@@ -22,12 +22,15 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.R;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 /**
@@ -80,6 +83,35 @@ public class PermissionsUtil {
             }
         }
         return result;
+    }
+
+    public static void askForLocationPermission(Context context, Runnable positiveConsequence, Runnable negativeConsequence) {
+        new AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.locationPermissionsRequestTitle))
+            .setMessage(context.getString(R.string.locationPermissionsRequestText)
+                + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ? context.getString(R.string.locationPermissionsRequestTextSupplement)
+                : ""))
+            .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                Basics.getOrCreateInstance(context).disableLocationBasedTracking();
+                negativeConsequence.run();
+            })
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                positiveConsequence.run();
+            })
+            .create()
+            .show();
+    }
+
+    public static void askForStoragePermission(Context context, Runnable positiveConsequence) {
+        new AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.storagePermissionsRequestTitle))
+            .setMessage(context.getString(R.string.storagePermissionsRequestText))
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                positiveConsequence.run();
+            })
+            .create()
+            .show();
     }
 
 }

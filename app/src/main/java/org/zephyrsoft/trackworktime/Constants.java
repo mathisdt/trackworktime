@@ -39,15 +39,19 @@ public class Constants {
 	/** the path of the currently active log file */
 	public static final String CURRENT_LOG_FILE_PATH = DATA_DIR + "/" + CURRENT_LOG_FILE_NAME;
 
-	// notification IDs
+	// notification & permission request IDs
 	/** used for the persistent notification when tracking via location and/or WiFi */
 	public static final int PERSISTENT_TRACKING_ID = 1;
 	/** used for the status notification when clocked in */
 	public static final int PERSISTENT_STATUS_ID = 2;
 	/** used for the message about ACCESS_COARSE_LOCATION */
 	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 4;
+	/** used for the message about WRITE_EXTERNAL_STORAGE */
+	public static final int MISSING_PRIVILEGE_ACCESS_STORAGE_ID = 8;
 	/** used for the message about ACCESS_WIFI_STATE */
-	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 8;
+	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 16;
+	public static final int PERMISSION_REQUEST_CODE_BACKUP = 32;
+	public static final int PERMISSION_REQUEST_CODE_RESTORE = 64;
 
 	// intent extra keys
 	/** used to transport the date via an intent's extended data */
