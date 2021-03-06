@@ -1,8 +1,6 @@
-FAQ: https://zephyrsoft.org/trackworktime/faq<br>
+<h3>FAQ: https://zephyrsoft.org/trackworktime/faq</h3>
 <br>
-Privacy Policy: https://zephyrsoft.org/trackworktime/privacy<br>
-<br>
-Web Site: https://zephyrsoft.org/trackworktime</b><br>
+<h3>Web Site: https://zephyrsoft.org/trackworktime</h3>
 <br>
 This app can track your work time easily! You can automate time tracking using geo-fencing functions (see below).
 You may also <b>categorize each recorded interval</b> by a predefined client/task and a free text.
@@ -52,3 +50,33 @@ if so, it will be kept strictly confidential and only used to identify the probl
 file an issue or even fix things yourself and create a pull request.
 Please don't try to communicate with me via reviews, that doesn't work in both directions.
 You can always write me an email and I'll see what I can do. Web site and email address as stated above.<br>
+<br>
+<br>
+<h2>Privacy Policy</h2>
+<b>tl;dr: Your personal data will not be sent anywhere by the app without your explicit intention.</b><br>
+<br>
+<h3>Which personal data is used by the app?</h3>
+Track Work Time is made - as the name says - to track your work time. For this purpose it handles the events (clock-in time, clock-out time, task, hint) and the options (task list, home time zone, automatic pause times, weekly work time target, working days, geo-location of your work place, Wi-Fi name at your work place) you enter into the app.<br>
+If you choose to enable tracking by location and/or Wi-Fi, your coarse location and/or visible Wi-Fi network names are also used by the app.<br>
+<h3>How is the personal data used?</h3>
+All data is kept locally on your device, specifically in two locations: the app's internal storage/database (all data mentioned above is stored here) and on your device's shared storage (automatic backups, manual backups, log files). The log files may contain Wi-Fi names (if you enabled tracking by Wi-Fi) and/or coarse geo-locations (if you enabled tracking by location).<br>
+There are three occasions in which personal data may be sent somewhere by the app. In all these occasions you actively have to decide if you want to send the data.<br>
+<ul>
+<li>Backup to Google servers: If you choose to enable the corresponding option, your data is stored on Google's servers and can be restored from there. The developer of this app doesn't have any possibility to make a statement about data security on Google's infrastructure. It's up to you, don't enable this option if you don't want Google to have your data.</li>
+<li>Crash reports: If the app suffers a crash, you are given the opportunity to send a crash report to the developer. There is some data included in this crash report so the crash origin can be found and fixed, specifically the Android version you have, the version of the app you use, the configuration of the app which was active while it crashed, the date you started the app, the date the crash happened, a unique crash report ID, the ID of your installation (so different crash reports can be correlated), your device's brand and product model name (so problems from different users which use the same hardware can be correlated), a stack trace for identifying the problem and a portion of the log file. All data sent to the developer is transmitted securely via HTTPS and kept strictly confidential - it's only used to identify the problem.</li>
+<li>Send Logs: If you encounter a problem with the app, you may select this menu item and send your log file to the developer via email. If you want to use this feature, you always can choose to firstly send it to yourself and check that no data is in the log file you don't want to disclose and then send the (possibly anonymized) log file to the developer.</li>
+</ul>
+<h3>What about some details?</h3>
+The following sections explain why the app needs the permission it requests:<br>
+<h4>ACCESS_COARSE_LOCATION / ACCESS_BACKGROUND_LOCATION / FOREGROUND_SERVICE</h4>
+If you want to auto-clock your time being at a specific location, you may give the coordinates and the app will detect when you enter and exit the location. It uses the cell phone network to get the coarse location, so your battery won't be drained by GPS. Please be aware that this app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use. If you don't like the app being able to do this, you may take away the permission - the app will continue to work without it.<br>
+<h4>ACCESS_WIFI_STATE / CHANGE_WIFI_STATE / FOREGROUND_SERVICE</h4>
+If you want to auto-clock your time being in range of a specific Wi-Fi network, you may give the network name (a.k.a. SSID) and the app will detect when you enter and exit the range of the Wi-Fi network. If you don't like the app being able to do this, you may take away the permission - the app will continue to work without it.<br>
+<h4>WRITE_EXTERNAL_STORAGE</h4>
+The app can create backups which are kept on your device or your SD card (if you use one). Also reports are generated on your device before they can be shared or sent anywhere. If you don't like the app being able to do this, you may take away the permission - the app will continue to work without it, but you can use neither backup nor reports. The app also writes a log file locally on your device which might be useful for debugging issues - if a crash occurs, the app will ask you if you want to share some information with the developer, including the latest portion of the log file which may include personal data. If so, it will kept strictly confidential and only used to identify the problem.<br>
+<h4>RECEIVE_BOOT_COMPLETED</h4>
+If you enable location-based clock-in and clock-out, the app checks periodically where you are. If your device reboots, it has to tell this to TWT or else TWT won't check the location correctly until you open it manually for the first time after the reboot. The background service is disabled by default.<br>
+<h4>INTERNET</h4>
+In some rare cases, the app might crash. To fix these crashes if they occur, it is critical to receive reports about them, so the app will offer you to send some information about the problem to the developer (me). The log file appended to the bug report may include personal data - if so, it will kept strictly confidential and only used to identify the problem. As this is an open source project, you can verify this very easily, just look at <a href="http://svn.zephyrsoft.org/svn/trackworktime/trunk/src/org/zephyrsoft/trackworktime/" target="_blank" rel="noopener noreferrer">the code</a>! Please note, if you don't like the app being able to do this, you may take away the permission or just tap "no" when asked to send a bug report - the app will continue to work without it, but perhaps some bugs might not be fixed.<br>
+<h4>VIBRATE</h4>
+The app can be configured to vibrate at location-based clock-in / clock-out events. If you don't like that, just don't enable the option in the app. It is disabled by default.<br>
