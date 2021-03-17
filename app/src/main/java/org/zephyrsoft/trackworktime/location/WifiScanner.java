@@ -6,14 +6,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDateTime;
+import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Class responsible for retrieving wifi {@link ScanResult}s.
@@ -49,6 +51,8 @@ public class WifiScanner extends BroadcastReceiver {
 	/** Flag, when set to {@code true}, disables scan requests to prevent flooding. */
 	private boolean scanRequested = false;
 	@NonNull private final LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
+	/** only filled when registered */
+	@Nullable private Context context;
 
 	public enum Result {
 		/** When {@link WifiManager#isWifiEnabled()} returns false */
@@ -83,14 +87,13 @@ public class WifiScanner extends BroadcastReceiver {
 	@SuppressWarnings("ConstantConditions")
 	public WifiScanner(@NonNull WifiManager wifiManager, int maxScanAge, int scanRequestTimeout) {
 		if(wifiManager == null) {
-			throw new IllegalArgumentException(WifiManager.class.getSimpleName() + " should not be" +
-					" null");
+			throw new IllegalArgumentException("wifi manager must not be null");
 		}
 		if(maxScanAge < 0) {
-			throw new IllegalArgumentException("Scan result age should not be negative number");
+			throw new IllegalArgumentException("wifi scan result age must not be negative number");
 		}
 		if(scanRequestTimeout < 0) {
-			throw new IllegalArgumentException("Scan timeout should not be negative number");
+			throw new IllegalArgumentException("wifi scan timeout must not be negative number");
 		}
 
 		this.wifiManager = wifiManager;
@@ -105,7 +108,7 @@ public class WifiScanner extends BroadcastReceiver {
 	 */
 	public void register(@NonNull Context context) {
 		if(isRegistered()) {
-			Logger.warn(getClass().getSimpleName() + " trying to register, but is already registered!");
+			Logger.warn("trying to register wifi scanner, but is already registered");
 			return;
 		}
 
@@ -113,6 +116,7 @@ public class WifiScanner extends BroadcastReceiver {
 		intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 		// Note: Android API only allows registering broadcast receivers to application context!
 		context.getApplicationContext().registerReceiver(this, intentFilter);
+		this.context = context;
 		setRegistered(true);
 	}
 
@@ -123,13 +127,14 @@ public class WifiScanner extends BroadcastReceiver {
 	 */
 	public void unregister(@NonNull Context context) {
 		if(!isRegistered()) {
-			Logger.warn(getClass().getSimpleName() + " trying to unregister, but is already not" +
-					" registered!");
+			Logger.warn("trying to unregister wifi scanner, but is already unregistered");
 			return;
 		}
 
+
 		context.getApplicationContext().unregisterReceiver(this);
 		setRegistered(false);
+		this.context = null;
 	}
 
 	/**
@@ -142,7 +147,7 @@ public class WifiScanner extends BroadcastReceiver {
 
 	private void setRegistered(boolean registered) {
 		this.registered = registered;
-		Logger.debug(getClass().getSimpleName() + " changed registered state to: " + registered);
+		Logger.debug("changed registered state of wifi scanner to: {}", registered);
 	}
 
 	@Override
@@ -168,21 +173,24 @@ public class WifiScanner extends BroadcastReceiver {
 	}
 
 	public void onWifiScanFinished(boolean success) {
-		if(success) {
-			latestScanResults.clear();
-			latestScanResults.addAll(wifiManager.getScanResults());
-			latestScanResultTime = LocalDateTime.now();
+		if (success) {
+			List<ScanResult> scanResults = wifiManager.getScanResults();
+			if (!scanResults.isEmpty()) {
+				latestScanResults.clear();
+				latestScanResults.addAll(scanResults);
+				latestScanResultTime = LocalDateTime.now();
+			}
+
+			if (!scanRequested) {
+				Logger.debug("another app initiated wifi scan, cached results");
+				return;
+			}
 		}
 
-		if(!scanRequested) {
-			Logger.debug("Another app initiated wifi-scan, caching results.");
-			return;
-		}
 
-		if(wifiScanListener == null) {
-			Logger.warn("Cannot dispatch scan results! " + WifiScanListener.class.getSimpleName() +
-					" was null!");
-		} else if(success) {
+		if (wifiScanListener == null) {
+			Logger.warn("cannot dispatch wifi scan results, scan listener is null");
+		} else if (success) {
 			wifiScanListener.onScanResultsUpdated(latestScanResults);
 		} else {
 			wifiScanListener.onScanRequestFailed(Result.FAIL_RESULTS_NOT_UPDATED);
@@ -206,16 +214,13 @@ public class WifiScanner extends BroadcastReceiver {
 	 * delayed (usually a few seconds).
 	 */
 	public void requestWifiScanResults() {
-		Logger.debug("Requested wifi scan results");
-
 		if(wifiScanListener == null) {
-			// No point in requesting scans nobody cares about...
-            Logger.warn("Requesting wifi scan, but no " + WifiScanListener.class.getSimpleName()
-					+ " is registered!");
+            Logger.warn("not requesting wifi scan: no listener registered");
 			return;
 		}
 
 		if(!wifiManager.isWifiEnabled()) {
+			Logger.debug("not requesting wifi scan: wifi is disabled");
 			wifiScanListener.onScanRequestFailed(Result.FAIL_WIFI_DISABLED);
 			return;
 		}
@@ -223,7 +228,7 @@ public class WifiScanner extends BroadcastReceiver {
 		// It's possible another application requested scan results, check last received scan results
 		// and use them if they are not too old.
 		if(areLastResultsOk()) {
-			Logger.debug("Returning cached wifi scan results");
+			Logger.debug("returning cached wifi scan results");
 			wifiScanListener.onScanResultsUpdated(latestScanResults);
 			return;
 		}
@@ -231,20 +236,27 @@ public class WifiScanner extends BroadcastReceiver {
 		// Note: Let's be nice, and allow returning valid cached scan results. I.e. allow returning
 		// cached results, before checking if we can scan again.
 		if(!canScanAgain()) {
+			Logger.debug("not requesting wifi scan: waiting");
 			wifiScanListener.onScanRequestFailed(Result.CANCEL_SPAMMING);
 			return;
 		}
 
-		boolean success = wifiManager.startScan();
-		latestScanResultTime = LocalDateTime.now();
-		Logger.debug("Wifi start scan succeeded: " + success);
+		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
+		if (!missingPermissions.isEmpty()) {
+			Logger.warn("wifi scanner - missing permissions: {}", missingPermissions);
+		}
 
-		if(!success) {
+		boolean success = wifiManager.startScan();
+		Logger.debug("wifi start scan succeeded: {}", success);
+
+		if (success) {
+			scanRequested = true;
+			latestScanResultTime = LocalDateTime.now();
+		} else {
 			wifiScanListener.onScanRequestFailed(Result.FAIL_SCAN_REQUEST_FAILED);
 			return;
 		}
 
-		scanRequested = true;
 	}
 
 	/**

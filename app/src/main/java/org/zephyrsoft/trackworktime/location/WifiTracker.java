@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Enables the tracking of work time by presence at a specific wifi-ssid. This is an addition to the manual tracking,
+ * Enables the tracking of work time by presence at a specific wifi ssid. This is an addition to the manual tracking,
  * not a replacement: you can still clock in and out manually.
  * 
  * @author Christoph Loewe
@@ -47,7 +47,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	private String ssid = "";
 	private boolean vibrate = false;
 
-	/** previous state of the wifi-ssid occurence (from last check) */
+	/** previous state of the wifi ssid occurence (from last check) */
 	private Boolean ssidWasPreviouslyInRange;
 
 	/**
@@ -107,7 +107,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	}
 
 	/**
-	 * check if wifi-ssid is in range and start/stop tracking
+	 * check if wifi ssid is in range and start/stop tracking
 	 */
 	public void checkWifi() {
 		wifiScanner.requestWifiScanResults();
@@ -117,7 +117,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	public void onScanResultsUpdated(@NonNull List<ScanResult> wifiNetworksInRange) {
 		Logger.debug("checking wifi for ssid \"{}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange(wifiNetworksInRange);
-		Logger.debug("wifi-ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
+		Logger.debug("wifi ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
 				ssidWasPreviouslyInRange);
 
 		if (ssidWasPreviouslyInRange != null && ssidWasPreviouslyInRange && !ssidIsNowInRange) {

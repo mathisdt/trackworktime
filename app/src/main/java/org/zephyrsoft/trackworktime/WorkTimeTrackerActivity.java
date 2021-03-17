@@ -348,10 +348,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private void requestMissingPermissionsForTracking() {
 		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
 		if (!missingPermissions.isEmpty()) {
+			Logger.debug("asking for permissions: {}", missingPermissions);
 			PermissionsUtil.askForLocationPermission(this,
 				() -> ActivityCompat.requestPermissions(this,
 					missingPermissions.toArray(new String[missingPermissions.size()]),
-					Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
 				() -> {
 					// do nothing
 				});
@@ -784,7 +785,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 					restoreFromSd();
 				}
 				break;
-			case Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID:
+			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID:
 				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
 				if (ungranted.isEmpty()) {
 					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(

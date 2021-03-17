@@ -51,6 +51,7 @@ public class PermissionsUtil {
     public static List<String> missingPermissionsForTracking(Context context) {
         List<String> permissionsToRequest = new ArrayList<>();
         addPermissionIfNotGranted(Manifest.permission.ACCESS_COARSE_LOCATION, permissionsToRequest, context);
+        addPermissionIfNotGranted(Manifest.permission.ACCESS_FINE_LOCATION, permissionsToRequest, context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             addPermissionIfNotGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION, permissionsToRequest, context);
         }
@@ -94,6 +95,7 @@ public class PermissionsUtil {
                 : ""))
             .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 Basics.getOrCreateInstance(context).disableLocationBasedTracking();
+                Basics.getOrCreateInstance(context).disableWifiBasedTracking();
                 negativeConsequence.run();
             })
             .setPositiveButton(android.R.string.ok, (dialog, which) -> {

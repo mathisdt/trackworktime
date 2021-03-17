@@ -16,20 +16,12 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -158,9 +150,10 @@ public class OptionsActivity extends AppCompatActivity {
 
                     List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
                     if (!missingPermissions.isEmpty()) {
+                        Logger.debug("asking for permissions: {}", missingPermissions);
                         PermissionsUtil.askForLocationPermission(getContext(),
                             () -> requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
-                                Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID),
+                                Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
                             () -> locationPermissionNotGranted());
                     }
                 }
@@ -179,7 +172,7 @@ public class OptionsActivity extends AppCompatActivity {
 
         @Override
         public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-            if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID) {
+            if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID) {
                 List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
                 if (ungranted.isEmpty()) {
                     reloadData();

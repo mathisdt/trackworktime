@@ -44,8 +44,8 @@ public class Constants {
 	public static final int PERSISTENT_TRACKING_ID = 1;
 	/** used for the status notification when clocked in */
 	public static final int PERSISTENT_STATUS_ID = 2;
-	/** used for the message about ACCESS_COARSE_LOCATION */
-	public static final int MISSING_PRIVILEGE_ACCESS_COARSE_LOCATION_ID = 4;
+	/** used for the message about ACCESS_*_LOCATION */
+	public static final int MISSING_PRIVILEGE_ACCESS_LOCATION_ID = 4;
 	/** used for the message about WRITE_EXTERNAL_STORAGE */
 	public static final int MISSING_PRIVILEGE_ACCESS_STORAGE_ID = 8;
 	/** used for the message about ACCESS_WIFI_STATE */

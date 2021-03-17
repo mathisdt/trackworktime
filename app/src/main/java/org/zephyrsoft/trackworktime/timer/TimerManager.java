@@ -723,11 +723,6 @@ public class TimerManager {
 		editor.commit();
 	}
 
-	private boolean isTrackingMethodCurrentlyActive(TrackingMethod method) {
-		Collection<TrackingMethod> activeMethods = readCurrentlyActiveTrackingMethods();
-		return activeMethods.contains(method);
-	}
-
 	public boolean clockInWithTrackingMethod(TrackingMethod method) {
 		boolean currentlyClockedInWithMethod = getTrackingMethodClockInState(method);
 		if (getTrackingMethodsGenerateEventsSeparately()) {
