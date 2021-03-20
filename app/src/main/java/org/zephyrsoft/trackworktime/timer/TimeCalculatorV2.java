@@ -248,6 +248,8 @@ public class TimeCalculatorV2 {
 
 				workedTime += TimerManager.timeDiff(clockedInSince, timeOut);
 			} else if (effectiveClockOutEvent != null) {
+
+				// effectiveClockOutEvent is null if there are only clock out events
 				timeOut = effectiveClockOutEvent.getDateTime();
 			}
 
@@ -303,7 +305,7 @@ public class TimeCalculatorV2 {
 		currentDate = currentDate.plusDays(1);
 
 
-		ZonedDateTime now = ZonedDateTime.now();
+		ZonedDateTime now = ZonedDateTime.now(zoneId);
 
 		boolean isToday = currentDate.isEqual(now.toLocalDate());
 		isInFuture = currentDate.isAfter(now.toLocalDate());
