@@ -160,7 +160,7 @@ public class Basics extends BroadcastReceiver {
 
 	private void registerThirdPartyReceiver() {
 		if(thirdPartyReceiver != null) {
-			Logger.warn(ThirdPartyReceiver.class.getSimpleName() + " already registered, skipping.");
+			Logger.warn("{} already registered, skipping.", ThirdPartyReceiver.class.getSimpleName());
 			return;
 		}
 
@@ -169,18 +169,18 @@ public class Basics extends BroadcastReceiver {
 		intentFilter.addAction(Constants.CLOCK_IN_ACTION);
 		intentFilter.addAction(Constants.CLOCK_OUT_ACTION);
 		context.registerReceiver(thirdPartyReceiver, intentFilter);
-		Logger.debug("Registered " + ThirdPartyReceiver.class.getSimpleName());
+		Logger.debug("Registered {}", ThirdPartyReceiver.class.getSimpleName());
 	}
 
 	public void unregisterThirdPartyReceiver() {
 		if(thirdPartyReceiver == null) {
-			Logger.warn(ThirdPartyReceiver.class.getSimpleName() + " not registered, skipping.");
+			Logger.warn("{} not registered, skipping.", ThirdPartyReceiver.class.getSimpleName());
 			return;
 		}
 
 		context.unregisterReceiver(thirdPartyReceiver);
 		thirdPartyReceiver = null;
-		Logger.debug("Unregistered " + ThirdPartyReceiver.class.getSimpleName());
+		Logger.debug("Unregistered {}", ThirdPartyReceiver.class.getSimpleName());
 	}
 
 	public File getCurrentLogFile() {
@@ -541,7 +541,7 @@ public class Basics extends BroadcastReceiver {
 
 			@Override
 			public void error(Throwable t) {
-				Logger.warn("error receiving the current device location: {}", t);
+				Logger.warn(t,"error receiving the current device location");
 				Intent messageIntent = createMessageIntent(
 					"Could not get the current location. Please ensure that this app can access the coarse location.",
 					null);
@@ -809,7 +809,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
 		} catch (PackageManager.NameNotFoundException nnfe) {
-			Logger.error("could not get version name from manifest: {}", nnfe.getMessage());
+			Logger.error(nnfe, "could not get version name from manifest");
 			return "?";
 		}
 	}

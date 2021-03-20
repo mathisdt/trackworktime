@@ -839,7 +839,7 @@ public class DAO {
 				" AND " + TARGET_TYPE + "<=" + TargetEnum.DAY_IGNORE.getValue());
 
 		if (ret.size() == 1) {
-			Logger.debug("Got day target: " + ret.get(0));
+			Logger.debug("Got day target: {}", ret.get(0));
 
 			return ret.get(0);
 		} else {

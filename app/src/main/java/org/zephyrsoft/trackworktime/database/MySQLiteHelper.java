@@ -189,8 +189,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	}
 
 	private void dbUpgradeFrom4to5(SQLiteDatabase database) {
-		Logger.info("Upgrading database scheme to version 5");
-
 		// drop obsolete week table
 		database.execSQL("drop table if exists " + WEEK);
 

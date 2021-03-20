@@ -78,7 +78,7 @@ public class WeekStateCalculator {
 			setSummaryRow(weekState.totals, timeCalc);
 			
 		} catch (Exception e) {
-			Logger.debug("Exception: {}", e.getMessage());
+			Logger.debug(e, "could not calculate week");
 		}
 
 		// measure elapsed time

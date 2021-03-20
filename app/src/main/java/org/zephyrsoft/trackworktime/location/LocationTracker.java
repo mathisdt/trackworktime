@@ -100,7 +100,7 @@ public class LocationTracker implements LocationListener {
                 Logger.info("started location-based tracking");
                 return Result.SUCCESS;
             } catch (SecurityException se) {
-                Logger.info("NOT started location-based tracking, insufficient privileges detected: {}", se);
+                Logger.info(se,"NOT started location-based tracking, insufficient privileges detected");
                 isTrackingByLocation.set(false);
                 return Result.FAILURE_INSUFFICIENT_RIGHTS;
             }

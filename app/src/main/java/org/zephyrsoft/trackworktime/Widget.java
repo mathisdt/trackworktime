@@ -110,7 +110,7 @@ public class Widget extends AppWidgetProvider {
 			updateClockOutBtn();
 			dispatchUpdate();
 		} catch (Exception e) {
-			Logger.debug("Exception: {}", e.getMessage());
+			Logger.warn(e,"could not update widget");
 		}
 	}
 

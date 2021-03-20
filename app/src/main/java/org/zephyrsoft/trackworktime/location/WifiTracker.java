@@ -96,7 +96,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 				Logger.info("started wifi-based tracking");
 				return Result.SUCCESS;
 			} catch (RuntimeException re) {
-				Logger.info("NOT started wifi-based tracking, insufficient privileges detected: {}", re);
+				Logger.info(re,"NOT started wifi-based tracking, insufficient privileges detected");
 				isTrackingByWifi.set(false);
 				return Result.FAILURE_INSUFFICIENT_RIGHTS;
 			}
@@ -151,16 +151,13 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	public void onScanRequestFailed(@NonNull WifiScanner.Result failCode) {
 		switch (failCode) {
 			case FAIL_WIFI_DISABLED:
-				Logger.warn("tracking by wifi, but wifi-radio is disabled. Retaining previous " +
-						"tracking state");
+				Logger.warn("tracking by wifi, but wifi-radio is disabled. Retaining previous tracking state");
 				break;
 			case FAIL_SCAN_REQUEST_FAILED:
-				Logger.info("wifi scan request failed, skipping wifi check - retaining previous " +
-						"tracking state");
+				Logger.info("wifi scan request failed, skipping wifi check - retaining previous tracking state");
 				break;
 			case FAIL_RESULTS_NOT_UPDATED:
-				Logger.info("wifi scan results were not updated, skipping wifi check - retaining " +
-						"previous tracking state");
+				Logger.info("wifi scan results were not updated, skipping wifi check - retaining previous tracking state");
 				break;
 			case CANCEL_SPAMMING:
 				Logger.warn("wifi scan request canceled, due to too much requests");

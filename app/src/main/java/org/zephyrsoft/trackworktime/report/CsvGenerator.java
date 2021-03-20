@@ -146,7 +146,7 @@ public class CsvGenerator {
 				beanWriter.write(event, header, eventProcessors);
 			}
 		} catch (IOException e) {
-			Logger.error("error while writing: {}", e.getMessage());
+			Logger.error(e, "error while writing");
 		} finally {
 			if (beanWriter != null) {
 				try {
@@ -243,7 +243,7 @@ public class CsvGenerator {
 				beanWriter.write(timeSumsHolder, header, processors);
 			}
 		} catch (IOException e) {
-			Logger.error("error while writing: {0}", e.getMessage());
+			Logger.error(e, "error while writing");
 		} finally {
 			if (beanWriter != null) {
 				try {
