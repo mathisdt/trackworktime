@@ -30,6 +30,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
+import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -103,10 +104,14 @@ public class Widget extends AppWidgetProvider {
 	}
 
 	private void updateWidget() {
-		updateWorkTime();
-		updateClockInBtn();
-		updateClockOutBtn();
-		dispatchUpdate();
+		try {
+			updateWorkTime();
+			updateClockInBtn();
+			updateClockOutBtn();
+			dispatchUpdate();
+		} catch (Exception e) {
+			Logger.debug("Exception: {}", e.getMessage());
+		}
 	}
 
 	private void updateWorkTime() {
