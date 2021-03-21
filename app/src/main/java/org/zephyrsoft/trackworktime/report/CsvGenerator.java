@@ -37,8 +37,8 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -160,7 +160,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsCsv(Map<Task, TimeSum> sums) {
-		List<TimeSumsHolder> prepared = new LinkedList<>();
+		List<TimeSumsHolder> prepared = new ArrayList<>();
 		for (Entry<Task, TimeSum> entry : sums.entrySet()) {
 			String task = "";
 			if (entry.getKey() != null) {
@@ -174,7 +174,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsPerDayCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
-		List<TimeSumsHolder> prepared = new LinkedList<>();
+		List<TimeSumsHolder> prepared = new ArrayList<>();
 		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String day = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
@@ -192,7 +192,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsPerWeekCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
-		List<TimeSumsHolder> prepared = new LinkedList<>();
+		List<TimeSumsHolder> prepared = new ArrayList<>();
 		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String week = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();
@@ -210,7 +210,7 @@ public class CsvGenerator {
 	}
 
 	public String createSumsPerMonthCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
-		List<TimeSumsHolder> prepared = new LinkedList<>();
+		List<TimeSumsHolder> prepared = new ArrayList<>();
 		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String month = DateTimeUtil.dateToULString(rangeEntry.getKey());
 			Map<Task, TimeSum> sums = rangeEntry.getValue();

@@ -29,8 +29,8 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -183,7 +183,7 @@ public class TimeCalculator {
 	 * complete range).
 	 */
 	public List<ZonedDateTime> calculateRangeBeginnings(Unit unit, ZonedDateTime from, ZonedDateTime to) {
-		List<ZonedDateTime> ret = new LinkedList<>();
+		List<ZonedDateTime> ret = new ArrayList<>();
 		ret.add(from);
 
 		ZonedDateTime current;
