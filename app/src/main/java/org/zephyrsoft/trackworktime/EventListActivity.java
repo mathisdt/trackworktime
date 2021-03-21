@@ -266,30 +266,34 @@ public class EventListActivity extends AppCompatActivity {
 
 				alert.setPositiveButton(getString(R.string.ok),
 						(dialog, whichButton) -> {
-							for (int i = events.size(); i >= 0; i--) {
-								if (selectionTracker.isSelected((long) i)) {
+							OffsetDateTime cacheInvalidationStart = null;
 
-									// delete event in list and DB
-									Event event = events.remove(i);
+							for (int i = 0; i < events.size(); i++) {
+								if (selectionTracker.isSelected((long) i)) {
+									Event event = events.get(i);
 									boolean success = dao.deleteEvent(event);
 
-									Basics.getInstance().safeCheckExternalControls();
-
 									if (success) {
-										Logger.debug("deleted event with ID {}",
-												event.getId());
-
-										// we have to call this manually when using the DAO directly:
-										timerManager.invalidateCacheFrom(event.getDateTime());
+										Logger.debug("deleted event with ID {}", event.getId());
+										if (cacheInvalidationStart == null
+											|| event.getDateTime().isBefore(cacheInvalidationStart)) {
+											cacheInvalidationStart = event.getDateTime();
+										}
 									} else {
-										Logger.warn("could not delete event with ID {}",
-												event.getId());
+										Logger.warn("could not delete event with ID {}", event.getId());
 									}
-									myEventAdapter.notifyItemRemoved(i);
 								}
 							}
-
 							selectionTracker.clearSelection();
+
+							if (cacheInvalidationStart != null) {
+								// we have to call this manually when using the DAO directly:
+								timerManager.invalidateCacheFrom(cacheInvalidationStart);
+								// now reload the data
+								refreshView();
+							}
+
+							Basics.getInstance().safeCheckExternalControls();
 						});
 				alert.setNegativeButton(getString(R.string.cancel),
 						(dialog, which) -> {
