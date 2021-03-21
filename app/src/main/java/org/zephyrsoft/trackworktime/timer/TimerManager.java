@@ -24,9 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -83,6 +85,10 @@ public class TimerManager {
 		} else {
 			return ZoneId.of(homeTimeZone);
 		}
+	}
+
+	public ZoneOffset getHomeTimeZoneOffset(LocalDateTime localDateTime) {
+		return getHomeTimeZone().getRules().getOffset(localDateTime);
 	}
 
 	public FlexiReset getFlexiReset() {

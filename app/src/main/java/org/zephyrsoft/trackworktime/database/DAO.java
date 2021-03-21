@@ -36,17 +36,22 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.chrono.IsoChronology;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.ResolverStyle;
+import org.threeten.bp.temporal.ChronoField;
+import org.threeten.bp.temporal.TemporalAccessor;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.UpgradeActivity;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.model.CalcCacheEntry;
 import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetEnum;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 import java.io.BufferedReader;
@@ -57,6 +62,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.VisibleForTesting;
 
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.CACHE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.CACHE_DATE;
@@ -70,18 +77,18 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_TIME;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_TYPE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_V1;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.EVENT_ZONE_OFFSET;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_TEXT;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_TIME;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_TYPE;
+import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_VALUE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ACTIVE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_DEFAULT;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_NAME;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ORDERING;
-import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET;
-import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_ID;
-import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_TIME;
-import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_TYPE;
-import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TARGET_VALUE;
 
 /**
  * The data access object for structures from the app's SQLite database. The model consists of three main elements:
@@ -718,6 +725,24 @@ public class DAO {
 	private static final int INDEX_TASK_ORDERING = 7;
 	private static final int INDEX_TASK_DEFAULT = 8;
 
+	/** ONLY FOR PARSING! reads new and old backup timestamp format */
+	private static final DateTimeFormatter BACKUP_DATETIME_PARSER = new DateTimeFormatterBuilder()
+		.parseCaseInsensitive()
+		.append(DateTimeFormatter.ISO_LOCAL_DATE)
+		.optionalStart()
+		.appendLiteral('T')
+		.optionalEnd()
+		.optionalStart()
+		.appendLiteral(' ')
+		.optionalEnd()
+		.append(DateTimeFormatter.ISO_LOCAL_TIME)
+		.optionalStart()
+		.appendOffsetId()
+		.optionalEnd()
+		.toFormatter()
+		.withResolverStyle(ResolverStyle.STRICT)
+		.withChronology(IsoChronology.INSTANCE);
+
 	public void restoreEventsFromReader(final BufferedReader reader) throws IOException {
         final String eol = System.getProperty("line.separator");
         final TimerManager timerManager = Basics.getInstance().getTimerManager();
@@ -730,7 +755,8 @@ public class DAO {
         // cache values
         final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName();
         final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
-        while ((line = reader.readLine()) != null) {
+
+		while ((line = reader.readLine()) != null) {
             final String[] columns = line.split("[;\t]");
             try {
                 if (columns.length > 8 && columns[INDEX_TASK_ID].length() > 0) {
@@ -750,8 +776,8 @@ public class DAO {
                 }
 
                 if (columns.length > 2 && columns[INDEX_EVENT_TYPE].length() > 0) {
-                	final OffsetDateTime dateTime = OffsetDateTime.parse(columns[INDEX_EVENT_TIME]);
-                    final TypeEnum typeEnum;
+					OffsetDateTime dateTime = parseOffsetDateTime(timerManager, columns[INDEX_EVENT_TIME]);
+					final TypeEnum typeEnum;
                     if (clockInReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
                         typeEnum = TypeEnum.CLOCK_IN;
                     } else if (clockOutNowReadableName.equalsIgnoreCase(columns[INDEX_EVENT_TYPE])) {
@@ -769,6 +795,18 @@ public class DAO {
                 // ignore rest of current row
             }
         }
+	}
+
+	@VisibleForTesting
+	static OffsetDateTime parseOffsetDateTime(TimerManager timerManager, String timestamp) {
+		TemporalAccessor eventTimestamp = BACKUP_DATETIME_PARSER.parse(timestamp);
+		if (!eventTimestamp.isSupported(ChronoField.OFFSET_SECONDS)) {
+			LocalDateTime localDateTime = LocalDateTime.from(eventTimestamp);
+			return localDateTime
+				.atOffset(timerManager.getHomeTimeZoneOffset(localDateTime));
+		} else {
+			return OffsetDateTime.from(eventTimestamp);
+		}
 	}
 
 
