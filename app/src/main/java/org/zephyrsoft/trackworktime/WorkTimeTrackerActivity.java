@@ -891,7 +891,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
                         restore(info);
                         dialog.dismiss();
                     })
-					.setNegativeButton(android.R.string.cancel, null).show();
+					.setNegativeButton(android.R.string.cancel, null)
+					.show();
 			} else {
 				// no entries, skip warning
 				restore(info);
@@ -930,7 +931,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 					}
 					return true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					Logger.warn(e, "problem while restoring backup");
 					return false;
 				}
 			}

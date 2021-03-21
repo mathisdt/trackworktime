@@ -35,6 +35,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 
 /**
@@ -112,7 +113,7 @@ public class DbBackupHelper implements BackupHelper {
 					byteSteam.close();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.warn(e, "problem while creating backup");
 			}
 		}
 
@@ -143,7 +144,7 @@ public class DbBackupHelper implements BackupHelper {
 			try {
 				dao.restoreEventsFromReader(reader);
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.warn(e, "problem while restoring events");
 			}
 
 		} else if (KEY_TARGETS.equals(data.getKey())) {
@@ -152,7 +153,7 @@ public class DbBackupHelper implements BackupHelper {
 			try {
 				dao.restoreTargetsFromReader(reader);
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.warn(e, "problem while restoring targets");
 			}
 		}
 

@@ -2,6 +2,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import android.content.Context;
 
+import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -43,11 +44,8 @@ public class BackupUtil {
             }
 
             return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Logger.warn(e, "problem while writing backup");
             return false;
         }
     }

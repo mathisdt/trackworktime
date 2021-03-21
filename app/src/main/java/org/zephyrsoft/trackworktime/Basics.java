@@ -250,7 +250,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			PreferencesUtil.checkAllPreferenceSections();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e, "exception handled by ACRA");
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -262,7 +262,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkLocationBasedTracking();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e, "exception handled by ACRA");
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -274,7 +274,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkWifiBasedTracking();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e, "exception handled by ACRA");
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -294,7 +294,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkWidget();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e, "exception handled by ACRA");
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
@@ -313,7 +313,7 @@ public class Basics extends BroadcastReceiver {
 		try {
 			checkPersistentNotification();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.warn(e, "exception handled by ACRA");
 			ACRA.getErrorReporter().handleException(e);
 		}
 	}
