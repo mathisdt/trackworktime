@@ -54,7 +54,10 @@ You can always write me an email and I'll see what I can do. Web site and email 
 <br>
 <h2>Privacy Policy</h2>
 <b>tl;dr: Your personal data will not be sent anywhere by the app without your explicit intention.</b><br>
+This privacy policy is also available online: https://zephyrsoft.org/trackworktime/privacy<br>
 <br>
+<h3>User Privacy - especially for location data</h3>
+This app can be configured to track the user's coarse location via cell network (no exact GPS tracking is used) or by a visible Wi-Fi network name (for which it's necessary to continuously check all visible Wi-Fi network names). All resulting location data is stored on the user's device, and it's not sent anywhere except if the user explicitly triggers it. Read on for more details.<br>
 <h3>Which personal data is used by the app?</h3>
 Track Work Time is made - as the name says - to track your work time. For this purpose it handles the events (clock-in time, clock-out time, task, hint) and the options (task list, home time zone, automatic pause times, weekly work time target, working days, geo-location of your work place, Wi-Fi name at your work place) you enter into the app.<br>
 If you choose to enable tracking by location and/or Wi-Fi, your coarse location and/or visible Wi-Fi network names are also used by the app.<br>
