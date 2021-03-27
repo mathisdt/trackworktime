@@ -85,6 +85,16 @@ public class DateTimeUtil {
 	}
 
 	/**
+	 * Formats a {@link OffsetDateTime} to a String.
+	 *
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
+	 */
+	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
+		return formatLocalizedDate(dateTime.toLocalDate()) + " / " + formatLocalizedTime(dateTime);
+	}
+
+	/**
 	 * Formats a {@link LocalDate} to a String.
 	 *
 	 * @param date the input (may not be null)
@@ -92,16 +102,6 @@ public class DateTimeUtil {
 	 */
 	public static String formatLocalizedDate(LocalDate date) {
 		return date.format(LOCALIZED_DATE);
-	}
-
-	/**
-	 * Formats a {@link OffsetDateTime} to a String.
-	 *
-	 * @param dateTime the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
-		return dateTime.format(LOCALIZED_DATE) + " / " + dateTime.format(LOCALIZED_TIME);
 	}
 
 	/**
