@@ -68,8 +68,6 @@ import java.util.Map;
 public class EventListActivity extends AppCompatActivity {
 
 	private static final int NEW_EVENT = 0;
-	private static final int EDIT_EVENT = 1;
-	private static final int DELETE_EVENT = 2;
 
 	private static final String BUNDLE_KEY_WEEK_START_DATE = "BUNDLE_KEY_WEEK_START_DATE";
 
