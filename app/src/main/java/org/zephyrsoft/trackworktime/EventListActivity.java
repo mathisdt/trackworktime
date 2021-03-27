@@ -131,7 +131,7 @@ public class EventListActivity extends AppCompatActivity {
 				StorageStrategy.createLongStorage()
 		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<Long>() {
 			@Override
-			public boolean canSetStateForKey(Long key, boolean nextState) {
+			public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
 				if (key != null && key.intValue() >= 0 && key.intValue() < events.size()) {
 					return !(events.get(key.intValue()) instanceof EventSeparator);
 				}
@@ -180,7 +180,7 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case NEW_EVENT:
 				Logger.debug("starting to enter a new event");
@@ -434,6 +434,7 @@ public class EventListActivity extends AppCompatActivity {
 		}
 
 		@Override
+		@NonNull
 		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 			switch(viewType) {
@@ -451,7 +452,7 @@ public class EventListActivity extends AppCompatActivity {
 		}
 
 		@Override
-		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 			final Event event = events.get(position);
 			if (holder instanceof EventViewHolder) {
 				EventViewHolder eventHolder = (EventViewHolder) holder;
