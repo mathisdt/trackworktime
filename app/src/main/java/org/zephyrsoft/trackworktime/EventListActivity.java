@@ -226,11 +226,18 @@ public class EventListActivity extends AppCompatActivity {
 			Event cur = iter.next();
 			if (prev == null || !isOnSameDay(prev, cur)) {
 				iter.previous();
-				iter.add(new EventSeparator(WeekDayHelper.getWeekDayLongName(cur.getDateTime())));
+				String caption = toEventSeparatorCaption(cur.getDateTime());
+				iter.add(new EventSeparator(caption));
 				iter.next();
 			}
 			prev = cur;
 		}
+	}
+
+	private static String toEventSeparatorCaption(OffsetDateTime dateTime) {
+		String dayName = WeekDayHelper.getWeekDayLongName(dateTime);
+		String date = DateTimeUtil.formatLocalizedDate(dateTime.toLocalDate());
+		return dayName + ", " + date;
 	}
 
 	private static boolean isOnSameDay(Event e1, Event e2) {
@@ -411,7 +418,7 @@ public class EventListActivity extends AppCompatActivity {
 			}
 
 			OffsetDateTime dateTime = event.getDateTime();
-			return DateTimeUtil.formatLocalizedDateTime(dateTime) + ": " + typeString;
+			return DateTimeUtil.formatLocalizedTime(dateTime) + ": " + typeString;
 		}
 	}
 
