@@ -105,6 +105,16 @@ public class DateTimeUtil {
 	}
 
 	/**
+	 * Formats a {@link OffsetDateTime} to a String, containing only hours and minutes.
+	 *
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
+	 */
+	public static String formatLocalizedTime(OffsetDateTime dateTime) {
+		return dateTime.format(LOCALIZED_TIME);
+	}
+
+	/**
 	 * Formats a {@link LocalDate} to a String.
 	 *
 	 * @param date the input (may not be null)
