@@ -16,6 +16,7 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
@@ -23,7 +24,9 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.FormatStyle;
+import org.threeten.bp.temporal.TemporalAccessor;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import java.util.Locale;
@@ -39,6 +42,11 @@ public class DateTimeUtil {
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter HOUR_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter TIME_PRECISE = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
+			.appendPattern("eeee")
+			.appendLiteral(", ")
+			.appendLocalized(FormatStyle.SHORT, null)
+			.toFormatter();
 
 	/**
 	 * Determines if the given {@link LocalDateTime} is in the future.
@@ -85,6 +93,16 @@ public class DateTimeUtil {
 	}
 
 	/**
+	 * Formats a {@link OffsetDateTime} to a String.
+	 *
+	 * @param dateTime the input (may not be null)
+	 * @return the String which corresponds to the given input
+	 */
+	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
+		return formatLocalizedDate(dateTime.toLocalDate()) + " / " + formatLocalizedTime(dateTime);
+	}
+
+	/**
 	 * Formats a {@link LocalDate} to a String.
 	 *
 	 * @param date the input (may not be null)
@@ -95,13 +113,24 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Formats a {@link OffsetDateTime} to a String.
+	 * Formats a {@link OffsetDateTime} to a String, containing only hours and minutes.
 	 *
 	 * @param dateTime the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
-		return dateTime.format(LOCALIZED_DATE) + " / " + dateTime.format(LOCALIZED_TIME);
+	public static String formatLocalizedTime(OffsetDateTime dateTime) {
+		return dateTime.format(LOCALIZED_TIME);
+	}
+
+	/**
+	 * Formats a {@link TemporalAccessor} to a String.
+	 *
+	 * @param date the input (may not be null)
+	 * @return the String which corresponds to the given input. E.g. "Friday, 22.2.2222".
+	 */
+	public static String formatLocalizedDayAndDate(TemporalAccessor date) {
+		String dateString = LOCALIZED_DAY_AND_DATE.format(date);
+		return StringUtils.capitalize(dateString);
 	}
 
 	/**

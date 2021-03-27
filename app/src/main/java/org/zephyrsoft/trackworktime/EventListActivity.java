@@ -50,7 +50,6 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
-import org.zephyrsoft.trackworktime.util.WeekDayHelper;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.util.ArrayList;
@@ -226,7 +225,8 @@ public class EventListActivity extends AppCompatActivity {
 			Event cur = iter.next();
 			if (prev == null || !isOnSameDay(prev, cur)) {
 				iter.previous();
-				iter.add(new EventSeparator(WeekDayHelper.getWeekDayLongName(cur.getDateTime())));
+				String caption = DateTimeUtil.formatLocalizedDayAndDate(cur.getDateTime());
+				iter.add(new EventSeparator(caption));
 				iter.next();
 			}
 			prev = cur;
@@ -411,7 +411,7 @@ public class EventListActivity extends AppCompatActivity {
 			}
 
 			OffsetDateTime dateTime = event.getDateTime();
-			return DateTimeUtil.formatLocalizedDateTime(dateTime) + ": " + typeString;
+			return DateTimeUtil.formatLocalizedTime(dateTime) + ": " + typeString;
 		}
 	}
 
