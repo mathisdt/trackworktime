@@ -44,6 +44,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
+import org.zephyrsoft.trackworktime.databinding.ListItemBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Week;
@@ -328,9 +329,11 @@ public class EventListActivity extends AppCompatActivity {
 		class EventViewHolder extends RecyclerView.ViewHolder
 				implements View.OnClickListener {
 
-			public EventViewHolder(View itemView, int viewType) {
-				super(itemView);
+			final TextView text;
 
+			public EventViewHolder(ListItemBinding binding, int viewType) {
+				super(binding.getRoot());
+				text = binding.text1;
 				if (viewType == VIEW_TYPE_EVENT) {
 					itemView.setOnClickListener(this);
 				}
@@ -375,19 +378,18 @@ public class EventListActivity extends AppCompatActivity {
 
 		@Override
 		public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			final View itemView = LayoutInflater.from(parent.getContext())
-					.inflate(R.layout.list_item, parent, false);
-
-			return new EventViewHolder(itemView, viewType);
+			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+			ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
+			return new EventViewHolder(binding, viewType);
 		}
 
 		@Override
 		public void onBindViewHolder(EventViewHolder holder, int position) {
 			final Event event = events.get(position);
 			if (event instanceof EventSeparator) {
-				((TextView) holder.itemView).setText(event.toString());
+				holder.text.setText(event.toString());
 			} else {
-				((TextView) holder.itemView).setText(extractText(event));
+				holder.text.setText(extractText(event));
 			}
 
 			holder.itemView.setActivated(selectionTracker.isSelected((long)position));
