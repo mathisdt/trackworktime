@@ -37,7 +37,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
@@ -329,11 +328,11 @@ public class EventListActivity extends AppCompatActivity {
 		class EventViewHolder extends RecyclerView.ViewHolder
 				implements View.OnClickListener {
 
-			final TextView text;
+			private final ListItemBinding binding;
 
 			public EventViewHolder(ListItemBinding binding, int viewType) {
 				super(binding.getRoot());
-				text = binding.text1;
+				this.binding = binding;
 				if (viewType == VIEW_TYPE_EVENT) {
 					itemView.setOnClickListener(this);
 				}
@@ -365,6 +364,11 @@ public class EventListActivity extends AppCompatActivity {
 					}
 				};
 			}
+
+			public void bind(String text, Boolean isSelected) {
+				binding.text1.setText(text);
+				itemView.setActivated(isSelected);
+			}
 		}
 
 		@Override
@@ -386,13 +390,12 @@ public class EventListActivity extends AppCompatActivity {
 		@Override
 		public void onBindViewHolder(EventViewHolder holder, int position) {
 			final Event event = events.get(position);
+			boolean isSelected = selectionTracker.isSelected((long)position)
 			if (event instanceof EventSeparator) {
-				holder.text.setText(event.toString());
+				holder.bind(event.toString(), isSelected);
 			} else {
-				holder.text.setText(extractText(event));
+				holder.bind(extractText(event), isSelected);
 			}
-
-			holder.itemView.setActivated(selectionTracker.isSelected((long)position));
 		}
 
 		@Override
