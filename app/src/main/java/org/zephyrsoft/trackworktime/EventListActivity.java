@@ -209,13 +209,14 @@ public class EventListActivity extends AppCompatActivity {
 	 * Refresh the event list and the main activity.
 	 */
 	public void refreshView() {
+		refreshEvents();
+		refreshAdapter();
+	}
+
+	private void refreshEvents() {
 		events.clear();
 		events.addAll(dao.getEventsInWeek(week, timerManager.getHomeTimeZone()));
-
 		insertSeparators(events);
-		if (myEventAdapter != null) {
-			myEventAdapter.notifyDataSetChanged();
-		}
 	}
 
 	private static void insertSeparators(List<Event> eventList) {
@@ -230,6 +231,12 @@ public class EventListActivity extends AppCompatActivity {
 				iter.next();
 			}
 			prev = cur;
+		}
+	}
+
+	private void refreshAdapter() {
+		if (myEventAdapter != null) {
+			myEventAdapter.notifyDataSetChanged();
 		}
 	}
 
