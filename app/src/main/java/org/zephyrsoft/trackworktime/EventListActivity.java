@@ -48,14 +48,17 @@ import org.zephyrsoft.trackworktime.databinding.ListItemSeparatorBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 /**
  * Activity for managing the events of a week.
@@ -77,6 +80,7 @@ public class EventListActivity extends AppCompatActivity {
 
 	private Week week;
 	private List<Event> events = null;
+	private final Map<Integer, Task> taskIdToTaskMap = new HashMap<>();
 
 	private EventAdapter myEventAdapter;
 	private SelectionTracker<Long> selectionTracker;
@@ -211,6 +215,7 @@ public class EventListActivity extends AppCompatActivity {
 	 */
 	public void refreshView() {
 		refreshEvents();
+		refreshTasks();
 		refreshAdapter();
 	}
 
@@ -232,6 +237,15 @@ public class EventListActivity extends AppCompatActivity {
 				iter.next();
 			}
 			prev = cur;
+		}
+	}
+
+	private void refreshTasks() {
+		taskIdToTaskMap.clear();
+		List<Task> tasks = dao.getAllTasks();
+		for(Task t : tasks) {
+			Integer id = t.getId();
+			taskIdToTaskMap.put(id, t);
 		}
 	}
 
@@ -367,6 +381,7 @@ public class EventListActivity extends AppCompatActivity {
 			public void bind(Event event, Boolean isSelected) {
 				binding.time.setText(formatTime(event.getTime()));
 				binding.type.setText(formatType(event.getTypeEnum()));
+				binding.task.setText(getTaskName(event.getTask()));
 				itemView.setActivated(isSelected);
 			}
 
@@ -383,6 +398,18 @@ public class EventListActivity extends AppCompatActivity {
 					default:
 						throw new IllegalStateException("unrecognized event type");
 				}
+			}
+
+			private String getTaskName(Integer taskId) {
+				if (taskId == null) {
+					return null;
+				}
+				Task task = taskIdToTaskMap.get(taskId);
+				if (task == null) {
+					Logger.error("No task for id: " + taskId);
+					return null;
+				}
+				return task.getName();
 			}
 		}
 
