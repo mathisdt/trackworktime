@@ -44,6 +44,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
 import org.zephyrsoft.trackworktime.databinding.ListItemBinding;
+import org.zephyrsoft.trackworktime.databinding.ListItemSeparatorBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Week;
@@ -365,9 +366,38 @@ public class EventListActivity extends AppCompatActivity {
 				};
 			}
 
-			public void bind(String text, Boolean isSelected) {
-				binding.text1.setText(text);
+			public void bind(Event event, Boolean isSelected) {
+				binding.time.setText(formatTime(event.getTime()));
+				binding.type.setText(formatType(event.getTypeEnum()));
 				itemView.setActivated(isSelected);
+			}
+
+			private String formatTime(OffsetDateTime time) {
+				return DateTimeUtil.formatLocalizedTime(time);
+			}
+
+			private String formatType(TypeEnum type) {
+				switch (type) {
+					case CLOCK_IN:
+						return "IN";
+					case CLOCK_OUT:
+						return "OUT";
+					default:
+						throw new IllegalStateException("unrecognized event type");
+				}
+			}
+		}
+
+		class EventSeparatorHolder extends RecyclerView.ViewHolder {
+			private final ListItemSeparatorBinding binding;
+
+			public EventSeparatorHolder(ListItemSeparatorBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+			}
+
+			public void bind(EventSeparator event) {
+				binding.title.setText(event.toString());
 			}
 		}
 
@@ -383,19 +413,30 @@ public class EventListActivity extends AppCompatActivity {
 		@Override
 		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-			ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
-			return new EventViewHolder(binding, viewType);
+			switch(viewType) {
+				case VIEW_TYPE_SEPARATOR: {
+					ListItemSeparatorBinding binding = ListItemSeparatorBinding.inflate(inflater,
+							parent, false);
+					return new EventSeparatorHolder(binding);
+				} case VIEW_TYPE_EVENT: {
+					ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
+					return new EventViewHolder(binding, viewType);
+				} default: {
+					throw new RuntimeException("Not implemented type: " + viewType);
+				}
+			}
 		}
 
 		@Override
 		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 			final Event event = events.get(position);
-			boolean isSelected = selectionTracker.isSelected((long)position);
-			EventViewHolder eventHolder = (EventViewHolder) holder;
-			if (event instanceof EventSeparator) {
-				eventHolder.bind(event.toString(), isSelected);
-			} else {
-				eventHolder.bind(extractText(event), isSelected);
+			if (holder instanceof EventViewHolder) {
+				EventViewHolder eventHolder = (EventViewHolder) holder;
+				boolean isSelected = selectionTracker.isSelected((long)position);
+				eventHolder.bind(event, isSelected);
+			} else if (holder instanceof EventSeparatorHolder) {
+				EventSeparatorHolder eventHolder = (EventSeparatorHolder) holder;
+				eventHolder.bind((EventSeparator) event);
 			}
 		}
 
@@ -407,24 +448,6 @@ public class EventListActivity extends AppCompatActivity {
 		@Override
 		public int getItemCount() {
 			return events.size();
-		}
-
-		private String extractText(Event event) {
-			TypeEnum type = TypeEnum.byValue(event.getType());
-			String typeString;
-			switch (type) {
-				case CLOCK_IN:
-					typeString = "IN";
-					break;
-				case CLOCK_OUT:
-					typeString = "OUT";
-					break;
-				default:
-					throw new IllegalStateException("unrecognized event type");
-			}
-
-			OffsetDateTime dateTime = event.getDateTime();
-			return DateTimeUtil.formatLocalizedTime(dateTime) + ": " + typeString;
 		}
 	}
 
