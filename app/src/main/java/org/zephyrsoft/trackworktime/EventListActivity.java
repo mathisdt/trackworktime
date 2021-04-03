@@ -331,12 +331,10 @@ public class EventListActivity extends AppCompatActivity {
 
 			private final ListItemBinding binding;
 
-			public EventViewHolder(ListItemBinding binding, int viewType) {
+			public EventViewHolder(ListItemBinding binding) {
 				super(binding.getRoot());
 				this.binding = binding;
-				if (viewType == VIEW_TYPE_EVENT) {
-					itemView.setOnClickListener(this);
-				}
+				itemView.setOnClickListener(this);
 			}
 
 			@Override
@@ -420,7 +418,7 @@ public class EventListActivity extends AppCompatActivity {
 					return new EventSeparatorHolder(binding);
 				} case VIEW_TYPE_EVENT: {
 					ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
-					return new EventViewHolder(binding, viewType);
+					return new EventViewHolder(binding);
 				} default: {
 					throw new RuntimeException("Not implemented type: " + viewType);
 				}
