@@ -321,7 +321,7 @@ public class EventListActivity extends AppCompatActivity {
 		}
 	};
 
-	private class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+	private class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 		private static final int VIEW_TYPE_SEPARATOR = 0;
 		private static final int VIEW_TYPE_EVENT = 1;
 
@@ -381,20 +381,21 @@ public class EventListActivity extends AppCompatActivity {
 		}
 
 		@Override
-		public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 			ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
 			return new EventViewHolder(binding, viewType);
 		}
 
 		@Override
-		public void onBindViewHolder(EventViewHolder holder, int position) {
+		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 			final Event event = events.get(position);
-			boolean isSelected = selectionTracker.isSelected((long)position)
+			boolean isSelected = selectionTracker.isSelected((long)position);
+			EventViewHolder eventHolder = (EventViewHolder) holder;
 			if (event instanceof EventSeparator) {
-				holder.bind(event.toString(), isSelected);
+				eventHolder.bind(event.toString(), isSelected);
 			} else {
-				holder.bind(extractText(event), isSelected);
+				eventHolder.bind(extractText(event), isSelected);
 			}
 		}
 
