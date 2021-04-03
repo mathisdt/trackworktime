@@ -59,6 +59,10 @@ public class Event extends Base implements Comparable<Event> {
 		return type;
 	}
 
+	public TypeEnum getTypeEnum() {
+		return TypeEnum.byValue(type);
+	}
+
 	// used for report generation
 	public OffsetDateTime getTime() {
 		return time;
