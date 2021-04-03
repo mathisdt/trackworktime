@@ -435,6 +435,8 @@ public class EventListActivity extends AppCompatActivity {
 			} else if (holder instanceof EventSeparatorHolder) {
 				EventSeparatorHolder eventHolder = (EventSeparatorHolder) holder;
 				eventHolder.bind((EventSeparator) event);
+			} else {
+				throw new RuntimeException("Not implemented view holder type: " + holder);
 			}
 		}
 
