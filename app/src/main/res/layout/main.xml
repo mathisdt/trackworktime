@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -14,13 +15,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <Button
             android:id="@+id/previous"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:drawableStart="@drawable/ic_navigate_arrow_left"
             android:text="@string/previous" />
 
         <Button
@@ -35,6 +38,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:drawableEnd="@drawable/ic_navigate_arrow_right"
             android:text="@string/next" />
     </LinearLayout>
 
