@@ -406,7 +406,7 @@ public class EventListActivity extends AppCompatActivity {
 				}
 				Task task = taskIdToTaskMap.get(taskId);
 				if (task == null) {
-					Logger.error("No task for id: " + taskId);
+					Logger.error("No task for id: {}", taskId);
 					return null;
 				}
 				return task.getName();
