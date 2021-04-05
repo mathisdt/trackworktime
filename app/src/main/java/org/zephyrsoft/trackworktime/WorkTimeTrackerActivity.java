@@ -62,7 +62,6 @@ import org.zephyrsoft.trackworktime.databinding.ActivityMainBinding;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
@@ -271,9 +270,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private WeekStateLoaderFactory createWeekLoaderFactory() {
-		TimeCalculator timeCalculator = Basics.getInstance().getTimeCalculator();
 		WeekStateCalculatorFactory weekStateCalculatorFactory = new WeekStateCalculatorFactory(
-				this, dao, timerManager, timeCalculator, preferences);
+				this, dao, timerManager, preferences);
 		return new WeekStateLoaderFactory(weekStateCalculatorFactory);
 	}
 

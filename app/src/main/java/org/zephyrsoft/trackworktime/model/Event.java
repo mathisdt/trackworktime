@@ -17,7 +17,6 @@
 package org.zephyrsoft.trackworktime.model;
 
 import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.zephyrsoft.trackworktime.database.DAO;
 
 /**
@@ -27,8 +26,6 @@ import org.zephyrsoft.trackworktime.database.DAO;
  * @author Mathis Dirksen-Thedens
  */
 public class Event extends Base implements Comparable<Event> {
-	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
-
 	private Integer id = null;
 	private Integer task = null;
 	private Integer type = null;

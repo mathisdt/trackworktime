@@ -20,7 +20,6 @@ import org.zephyrsoft.trackworktime.model.WeekState;
 import org.zephyrsoft.trackworktime.model.WeekState.DayRowState;
 import org.zephyrsoft.trackworktime.model.WeekState.SummaryRowState;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2;
 import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2.DayInfo;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
@@ -36,17 +35,15 @@ public class WeekStateCalculator {
 	private final Context context;
 	private final DAO dao;
 	private final TimerManager timerManager;
-	private final TimeCalculator timeCalculator;
 	private final Week week;
 	
 	private final boolean handleFlexiTime;
 
 	public WeekStateCalculator(Context context, DAO dao, TimerManager timerManager,
-		   TimeCalculator timeCalculator, SharedPreferences preferences, Week week) {
+		   SharedPreferences preferences, Week week) {
 		this.context = context;
 		this.dao = dao;
 		this.timerManager = timerManager;
-		this.timeCalculator = timeCalculator;
 		this.week = week;
 		
 		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);

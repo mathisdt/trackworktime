@@ -53,7 +53,6 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 
-	private ArrayAdapter<TypeEnum> typesAdapter;
 	private DatePicker date = null;
 	private TimePicker time = null;
 	private Spinner task = null;
