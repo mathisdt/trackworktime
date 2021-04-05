@@ -44,8 +44,6 @@ import java.util.Map.Entry;
 
 /**
  * Creates CSV reports from events.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class CsvGenerator {
 

@@ -29,8 +29,6 @@ import java.util.Map;
 
 /**
  * Manages vibration alarms.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class ExternalNotificationManager {
 

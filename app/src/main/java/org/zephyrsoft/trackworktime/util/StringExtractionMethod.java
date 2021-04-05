@@ -17,8 +17,6 @@ package org.zephyrsoft.trackworktime.util;
 
 /**
  * Represents a method how the {@link FlexibleArrayAdapter} extracts the text from an object.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public interface StringExtractionMethod<T> {
 

@@ -57,8 +57,6 @@ import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
 
 /**
  * Manages the time tracking.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class TimerManager {
 

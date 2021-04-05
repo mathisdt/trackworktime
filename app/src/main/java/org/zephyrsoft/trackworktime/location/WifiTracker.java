@@ -31,8 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Enables the tracking of work time by presence at a specific wifi ssid. This is an addition to the manual tracking,
  * not a replacement: you can still clock in and out manually.
- * 
- * @author Christoph Loewe
  */
 public class WifiTracker implements WifiScanner.WifiScanListener {
 

@@ -28,8 +28,6 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
  * Also handles actions triggered directly from the notification of TWT.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class ThirdPartyReceiver extends BroadcastReceiver {
 

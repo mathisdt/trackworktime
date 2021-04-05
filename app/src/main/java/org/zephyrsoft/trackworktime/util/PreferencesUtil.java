@@ -26,8 +26,6 @@ import java.util.Set;
 
 /**
  * Helper class for handling {@link SharedPreferences}.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class PreferencesUtil {
 

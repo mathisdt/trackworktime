@@ -22,7 +22,6 @@ import org.zephyrsoft.trackworktime.database.DAO;
  * Data class for an event.
  * 
  * @see DAO
- * @author Mathis Dirksen-Thedens
  */
 public class Event extends Base implements Comparable<Event> {
 	private Integer id = null;

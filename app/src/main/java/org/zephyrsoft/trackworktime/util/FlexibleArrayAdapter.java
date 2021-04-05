@@ -27,8 +27,6 @@ import android.widget.TextView;
 
 /**
  * An {@link ArrayAdapter} which lets you choose a way to get the text from the object to display.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class FlexibleArrayAdapter<T> extends ArrayAdapter<T> {
 

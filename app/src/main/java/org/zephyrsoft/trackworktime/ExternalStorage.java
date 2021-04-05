@@ -27,8 +27,6 @@ import java.io.FileOutputStream;
 
 /**
  * Can manage directories and files on external storage.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class ExternalStorage {
 	private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");

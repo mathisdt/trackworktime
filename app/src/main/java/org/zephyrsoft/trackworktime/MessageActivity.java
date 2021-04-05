@@ -27,8 +27,6 @@ import org.zephyrsoft.trackworktime.databinding.MessageBinding;
 
 /**
  * Activity for showing a message to the user.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class MessageActivity extends AppCompatActivity implements OnClickListener {
 

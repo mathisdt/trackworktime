@@ -41,8 +41,6 @@ import static org.threeten.bp.temporal.TemporalAdjusters.lastDayOfMonth;
 
 /**
  * Calculates the actual work times from events.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class TimeCalculator {
 

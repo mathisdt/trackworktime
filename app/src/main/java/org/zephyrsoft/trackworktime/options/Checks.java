@@ -27,8 +27,6 @@ import java.util.Set;
 
 /**
  * Container of all checks.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class Checks {
 

@@ -19,8 +19,6 @@ import androidx.annotation.NonNull;
 
 /**
  * The possible event types - clock in or clock out.
- *
- * @author Mathis Dirksen-Thedens
  */
 public enum TargetEnum {
 

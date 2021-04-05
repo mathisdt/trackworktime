@@ -20,8 +20,6 @@ import org.threeten.bp.LocalDate;
 
 /**
  * Data class for a week.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class Week extends Base implements Comparable<Week> {
 	private final LocalDate startDay;

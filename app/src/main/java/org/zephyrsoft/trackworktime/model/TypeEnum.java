@@ -20,8 +20,6 @@ import java.util.List;
 
 /**
  * The possible event types - clock in or clock out.
- *
- * @author Mathis Dirksen-Thedens
  */
 public enum TypeEnum {
 

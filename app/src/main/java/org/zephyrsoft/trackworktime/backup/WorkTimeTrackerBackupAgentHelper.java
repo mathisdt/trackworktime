@@ -22,9 +22,6 @@ import android.app.backup.SharedPreferencesBackupHelper;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
-/**
- * @author Peter Rosenberg
- */
 @TargetApi(Build.VERSION_CODES.FROYO)
 public class WorkTimeTrackerBackupAgentHelper extends BackupAgentHelper {
 	// A key to uniquely identify the set of backup data

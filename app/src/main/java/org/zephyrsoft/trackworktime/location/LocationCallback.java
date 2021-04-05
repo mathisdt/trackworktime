@@ -17,8 +17,6 @@ package org.zephyrsoft.trackworktime.location;
 
 /**
  * Location-getting callback hook (as closures are not there yet).
- * 
- * @author Mathis Dirksen-Thedens
  */
 public interface LocationCallback {
 

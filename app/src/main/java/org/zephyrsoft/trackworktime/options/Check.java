@@ -19,8 +19,6 @@ import android.content.SharedPreferences;
 
 /**
  * A check tests if a logical constraint holds. This constraint can involve multiple preferences.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public abstract class Check {
 

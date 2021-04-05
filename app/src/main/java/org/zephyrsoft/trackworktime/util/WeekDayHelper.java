@@ -22,8 +22,6 @@ import java.util.Locale;
 
 /**
  * Utilities for handling week days.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class WeekDayHelper {
 

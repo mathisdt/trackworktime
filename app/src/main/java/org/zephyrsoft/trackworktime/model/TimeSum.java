@@ -19,8 +19,6 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 /**
  * Holds a total amount of time without any reference to when this time was. Doesn't have to be positive.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class TimeSum {
 

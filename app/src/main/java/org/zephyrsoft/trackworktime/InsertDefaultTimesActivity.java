@@ -34,8 +34,6 @@ import java.util.List;
 
 /**
  * Activity for managing the events of a week.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class InsertDefaultTimesActivity extends AppCompatActivity {
 

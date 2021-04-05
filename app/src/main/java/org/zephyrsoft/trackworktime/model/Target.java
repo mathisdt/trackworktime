@@ -23,7 +23,6 @@ import static org.threeten.bp.format.DateTimeFormatter.ISO_LOCAL_DATE;
 /**
  * Data class for an event.
  *
- * @author dliw
  * @see DAO
  */
 public class Target extends Base implements Comparable<Target> {

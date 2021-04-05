@@ -21,7 +21,6 @@ import org.zephyrsoft.trackworktime.database.DAO;
  * Data class for a task.
  * 
  * @see DAO
- * @author Mathis Dirksen-Thedens
  */
 public class Task extends Base implements Comparable<Task> {
 	private Integer id = null;

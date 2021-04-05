@@ -31,8 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The background service providing the location-based tracking without having the activity open.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class LocationTrackerService extends Service {
 

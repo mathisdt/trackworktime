@@ -57,8 +57,6 @@ import static org.acra.ReportField.USER_CRASH_DATE;
 
 /**
  * Application entry point.
- * 
- * @author Mathis Dirksen-Thedens
  */
 @AcraCore(reportFormat = StringFormat.JSON,
 	reportContent = {

@@ -47,8 +47,6 @@ import java.util.Locale;
 
 /**
  * Activity for managing the events of a week.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class TargetEditActivity extends AppCompatActivity
 		implements OnDateChangedListener, OnTimeChangedListener, OnItemSelectedListener {

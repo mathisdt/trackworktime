@@ -22,8 +22,6 @@ import org.pmw.tinylog.Logger;
 
 /**
  * ACRA logger for also collecting crash stack traces to the app's log file.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class TinylogAndLogcatLogger implements ACRALog {
     @Override

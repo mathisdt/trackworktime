@@ -29,8 +29,6 @@ import org.pmw.tinylog.Logger;
  * 1: used only in development.
  * 2: initial layout, since 0.5.0.
  * 3: added column "default" in task table, since 0.5.12.
- *
- * @author Mathis Dirksen-Thedens
  */
 @SuppressWarnings("SyntaxError")
 public class MySQLiteHelper extends SQLiteOpenHelper {

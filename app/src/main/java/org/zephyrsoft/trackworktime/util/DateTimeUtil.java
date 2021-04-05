@@ -32,8 +32,6 @@ import java.util.Locale;
 
 /**
  * Utility class for handling dates and times.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);

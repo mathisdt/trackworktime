@@ -23,8 +23,6 @@ import org.zephyrsoft.trackworktime.location.LocationTrackerService;
 
 /**
  * Watchdog, e.g. for {@link LocationTrackerService}. It gets periodic intents scheduled by {@link Basics}.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class Watchdog extends BroadcastReceiver {
 

@@ -31,8 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The background service providing the wifi-based tracking without having the activity open.
- *
- * @author Christoph Loewe
  */
 public class WifiTrackerService extends Service {
 

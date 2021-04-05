@@ -61,8 +61,6 @@ import java.util.Map;
 
 /**
  * Activity for managing the events of a week.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class EventListActivity extends AppCompatActivity {
 

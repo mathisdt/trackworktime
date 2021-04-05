@@ -20,8 +20,6 @@ import androidx.core.content.FileProvider;
 /**
  * Extend FileProvider to make sure our FileProvider doesn't conflict with any FileProviders declared
  * in imported dependencies as described at https://commonsware.com/blog/2017/06/27/fileprovider-libraries.html
- *
- * @author Mathis Dirksen-Thedens
  */
 public class GenericFileProvider extends FileProvider {
     // do nothing different than the extended class

@@ -69,8 +69,6 @@ import java.util.Calendar;
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
  * tracking is enabled) and/or the wifi-based tracking service. Also schedules periodic intents for {@link Watchdog}
  * which in turn checks if {@link LocationTrackerService} needs to be (re-)started.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class Basics extends BroadcastReceiver {
 

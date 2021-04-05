@@ -22,7 +22,6 @@ import org.zephyrsoft.trackworktime.database.DAO;
 /**
  * Data class for an event.
  *
- * @author dliw
  * @see DAO
  */
 public class CalcCacheEntry extends Base implements Comparable<CalcCacheEntry> {

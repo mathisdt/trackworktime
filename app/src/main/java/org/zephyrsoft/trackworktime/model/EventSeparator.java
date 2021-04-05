@@ -17,8 +17,6 @@ package org.zephyrsoft.trackworktime.model;
 
 /**
  * Separator for event lists.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class EventSeparator extends Event {
 

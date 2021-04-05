@@ -37,9 +37,6 @@ import android.os.ParcelFileDescriptor;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 
-/**
- * @author Peter Rosenberg
- */
 @TargetApi(Build.VERSION_CODES.FROYO)
 public class DbBackupHelper implements BackupHelper {
 	private static final String KEY_EVENTS = "db_events";

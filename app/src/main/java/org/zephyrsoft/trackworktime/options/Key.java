@@ -22,8 +22,6 @@ import java.util.Set;
 
 /**
  * Central holder for all keys which are defined in XML files but have to be used in Java code.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public enum Key {
 

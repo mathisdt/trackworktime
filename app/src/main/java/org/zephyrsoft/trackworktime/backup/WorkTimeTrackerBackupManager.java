@@ -25,9 +25,6 @@ import android.preference.PreferenceManager;
 
 import org.zephyrsoft.trackworktime.R;
 
-/**
- * @author Peter Rosenberg
- */
 public class WorkTimeTrackerBackupManager {
 	private final String prefKeyBackupEnabled;
 	private static final String TIMESTAMP_BACKUP_KEY = "timestamp_backup";

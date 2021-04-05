@@ -17,8 +17,6 @@ package org.zephyrsoft.trackworktime.model;
 
 /**
  * Range for which a {@link TimeSum} is valid / should be calculated.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public enum PeriodEnum {
 	/** only one day */

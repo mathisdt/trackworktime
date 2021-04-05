@@ -19,8 +19,6 @@ import org.zephyrsoft.trackworktime.R;
 
 /**
  * Available methods of automatically tracking work time.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public enum TrackingMethod {
 

@@ -26,7 +26,6 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
  * Data types for the options.
  * 
  * @see Key
- * @author Mathis Dirksen-Thedens
  */
 public enum DataType {
 

@@ -44,8 +44,6 @@ import java.util.List;
 
 /**
  * Activity for managing the events of a week.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class EventEditActivity extends AppCompatActivity implements OnDateChangedListener, OnTimeChangedListener {
 

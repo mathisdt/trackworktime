@@ -38,8 +38,6 @@ import java.util.List;
 /**
  * Activity for managing the tasks that the user can select. A task can be deleted if no reference to it exists, but it
  * can be deactivated even if references exist. Deactivated tasks are not shown in the dropdown list on the main screen.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class TaskListActivity extends AppCompatActivity {
 

@@ -18,8 +18,6 @@ package org.zephyrsoft.trackworktime.util;
 /**
  * Identifies the separators in a list. As this interface extends {@link StringExtractionMethod}, it can also extract
  * the text of the separators.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public interface SeparatorIdentificationMethod<T> extends StringExtractionMethod<T> {
 

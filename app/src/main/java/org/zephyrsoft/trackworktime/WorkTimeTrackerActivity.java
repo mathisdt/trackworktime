@@ -83,8 +83,6 @@ import static java.lang.Math.abs;
 
 /**
  * Main activity of the application.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class WorkTimeTrackerActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {

@@ -33,8 +33,6 @@ import android.os.Bundle;
 /**
  * Enables the tracking of work time by presence at a specific location. This is an addition to the manual tracking, not
  * a replacement: you can still clock in and out manually.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class LocationTracker implements LocationListener {
 

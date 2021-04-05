@@ -96,8 +96,6 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ORDERING
  * provide a sum so that not all events have to be read to calculate the flexi time).
  *
  * This class is thread safe.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class DAO {
 

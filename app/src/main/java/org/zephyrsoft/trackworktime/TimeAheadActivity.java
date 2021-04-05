@@ -24,8 +24,6 @@ import org.zephyrsoft.trackworktime.databinding.TimeAheadBinding;
 
 /**
  * Activity for querying the amount of time which the new event should be pre-dated.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class TimeAheadActivity extends AppCompatActivity {
 

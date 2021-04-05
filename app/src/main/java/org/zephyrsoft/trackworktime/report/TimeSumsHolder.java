@@ -22,8 +22,6 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 
 /**
  * Holds the data for reporting.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class TimeSumsHolder implements Comparable<TimeSumsHolder> {
 

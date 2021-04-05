@@ -34,7 +34,6 @@ import java.text.MessageFormat;
  * 
  * @see <a
  *      href="http://www.techrepublic.com/blog/app-builder/a-reusable-about-dialog-for-your-android-apps/504">blog&nbsp;post</a>
- * @author Mathis Dirksen-Thedens
  */
 public class AboutActivity extends AppCompatActivity {
 

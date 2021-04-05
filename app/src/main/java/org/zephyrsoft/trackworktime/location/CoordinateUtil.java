@@ -19,8 +19,6 @@ import java.math.BigDecimal;
 
 /**
  * Helper for handling geo-coordinates.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class CoordinateUtil {
 

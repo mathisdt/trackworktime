@@ -17,8 +17,6 @@ package org.zephyrsoft.trackworktime;
 
 /**
  * Constants for the app.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class Constants {
 

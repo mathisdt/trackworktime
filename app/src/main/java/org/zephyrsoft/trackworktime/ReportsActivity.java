@@ -43,8 +43,6 @@ import java.util.Map;
 
 /**
  * Reports dialog.
- *
- * @author Mathis Dirksen-Thedens
  */
 public class ReportsActivity extends AppCompatActivity {
 
