@@ -103,7 +103,7 @@ public class EventListActivity extends AppCompatActivity {
 		long epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
 		if (epochDay >= 0) {
 			week = new Week(epochDay);
-		} else if (savedInstanceState.containsKey(BUNDLE_KEY_WEEK_START_DATE)) {
+		} else if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_KEY_WEEK_START_DATE)) {
 			Logger.debug("using week from bundle");
 			week = new Week(savedInstanceState.getLong(BUNDLE_KEY_WEEK_START_DATE));
 		} else {
