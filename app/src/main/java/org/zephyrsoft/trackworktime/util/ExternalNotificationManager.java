@@ -23,6 +23,7 @@ import com.getpebble.android.kit.PebbleKit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,19 +54,23 @@ public class ExternalNotificationManager {
 	}
 
 	public void notifyPebble(String message) {
-		if (PebbleKit.isWatchConnected(context)) {
-			final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
+		try {
+			if (PebbleKit.isWatchConnected(context)) {
+				final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
-			final Map<String, String> data = new HashMap<>();
-			data.put("title", "Track Work Time");
-			data.put("body", message);
-			final JSONObject jsonData = new JSONObject(data);
-			final String notificationData = new JSONArray().put(jsonData).toString();
+				final Map<String, String> data = new HashMap<>();
+				data.put("title", "Track Work Time");
+				data.put("body", message);
+				final JSONObject jsonData = new JSONObject(data);
+				final String notificationData = new JSONArray().put(jsonData).toString();
 
-			i.putExtra("messageType", "PEBBLE_ALERT");
-			i.putExtra("sender", "PebbleKit Android");
-			i.putExtra("notificationData", notificationData);
-			context.sendBroadcast(i);
+				i.putExtra("messageType", "PEBBLE_ALERT");
+				i.putExtra("sender", "PebbleKit Android");
+				i.putExtra("notificationData", notificationData);
+				context.sendBroadcast(i);
+			}
+		} catch (Exception e) {
+			Logger.warn(e, "problem while notifying via Pebble");
 		}
 	}
 }
