@@ -17,7 +17,9 @@ package org.zephyrsoft.trackworktime.model;
 
 import androidx.annotation.NonNull;
 
-public final class Report {
+import java.io.Serializable;
+
+public final class Report implements Serializable {
 	private final String name;
 	private final String data;
 
