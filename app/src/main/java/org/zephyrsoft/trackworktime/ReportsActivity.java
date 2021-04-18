@@ -34,6 +34,7 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
+import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
@@ -70,7 +71,38 @@ public class ReportsActivity extends AppCompatActivity {
 			binding.unitYear.setEnabled(!isChecked);
 		});
 
+		binding.reportPreview.setOnClickListener(v -> preview());
 		binding.reportExport.setOnClickListener(v -> export());
+	}
+
+	private void preview() {
+		Report report;
+		switch (binding.grouping.getCheckedRadioButtonId()) {
+			case R.id.groupingNone:
+				report = createReportForAllEvents();
+				break;
+			case R.id.groupingByTask:
+				report = createReportForTimesByTask();
+				break;
+			case R.id.groupingByTaskPerDay:
+				report = createReportForTimesByTaskPerDay();
+				break;
+			case R.id.groupingByTaskPerWeek:
+				report = createReportForTimesByTaskPerWeek();
+				break;
+			case R.id.groupingByTaskPerMonth:
+				report = createReportForTimesByTaskPerMonth();
+				break;
+			default:
+				throw new RuntimeException("Grouping not implemented");
+		}
+
+		if (report == null) {
+			return;
+		}
+
+		Intent intent = ReportPreviewActivity.createIntent(this, report);
+		startActivity(intent);
 	}
 
 	private void export() {

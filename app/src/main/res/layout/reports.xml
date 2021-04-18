@@ -129,12 +129,28 @@
                 android:text="@string/eventGroupingByTaskPerMonth"/>
         </RadioGroup>
 
-        <Button
-            android:id="@+id/reportExport"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="@string/export" />
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:id="@+id/reportPreview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/preview" />
+
+            <Button
+                android:id="@+id/reportExport"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/export" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

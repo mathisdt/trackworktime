@@ -157,6 +157,7 @@
     <string name="eventGroupingByTaskPerDay">Times by Task (daily)</string>
     <string name="eventGroupingByTaskPerWeek">Times by Task (weekly)</string>
     <string name="eventGroupingByTaskPerMonth">Times by Task (monthly)</string>
+    <string name="preview">Preview</string>
     <string name="export">Export</string>
     <string name="notificationUsesFlexiTimeAsTarget">use flexi time 0:00 as target</string>
     <string name="notificationFlexiTimeDescription">reduce weekly target by flexi overtime</string>
