@@ -28,11 +28,13 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ReportsBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Range;
+import org.zephyrsoft.trackworktime.model.Report;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
+import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
@@ -69,7 +71,38 @@ public class ReportsActivity extends AppCompatActivity {
 			binding.unitYear.setEnabled(!isChecked);
 		});
 
+		binding.reportPreview.setOnClickListener(v -> preview());
 		binding.reportExport.setOnClickListener(v -> export());
+	}
+
+	private void preview() {
+		Report report;
+		switch (binding.grouping.getCheckedRadioButtonId()) {
+			case R.id.groupingNone:
+				report = createReportForAllEvents();
+				break;
+			case R.id.groupingByTask:
+				report = createReportForTimesByTask();
+				break;
+			case R.id.groupingByTaskPerDay:
+				report = createReportForTimesByTaskPerDay();
+				break;
+			case R.id.groupingByTaskPerWeek:
+				report = createReportForTimesByTaskPerWeek();
+				break;
+			case R.id.groupingByTaskPerMonth:
+				report = createReportForTimesByTaskPerMonth();
+				break;
+			default:
+				throw new RuntimeException("Grouping not implemented");
+		}
+
+		if (report == null) {
+			return;
+		}
+
+		Intent intent = ReportPreviewActivity.createIntent(this, report);
+		startActivity(intent);
 	}
 
 	private void export() {
@@ -95,6 +128,24 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private void exportAllEvents() {
+		Report report = createReportForAllEvents();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"events-" + name.replaceAll(" ", "-"),
+			data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForAllEvents() {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
@@ -105,12 +156,23 @@ public class ReportsActivity extends AppCompatActivity {
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTask() {
+		Report report = createReportForTimesByTask();
+		if (report == null) {
 			return;
 		}
 
-		boolean success = saveAndSendReport(reportName,
-			"events-" + reportName.replaceAll(" ", "-"),
-			report);
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"sums-" + name.replaceAll(" ", "-"),
+			data);
 
 		if (success) {
 			// close this dialog
@@ -118,7 +180,7 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private void exportTimesByTask() {
+	private Report createReportForTimesByTask() {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
@@ -130,12 +192,23 @@ public class ReportsActivity extends AppCompatActivity {
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTaskPerDay() {
+		Report report = createReportForTimesByTaskPerDay();
+		if (report == null) {
 			return;
 		}
 
-		boolean success = saveAndSendReport(reportName,
-			"sums-" + reportName.replaceAll(" ", "-"),
-			report);
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+				"sums-per-day-" + name.replaceAll(" ", "-"),
+				data);
 
 		if (success) {
 			// close this dialog
@@ -143,7 +216,7 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private void exportTimesByTaskPerDay() {
+	private Report createReportForTimesByTaskPerDay() {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
@@ -156,12 +229,23 @@ public class ReportsActivity extends AppCompatActivity {
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTaskPerWeek() {
+		Report report = createReportForTimesByTaskPerWeek();
+		if (report == null) {
 			return;
 		}
 
-		boolean success = saveAndSendReport(reportName,
-				"sums-per-day-" + reportName.replaceAll(" ", "-"),
-				report);
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"sums-per-week-" + name.replaceAll(" ", "-"),
+			data);
 
 		if (success) {
 			// close this dialog
@@ -169,25 +253,36 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private void exportTimesByTaskPerWeek() {
+	private Report createReportForTimesByTaskPerWeek() {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
 		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
 		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
-			beginAndEnd[1]);
+				beginAndEnd[1]);
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTaskPerMonth() {
+		Report report = createReportForTimesByTaskPerMonth();
+		if (report == null) {
 			return;
 		}
 
-		boolean success = saveAndSendReport(reportName,
-			"sums-per-week-" + reportName.replaceAll(" ", "-"),
-			report);
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"sums-per-month-" + name.replaceAll(" ", "-"),
+			data);
 
 		if (success) {
 			// close this dialog
@@ -195,30 +290,23 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private void exportTimesByTaskPerMonth() {
+	private Report createReportForTimesByTaskPerMonth() {
 		Range selectedRange = getSelectedRange();
 		Unit selectedUnit = getSelectedUnit();
 
 		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
 		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
-			beginAndEnd[1]);
+				beginAndEnd[1]);
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
-			return;
+			return null;
 		}
 
-		boolean success = saveAndSendReport(reportName,
-			"sums-per-month-" + reportName.replaceAll(" ", "-"),
-			report);
-
-		if (success) {
-			// close this dialog
-			finish();
-		}
+		return new Report(reportName, report);
 	}
 
 	private Map<ZonedDateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<ZonedDateTime> rangeBeginnings, ZonedDateTime end) {

@@ -143,6 +143,7 @@
             android:exported="false"
             android:label="Debug" >
         </activity>
+        <activity android:name=".report.ReportPreviewActivity" />
     </application>
 
 </manifest>
