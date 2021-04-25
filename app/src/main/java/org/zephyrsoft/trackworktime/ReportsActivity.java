@@ -16,11 +16,15 @@
 package org.zephyrsoft.trackworktime;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.ZonedDateTime;
@@ -33,6 +37,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
@@ -42,6 +47,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.view.View.NO_ID;
 
 /**
  * Reports dialog.
@@ -53,6 +60,21 @@ public class ReportsActivity extends AppCompatActivity {
 	private DAO dao;
 	private TimeCalculator timeCalculator;
 	private CsvGenerator csvGenerator;
+	private SharedPreferences preferences;
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		saveSelectionState();
+	}
+
+	private void saveSelectionState() {
+		preferences.edit()
+				.putInt(Key.REPORT_LAST_RANGE.getName(), binding.range.getCheckedRadioButtonId())
+				.putInt(Key.REPORT_LAST_UNIT.getName(), binding.unit.getCheckedRadioButtonId())
+				.putInt(Key.REPORT_LAST_GROUPING.getName(), binding.grouping.getCheckedRadioButtonId())
+				.apply();
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +83,7 @@ public class ReportsActivity extends AppCompatActivity {
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
 		csvGenerator = new CsvGenerator(dao);
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		binding = ReportsBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -73,6 +96,30 @@ public class ReportsActivity extends AppCompatActivity {
 
 		binding.reportPreview.setOnClickListener(v -> preview());
 		binding.reportExport.setOnClickListener(v -> export());
+
+		restoreSelectionState();
+	}
+
+	private void restoreSelectionState() {
+		int rangeId = loadSelectedId(Key.REPORT_LAST_RANGE);
+		checkRadioGroup(binding.range, rangeId);
+
+		int unitId = loadSelectedId(Key.REPORT_LAST_UNIT);
+		checkRadioGroup(binding.unit, unitId);
+
+		int groupingId = loadSelectedId(Key.REPORT_LAST_GROUPING);
+		checkRadioGroup(binding.grouping, groupingId);
+	}
+
+	private int loadSelectedId(Key key) {
+		return preferences.getInt(key.getName(), NO_ID);
+	}
+
+	private void checkRadioGroup(RadioGroup group, int idToCheck) {
+		if (idToCheck == NO_ID) {
+			return;
+		}
+		group.check(idToCheck);
 	}
 
 	private void preview() {

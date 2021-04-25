@@ -24,6 +24,7 @@
             android:orientation="horizontal" >
 
             <RadioGroup
+                android:id="@+id/range"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -56,6 +57,7 @@
             </RadioGroup>
 
             <RadioGroup
+                android:id="@+id/unit"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
