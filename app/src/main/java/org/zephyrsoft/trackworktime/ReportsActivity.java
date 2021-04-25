@@ -116,7 +116,7 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private void checkRadioGroup(RadioGroup group, int idToCheck) {
-		if (idToCheck == NO_ID) {
+		if (idToCheck == NO_ID || group.findViewById(idToCheck) == null) {
 			return;
 		}
 		group.check(idToCheck);
