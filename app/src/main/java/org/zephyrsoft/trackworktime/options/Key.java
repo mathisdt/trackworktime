@@ -77,7 +77,11 @@ public enum Key {
 
 	AUTOMATIC_TRACKING_METHODS_GENERATE_EVENTS_SEPARATELY(
 		"keyEachTrackingMethodGeneratesEventsSeparately", DataType.BOOLEAN, null,
-		R.string.methodsGenerateEventsSeparately);
+		R.string.methodsGenerateEventsSeparately),
+
+	REPORT_LAST_RANGE("keyReportLastUsedRange", DataType.INTEGER, null, null),
+	REPORT_LAST_UNIT("keyReportLastUsedUnit", DataType.INTEGER, null, null),
+	REPORT_LAST_GROUPING("keyReportLastUsedGrouping", DataType.INTEGER, null, null);
 
 	private final String name;
 	private final DataType dataType;
