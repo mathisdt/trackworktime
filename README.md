@@ -19,16 +19,13 @@ You may provide the **geo-coordinates** or the **Wi-Fi network name** of your wo
 **automatically clock you in** while you are at work. This is done **without using GPS**, so your battery won't
 be emptied by this app. (You don't have to be connected to the WiFi network at work, it just has to be visible.)
 
-If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - **TWT can be
-triggered from other apps** and just do the book-keeping of your work time. In this case, you have to create
-broadcast intents called *org.zephyrsoft.trackworktime.ClockIn* or *org.zephyrsoft.trackworktime.ClockOut*.
+If you prefer to use other apps like LlamaLab Automate or Tasker for tracking your movements, that's fine - **TWT can
+be triggered from other apps** and just do the book-keeping of your work time. In this case, you have to create
+broadcast intents with the action *org.zephyrsoft.trackworktime.ClockIn* or *org.zephyrsoft.trackworktime.ClockOut*.
 When using ClockIn, you can also set the parameters *task=...* and *text=...* in the "extra" section of
-the intent so your events are more meaningful. Here are some screenshots to point out how it can be done:
-Llama: [Overview](https://zephyrsoft.org/images/llama-1.png),
-[Detail 1](https://zephyrsoft.org/images/llama-2-detail-1.png),
-[Detail 2](https://zephyrsoft.org/images/llama-3-detail-2.png) /
-Tasker: [Detail 1](https://zephyrsoft.org/images/tasker-1.png),
-[Detail 2](https://zephyrsoft.org/images/tasker-2.png).
+the intent so your events are more meaningful. Here are some screenshots to point out how it can be done in Automate:
+[Flow overview](https://zephyrsoft.org/images/automate-1.png),
+["Broadcast send" block arguments](https://zephyrsoft.org/images/automate-2.png).
 
 If you have a **Pebble** smart watch, the app will notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.
@@ -49,7 +46,7 @@ if so, it will be kept strictly confidential and only used to identify the probl
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
-
+  
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
 **This is an open source project**, so if there's something you don't like, you are very welcome to
