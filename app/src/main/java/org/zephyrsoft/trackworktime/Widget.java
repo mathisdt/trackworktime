@@ -31,7 +31,9 @@ import androidx.core.content.ContextCompat;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
+import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
+import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
@@ -43,6 +45,7 @@ public class Widget extends AppWidgetProvider {
 	private AppWidgetManager manager;
 	private RemoteViews views;
 	private TimerManager timerManager;
+	private DAO dao;
 	private int[] widgetIds;
 	private Integer currentWidgetId;
 
@@ -84,6 +87,7 @@ public class Widget extends AppWidgetProvider {
 		this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
 		Basics basics = Basics.getOrCreateInstance(context.getApplicationContext());
 		this.timerManager = basics.getTimerManager();
+		this.dao = basics.getDao();
 	}
 
 	private void clean() {
@@ -93,6 +97,7 @@ public class Widget extends AppWidgetProvider {
 		widgetIds = null;
 		currentWidgetId = null;
 		timerManager = null;
+		dao = null;
 	}
 
 	private void updateWidgets() {
@@ -125,12 +130,18 @@ public class Widget extends AppWidgetProvider {
 		String text = getString(textRes);
 		int viewId = R.id.clockIn;
 		views.setTextViewText(viewId, text);
-		PendingIntent intent = createIntentForAction(Constants.CLOCK_IN_ACTION);
+		Integer taskId = getDefaultTaskId();
+		PendingIntent intent = createIntentForAction(Constants.CLOCK_IN_ACTION, taskId);
 		views.setOnClickPendingIntent(viewId, intent);
 	}
 
+	private Integer getDefaultTaskId() {
+		Task task = dao.getDefaultTask();
+		return task == null ? null : task.getId();
+	}
+
 	private void updateClockOutBtn() {
-		PendingIntent intent = createIntentForAction(Constants.CLOCK_OUT_ACTION);
+		PendingIntent intent = createIntentForAction(Constants.CLOCK_OUT_ACTION, null);
 		int viewId = R.id.clockOut;
 		views.setOnClickPendingIntent(viewId, intent);
 
@@ -149,9 +160,10 @@ public class Widget extends AppWidgetProvider {
 		return timerManager.isTracking();
 	}
 
-	private PendingIntent createIntentForAction(String action) {
+	private PendingIntent createIntentForAction(String action, Integer taskId) {
 		Intent intent = new Intent(context, ThirdPartyReceiver.class);
 		intent.setAction(action);
+		intent.putExtra(Constants.INTENT_EXTRA_TASK, taskId);
 		return PendingIntent.getBroadcast(context, 0, intent, 0);
 	}
 
