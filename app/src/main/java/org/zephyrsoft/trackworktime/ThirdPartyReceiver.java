@@ -22,6 +22,7 @@ import android.os.Bundle;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.OffsetDateTime;
+import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 
@@ -38,6 +39,10 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 
 		if (action != null && action.equals(Constants.CLOCK_IN_ACTION)) {
 			Integer taskId = getTaskId(context, extras);
+			if (taskId == null) {
+				taskId = getDefaultTaskId(context);
+			}
+
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
 			Basics.getOrCreateInstance(context).getTimerManager().createEvent(OffsetDateTime.now(),
@@ -88,6 +93,12 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			return taskId;
 		}
 		return null;
+	}
+
+	private static Integer getDefaultTaskId(Context context) {
+		DAO dao = Basics.getOrCreateInstance(context).getDao();
+		Task task = dao.getDefaultTask();
+		return task == null ? null : task.getId();
 	}
 
 	private static String getText(Bundle extras) {
