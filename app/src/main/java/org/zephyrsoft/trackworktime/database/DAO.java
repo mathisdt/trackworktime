@@ -61,6 +61,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -107,6 +108,7 @@ public class DAO {
 	private final WorkTimeTrackerBackupManager backupManager;
 
 	private static final DateTimeFormatter LOCAL_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final Pattern RESTORE_PATTERN = Pattern.compile(";");
 
 	/**
 	 * Constructor
@@ -754,7 +756,7 @@ public class DAO {
         final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
 
 		while ((line = reader.readLine()) != null) {
-            final String[] columns = line.split("[;\t]");
+            final String[] columns = RESTORE_PATTERN.split(line, -1);
             try {
                 if (columns.length > 8 && columns[INDEX_TASK_ID].length() > 0) {
                     final int taskId = Integer.parseInt(columns[INDEX_TASK_ID]);
@@ -770,7 +772,7 @@ public class DAO {
                         args.put(MySQLiteHelper.TASK_ID, taskId);
                         db.insert(TASK, null, args);
                     }
-                }
+				}
 
                 if (columns.length > 2 && columns[INDEX_EVENT_TYPE].length() > 0) {
 					OffsetDateTime dateTime = parseOffsetDateTime(timerManager, columns[INDEX_EVENT_TIME]);
@@ -967,7 +969,6 @@ public class DAO {
 
 			String targetComment = cur.getString(targetTextCol);
 			buf.append(targetComment == null ? "" : targetComment);
-			buf.append(";");
 			buf.append(eol);
 
 			writer.write(buf.toString());
@@ -988,7 +989,7 @@ public class DAO {
 		reader.readLine();	// skip header
 		String line;
 		while ((line = reader.readLine()) != null) {
-			final String[] columns = line.split("[;\t]");
+			final String[] columns = RESTORE_PATTERN.split(line, -1);
 
 			try {
 				if (columns.length >= 4 && columns[INDEX_TARGET_TIME].length() > 0) {
@@ -1001,6 +1002,8 @@ public class DAO {
 					);
 					final ContentValues args = targetToContentValues(target);
 					db.insert(TARGET, null, args);
+				} else {
+					Logger.debug("could not restore target line: {}", line);
 				}
 			} catch (NumberFormatException e) {
 				// ignore rest of current row
