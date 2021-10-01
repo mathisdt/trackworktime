@@ -22,6 +22,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.chrono.IsoChronology;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.FormatStyle;
@@ -42,6 +43,21 @@ public class DateTimeUtil {
 			.appendLiteral(", ")
 			.appendLocalized(FormatStyle.SHORT, null)
 			.toFormatter();
+
+	/** E.g. Fri, 12.9 */
+	private static final DateTimeFormatter LOCALIZED_DAY_AND_SHORT_DATE =
+			createLocalizedDayAndShortDateFormat();
+
+	private static DateTimeFormatter createLocalizedDayAndShortDateFormat() {
+		String shortDate = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+				FormatStyle.SHORT,
+				null,
+				IsoChronology.INSTANCE,
+				Locale.getDefault()
+		).replaceAll("[ /.-]? *[yY]+ *[ 年/.-]?", ""); // Remove year and year-separators
+		String pattern = "eee, " + shortDate;
+		return DateTimeFormatter.ofPattern(pattern);
+	}
 
 	/**
 	 * Determines if the given {@link LocalDateTime} is in the future.
@@ -115,6 +131,11 @@ public class DateTimeUtil {
 	 */
 	public static String formatLocalizedDayAndDate(TemporalAccessor date) {
 		String dateString = LOCALIZED_DAY_AND_DATE.format(date);
+		return StringUtils.capitalize(dateString);
+	}
+
+	public static String formatLocalizedDayAndShortDate(TemporalAccessor date) {
+		String dateString = LOCALIZED_DAY_AND_SHORT_DATE.format(date);
 		return StringUtils.capitalize(dateString);
 	}
 
