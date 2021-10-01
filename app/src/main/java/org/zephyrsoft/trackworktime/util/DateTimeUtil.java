@@ -37,7 +37,6 @@ public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static final DateTimeFormatter TIME_PRECISE = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
 			.appendPattern("eeee")
 			.appendLiteral(", ")
@@ -79,16 +78,6 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Formats a {@link LocalDateTime} to a String.
-	 *
-	 * @param dateTime the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String formatTimePrecise(LocalDateTime dateTime) {
-		return dateTime.format(TIME_PRECISE);
-	}
-
-	/**
 	 * Formats a {@link OffsetDateTime} to a String.
 	 *
 	 * @param dateTime the input (may not be null)
@@ -127,27 +116,6 @@ public class DateTimeUtil {
 	public static String formatLocalizedDayAndDate(TemporalAccessor date) {
 		String dateString = LOCALIZED_DAY_AND_DATE.format(date);
 		return StringUtils.capitalize(dateString);
-	}
-
-	/**
-	 * Formats a {@link LocalDate} to a String.
-	 *
-	 * @param date the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	@Deprecated
-	public static String dateToString(LocalDate date) {
-		return date.format(LOCALIZED_DATE);
-	}
-
-	/**
-	 * Formats a {@link LocalDate} to a String.
-	 *
-	 * @param date the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String dateToULString(LocalDate date) {
-		return date.format(DATE);
 	}
 
 	/**
