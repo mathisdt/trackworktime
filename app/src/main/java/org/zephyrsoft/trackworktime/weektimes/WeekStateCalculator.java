@@ -159,7 +159,7 @@ public class WeekStateCalculator {
 	}
 
 	private String formatTime(LocalDateTime time) {
-		return time == null ? "" : DateTimeUtil.dateTimeToHourMinuteString(time);
+		return time == null ? "" : DateTimeUtil.formatLocalizedTime(time);
 	}
 
 	private String formatSum(Long sum, String valueForZero) {

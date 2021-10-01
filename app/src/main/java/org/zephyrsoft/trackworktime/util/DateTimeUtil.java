@@ -37,7 +37,6 @@ public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static final DateTimeFormatter HOUR_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
 	private static final DateTimeFormatter TIME_PRECISE = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
 			.appendPattern("eeee")
@@ -110,13 +109,13 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Formats a {@link OffsetDateTime} to a String, containing only hours and minutes.
+	 * Formats a {@link TemporalAccessor} to a String, containing only hours and minutes.
 	 *
-	 * @param dateTime the input (may not be null)
+	 * @param temporal the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedTime(OffsetDateTime dateTime) {
-		return dateTime.format(LOCALIZED_TIME);
+	public static String formatLocalizedTime(TemporalAccessor temporal) {
+		return LOCALIZED_TIME.format(temporal);
 	}
 
 	/**
@@ -159,16 +158,6 @@ public class DateTimeUtil {
 	 */
 	public static String dateToULString(ZonedDateTime dateTime) {
 		return dateTime.format(DATE);
-	}
-
-	/**
-	 * Formats a {@link LocalDateTime} to a String which contains the hour and minute only.
-	 *
-	 * @param dateTime the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String dateTimeToHourMinuteString(LocalDateTime dateTime) {
-		return dateTime.format(HOUR_MINUTES);
 	}
 
 	/**
