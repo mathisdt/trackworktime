@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:descendantFocusability="beforeDescendants"
     android:focusable="true"
     android:focusableInTouchMode="true"
@@ -78,18 +79,15 @@
                 android:text="@string/time"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <RelativeLayout
-                android:id="@+id/dateLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <DatePicker
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:calendarViewShown="false" />
-            </RelativeLayout>
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?editTextBackground"
+                android:focusable="false"
+                android:longClickable="false"
+                tools:text="12.4.2015"
+                />
 
             <TimePicker
                 android:id="@+id/time"

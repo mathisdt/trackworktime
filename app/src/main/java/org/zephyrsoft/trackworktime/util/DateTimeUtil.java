@@ -35,6 +35,7 @@ import java.util.Locale;
  */
 public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+	private static final DateTimeFormatter LOCALIZED_DATE_SHORT = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter HOUR_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
@@ -107,6 +108,10 @@ public class DateTimeUtil {
 	 */
 	public static String formatLocalizedDate(LocalDate date) {
 		return date.format(LOCALIZED_DATE);
+	}
+
+	public static String formatLocalizedDateShort(TemporalAccessor temporal) {
+		return LOCALIZED_DATE_SHORT.format(temporal);
 	}
 
 	/**
