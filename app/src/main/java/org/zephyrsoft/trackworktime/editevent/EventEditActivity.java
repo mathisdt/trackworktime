@@ -28,6 +28,7 @@ import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
@@ -231,6 +232,16 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 
 	private void updateDatePicker(LocalDate date) {
 		dateTextViewController.setDate(date);
+
+		if (pickersAreInitialized) {
+			return;
+		}
+
+		ZoneId zone = getSelectedZone();
+		dateTextViewController.setDateLimits(
+				week.getStart().atStartOfDay(zone),
+				week.getEnd().atStartOfDay(zone)
+		);
 	}
 
 	private void updateDateAndTimePickers(ZonedDateTime dateTime) {
@@ -254,8 +265,12 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 		// DON'T get the numbers directly from the time picker, but from the variables!
 		LocalDate date = dateTextViewController.getDate();
 		return date.atTime(selectedHour, selectedMinute)
-				.atZone(binding.timeZonePicker.getZoneId())
+				.atZone(getSelectedZone())
 				.toOffsetDateTime();
+	}
+
+	private ZoneId getSelectedZone() {
+		return binding.timeZonePicker.getZoneId();
 	}
 
 }

@@ -17,6 +17,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -226,6 +227,10 @@ public class DateTimeUtil {
 		} else {
 			return String.valueOf(number);
 		}
+	}
+
+	public static long dateToEpoch(ZonedDateTime accessor) {
+		return Instant.from(accessor).toEpochMilli();
 	}
 
 	public static boolean isDurationValid(String value) {

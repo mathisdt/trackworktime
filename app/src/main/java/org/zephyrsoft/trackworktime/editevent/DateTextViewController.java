@@ -8,7 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.dateToEpoch;
 
 class DateTextViewController {
 
@@ -16,6 +19,12 @@ class DateTextViewController {
 
 	@Nullable
 	private LocalDate date;
+
+	@Nullable
+	private ZonedDateTime min;
+
+	@Nullable
+	private ZonedDateTime max;
 
 	DateTextViewController(@NonNull TextView view) {
 		this.view = view;
@@ -31,6 +40,7 @@ class DateTextViewController {
 				date.getMonthValue() - 1,
 				date.getDayOfMonth()
 		);
+		setDateLimits(dialog);
 		dialog.show();
 	}
 
@@ -47,6 +57,16 @@ class DateTextViewController {
 		setDate(newDate);
 	}
 
+	private void setDateLimits(DatePickerDialog dialog) {
+		DatePicker picker = dialog.getDatePicker();
+		if (min != null) {
+			picker.setMinDate(dateToEpoch(min));
+		}
+		if (max != null) {
+			picker.setMaxDate(dateToEpoch(max));
+		}
+	}
+
 	public void setDate(LocalDate date) {
 		String text = DateTimeUtil.formatLocalizedDateShort(date);
 		view.setText(text);
@@ -56,6 +76,14 @@ class DateTextViewController {
 	@Nullable
 	public LocalDate getDate() {
 		return date;
+	}
+
+	public void setDateLimits(
+			@Nullable ZonedDateTime minInclusive,
+			@Nullable ZonedDateTime maxInclusive
+	) {
+		min = minInclusive;
+		max = maxInclusive;
 	}
 
 }
