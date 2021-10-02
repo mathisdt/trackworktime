@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.zephyrsoft.trackworktime;
+package org.zephyrsoft.trackworktime.editevent;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -32,6 +32,10 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZonedDateTime;
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.EventListActivity;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.EventBinding;
 import org.zephyrsoft.trackworktime.model.Event;

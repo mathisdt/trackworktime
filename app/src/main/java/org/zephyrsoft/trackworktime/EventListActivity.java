@@ -44,6 +44,7 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
 import org.zephyrsoft.trackworktime.databinding.ListItemBinding;
 import org.zephyrsoft.trackworktime.databinding.ListItemSeparatorBinding;
+import org.zephyrsoft.trackworktime.editevent.EventEditActivity;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Week;

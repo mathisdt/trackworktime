@@ -92,7 +92,7 @@
             android:label="@string/edit_events" >
         </activity>
         <activity
-            android:name="EventEditActivity"
+            android:name=".editevent.EventEditActivity"
             android:exported="false"
             android:label="@string/edit_event" >
         </activity>
