@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -38,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +57,7 @@ import com.google.android.material.navigation.NavigationView;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
+import org.zephyrsoft.trackworktime.activityresultcontracts.CreateFile;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ActivityMainBinding;
@@ -64,6 +67,7 @@ import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.FileUtil;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
@@ -74,6 +78,7 @@ import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderManager;
 import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -115,6 +120,22 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private List<Task> tasks;
 	
 	private WeekAdapter weekAdapter;
+
+	private final ActivityResultLauncher<Void> EXPORT_LOGS = registerForActivityResult(
+			new CreateFile("trackworktime_logs", "text/plain"),
+			this::tryExportLogs
+	);
+
+	private void tryExportLogs(Uri uri) {
+		try {
+			File file = Basics.getInstance().getCurrentLogFile();
+			FileUtil.copy(this, file, uri);
+		} catch(IOException e) {
+			String msg = "Failed to export logs";
+			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+			Logger.error(e, msg);
+		}
+	}
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -601,6 +622,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		} else if (itemId == R.id.nav_data_restore) {
 			restoreFromSd();
 
+		} else if (itemId == R.id.nav_export_logs) {
+			exportLogs();
+
 		} else if (itemId == R.id.nav_send_logs) {
 			sendLogs();
 
@@ -687,6 +711,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		Logger.debug("showing About");
 		Intent i = new Intent(this, AboutActivity.class);
 		startActivity(i);
+	}
+
+	private void exportLogs() {
+		EXPORT_LOGS.launch(null);
 	}
 
 	private void sendLogs() {
