@@ -427,14 +427,14 @@ public class TimerManager {
 	 */
 	public static int parseHoursMinutesString(String hoursMinutes) {
 		if (hoursMinutes != null) {
-			String[] startValueArray = hoursMinutes.split("[:.]");
+			String[] startValueArray = hoursMinutes.replaceAll("[- ]", "").split("[:.]");
 			int hours = Integer.parseInt(startValueArray[0]);
 			int minutes = startValueArray.length > 1 ? Integer.parseInt(startValueArray[1]) : 0;
 
 			if (hoursMinutes.trim().startsWith("-")) {
-				return -1 * hours * 60 + minutes;
+				return -1 * (hours * 60 + minutes);
 			} else {
-				return      hours * 60 + minutes;
+				return hours * 60 + minutes;
 			}
 		}
 		return 0;
