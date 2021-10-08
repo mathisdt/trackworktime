@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -218,26 +219,35 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 	}
 
 	private void updateDateAndTimePickers(LocalDateTime dateTime) {
+		LocalTime time = dateTime.toLocalTime();
+		updateTimePicker(time);
 		updateDatePicker(dateTime.toLocalDate());
 
-		time.setCurrentHour(dateTime.getHour());
-		time.setCurrentMinute(dateTime.getMinute());
 		if (!pickersAreInitialized) {
-			time.setOnTimeChangedListener(this);
+			initTimePicker(time);
+			initDatePicker();
 			pickersAreInitialized = true;
-			// manually set the variables once:
-			selectedHour = dateTime.getHour();
-			selectedMinute = dateTime.getMinute();
 		}
+	}
+
+	private void updateTimePicker(LocalTime localTime) {
+		time.setCurrentHour(localTime.getHour());
+		time.setCurrentMinute(localTime.getMinute());
 	}
 
 	private void updateDatePicker(LocalDate date) {
 		dateTextViewController.setDate(date);
+	}
 
-		if (pickersAreInitialized) {
-			return;
-		}
+	private void initTimePicker(LocalTime localTime) {
+		time.setOnTimeChangedListener(this);
+		pickersAreInitialized = true;
+		// manually set the variables once:
+		selectedHour = localTime.getHour();
+		selectedMinute = localTime.getMinute();
+	}
 
+	private void initDatePicker() {
 		ZoneId zone = getSelectedZone();
 		dateTextViewController.setDateLimits(
 				week.getStart().atStartOfDay(zone),
