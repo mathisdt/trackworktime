@@ -13,26 +13,29 @@
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.zephyrsoft.trackworktime;
+package org.zephyrsoft.trackworktime.editevent;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
-import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.EventListActivity;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.EventBinding;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -46,19 +49,15 @@ import java.util.List;
 /**
  * Activity for managing the events of a week.
  */
-public class EventEditActivity extends AppCompatActivity implements OnDateChangedListener, OnTimeChangedListener {
+public class EventEditActivity extends AppCompatActivity implements OnTimeChangedListener {
 
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 
-	private DatePicker date = null;
 	private TimePicker time = null;
 	private Spinner task = null;
 	private EditText text = null;
 	private EventBinding binding;
-	private int selectedYear = -1;
-	private int selectedMonth = -1;
-	private int selectedDay = -1;
 	private int selectedHour = -1;
 	private int selectedMinute = -1;
 	private boolean pickersAreInitialized = false;
@@ -70,7 +69,7 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	private Event editedEvent = null;
 	private boolean newEvent = false;
 
-	private boolean noDateChangedReaction = false;
+	private DateTextViewController dateTextViewController;
 
 	@Override
 	protected void onPause() {
@@ -88,7 +87,8 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 		binding = EventBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		date = binding.date;
+		dateTextViewController = new DateTextViewController(binding.date);
+
 		time = binding.time;
 		task = binding.task;
 		text = binding.text;
@@ -104,13 +104,11 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 
 		binding.save.setOnClickListener(v -> {
             // commit all edit fields
-            date.clearFocus();
             time.clearFocus();
             text.clearFocus();
 
             // call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
             // => https://code.google.com/p/android/issues/detail?id=78861
-            onDateChanged(date, date.getYear(), date.getMonth(), date.getDayOfMonth());
             onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
 
 			// save the event
@@ -223,21 +221,40 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	}
 
 	private void updateDateAndTimePickers(LocalDateTime dateTime) {
-		time.setCurrentHour(dateTime.getHour());
-		time.setCurrentMinute(dateTime.getMinute());
-		if (pickersAreInitialized) {
-			date.updateDate(dateTime.getYear(), dateTime.getMonthValue()-1, dateTime.getDayOfMonth());
-		} else {
-			time.setOnTimeChangedListener(this);
-			date.init(dateTime.getYear(), dateTime.getMonthValue()-1, dateTime.getDayOfMonth(), this);
+		LocalTime time = dateTime.toLocalTime();
+		updateTimePicker(time);
+		updateDatePicker(dateTime.toLocalDate());
+
+		if (!pickersAreInitialized) {
+			initTimePicker(time);
+			initDatePicker();
 			pickersAreInitialized = true;
-			// manually set the variables once:
-			selectedHour = dateTime.getHour();
-			selectedMinute = dateTime.getMinute();
-			selectedYear = dateTime.getYear();
-			selectedMonth = dateTime.getMonthValue();
-			selectedDay = dateTime.getDayOfMonth();
 		}
+	}
+
+	private void updateTimePicker(LocalTime localTime) {
+		time.setCurrentHour(localTime.getHour());
+		time.setCurrentMinute(localTime.getMinute());
+	}
+
+	private void updateDatePicker(LocalDate date) {
+		dateTextViewController.setDate(date);
+	}
+
+	private void initTimePicker(LocalTime localTime) {
+		time.setOnTimeChangedListener(this);
+		pickersAreInitialized = true;
+		// manually set the variables once:
+		selectedHour = localTime.getHour();
+		selectedMinute = localTime.getMinute();
+	}
+
+	private void initDatePicker() {
+		ZoneId zone = getSelectedZone();
+		dateTextViewController.setDateLimits(
+				week.getStart().atStartOfDay(zone),
+				week.getEnd().atStartOfDay(zone)
+		);
 	}
 
 	private void updateDateAndTimePickers(ZonedDateTime dateTime) {
@@ -251,50 +268,6 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	}
 
 	@Override
-	public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-		if (noDateChangedReaction) {
-			Logger.debug("date not changed - infinite loop protection");
-		} else {
-			selectedYear = year;
-			selectedMonth = monthOfYear + 1;
-			selectedDay = dayOfMonth;
-
-			// restrict date range to the week we are editing right now
-			// TODO why this restriction?
-			LocalDate newDate = LocalDate.of(selectedYear, selectedMonth,selectedDay);
-			LocalDate weekStart = week.getStart();
-			LocalDate weekEnd = week.getEnd();
-
-			try {
-				noDateChangedReaction = true;
-
-				if (newDate.isBefore(weekStart)) {
-					date.updateDate(weekStart.getYear(), weekStart.getMonthValue() - 1, weekStart.getDayOfMonth());
-					selectedYear = weekStart.getYear();
-					selectedMonth = weekStart.getMonthValue();
-					selectedDay = weekStart.getDayOfMonth();
-					Toast.makeText(this,
-							"adjusted date to match first day of week - the event has to stay in the current week",
-							Toast.LENGTH_LONG).show();
-
-				} else if (newDate.isAfter(weekEnd)) {
-					date.updateDate(weekEnd.getYear(), weekEnd.getMonthValue()-1, weekEnd.getDayOfMonth());
-					selectedYear = weekEnd.getYear();
-					selectedMonth = weekEnd.getMonthValue();
-					selectedDay = weekEnd.getDayOfMonth();
-					Toast.makeText(this,
-							"adjusted date to match last day of week - the event has to stay in the current week",
-							Toast.LENGTH_LONG).show();
-				}
-			} finally {
-				noDateChangedReaction = false;
-			}
-
-			Logger.debug("date changed to {}-{}-{}", year, monthOfYear, dayOfMonth);
-		}
-	}
-
-	@Override
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 		selectedHour = hourOfDay;
 		selectedMinute = minute;
@@ -302,9 +275,15 @@ public class EventEditActivity extends AppCompatActivity implements OnDateChange
 	}
 
 	private OffsetDateTime getCurrentlySetDateTime() {
-		// DON'T get the numbers directly from the date and time controls, but from the private variables!
-		return LocalDateTime.of(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute)
-				.atZone(binding.timeZonePicker.getZoneId()).toOffsetDateTime();
+		// DON'T get the numbers directly from the time picker, but from the variables!
+		LocalDate date = dateTextViewController.getDate();
+		return date.atTime(selectedHour, selectedMinute)
+				.atZone(getSelectedZone())
+				.toOffsetDateTime();
+	}
+
+	private ZoneId getSelectedZone() {
+		return binding.timeZonePicker.getZoneId();
 	}
 
 }

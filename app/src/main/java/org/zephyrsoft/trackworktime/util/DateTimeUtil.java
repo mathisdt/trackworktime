@@ -17,6 +17,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
@@ -36,6 +37,7 @@ import java.util.Locale;
  */
 public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
+	private static final DateTimeFormatter LOCALIZED_DATE_SHORT = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
@@ -112,6 +114,10 @@ public class DateTimeUtil {
 	 */
 	public static String formatLocalizedDate(LocalDate date) {
 		return date.format(LOCALIZED_DATE);
+	}
+
+	public static String formatLocalizedDateShort(TemporalAccessor temporal) {
+		return LOCALIZED_DATE_SHORT.format(temporal);
 	}
 
 	/**
@@ -202,6 +208,10 @@ public class DateTimeUtil {
 		} else {
 			return String.valueOf(number);
 		}
+	}
+
+	public static long dateToEpoch(ZonedDateTime accessor) {
+		return Instant.from(accessor).toEpochMilli();
 	}
 
 	public static boolean isDurationValid(String value) {
