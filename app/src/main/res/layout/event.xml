@@ -104,6 +104,7 @@
                 android:layout_margin="20dp" />
 
             <LinearLayout
+                android:id="@+id/taskLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
@@ -126,6 +127,7 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
