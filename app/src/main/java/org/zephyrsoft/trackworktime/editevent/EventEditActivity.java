@@ -218,6 +218,8 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 	}
 
 	private void updateDateAndTimePickers(LocalDateTime dateTime) {
+		updateDatePicker(dateTime.toLocalDate());
+
 		time.setCurrentHour(dateTime.getHour());
 		time.setCurrentMinute(dateTime.getMinute());
 		if (!pickersAreInitialized) {
@@ -227,7 +229,6 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 			selectedHour = dateTime.getHour();
 			selectedMinute = dateTime.getMinute();
 		}
-		updateDatePicker(dateTime.toLocalDate());
 	}
 
 	private void updateDatePicker(LocalDate date) {
