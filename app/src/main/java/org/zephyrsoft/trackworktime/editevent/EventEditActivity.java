@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime.editevent;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -95,7 +96,7 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 		// TODO combine this with the locale setting!
 		time.setIs24HourView(Boolean.TRUE);
 
-		binding.radioClockIn.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskAndTextEditable(isChecked));
+		binding.radioClockIn.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskAndTextVisible(isChecked));
 		tasks = dao.getActiveTasks();
 		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -148,9 +149,10 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 		});
 	}
 
-	private void setTaskAndTextEditable(boolean shouldBeEditable) {
-		task.setEnabled(shouldBeEditable);
-		text.setEnabled(shouldBeEditable);
+	private void setTaskAndTextVisible(boolean visible) {
+		int visibility = visible ? View.VISIBLE : View.GONE;
+		binding.taskLayout.setVisibility(visibility);
+		binding.textLayout.setVisibility(visibility);
 	}
 
 	@Override

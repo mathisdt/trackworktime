@@ -99,7 +99,7 @@ public class WorkTimeTrackerApplication extends Application {
 		}
 
 		ACRA.init(this);
-		ACRA.setLog(new TinylogAndLogcatLogger());
+		ACRA.log = new TinylogAndLogcatLogger();
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
 

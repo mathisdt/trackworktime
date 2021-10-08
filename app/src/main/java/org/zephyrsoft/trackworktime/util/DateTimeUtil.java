@@ -23,6 +23,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.chrono.IsoChronology;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.FormatStyle;
@@ -39,13 +40,27 @@ public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE_SHORT = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static final DateTimeFormatter HOUR_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
-	private static final DateTimeFormatter TIME_PRECISE = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
 			.appendPattern("eeee")
 			.appendLiteral(", ")
 			.appendLocalized(FormatStyle.SHORT, null)
 			.toFormatter();
+
+	/** E.g. Fri, 12.9 */
+	private static final DateTimeFormatter LOCALIZED_DAY_AND_SHORT_DATE =
+			createLocalizedDayAndShortDateFormat();
+
+	private static DateTimeFormatter createLocalizedDayAndShortDateFormat() {
+		String shortDate = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+				FormatStyle.SHORT,
+				null,
+				IsoChronology.INSTANCE,
+				Locale.getDefault())
+				// remove year and some year-separators (at least in german dates, the dot after the month has to exist)
+				.replaceAll("[ /-]? *[yY]+ *[ 年/.-]?", "");
+		String pattern = "eee, " + shortDate;
+		return DateTimeFormatter.ofPattern(pattern);
+	}
 
 	/**
 	 * Determines if the given {@link LocalDateTime} is in the future.
@@ -82,16 +97,6 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Formats a {@link LocalDateTime} to a String.
-	 *
-	 * @param dateTime the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String formatTimePrecise(LocalDateTime dateTime) {
-		return dateTime.format(TIME_PRECISE);
-	}
-
-	/**
 	 * Formats a {@link OffsetDateTime} to a String.
 	 *
 	 * @param dateTime the input (may not be null)
@@ -116,13 +121,13 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Formats a {@link OffsetDateTime} to a String, containing only hours and minutes.
+	 * Formats a {@link TemporalAccessor} to a String, containing only hours and minutes.
 	 *
-	 * @param dateTime the input (may not be null)
+	 * @param temporal the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedTime(OffsetDateTime dateTime) {
-		return dateTime.format(LOCALIZED_TIME);
+	public static String formatLocalizedTime(TemporalAccessor temporal) {
+		return LOCALIZED_TIME.format(temporal);
 	}
 
 	/**
@@ -136,25 +141,11 @@ public class DateTimeUtil {
 		return StringUtils.capitalize(dateString);
 	}
 
-	/**
-	 * Formats a {@link LocalDate} to a String.
-	 *
-	 * @param date the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	@Deprecated
-	public static String dateToString(LocalDate date) {
-		return date.format(LOCALIZED_DATE);
-	}
-
-	/**
-	 * Formats a {@link LocalDate} to a String.
-	 *
-	 * @param date the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String dateToULString(LocalDate date) {
-		return date.format(DATE);
+	public static String formatLocalizedDayAndShortDate(TemporalAccessor date) {
+		String dateString = LOCALIZED_DAY_AND_SHORT_DATE.format(date)
+				// remove possible abbreviation point ("Mo., 27.09." (german) or "Lun., 27/09" (french) looks odd):
+				.replaceAll("^(\\p{Alpha}+)\\., ", "$1, ");
+		return StringUtils.capitalize(dateString);
 	}
 
 	/**
@@ -165,16 +156,6 @@ public class DateTimeUtil {
 	 */
 	public static String dateToULString(ZonedDateTime dateTime) {
 		return dateTime.format(DATE);
-	}
-
-	/**
-	 * Formats a {@link LocalDateTime} to a String which contains the hour and minute only.
-	 *
-	 * @param dateTime the input (may not be null)
-	 * @return the String which corresponds to the given input
-	 */
-	public static String dateTimeToHourMinuteString(LocalDateTime dateTime) {
-		return dateTime.format(HOUR_MINUTES);
 	}
 
 	/**
