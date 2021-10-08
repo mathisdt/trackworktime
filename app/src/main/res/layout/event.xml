@@ -72,11 +72,11 @@
             </RadioGroup>
 
             <TextView
-                android:id="@+id/dateTimeLabel"
+                android:id="@+id/dateLabel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="@string/time"
+                android:text="@string/date"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
@@ -88,6 +88,14 @@
                 android:longClickable="false"
                 tools:text="12.4.2015"
                 />
+
+            <TextView
+                android:id="@+id/timeLabel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/time"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TimePicker
                 android:id="@+id/time"
