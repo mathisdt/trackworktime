@@ -53,8 +53,9 @@ public class DateTimeUtil {
 				FormatStyle.SHORT,
 				null,
 				IsoChronology.INSTANCE,
-				Locale.getDefault()
-		).replaceAll("[ /.-]? *[yY]+ *[ 年/.-]?", ""); // Remove year and year-separators
+				Locale.getDefault())
+				// remove year and some year-separators (at least in german dates, the dot after the month has to exist)
+				.replaceAll("[ /-]? *[yY]+ *[ 年/.-]?", "");
 		String pattern = "eee, " + shortDate;
 		return DateTimeFormatter.ofPattern(pattern);
 	}
@@ -135,7 +136,9 @@ public class DateTimeUtil {
 	}
 
 	public static String formatLocalizedDayAndShortDate(TemporalAccessor date) {
-		String dateString = LOCALIZED_DAY_AND_SHORT_DATE.format(date);
+		String dateString = LOCALIZED_DAY_AND_SHORT_DATE.format(date)
+				// remove possible abbreviation point ("Mo., 27.09." (german) or "Lun., 27/09" (french) looks odd):
+				.replaceAll("^(\\p{Alpha}+)\\., ", "$1, ");
 		return StringUtils.capitalize(dateString);
 	}
 
