@@ -430,8 +430,4 @@ public class ReportsActivity extends AppCompatActivity {
 		return true;
 	}
 
-	private static String getWeekName(Week week) {
-		return "week-beginning-on-" + DateTimeUtil.dateToULString(week.getStart());
-	}
-
 }

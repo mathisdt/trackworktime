@@ -107,7 +107,6 @@ public class DAO {
 	private final Context context;
 	private final WorkTimeTrackerBackupManager backupManager;
 
-	private static final DateTimeFormatter LOCAL_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	private static final Pattern RESTORE_PATTERN = Pattern.compile(";");
 
 	/**

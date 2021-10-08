@@ -25,7 +25,6 @@ import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.ChronoUnit;
 import org.threeten.bp.temporal.IsoFields;
 import org.zephyrsoft.trackworktime.R;
@@ -40,12 +39,9 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2.DayInfo;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class WeekStateCalculator {
-
-	private final DateTimeFormatter SHORT_DATE;
 
 	private final Context context;
 	private final DAO dao;
@@ -62,8 +58,6 @@ public class WeekStateCalculator {
 		this.week = week;
 		
 		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
-
-		SHORT_DATE = DateTimeFormatter.ofPattern(getString(R.string.shortDate), Locale.getDefault());
 	}
 
 	public @NonNull WeekState calculateWeekState() {
@@ -100,7 +94,7 @@ public class WeekStateCalculator {
 
 	private void setRowValues(DayInfo dayInfo, DayRowState weekRowState) {
 		weekRowState.highlighted = dayInfo.isToday();
-		weekRowState.label = dayInfo.getDate().format(SHORT_DATE);
+		weekRowState.label = DateTimeUtil.formatLocalizedDayAndShortDate(dayInfo.getDate());
 		
 		weekRowState.in = formatTime(dayInfo.getTimeIn());
 
@@ -159,7 +153,7 @@ public class WeekStateCalculator {
 	}
 
 	private String formatTime(LocalDateTime time) {
-		return time == null ? "" : DateTimeUtil.dateTimeToHourMinuteString(time);
+		return time == null ? "" : DateTimeUtil.formatLocalizedTime(time);
 	}
 
 	private String formatSum(Long sum, String valueForZero) {

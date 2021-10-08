@@ -344,7 +344,7 @@ public class Basics extends BroadcastReceiver {
 						LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
 
 						if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
-							String targetTime = DateTimeUtil.dateTimeToHourMinuteString(finishingTime);
+							String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime);
 							targetTimeString = "possible finishing time: " + targetTime;
 						} else {
 							targetTimeString = "target working time cannot be reached today!";
