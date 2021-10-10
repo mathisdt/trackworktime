@@ -205,5 +205,6 @@
     <string name="locationPermissionsUngranted">You did not grant the requested permissions. Automatic time tracking is disabled now.\n\nIf you change your mind, you can re-enable it later in the options.\n\nIf you didn\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
     <string name="storagePermissionsRequestTitle">Storage Permission</string>
     <string name="storagePermissionsRequestText">It\'s recommended to let this app write a daily backup of your data to your device or to your SD card (if present).\n\nIf you want that, please allow it in the following dialog.\n\nIf you don\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
+    <string name="errorDateOrTimeNotSelected">Date or time not selected</string>
 
 </resources>

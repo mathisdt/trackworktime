@@ -20,7 +20,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -103,6 +105,12 @@ public class EventEditActivity extends AppCompatActivity {
 			TypeEnum typeEnum = binding.radioClockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
 
 			OffsetDateTime dateTime = getCurrentlySetDateTime();
+			if (dateTime == null) {
+				// TODO: Would be better to disable save button, if date/time is not selected
+				showMsgDateTimeNotSelected();
+				return;
+			}
+
 			Task selectedTask = (Task) task.getSelectedItem();
 			Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
 					selectedTask.getId());
@@ -251,9 +259,18 @@ public class EventEditActivity extends AppCompatActivity {
 		binding.timeZonePicker.setZoneIdFromOffset(dateTime.getOffset());
 	}
 
+	@Nullable
 	private OffsetDateTime getCurrentlySetDateTime() {
 		var time = timeTextViewController.getTime();
+		if (time == null) {
+			return null;
+		}
+
 		var date = dateTextViewController.getDate();
+		if (date == null) {
+			return null;
+		}
+
 		return date.atTime(time)
 				.atZone(getSelectedZone())
 				.toOffsetDateTime();
@@ -261,6 +278,10 @@ public class EventEditActivity extends AppCompatActivity {
 
 	private ZoneId getSelectedZone() {
 		return binding.timeZonePicker.getZoneId();
+	}
+
+	private void showMsgDateTimeNotSelected() {
+		Toast.makeText(this, R.string.errorDateOrTimeNotSelected, Toast.LENGTH_LONG).show();
 	}
 
 }
