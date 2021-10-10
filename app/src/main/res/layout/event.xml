@@ -95,7 +95,8 @@
                 android:text="@string/time"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TimePicker
+            <TextView
+                style="@style/TextViewLikeEditText"
                 android:id="@+id/time"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
