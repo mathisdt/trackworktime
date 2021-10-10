@@ -8,4 +8,11 @@
     <style name="Theme.trackworktime.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.trackworktime.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="TextViewLikeEditText">
+        <item name="android:background">?editTextBackground</item>
+        <item name="android:focusable">false</item>
+        <item name="android:longClickable">false</item>
+    </style>
+
 </resources>
