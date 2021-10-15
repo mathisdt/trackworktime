@@ -261,12 +261,12 @@ public class EventEditActivity extends AppCompatActivity {
 
 	@Nullable
 	private OffsetDateTime getCurrentlySetDateTime() {
-		var time = timeTextViewController.getTime();
+		LocalTime time = timeTextViewController.getTime();
 		if (time == null) {
 			return null;
 		}
 
-		var date = dateTextViewController.getDate();
+		LocalDate date = dateTextViewController.getDate();
 		if (date == null) {
 			return null;
 		}

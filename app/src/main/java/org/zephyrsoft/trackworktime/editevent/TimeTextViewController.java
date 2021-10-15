@@ -1,6 +1,7 @@
 package org.zephyrsoft.trackworktime.editevent;
 
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.text.format.DateFormat;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -39,9 +40,9 @@ public class TimeTextViewController {
 	}
 
 	private TimePickerDialog createPicker() {
-		var time = getInitialTime();
-		var context = view.getContext();
-		var is24Format = DateFormat.is24HourFormat(context);
+		LocalTime time = getInitialTime();
+		Context context = view.getContext();
+		boolean is24Format = DateFormat.is24HourFormat(context);
 		return new TimePickerDialog(
 				context,
 				this::onNewTimeSelected,
@@ -60,7 +61,7 @@ public class TimeTextViewController {
 	}
 
 	private void onNewTimeSelected(TimePicker view, int hourOfDay, int minute) {
-		var time = LocalTime.of(hourOfDay, minute);
+		LocalTime time = LocalTime.of(hourOfDay, minute);
 		setTime(time);
 	}
 
