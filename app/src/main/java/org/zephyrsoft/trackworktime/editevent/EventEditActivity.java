@@ -20,9 +20,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
-import android.widget.TimePicker.OnTimeChangedListener;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -49,17 +49,14 @@ import java.util.List;
 /**
  * Activity for managing the events of a week.
  */
-public class EventEditActivity extends AppCompatActivity implements OnTimeChangedListener {
+public class EventEditActivity extends AppCompatActivity {
 
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 
-	private TimePicker time = null;
 	private Spinner task = null;
 	private EditText text = null;
 	private EventBinding binding;
-	private int selectedHour = -1;
-	private int selectedMinute = -1;
 	private boolean pickersAreInitialized = false;
 	private List<Task> tasks;
 	private ArrayAdapter<Task> tasksAdapter;
@@ -69,6 +66,7 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 	private Event editedEvent = null;
 	private boolean newEvent = false;
 
+	private TimeTextViewController timeTextViewController;
 	private DateTextViewController dateTextViewController;
 
 	@Override
@@ -87,14 +85,11 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 		binding = EventBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
+		timeTextViewController = new TimeTextViewController(binding.time);
 		dateTextViewController = new DateTextViewController(binding.date);
 
-		time = binding.time;
 		task = binding.task;
 		text = binding.text;
-
-		// TODO combine this with the locale setting!
-		time.setIs24HourView(Boolean.TRUE);
 
 		binding.radioClockIn.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskAndTextVisible(isChecked));
 		tasks = dao.getActiveTasks();
@@ -104,17 +99,18 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 
 		binding.save.setOnClickListener(v -> {
             // commit all edit fields
-            time.clearFocus();
             text.clearFocus();
-
-            // call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
-            // => https://code.google.com/p/android/issues/detail?id=78861
-            onTimeChanged(time, time.getCurrentHour(), time.getCurrentMinute());
 
 			// save the event
 			TypeEnum typeEnum = binding.radioClockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
 
 			OffsetDateTime dateTime = getCurrentlySetDateTime();
+			if (dateTime == null) {
+				// TODO: Would be better to disable save button, if date/time is not selected
+				showMsgDateTimeNotSelected();
+				return;
+			}
+
 			Task selectedTask = (Task) task.getSelectedItem();
 			Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
 					selectedTask.getId());
@@ -233,8 +229,7 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 	}
 
 	private void updateTimePicker(LocalTime localTime) {
-		time.setCurrentHour(localTime.getHour());
-		time.setCurrentMinute(localTime.getMinute());
+		timeTextViewController.setTime(localTime);
 	}
 
 	private void updateDatePicker(LocalDate date) {
@@ -242,11 +237,8 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 	}
 
 	private void initTimePicker(LocalTime localTime) {
-		time.setOnTimeChangedListener(this);
+		timeTextViewController.setTime(localTime);
 		pickersAreInitialized = true;
-		// manually set the variables once:
-		selectedHour = localTime.getHour();
-		selectedMinute = localTime.getMinute();
 	}
 
 	private void initDatePicker() {
@@ -267,23 +259,29 @@ public class EventEditActivity extends AppCompatActivity implements OnTimeChange
 		binding.timeZonePicker.setZoneIdFromOffset(dateTime.getOffset());
 	}
 
-	@Override
-	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-		selectedHour = hourOfDay;
-		selectedMinute = minute;
-		Logger.debug("time changed to {}:{}", hourOfDay, minute);
-	}
-
+	@Nullable
 	private OffsetDateTime getCurrentlySetDateTime() {
-		// DON'T get the numbers directly from the time picker, but from the variables!
-		LocalDate date = dateTextViewController.getDate();
-		return date.atTime(selectedHour, selectedMinute)
+		var time = timeTextViewController.getTime();
+		if (time == null) {
+			return null;
+		}
+
+		var date = dateTextViewController.getDate();
+		if (date == null) {
+			return null;
+		}
+
+		return date.atTime(time)
 				.atZone(getSelectedZone())
 				.toOffsetDateTime();
 	}
 
 	private ZoneId getSelectedZone() {
 		return binding.timeZonePicker.getZoneId();
+	}
+
+	private void showMsgDateTimeNotSelected() {
+		Toast.makeText(this, R.string.errorDateOrTimeNotSelected, Toast.LENGTH_LONG).show();
 	}
 
 }

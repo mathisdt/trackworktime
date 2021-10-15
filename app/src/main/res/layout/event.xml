@@ -80,12 +80,10 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
+                style="@style/TextViewLikeEditText"
                 android:id="@+id/date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?editTextBackground"
-                android:focusable="false"
-                android:longClickable="false"
                 tools:text="12.4.2015"
                 />
 
@@ -97,7 +95,8 @@
                 android:text="@string/time"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <TimePicker
+            <TextView
+                style="@style/TextViewLikeEditText"
                 android:id="@+id/time"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
