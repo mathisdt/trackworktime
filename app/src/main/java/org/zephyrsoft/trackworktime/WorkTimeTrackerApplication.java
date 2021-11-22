@@ -1,45 +1,21 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License 3.0 as published by
  * the Free Software Foundation.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License 3.0 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime;
 
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
-
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
-import org.acra.ACRA;
-import org.acra.annotation.AcraCore;
-import org.acra.annotation.AcraDialog;
-import org.acra.annotation.AcraHttpSender;
-import org.acra.data.StringFormat;
-import org.acra.file.Directory;
-import org.acra.sender.HttpSender;
-import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
-
-import java.util.concurrent.TimeUnit;
-
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import static org.acra.ReportField.ANDROID_VERSION;
-import static org.acra.ReportField.APPLICATION_LOG;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
 import static org.acra.ReportField.BRAND;
@@ -55,21 +31,31 @@ import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
 
+import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
+
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
+import org.acra.ACRA;
+import org.acra.config.CoreConfigurationBuilder;
+import org.acra.config.DialogConfigurationBuilder;
+import org.acra.config.HttpSenderConfigurationBuilder;
+import org.acra.data.StringFormat;
+import org.acra.sender.HttpSender;
+import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * Application entry point.
  */
-@AcraCore(reportFormat = StringFormat.JSON,
-	reportContent = {
-		ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, APPLICATION_LOG, BRAND,
-		CRASH_CONFIGURATION, INSTALLATION_ID, LOGCAT, PACKAGE_NAME, PHONE_MODEL, PRODUCT,
-		REPORT_ID, SHARED_PREFERENCES, STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE},
-	applicationLogFileDir = Directory.EXTERNAL_STORAGE,
-	applicationLogFile = Constants.CURRENT_LOG_FILE_PATH)
-@AcraHttpSender(httpMethod = HttpSender.Method.POST,
-	uri = "https://crashreport.zephyrsoft.org/")
-@AcraDialog(resTitle = R.string.acraTitle,
-	resText = R.string.acraText,
-	resCommentPrompt = R.string.acraCommentPrompt)
 public class WorkTimeTrackerApplication extends Application {
 
 	@Override
@@ -98,7 +84,27 @@ public class WorkTimeTrackerApplication extends Application {
 			notificationManager.createNotificationChannel(serviceNotificationChannel);
 		}
 
-		ACRA.init(this);
+		CoreConfigurationBuilder builder = new CoreConfigurationBuilder(this)
+				.withBuildConfigClass(BuildConfig.class)
+				.withReportFormat(StringFormat.JSON)
+				.withReportContent(ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME,
+						BRAND, CRASH_CONFIGURATION, INSTALLATION_ID, LOGCAT,
+						PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES,
+						STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE)
+				.withEnabled(true);
+
+		builder.getPluginConfigurationBuilder(DialogConfigurationBuilder.class)
+				.withResTitle(R.string.acraTitle)
+				.withResText(R.string.acraText)
+				.withResCommentPrompt(R.string.acraCommentPrompt)
+				.withEnabled(true);
+
+		builder.getPluginConfigurationBuilder(HttpSenderConfigurationBuilder.class)
+				.withHttpMethod(HttpSender.Method.POST)
+				.withUri("https://crashreport.zephyrsoft.org/")
+				.withEnabled(true);
+
+		ACRA.init(this, builder);
 		ACRA.log = new TinylogAndLogcatLogger();
 		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
 		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
