@@ -171,7 +171,8 @@
     <string name="serviceChannelDescription">The category used for service notifications of Track Work Time.</string>
     <string name="sendLogsQuestion">You are about to send the logs of everything that happened today in Track Work Time to the developer.\n\nThe logs may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n\nYou are also welcome to send the data to yourself first, check it, anonymize it where necessary and then forward it to android@zephyrsoft.org!</string>
     <string name="sendLogsSubject">Logs from Track Work Time</string>
-    <string name="sendLogs">Send Logs…</string>
+    <string name="exportLogs">Export Logs</string>
+    <string name="sendLogs">Send Logs</string>
     <string name="recenter_week">Recenter week</string>
     <string name="acraTitle">Oops!</string>
     <string name="acraText">Sorry, Track Work Time just crashed. This should not happen. Please send an error report to the developer so the problem can be fixed!\n\nThe report may contain personal data - if so, it will kept strictly confidential and only used to identify the problem.\n</string>

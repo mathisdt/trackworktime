@@ -32,7 +32,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -146,7 +145,7 @@ public class Basics extends BroadcastReceiver {
 	public void initTinyLog() {
 		String threadToObserve = Thread.currentThread().getName();
 		Configurator.defaultConfig()
-			.writer(new RollingFileWriter(getDataDirectory().getAbsolutePath() + File.separatorChar + Constants.CURRENT_LOG_FILE_NAME,
+			.writer(new RollingFileWriter(getCurrentLogFile().getPath(),
 					2, false, new CountLabeler(), new DailyPolicy()),
 					Level.DEBUG, "{date:yyyy-MM-dd HH:mm:ss} {{level}|min-size=5} {class_name}.{method} - {message}")
 			.addWriter(new LogcatWriter("trackworktime"), Level.DEBUG, "{message}")
@@ -181,18 +180,7 @@ public class Basics extends BroadcastReceiver {
 	}
 
 	public File getCurrentLogFile() {
-		return new File(getDataDirectory(), Constants.CURRENT_LOG_FILE_NAME);
-	}
-
-	public File getDataDirectory() {
-		File backupDir = new File(".");
-		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
-		if (externalStorageDirectory != null) {
-			backupDir = new File(externalStorageDirectory, Constants.DATA_DIR);
-		} else {
-			Logger.warn("external storage directory not available");
-		}
-		return backupDir;
+		return new File(context.getFilesDir(), Constants.CURRENT_LOG_FILE_NAME);
 	}
 
 	public NotificationChannel getNotificationChannel() {
