@@ -16,7 +16,6 @@
 package org.zephyrsoft.trackworktime.weektimes;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -121,8 +120,7 @@ public class WeekTimesView extends LinearLayout {
 		
 		textView = getTableCell(tableRow, 0);
 		textView.setText(dayRowState.label);
-		textView.setTextColor(dayRowState.labelHighlighted ? 
-				Color.GREEN : getResources().getColor(R.color.light_gray));
+		setColorAccording(dayRowState.labelHighlighted, textView);
 		textView.setOnClickListener(v -> {
 			if (onDayClickListener != null) {
 				onDayClickListener.onClick(v, day);
@@ -134,10 +132,27 @@ public class WeekTimesView extends LinearLayout {
 		
 		textView = getTableCell(tableRow, 3);
 		textView.setText(dayRowState.worked);
-		textView.setTextColor(dayRowState.workedHighlighted ?
-				Color.GREEN : getResources().getColor(R.color.light_gray));
-		
+
 		getTableCell(tableRow, 4).setText(dayRowState.flexi);
+	}
+
+	private void setColorAccording(WeekState.HighlightType type, TextView textView) {
+		switch (type) {
+			case NONE:
+				textView.setTextColor(getResources().getColor(R.color.date_regular_work));
+				break;
+			case REGULAR_FREE:
+				textView.setTextColor(getResources().getColor(R.color.date_regular_free));
+				break;
+			case FREE:
+				textView.setTextColor(getResources().getColor(R.color.date_free));
+				break;
+			case CHANGED_TARGET_TIME:
+				textView.setTextColor(getResources().getColor(R.color.date_target_changed));
+				break;
+			default:
+				throw new IllegalStateException("unknown highlight type " + type);
+		}
 	}
 	
 	private void setSummaryRow(SummaryRowState summaryRowState, TableRow tableRow) {

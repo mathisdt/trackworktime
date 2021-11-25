@@ -105,8 +105,22 @@ public class WeekStateCalculator {
 		}
 		
 		if (handleFlexiTime) {
-			weekRowState.labelHighlighted = !dayInfo.isWorkDay();
-			weekRowState.workedHighlighted = (dayInfo.getType() == DayInfo.TYPE_SPECIAL_GRANT);
+			switch (dayInfo.getType()) {
+				case DayInfo.TYPE_REGULAR_FREE:
+					weekRowState.labelHighlighted = WeekState.HighlightType.REGULAR_FREE;
+					break;
+				case DayInfo.TYPE_FREE:
+					weekRowState.labelHighlighted = WeekState.HighlightType.FREE;
+					break;
+				case DayInfo.TYPE_REGULAR_WORK:
+					// no highlighting
+					break;
+				case DayInfo.TYPE_SPECIAL_GRANT:
+					weekRowState.labelHighlighted = WeekState.HighlightType.CHANGED_TARGET_TIME;
+					break;
+				default:
+					throw new IllegalStateException("unknown DayInfo type " + dayInfo.getType());
+			}
 		}
 
 		boolean isTodayOrEarlier = dayInfo.getDate().atStartOfDay().isBefore(LocalDateTime.now());

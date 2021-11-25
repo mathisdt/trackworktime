@@ -380,11 +380,29 @@ public class TimeCalculatorV2 {
 
 			// get special target
 			Target specialTarget = dao.getDayTarget(currentDate);
-			TargetEnum targetEnum = (specialTarget != null) ? TargetEnum.byValue(specialTarget.getType()) : null;
+			TargetEnum targetEnum = specialTarget != null ? TargetEnum.byValue(specialTarget.getType()) : null;
 
 			// get target work time
 			currentDayTarget = calculateTargetTime(specialTarget, targetEnum);
 
+			if (targetEnum != null) {
+				switch (targetEnum) {
+					case DAY_IGNORE:
+						dayType = DayInfo.TYPE_FREE;
+						break;
+					case DAY_SET:
+						if (specialTarget.getValue() == 0) {
+							dayType = DayInfo.TYPE_FREE;
+							break;
+						} else {
+							dayType = DayInfo.TYPE_SPECIAL_GRANT;
+							break;
+						}
+					case DAY_GRANT:
+						dayType = DayInfo.TYPE_SPECIAL_GRANT;
+						break;
+				}
+			}
 
 			// handle special case
 			if (!isToday && targetEnum == TargetEnum.DAY_GRANT) {
@@ -392,7 +410,6 @@ public class TimeCalculatorV2 {
 					Logger.error("Target work time granted on free day!");
 				} else {
 					if (workedTime < currentDayTarget) {
-						dayType = DayInfo.TYPE_SPECIAL_GRANT;
 						workedTime = currentDayTarget;
 					}
 				}

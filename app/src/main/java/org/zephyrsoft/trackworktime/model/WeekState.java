@@ -20,14 +20,20 @@ import androidx.annotation.NonNull;
 import org.threeten.bp.DayOfWeek;
 
 public class WeekState {
+
+	public enum HighlightType {
+		NONE,
+		REGULAR_FREE,
+		FREE,
+		CHANGED_TARGET_TIME
+	}
 	
 	public static class DayRowState {
 		public String label = "";
-		public boolean labelHighlighted = false;
+		public HighlightType labelHighlighted = HighlightType.NONE;
 		public String in = "";
 		public String out = "";
 		public String worked = "";
-		public boolean workedHighlighted = false;
 		public String flexi = "";
 
 		public boolean highlighted = false;
