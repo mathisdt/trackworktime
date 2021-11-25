@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -92,6 +93,11 @@ public class EventListActivity extends AppCompatActivity {
 
 		ListActivityBinding binding = ListActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		RecyclerView myRecyclerView = binding.recyclerView;
 
@@ -185,6 +191,9 @@ public class EventListActivity extends AppCompatActivity {
 				Intent i = new Intent(this, EventEditActivity.class);
 				i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.toEpochDay());
 				startActivity(i);
+				return true;
+			case android.R.id.home:
+				finish();
 				return true;
 			default:
 				throw new IllegalArgumentException("options menu: unknown item selected");

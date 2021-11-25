@@ -19,7 +19,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
@@ -29,11 +32,11 @@ import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
-import org.zephyrsoft.trackworktime.options.DurationPreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.DurationPreference;
+import org.zephyrsoft.trackworktime.options.DurationPreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.Key;
-import org.zephyrsoft.trackworktime.options.TimePreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.TimePreference;
+import org.zephyrsoft.trackworktime.options.TimePreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.TimeZonePreference;
 import org.zephyrsoft.trackworktime.options.TimeZonePreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
@@ -56,8 +59,23 @@ public class OptionsActivity extends AppCompatActivity {
             .beginTransaction()
             .replace(android.R.id.content, new SettingsFragment())
             .commit();
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                throw new IllegalArgumentException("options menu: unknown item selected");
+        }
+    }
 
     public static class SettingsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
 

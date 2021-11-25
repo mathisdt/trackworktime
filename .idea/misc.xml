@@ -6,6 +6,11 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.2171875" />
         <entry key="app/src/main/res/drawable/ic_calendar_recenter_right.xml" value="0.20677083333333332" />
         <entry key="app/src/main/res/drawable/ic_download.xml" value="0.20677083333333332" />
+        <entry key="app/src/main/res/layout/event.xml" value="0.18020833333333333" />
+        <entry key="app/src/main/res/layout/list_activity.xml" value="0.18020833333333333" />
+        <entry key="app/src/main/res/layout/list_item.xml" value="0.18020833333333333" />
+        <entry key="app/src/main/res/layout/list_item_separator.xml" value="0.18020833333333333" />
+        <entry key="app/src/main/res/layout/list_item_spinner.xml" value="0.18020833333333333" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.5" />
       </map>
     </option>

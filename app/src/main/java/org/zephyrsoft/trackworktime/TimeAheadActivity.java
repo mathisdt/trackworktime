@@ -16,8 +16,12 @@
 package org.zephyrsoft.trackworktime;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.databinding.TimeAheadBinding;
@@ -39,6 +43,11 @@ public class TimeAheadActivity extends AppCompatActivity {
 
 		binding = TimeAheadBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		EditText minutes = binding.minutes;
 
@@ -63,6 +72,17 @@ public class TimeAheadActivity extends AppCompatActivity {
             }
             finish();
         });
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
+		}
 	}
 
 	@Override

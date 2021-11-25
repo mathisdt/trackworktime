@@ -203,6 +203,7 @@
     <string name="startMigration">Start Migration</string>
     <string name="tools">Tools</string>
     <string name="data">Data</string>
+    <string name="logsExported">Log file exported.</string>
     <string name="locationPermissionsRequestTitle">Location Permission</string>
     <string name="locationPermissionsRequestText">This app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use.</string>
     <string name="locationPermissionsRequestTextSupplement">\n\nPlease allow it for all the time, even when you\'re not using the app actively (read the following dialog carefully).</string>
@@ -215,5 +216,6 @@
     <string name="documentTreePermissionsRequestTextOnStart">This app needs a little space on your device to save a daily backup of your data and the reports you generate.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, no daily backups will be created and you can\'t generate any reports (you\'ll be asked again if you try).</string>
     <string name="documentTreePermissionsRequestTextOnUserAction">This feature needs to access your device\'s storage.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, the feature will not be available.</string>
     <string name="notNow">Not Now</string>
+    <string name="enableFlexiTimeOrItWontWork">Please configure and enable Flexi Time in the options, else this won\'t work.</string>
 
 </resources>

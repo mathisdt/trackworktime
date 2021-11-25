@@ -16,11 +16,14 @@
 package org.zephyrsoft.trackworktime;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -28,6 +31,7 @@ import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.DefaultTimesBinding;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 import java.util.List;
@@ -65,6 +69,11 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 
 		binding = DefaultTimesBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		fromDate = binding.fromDate;
 		toDate = binding.toDate;
@@ -156,6 +165,17 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
+		}
+	}
+
+	@Override
 	public void onBackPressed() {
 		Logger.debug("canceling InsertDefaultTimesActivity (back button pressed)");
 		finish();
@@ -169,6 +189,11 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
 		LocalDate now = LocalDate.now();
 		updateFromDatePicker(now);
 		updateToDatePicker(now);
+
+		boolean flexiTimeEnabled = Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
+		if (!flexiTimeEnabled) {
+			Toast.makeText(this, R.string.enableFlexiTimeOrItWontWork, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void updateFromDatePicker(LocalDate date) {

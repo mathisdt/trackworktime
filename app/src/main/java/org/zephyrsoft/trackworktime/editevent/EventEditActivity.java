@@ -16,13 +16,16 @@
 package org.zephyrsoft.trackworktime.editevent;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -85,6 +88,11 @@ public class EventEditActivity extends AppCompatActivity {
 		binding = EventBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
 		timeTextViewController = new TimeTextViewController(binding.time);
 		dateTextViewController = new DateTextViewController(binding.date);
 
@@ -143,6 +151,17 @@ public class EventEditActivity extends AppCompatActivity {
 			Logger.debug("canceling EventEditActivity");
 			finish();
 		});
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
+		}
 	}
 
 	private void setTaskAndTextVisible(boolean visible) {

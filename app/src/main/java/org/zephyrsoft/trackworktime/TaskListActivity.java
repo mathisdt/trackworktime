@@ -17,7 +17,6 @@ package org.zephyrsoft.trackworktime;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -27,6 +26,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -41,17 +43,11 @@ import java.util.List;
  */
 public class TaskListActivity extends AppCompatActivity {
 
-	private enum MenuAction {
-		NEW_TASK,
-		RENAME_TASK,
-		TOGGLE_DEFAULT,
-		TOGGLE_ACTIVATION_STATE_OF_TASK,
-		DELETE_TASK;
-
-		public static MenuAction byOrdinal(int ordinal) {
-			return values()[ordinal];
-		}
-	}
+	private static final int NEW_TASK = 0;
+	private static final int RENAME_TASK = 1;
+	private static final int TOGGLE_DEFAULT = 2;
+	private static final int TOGGLE_ACTIVATION_STATE_OF_TASK = 3;
+	private static final int DELETE_TASK = 4;
 
 	private DAO dao = null;
 
@@ -73,6 +69,11 @@ public class TaskListActivity extends AppCompatActivity {
 
 		TasksActivityBinding binding = TasksActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		ListView listView = binding.listView;
 
@@ -98,7 +99,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (MenuAction.byOrdinal(item.getItemId())) {
+		switch (item.getItemId()) {
 			case NEW_TASK:
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
 				alert.setTitle(getString(R.string.new_task));
@@ -124,6 +125,9 @@ public class TaskListActivity extends AppCompatActivity {
 				alert.show();
 
 				return true;
+			case android.R.id.home:
+				finish();
+				return true;
 			default:
 				Logger.warn("options menu: unknown item selected");
 		}
@@ -132,7 +136,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, MenuAction.NEW_TASK.ordinal(), MenuAction.NEW_TASK.ordinal(), getString(R.string.new_task))
+		menu.add(Menu.NONE, NEW_TASK, NEW_TASK, getString(R.string.new_task))
 			.setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -140,14 +144,14 @@ public class TaskListActivity extends AppCompatActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.setHeaderTitle(R.string.availableActions);
-		menu.add(Menu.NONE, MenuAction.RENAME_TASK.ordinal(), MenuAction.RENAME_TASK.ordinal(),
+		menu.add(Menu.NONE, RENAME_TASK, RENAME_TASK,
 			getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
-		menu.add(Menu.NONE, MenuAction.TOGGLE_DEFAULT.ordinal(), MenuAction.TOGGLE_DEFAULT.ordinal(),
+		menu.add(Menu.NONE, TOGGLE_DEFAULT, TOGGLE_DEFAULT,
 			getString(R.string.toggle_default)).setIcon(R.drawable.ic_menu_revert);
-		menu.add(Menu.NONE, MenuAction.TOGGLE_ACTIVATION_STATE_OF_TASK.ordinal(),
-			MenuAction.TOGGLE_ACTIVATION_STATE_OF_TASK.ordinal(), getString(R.string.toggle_activation_state_of_task))
+		menu.add(Menu.NONE, TOGGLE_ACTIVATION_STATE_OF_TASK,
+			TOGGLE_ACTIVATION_STATE_OF_TASK, getString(R.string.toggle_activation_state_of_task))
 			.setIcon(R.drawable.ic_menu_revert);
-		menu.add(Menu.NONE, MenuAction.DELETE_TASK.ordinal(), MenuAction.DELETE_TASK.ordinal(),
+		menu.add(Menu.NONE, DELETE_TASK, DELETE_TASK,
 			getString(R.string.delete_task)).setIcon(R.drawable.ic_menu_delete);
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
@@ -158,7 +162,7 @@ public class TaskListActivity extends AppCompatActivity {
 		final int taskPosition = info.position;
 		final Task oldTask = tasks.get(taskPosition);
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		switch (MenuAction.byOrdinal(item.getItemId())) {
+		switch (item.getItemId()) {
 			case RENAME_TASK:
 				alert.setTitle(getString(R.string.rename_task));
 				alert.setMessage(getString(R.string.enter_new_task_name));

@@ -713,7 +713,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 						throw new RuntimeException(e);
 					}
 				});
-			Toast.makeText(this, "logs exported", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.logsExported), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			String msg = "failed to export logs";
 			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();

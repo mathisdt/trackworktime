@@ -31,6 +31,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -93,6 +94,11 @@ public class TargetEditActivity extends AppCompatActivity
 
 		binding = TargetBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		type = binding.targetType;
 
@@ -221,16 +227,17 @@ public class TargetEditActivity extends AppCompatActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == DELETE_TARGET) {
-			Logger.debug("Deleting target {}", editedTarget.toString());
-			dao.deleteTarget(editedTarget);
-			finish();
-
-		} else {
-			throw new IllegalArgumentException("options menu: unknown item selected");
+		switch (item.getItemId()) {
+			case DELETE_TARGET:
+				Logger.debug("Deleting target {}", editedTarget.toString());
+				dao.deleteTarget(editedTarget);
+				finish();
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
 		}
-
-		return true;
 	}
 
 	@Override

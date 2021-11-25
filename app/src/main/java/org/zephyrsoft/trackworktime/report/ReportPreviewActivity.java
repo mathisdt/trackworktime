@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.report;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +48,7 @@ public class ReportPreviewActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.report_preview);
+
 		Report report = getReport();
 		loadReport(report);
 	}
@@ -67,10 +69,22 @@ public class ReportPreviewActivity extends AppCompatActivity {
 			return;
 		}
 		bar.setTitle(StringUtils.capitalize(title));
+		bar.setDisplayHomeAsUpEnabled(true);
 	}
 
 	private void setContent(String content) {
 		binding.setData(content);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				finish();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
+		}
 	}
 
 }

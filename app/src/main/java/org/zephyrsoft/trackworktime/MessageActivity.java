@@ -18,10 +18,14 @@ package org.zephyrsoft.trackworktime;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.zephyrsoft.trackworktime.databinding.MessageBinding;
 
@@ -40,6 +44,11 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 
 		binding = MessageBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		binding.message.setOnClickListener(this);
 	}
@@ -69,6 +78,17 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 			service.cancel(id);
 		}
 		finish();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				closeNotificationAndDialog();
+				return true;
+			default:
+				throw new IllegalArgumentException("options menu: unknown item selected");
+		}
 	}
 
 }
