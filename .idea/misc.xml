@@ -4,6 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.2171875" />
+        <entry key="app/src/main/res/drawable/ic_calendar_recenter_right.xml" value="0.20677083333333332" />
+        <entry key="app/src/main/res/drawable/ic_download.xml" value="0.20677083333333332" />
+        <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.5" />
       </map>
     </option>
   </component>

@@ -41,9 +41,11 @@
                 android:title="@string/reports" />
             <item
                 android:id="@+id/nav_data_backup"
+                android:icon="@drawable/ic_menu_box_closed"
                 android:title="@string/backup" />
             <item
                 android:id="@+id/nav_data_restore"
+                android:icon="@drawable/ic_menu_box_open"
                 android:title="@string/restore" />
         </menu>
     </item>

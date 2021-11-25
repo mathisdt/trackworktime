@@ -1,0 +1,9 @@
+
+ 36x36  (0.75x) for low-density (ldpi)
+ 48x48  (1.0x baseline) for medium-density (mdpi)
+ 72x72  (1.5x) for high-density (hdpi)
+ 96x96  (2.0x) for extra-high-density (xhdpi)
+144x144 (3.0x) for extra-extra-high-density (xxhdpi)
+192x192 (4.0x) for extra-extra-extra-high-density (xxxhdpi)
+
+Source: https://developer.android.com/training/multiscreen/screendensities
