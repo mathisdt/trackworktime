@@ -16,7 +16,9 @@
 package org.zephyrsoft.trackworktime;
 
 
-import android.Manifest;
+import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
+import static java.lang.Math.abs;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -39,7 +41,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,7 +58,6 @@ import com.google.android.material.navigation.NavigationView;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.zephyrsoft.trackworktime.activityresultcontracts.CreateFile;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ActivityMainBinding;
@@ -66,6 +66,7 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.FileUtil;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
@@ -77,14 +78,11 @@ import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderFactory;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateLoaderManager;
 import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.List;
-
-import static java.lang.Math.abs;
 
 /**
  * Main activity of the application.
@@ -115,27 +113,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private ExternalNotificationManager externalNotificationManager = null;
-	private ArrayAdapter<Task> tasksAdapter;
 	private boolean reloadTasksOnResume = false;
 	private List<Task> tasks;
 	
 	private WeekAdapter weekAdapter;
-
-	private final ActivityResultLauncher<Void> EXPORT_LOGS = registerForActivityResult(
-			new CreateFile("trackworktime_logs", "text/plain"),
-			this::tryExportLogs
-	);
-
-	private void tryExportLogs(Uri uri) {
-		try {
-			File file = Basics.getInstance().getCurrentLogFile();
-			FileUtil.copy(this, file, uri);
-		} catch(IOException e) {
-			String msg = "Failed to export logs";
-			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-			Logger.error(e, msg);
-		}
-	}
 
 	private void checkAllOptions() {
 		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
@@ -335,7 +316,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+	public void onSaveInstanceState(Bundle outState, @NonNull PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
 
 		outState.putInt(KEY_CURRENT_WEEK, getCurrentWeekIndex());
@@ -345,19 +326,17 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	protected void onStart() {
 		super.onStart();
 
-		// request location permissions if necessary
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
-			|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
-				requestMissingPermissionsForTracking();
+		if (DocumentTreeStorage.shouldRequestDirectoryGrant(this, prefs)) {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+					R.string.documentTreePermissionsRequestTextOnStart,
+					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP);
 		}
 
-		// request file permission if necessary
-		if (PermissionsUtil.missingPermissionForExternalStorage(this)) {
-			PermissionsUtil.askForStoragePermission(this,
-				() -> ActivityCompat.requestPermissions(this,
-					new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					Constants.MISSING_PRIVILEGE_ACCESS_STORAGE_ID));
+		// request location permissions if necessary
+		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
+				|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
+			requestMissingPermissionsForTracking();
 		}
 	}
 
@@ -537,7 +516,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	private void setupTasksAdapter() {
 		tasks = dao.getActiveTasks();
-		tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
+		ArrayAdapter<Task> tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		binding.main.task.setAdapter(tasksAdapter);
 	}
@@ -617,10 +596,10 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			showReports();
 
 		} else if (itemId == R.id.nav_data_backup) {
-			backupToSd();
+			backup();
 
 		} else if (itemId == R.id.nav_data_restore) {
-			restoreFromSd();
+			restore();
 
 		} else if (itemId == R.id.nav_export_logs) {
 			exportLogs();
@@ -714,7 +693,32 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void exportLogs() {
-		EXPORT_LOGS.launch(null);
+		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+			doExportLogs();
+		} else {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+					R.string.documentTreePermissionsRequestTextOnUserAction,
+					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_LOGEXPORT);
+		}
+	}
+
+	private void doExportLogs() {
+		try {
+			File logfile = Basics.getInstance().getCurrentLogFile();
+			DocumentTreeStorage.writing(this, DocumentTreeStorage.Type.LOGFILE,
+				DateTimeUtil.timestampNow() + ".txt", outputStream -> {
+					try (InputStream in = new FileInputStream(logfile)) {
+						FileUtil.copy(in, outputStream);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				});
+			Toast.makeText(this, "logs exported", Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			String msg = "failed to export logs";
+			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+			Logger.error(e, msg);
+		}
 	}
 
 	private void sendLogs() {
@@ -746,7 +750,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void showDebug() {
-		Logger.debug("showing Debug");
+		Logger.debug("showing debug");
 		Intent i = new Intent(this, DebugActivity.class);
 		startActivity(i);
 	}
@@ -754,6 +758,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	@Override
 	protected void onResume() {
 		Logger.debug("onResume called");
+
 		visible = true;
 		if (reloadTasksOnResume) {
 			reloadTasksOnResume = false;
@@ -800,12 +805,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		switch (requestCode) {
 			case Constants.PERMISSION_REQUEST_CODE_BACKUP:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					backupToSd();
+					backup();
 				}
 				break;
 			case Constants.PERMISSION_REQUEST_CODE_RESTORE:
 				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					restoreFromSd();
+					restore();
 				}
 				break;
 			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID:
@@ -821,13 +826,38 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 					Logger.debug("ungranted tracking permissions: {}", ungranted);
 				}
 				break;
-			case Constants.MISSING_PRIVILEGE_ACCESS_STORAGE_ID:
-				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					Basics.getOrCreateInstance(this).initTinyLog();
-				}
-				break;
 			default:
 				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+		if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP
+			&& resultCode == RESULT_OK) {
+			if (intent != null) {
+				DocumentTreeStorage.saveDirectoryGrant(this, intent);
+			}
+		} else if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_BACKUP
+			&& resultCode == RESULT_OK) {
+			if (intent != null) {
+				DocumentTreeStorage.saveDirectoryGrant(this, intent);
+				doBackup();
+			}
+		} else if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_RESTORE
+			&& resultCode == RESULT_OK) {
+			if (intent != null) {
+				DocumentTreeStorage.saveDirectoryGrant(this, intent);
+				doRestore();
+			}
+		} else if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_LOGEXPORT
+			&& resultCode == RESULT_OK) {
+			if (intent != null) {
+				DocumentTreeStorage.saveDirectoryGrant(this, intent);
+				doExportLogs();
+			}
+		} else {
+			super.onActivityResult(requestCode, resultCode, intent);
 		}
 	}
 
@@ -835,30 +865,35 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	// Backup, Restore
 	// ---------------------------------------------------------------------------------------------
 
-	/**
-	 * Check if file exists and ask user if so.
-	 */
-	private void backupToSd() {
-		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_CODE_BACKUP);
-			return;
+	private void backup() {
+		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+			doBackup();
+		} else {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+					R.string.documentTreePermissionsRequestTextOnUserAction,
+					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_BACKUP);
 		}
+	}
 
-		final BackupFileInfo info = BackupFileInfo.getBackupFiles(false);
+	private void doBackup() {
+		final BackupFileInfo info = BackupFileInfo.getBackupFiles(this, false);
 
-		if (info.eventsBackupFile.exists() || info.targetsBackupFile.exists()) {
+		if (exists(this, info.getType(), info.getEventsBackupFile())
+			|| exists(this, info.getType(), info.getTargetsBackupFile())) {
 			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			final String msgBackupOverwrite = getString(R.string.backup_overwrite) + "\n" + info.listAvailable();
+			final String msgBackupOverwrite = getString(R.string.backup_overwrite)
+					+ "\n" + info.listAvailable(this);
 
 			builder.setMessage(msgBackupOverwrite)
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     backup(info);
                     dialog.dismiss();
+					Toast.makeText(this, getString(R.string.backup_started_in_background), Toast.LENGTH_SHORT).show();
                 })
 				.setNegativeButton(android.R.string.cancel, null).show();
 		} else {
 			backup(info);
+			Toast.makeText(this, getString(R.string.backup_started_in_background), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -883,9 +918,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			protected void onPostExecute(Boolean successful) {
 				if (successful) {
 					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this, info.toString(), Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this,
+						getString(R.string.backup_finished) + "\n" + info.toString(), Toast.LENGTH_LONG).show();
 				} else {
-					Toast.makeText(WorkTimeTrackerActivity.this, R.string.backup_failed, Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this,
+						R.string.backup_failed, Toast.LENGTH_LONG).show();
 				}
 				dialog.dismiss();
 			}
@@ -893,13 +930,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}.execute(null, null);
 	}
 
-	private void restoreFromSd() {
-		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_CODE_RESTORE);
-			return;
+	private void restore() {
+		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+			doRestore();
+		} else {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+					R.string.documentTreePermissionsRequestTextOnUserAction,
+					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_RESTORE);
 		}
-		final BackupFileInfo info = BackupFileInfo.getBackupFiles(true);
+	}
+
+	private void doRestore() {
+		final BackupFileInfo info = BackupFileInfo.getBackupFiles(this, true);
 
 		if (info != null) {
 			final Cursor cur = dao.getAllEventsAndTasks();
@@ -908,17 +950,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			if (medCount > 0) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				final String msgBackupOverwrite = String.format(
-					getString(R.string.restore_warning), info.listAvailable());
+					getString(R.string.restore_warning), info.listAvailable(this));
 				builder.setMessage(msgBackupOverwrite)
 					.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         restore(info);
                         dialog.dismiss();
+						Toast.makeText(this, getString(R.string.restore_started_in_background), Toast.LENGTH_SHORT).show();
                     })
 					.setNegativeButton(android.R.string.cancel, null)
 					.show();
 			} else {
 				// no entries, skip warning
 				restore(info);
+				Toast.makeText(this, getString(R.string.restore_started_in_background), Toast.LENGTH_SHORT).show();
 			}
 		} else {
 			Toast.makeText(this, getString(R.string.restore_failed_file_not_found), Toast.LENGTH_LONG).show();
@@ -939,33 +983,18 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 			@Override
 			protected Boolean doInBackground(Void... none) {
-				try {
-					if (info.eventsBackupFile.exists()) {
-						final BufferedReader input = new BufferedReader(
-								new InputStreamReader(new FileInputStream(info.eventsBackupFile)));
-
-						dao.restoreEventsFromReader(input);
-					}
-					if (info.targetsBackupFile.exists()) {
-						final BufferedReader input = new BufferedReader(
-								new InputStreamReader(new FileInputStream(info.targetsBackupFile)));
-
-						dao.restoreTargetsFromReader(input);
-					}
-					return true;
-				} catch (IOException e) {
-					Logger.warn(e, "problem while restoring backup");
-					return false;
-				}
+				return BackupUtil.doRestore(getApplicationContext(), info);
 			}
 
 			@Override
 			protected void onPostExecute(Boolean successful) {
 				if (successful) {
 					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this, info.listAvailable(), Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this,
+						getString(R.string.restore_finished) + "\n" + info.listAvailable(WorkTimeTrackerActivity.this), Toast.LENGTH_LONG).show();
 				} else {
-					Toast.makeText(WorkTimeTrackerActivity.this, R.string.restore_failed, Toast.LENGTH_LONG).show();
+					Toast.makeText(WorkTimeTrackerActivity.this,
+						R.string.restore_failed, Toast.LENGTH_LONG).show();
 				}
 				dialog.dismiss();
 			}

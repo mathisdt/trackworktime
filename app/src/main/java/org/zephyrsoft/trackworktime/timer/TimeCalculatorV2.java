@@ -44,7 +44,7 @@ public class TimeCalculatorV2 {
 	/**
 	 * One day's worth of interpreted events.
 	 */
-	public class DayInfo {
+	public static class DayInfo {
 		public static final int TYPE_REGULAR_FREE = 0;
 		public static final int TYPE_FREE = 1;
 		public static final int TYPE_REGULAR_WORK = 2;

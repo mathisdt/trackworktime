@@ -22,15 +22,15 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDateTime;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Class responsible for retrieving wifi {@link ScanResult}s.
@@ -99,7 +99,6 @@ public class WifiScanner extends BroadcastReceiver {
 		void onScanRequestFailed(@NonNull Result failCode);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	public WifiScanner(@NonNull WifiManager wifiManager, int maxScanAge, int scanRequestTimeout) {
 		if(wifiManager == null) {
 			throw new IllegalArgumentException("wifi manager must not be null");
@@ -269,9 +268,7 @@ public class WifiScanner extends BroadcastReceiver {
 			latestScanResultTime = LocalDateTime.now();
 		} else {
 			wifiScanListener.onScanRequestFailed(Result.FAIL_SCAN_REQUEST_FAILED);
-			return;
 		}
-
 	}
 
 	/**

@@ -15,15 +15,17 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import static android.view.View.NO_ID;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import org.pmw.tinylog.Logger;
@@ -36,19 +38,15 @@ import org.zephyrsoft.trackworktime.model.Report;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
-import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.view.View.NO_ID;
 
 /**
  * Reports dialog.
@@ -153,6 +151,29 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private void export() {
+		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+			doExport();
+		} else {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+					R.string.documentTreePermissionsRequestTextOnUserAction,
+					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_REPORT);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+		if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_REPORT
+				&& resultCode == RESULT_OK) {
+			if (intent != null) {
+				DocumentTreeStorage.saveDirectoryGrant(this, intent);
+				doExport();
+			}
+		} else {
+			super.onActivityResult(requestCode, resultCode, intent);
+		}
+	}
+
+	private void doExport() {
 		switch (binding.grouping.getCheckedRadioButtonId()) {
 			case R.id.groupingNone:
 				exportAllEvents();
@@ -406,11 +427,26 @@ public class ReportsActivity extends AppCompatActivity {
             : range.getName() + " " + unit.getName();
 	}
 
+	/**
+	 * @param reportName readable name
+	 * @param filePrefix file name without the extension ".csv"
+	 * @param report report contents
+	 */
 	private boolean saveAndSendReport(String reportName, String filePrefix, String report) {
-		File reportFile = ExternalStorage.writeFile("reports", filePrefix + "-" +
-			reportName.replaceAll(" ", "-"), ".csv", report.getBytes(), this);
-		if (reportFile == null) {
-			String errorMessage = "could not write report to external storage";
+		String fileName = filePrefix.replaceAll(" ", "-") + ".csv";
+		Uri reportUri = null;
+		try {
+			reportUri = DocumentTreeStorage.writing(this, DocumentTreeStorage.Type.REPORT,
+					fileName,
+					outputStream -> {
+						try {
+							outputStream.write(report.getBytes());
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					});
+		} catch (Exception e) {
+			String errorMessage = "could not write report " + fileName;
 			Logger.error(errorMessage);
 			Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
 			return false;
@@ -420,9 +456,7 @@ public class ReportsActivity extends AppCompatActivity {
 		Intent sendingIntent = new Intent(Intent.ACTION_SEND);
 		sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Track Work Time Report");
 		sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "report time frame: " + reportName);
-		Uri fileUri = FileProvider.getUriForFile(this,
-			BuildConfig.APPLICATION_ID + ".util.GenericFileProvider", reportFile);
-		sendingIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+		sendingIntent.putExtra(Intent.EXTRA_STREAM, reportUri);
 		sendingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		sendingIntent.setType("text/plain");
 		startActivity(Intent.createChooser(sendingIntent, "Send report..."));

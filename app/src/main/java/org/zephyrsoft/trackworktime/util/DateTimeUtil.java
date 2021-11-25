@@ -40,6 +40,7 @@ public class DateTimeUtil {
 	private static final DateTimeFormatter LOCALIZED_DATE_SHORT = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 	private static final DateTimeFormatter LOCALIZED_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 	private static final DateTimeFormatter LOCALIZED_DAY_AND_DATE = new DateTimeFormatterBuilder()
 			.appendPattern("eeee")
 			.appendLiteral(", ")
@@ -234,5 +235,9 @@ public class DateTimeUtil {
 		} else {
 			return "0:00";
 		}
+	}
+
+	public static String timestampNow() {
+		return LocalDateTime.now().format(TIMESTAMP);
 	}
 }

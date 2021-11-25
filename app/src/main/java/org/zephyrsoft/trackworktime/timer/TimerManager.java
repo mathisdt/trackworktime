@@ -15,6 +15,10 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -50,10 +54,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
-
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
-import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
 
 /**
  * Manages the time tracking.
@@ -672,8 +672,8 @@ public class TimerManager {
 	}
 
 	/**
-	 * Calculates the length of the auto-pause for the given day (in minutes).
-	 * @note does *not* account for time changeovers
+	 * Calculates the length of the auto-pause for the given day (in minutes).<br>
+	 * Note: does *not* account for time changeovers
 	 */
 	public long getAutoPauseDuration() {
 		return TimerManager.timeDiff(getAutoPauseBegin(), getAutoPauseEnd());

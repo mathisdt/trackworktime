@@ -49,4 +49,6 @@
     <string name="keyEachTrackingMethodGeneratesEventsSeparately">keyEachTrackingMethodGeneratesEventsSeparately</string>
     <string name="keyAppearanceCategory">keyApperanceCategory</string>
     <string name="keyShowNavigationButtons">keyShowNavigationButtons</string>
+    <string name="keyLastAskedForDocumentTree">keyLastAskedForDocumentTree</string>
+    <string name="keyGrantedDocumentTree">keyGrantedDocumentTree</string>
 </resources>

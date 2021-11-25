@@ -18,6 +18,12 @@ package org.zephyrsoft.trackworktime;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,13 +36,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
@@ -47,9 +46,9 @@ import org.zephyrsoft.trackworktime.databinding.ListItemSeparatorBinding;
 import org.zephyrsoft.trackworktime.editevent.EventEditActivity;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
-import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
@@ -127,7 +126,7 @@ public class EventListActivity extends AppCompatActivity {
 				new EventKeyProvider(myRecyclerView),
 				new EventDetailsLookup(myRecyclerView),
 				StorageStrategy.createLongStorage()
-		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<Long>() {
+		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<>() {
 			@Override
 			public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
 				if (key != null && key.intValue() >= 0 && key.intValue() < events.size()) {
@@ -156,7 +155,7 @@ public class EventListActivity extends AppCompatActivity {
 			selectionTracker.onRestoreInstanceState(savedInstanceState);
 		}
 
-		selectionTracker.addObserver(new SelectionTracker.SelectionObserver<Long>() {
+		selectionTracker.addObserver(new SelectionTracker.SelectionObserver<>() {
 			@Override
 			public void onSelectionChanged() {
 				if (selectionTracker.hasSelection() && myActionMode == null) {
@@ -170,6 +169,7 @@ public class EventListActivity extends AppCompatActivity {
 		});
 	}
 
+	@Override
 	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 
@@ -361,7 +361,7 @@ public class EventListActivity extends AppCompatActivity {
 
 			public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
 
-				return new ItemDetailsLookup.ItemDetails<Long>() {
+				return new ItemDetailsLookup.ItemDetails<>() {
 					@Override
 					public int getPosition() {
 						return getAdapterPosition();

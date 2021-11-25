@@ -15,14 +15,13 @@
  */
 package org.zephyrsoft.trackworktime.backup;
 
-import android.os.Environment;
+import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
+
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.Constants;
-
-import java.io.File;
+import org.zephyrsoft.trackworktime.DocumentTreeStorage;
 
 public class BackupFileInfo {
 
@@ -30,27 +29,39 @@ public class BackupFileInfo {
     private static final String BACKUP_FILE_EVENTS = "backup.events.csv";
     private static final String BACKUP_FILE_TARGETS = "backup.targets.csv";
 
-    public File eventsBackupFile;
-    public File targetsBackupFile;
+    private String eventsBackupFile;
+    private String targetsBackupFile;
+    private DocumentTreeStorage.Type type;
 
     private BackupFileInfo() {}
 
-    @NonNull @Override
-    public String toString() {
-        return eventsBackupFile.toString() +
-            "\n" + targetsBackupFile.toString();
+    public String getEventsBackupFile() {
+        return eventsBackupFile;
+    }
+    public String getTargetsBackupFile() {
+        return targetsBackupFile;
     }
 
-    public String listAvailable() {
+    public DocumentTreeStorage.Type getType() {
+        return type;
+    }
+
+    @NonNull @Override
+    public String toString() {
+        return eventsBackupFile +
+            "\n" + targetsBackupFile;
+    }
+
+    public String listAvailable(Context context) {
         // TODO use StringJoiner
         String separator = "";
         StringBuilder sb = new StringBuilder();
 
-        if (eventsBackupFile.exists()) {
+        if (exists(context, type, eventsBackupFile)) {
             sb.append(eventsBackupFile);
             separator = "\n";
         }
-        if (targetsBackupFile.exists()) {
+        if (exists(context, type, targetsBackupFile)) {
             sb.append(separator).append(targetsBackupFile);
         }
 
@@ -60,29 +71,24 @@ public class BackupFileInfo {
     /**
      * Get backup files
      * @param existing search for existing files
-     * @param prefix prefix for file names
      */
-    public static BackupFileInfo getBackupFiles(boolean existing, String prefix) {
-        final File backupDir = new File(Environment.getExternalStorageDirectory(), Constants.DATA_DIR);
-
-        if (existing && !backupDir.exists()) {
-            Logger.warn("Backup folder does not exist.");
-            return null;
-        }
-
+    public static BackupFileInfo getBackupFiles(Context context, boolean existing, boolean isAutomaticBackup) {
         BackupFileInfo info = new BackupFileInfo();
-        info.eventsBackupFile = new File(backupDir, prefix + BACKUP_FILE_EVENTS);
-        info.targetsBackupFile = new File(backupDir, prefix + BACKUP_FILE_TARGETS);
+        info.eventsBackupFile = BACKUP_FILE_EVENTS;
+        info.targetsBackupFile = BACKUP_FILE_TARGETS;
+        info.type = isAutomaticBackup
+                ? DocumentTreeStorage.Type.AUTOMATIC_BACKUP
+                : DocumentTreeStorage.Type.MANUAL_BACKUP;
 
-        if (existing && !info.eventsBackupFile.exists()) {
-            final File eventsBackupFile = new File(backupDir, BACKUP_FILE_OLD);
-
-            if (eventsBackupFile.exists()) {
-                info.eventsBackupFile = eventsBackupFile;
+        if (existing && !exists(context, info.type, info.eventsBackupFile)) {
+            if (exists(context, info.type, BACKUP_FILE_OLD)) {
+                info.eventsBackupFile = BACKUP_FILE_OLD;
             }
         }
 
-        if (!existing || info.eventsBackupFile.exists() || info.targetsBackupFile.exists()) {
+        if (!existing
+                || exists(context, info.type, info.eventsBackupFile)
+                || exists(context, info.type, info.targetsBackupFile)) {
             return info;
         } else {
             // no backup file exists
@@ -94,7 +100,7 @@ public class BackupFileInfo {
      * Get backup files
      * @param existing search for existing files
      */
-    public static BackupFileInfo getBackupFiles(boolean existing) {
-        return getBackupFiles(existing, "");
+    public static BackupFileInfo getBackupFiles(Context context, boolean existing) {
+        return getBackupFiles(context, existing, false);
     }
 }

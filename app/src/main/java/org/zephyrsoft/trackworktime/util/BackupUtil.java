@@ -15,18 +15,21 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
+import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
+
 import android.content.Context;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.DocumentTreeStorage;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 public class BackupUtil {
 
@@ -36,31 +39,61 @@ public class BackupUtil {
 
     public static Boolean doBackup(Context context, BackupFileInfo info) {
         try {
-            info.eventsBackupFile.getParentFile().mkdirs();
-
             DAO dao = Basics.getOrCreateInstance(context).getDao();
 
-            // Events
-            {
-                final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(info.eventsBackupFile)));
+            DocumentTreeStorage.writing(context, info.getType(), info.getEventsBackupFile(), outputStream -> {
+                try (Writer writer = new OutputStreamWriter(outputStream);
+                     BufferedWriter output = new BufferedWriter(writer)) {
+                    dao.backupEventsToWriter(output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-                dao.backupEventsToWriter(writer);
-                writer.close();
-            }
-
-            // Targets
-            {
-                final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(info.targetsBackupFile)));
-
-                dao.backupTargetsToWriter(writer);
-                writer.close();
-            }
+            DocumentTreeStorage.writing(context, info.getType(), info.getTargetsBackupFile(), outputStream -> {
+                try (Writer writer = new OutputStreamWriter(outputStream);
+                     BufferedWriter output = new BufferedWriter(writer)) {
+                    dao.backupTargetsToWriter(output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             return true;
         } catch (Exception e) {
             Logger.warn(e, "problem while writing backup");
+            return false;
+        }
+    }
+
+    public static Boolean doRestore(Context context, BackupFileInfo info) {
+        try {
+            DAO dao = Basics.getOrCreateInstance(context).getDao();
+
+            if (exists(context, info.getType(), info.getEventsBackupFile())) {
+                DocumentTreeStorage.reading(context, info.getType(), info.getEventsBackupFile(),
+                    reader -> {
+                        try (final BufferedReader input = new BufferedReader(reader)) {
+                            dao.restoreEventsFromReader(input);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            }
+
+            if (exists(context, info.getType(), info.getTargetsBackupFile())) {
+                DocumentTreeStorage.reading(context, info.getType(), info.getTargetsBackupFile(),
+                    reader -> {
+                        try (final BufferedReader input = new BufferedReader(reader)) {
+                            dao.restoreTargetsFromReader(input);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            }
+            return true;
+        } catch (Exception e) {
+            Logger.warn(e, "problem while restoring backup");
             return false;
         }
     }

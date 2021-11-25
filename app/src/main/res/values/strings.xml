@@ -137,7 +137,11 @@
     <string name="lastModifiedTimestamp">Data Last Modified:</string>
     <string name="lastBackupTimestamp">Last Backup:</string>
     <string name="restore">Data Restore</string>
+    <string name="backup_started_in_background">Backup started in background.</string>
     <string name="backup_failed">Backup failed.</string>
+    <string name="backup_finished">Backup finished.</string>
+    <string name="restore_started_in_background">Restore started in background.</string>
+    <string name="restore_finished">Restore finished.</string>
     <string name="restore_failed">Restore failed.</string>
     <string name="restore_failed_file_not_found">Restore failed, no backup files found.</string>
     <string name="backup_overwrite">Overwrite existing backup files?</string>
@@ -207,5 +211,9 @@
     <string name="storagePermissionsRequestTitle">Storage Permission</string>
     <string name="storagePermissionsRequestText">It\'s recommended to let this app write a daily backup of your data to your device or to your SD card (if present).\n\nIf you want that, please allow it in the following dialog.\n\nIf you don\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
     <string name="errorDateOrTimeNotSelected">Date or time not selected</string>
+    <string name="documentTreePermissionsRequestTitle">Storage Permission</string>
+    <string name="documentTreePermissionsRequestTextOnStart">This app needs a little space on your device to save a daily backup of your data and the reports you generate.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, no daily backups will be created and you can\'t generate any reports (you\'ll be asked again if you try).</string>
+    <string name="documentTreePermissionsRequestTextOnUserAction">This feature needs to access your device\'s storage.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, the feature will not be available.</string>
+    <string name="notNow">Not Now</string>
 
 </resources>

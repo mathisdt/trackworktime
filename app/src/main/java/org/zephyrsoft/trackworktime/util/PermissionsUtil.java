@@ -20,29 +20,19 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+
 import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.R;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 
 /**
  * Utility for handling permissions.
  */
 public class PermissionsUtil {
-
-    /**
-     * @return {@code true} if files (backups, logs) can't be written to external storage
-     */
-    public static boolean missingPermissionForExternalStorage(Context context) {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
-    }
 
     /**
      * @return the permissions which are not granted currently in order to enable tracking by location and/or Wi-Fi
@@ -97,22 +87,22 @@ public class PermissionsUtil {
                 Basics.getOrCreateInstance(context).disableWifiBasedTracking();
                 negativeConsequence.run();
             })
-            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                positiveConsequence.run();
-            })
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> positiveConsequence.run())
             .create()
             .show();
     }
 
-    public static void askForStoragePermission(Context context, Runnable positiveConsequence) {
+    public static void askForDocumentTreePermission(Context context,
+                                                    int textResourceId,
+                                                    Runnable positiveConsequence,
+                                                    Runnable negativeConsequence) {
         new AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.storagePermissionsRequestTitle))
-            .setMessage(context.getString(R.string.storagePermissionsRequestText))
-            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                positiveConsequence.run();
-            })
-            .create()
-            .show();
+                .setTitle(context.getString(R.string.documentTreePermissionsRequestTitle))
+                .setMessage(context.getString(textResourceId))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> positiveConsequence.run())
+                .setNegativeButton(R.string.notNow, (dialog, which) -> negativeConsequence.run())
+                .create()
+                .show();
     }
 
 }

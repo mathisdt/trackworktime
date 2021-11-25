@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -73,6 +74,7 @@ public class Basics extends BroadcastReceiver {
 
     private Context context = null;
 	private SharedPreferences preferences = null;
+	private Uri documentTree = null;
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 	private TimeCalculator timeCalculator = null;
@@ -807,4 +809,14 @@ public class Basics extends BroadcastReceiver {
 			context.startActivity(intent);
 		}
 	}
+
+    public Uri getDocumentTree() {
+		if (documentTree == null) {
+			String documenTreeString = preferences.getString(getContext().getString(R.string.keyGrantedDocumentTree), null);
+			documentTree = documenTreeString == null
+					? null
+					: Uri.parse(documenTreeString);
+		}
+		return documentTree;
+    }
 }

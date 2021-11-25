@@ -12,7 +12,7 @@ If you prefer to use other apps like Llama or Tasker for tracking your movements
 
 If you have a Pebble smart watch, the app will notify you on clock-in and clock-out events which is especially useful if you want to be in the know about automatic time tracking via location and/or WiFi.
 
-If you want to back up your data, you have the choice: use Google's mechanism or do it on your own. To use Google's servers just enable the corresponding option. If you don't want to give your data to Google: The app automatically creates a backup each day which is written to external storage. You could use a synchronization app of your choice to periodically copy the whole directory "trackworktime" - or just the files "automatic-backup.*" and "backup.*" (the latter are created when you manually trigger a backup).
+If you want to back up your data, you have the choice: use Google's mechanism or do it on your own. To use Google's servers just enable the corresponding option. And if you don't want to give your data to Google: The app automatically creates a backup each day which is written to the directory you allowed for the app (if you didn't allow it, no automatic backups are written). You could use a synchronization app of your choice to periodically copy the whole directory (or just the subdirectory "twt_automatic_backup").
 
 Finally, the app can generate reports for you. The raw events report is the right thing if you want to import your data somewhere else, while year/month/week reports are fine if you want to keep track of your task progress.
 
