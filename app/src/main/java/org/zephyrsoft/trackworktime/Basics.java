@@ -326,7 +326,9 @@ public class Basics extends BroadcastReceiver {
 			String targetTimeString = "";
 			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
 				Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
-						Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false));
+						Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false),
+					preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
+						false));
 
 				if (minutesRemaining != null) {
 					if (minutesRemaining >= 0) {

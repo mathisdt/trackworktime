@@ -283,16 +283,13 @@ public class TimerManager {
 	 * Get the remaining time for today (in minutes). Takes into account the target work time for
 	 * the week and also if this is the last day in the working week.
 	 *
-	 * @param includeFlexiTime use flexi overtime to reduce the working time
+	 * @param useFlexiTime use flexi overtime to reduce the working time
 	 * @return {@code null} if today is not a work day (as defined in the options)
 	 */
-	public Integer getMinutesRemaining(boolean includeFlexiTime) {
+	public Integer getMinutesRemaining(boolean useFlexiTime, boolean toZeroEveryDay) {
 		OffsetDateTime dateTime = OffsetDateTime.now();
 		DayOfWeek weekDay = dateTime.getDayOfWeek();
 		if (isWorkDay(weekDay)) {
-			boolean toZeroEveryDay = preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
-					false);
-
 			int minutesRemaining = 0;
 			Logger.debug("isAutoPauseEnabled={}", isAutoPauseEnabled());
 			Logger.debug("isAutoPauseTheoreticallyApplicable={}", isAutoPauseTheoreticallyApplicable(dateTime));
@@ -307,13 +304,13 @@ public class TimerManager {
 			if (!isFollowedByWorkDay(weekDay) || toZeroEveryDay) {
 				// reach zero today
 				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
-				timeCalc.calculatePeriod(PeriodEnum.DAY, includeFlexiTime);
+				timeCalc.calculatePeriod(PeriodEnum.DAY, true);
 
 				minutesRemaining += (int)-timeCalc.getBalance();
 			} else {
 				// not the last work day of the week, distribute remaining work time
 				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
-				timeCalc.calculatePeriod(PeriodEnum.WEEK, includeFlexiTime);
+				timeCalc.calculatePeriod(PeriodEnum.WEEK, false);
 
 				long remainingWeekPerDay = -timeCalc.getBalance() / (timeCalc.getFutureWorkDays() + 1);
 				long remainingToday      = -timeCalc.getCurrentDayBalance() + minutesRemaining;
@@ -467,19 +464,11 @@ public class TimerManager {
 	}
 
 	/**
-	 * Is there a day in the week after the given day which is also marked as work day? That means, is the given day NOT
-	 * the last work day in the week?
+	 * Is the next day after the given day marked as work day?
 	 */
 	private boolean isFollowedByWorkDay(DayOfWeek day) {
 		DayOfWeek nextDay = day.plus(1);
-
-		while (nextDay != DayOfWeek.MONDAY) {
-			if (isWorkDay(nextDay)) {
-				return true;
-			}
-			nextDay = nextDay.plus(1);
-		}
-		return false;
+		return isWorkDay(nextDay);
 	}
 
 	/**
