@@ -16,10 +16,8 @@
 package org.zephyrsoft.trackworktime.options;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 
-import androidx.annotation.RequiresApi;
 import androidx.preference.ListPreference;
 
 import org.zephyrsoft.trackworktime.model.FlexiReset;
@@ -29,13 +27,11 @@ import java.util.List;
 
 public class FlexiIntervalPreference extends ListPreference {
 
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	public FlexiIntervalPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
 		initialize();
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	public FlexiIntervalPreference(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		initialize();

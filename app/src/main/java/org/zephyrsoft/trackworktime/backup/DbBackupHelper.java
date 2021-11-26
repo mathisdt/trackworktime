@@ -15,6 +15,15 @@
  */
 package org.zephyrsoft.trackworktime.backup;
 
+import android.app.backup.BackupDataInputStream;
+import android.app.backup.BackupDataOutput;
+import android.app.backup.BackupHelper;
+import android.content.Context;
+import android.os.ParcelFileDescriptor;
+
+import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.database.DAO;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -26,18 +35,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import android.annotation.TargetApi;
-import android.app.backup.BackupDataInputStream;
-import android.app.backup.BackupDataOutput;
-import android.app.backup.BackupHelper;
-import android.content.Context;
-import android.os.Build;
-import android.os.ParcelFileDescriptor;
-
-import org.pmw.tinylog.Logger;
-import org.zephyrsoft.trackworktime.database.DAO;
-
-@TargetApi(Build.VERSION_CODES.FROYO)
 public class DbBackupHelper implements BackupHelper {
 	private static final String KEY_EVENTS = "db_events";
 	private static final String KEY_TARGETS = "db_targets";

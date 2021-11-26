@@ -15,12 +15,10 @@
  */
 package org.zephyrsoft.trackworktime.backup;
 
-import android.annotation.TargetApi;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.preference.PreferenceManager;
 
 import org.zephyrsoft.trackworktime.R;
@@ -33,7 +31,6 @@ public class WorkTimeTrackerBackupManager {
 	private final SharedPreferences defaultPrefs;
 	private boolean enabled;
 
-	@TargetApi(Build.VERSION_CODES.FROYO)
 	public WorkTimeTrackerBackupManager(final Context context) {
 		prefKeyBackupEnabled = context.getText(R.string.keyBackupEnabled) + "";
 		backupManager = new BackupManager(context);
