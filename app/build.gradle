@@ -29,10 +29,10 @@ android {
     defaultConfig {
         applicationId "org.zephyrsoft.trackworktime"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
 
         versionCode 54                      // increment with every release
-        versionName '1.1.10-SNAPSHOT'        // change with every release
+        versionName '1.1.10-SNAPSHOT'       // change with every release
     }
 
     buildTypes {
