@@ -106,6 +106,7 @@ public class Basics extends BroadcastReceiver {
 	 */
 	public static Basics getOrCreateInstance(Context androidContext) {
 		if (instance == null) {
+			Logger.debug("created a new Basics instance from context {}", androidContext);
 			instance = new Basics();
 			instance.receivedIntent(androidContext);
 		}

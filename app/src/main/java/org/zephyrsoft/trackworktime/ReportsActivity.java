@@ -170,7 +170,7 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private void export() {
-		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
 			doExport();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,

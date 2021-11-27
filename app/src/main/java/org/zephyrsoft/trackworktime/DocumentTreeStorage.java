@@ -23,7 +23,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 
@@ -155,20 +154,47 @@ public class DocumentTreeStorage {
         return result;
     }
 
-    public static boolean hasDirectoryGrant(Context context) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.contains(context.getString(R.string.keyGrantedDocumentTree));
+    public static boolean shouldRequestDirectoryGrant(Context context) {
+        SharedPreferences prefs = Basics.getOrCreateInstance(context).getPreferences();
+
+        boolean noGrantAndNeverAsked = !prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
+            && !prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree));
+        boolean noGrantAndAskedLongAgo = !prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
+            && prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree))
+            && dateIsUnreadableOrOld(prefs.getString(context.getString(R.string.keyLastAskedForDocumentTree), null));
+        boolean grantPresentButInvalidAndAskedLongAgo = prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
+            && !hasValidDirectoryGrant(context)
+            && dateIsUnreadableOrOld(prefs.getString(context.getString(R.string.keyLastAskedForDocumentTree), null));
+
+        return noGrantAndNeverAsked || noGrantAndAskedLongAgo || grantPresentButInvalidAndAskedLongAgo;
     }
 
-    public static boolean shouldRequestDirectoryGrant(Context context, SharedPreferences prefs) {
-        return (!prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
-                && !prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree)))
-                || (!prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
-                && prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree))
-                && dateIsUnreadableOrOld(prefs.getString(context.getString(R.string.keyLastAskedForDocumentTree), null)));
+    public static boolean hasValidDirectoryGrant(Context context) {
+        String grantedDocumentTree = Basics.getOrCreateInstance(context).getPreferences()
+            .getString(context.getString(R.string.keyGrantedDocumentTree), null);
+        if (grantedDocumentTree == null) {
+            return false;
+        }
+        try {
+            Uri dir = Uri.parse(grantedDocumentTree);
+            DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, dir);
+            if (grantedDirectory != null) {
+                DocumentFile marker = findOrCreate(grantedDirectory, true,
+                    Type.AUTOMATIC_BACKUP.getSubdirectoryName(), DocumentTreeStorage.Type.AUTOMATIC_BACKUP.getMimeType());
+                return marker != null && marker.exists();
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            Logger.info(e, "access to storage " + grantedDocumentTree + " is not allowed");
+            return false;
+        }
     }
 
     private static boolean dateIsUnreadableOrOld(String dateString) {
+        if (dateString == null) {
+            return true;
+        }
         try {
             LocalDate date = LocalDate.parse(dateString);
             return !LocalDate.now().minusDays(7).isBefore(date);
@@ -185,23 +211,22 @@ public class DocumentTreeStorage {
             () -> {
                 Logger.debug("document tree dialog confirmed, asking for permission");
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // initially select "Documents" directory
-                    StorageManager sm = (StorageManager) activity.getSystemService(Context.STORAGE_SERVICE);
-                    Intent temp = sm.getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-                    Uri uri = temp.getParcelableExtra(DocumentsContract.EXTRA_INITIAL_URI);
-                    String scheme = uri.toString();
-                    scheme = scheme.replace("/root/", "/document/");
-                    scheme += "%3ADocuments";
-                    uri = Uri.parse(scheme);
-                    temp.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+                String grantedDir = Basics.getOrCreateInstance(activity).getPreferences()
+                    .getString(activity.getString(R.string.keyGrantedDocumentTree), null);
+                if (grantedDir != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    try {
+                        Uri uri = Uri.parse(grantedDir);
+                        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+                    } catch (Exception e) {
+                        Logger.debug(e, "couldn't use old granted directory {}", grantedDir);
+                    }
                 }
                 activity.startActivityForResult(intent, requestCode);
-                // result is fetched in WorkTimeTrackerActivity.onActivityResult(...)
+                // result is fetched e.g. in WorkTimeTrackerActivity.onActivityResult(...)
             }, () -> {
                 Logger.debug("document tree dialog cancelled");
-                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-                final SharedPreferences.Editor editor = prefs.edit();
+                final SharedPreferences.Editor editor =
+                    Basics.getOrCreateInstance(activity).getPreferences().edit();
                 editor.putString(activity.getString(R.string.keyLastAskedForDocumentTree),
                         LocalDate.now().toString());
                 editor.commit();

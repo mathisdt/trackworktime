@@ -38,7 +38,7 @@ public class AutomaticBackup extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        if (!DocumentTreeStorage.hasDirectoryGrant(context)) {
+        if (!DocumentTreeStorage.hasValidDirectoryGrant(context)) {
             Logger.warn("automatic backup failed because no document tree access has been granted");
             return Result.failure(new Data.Builder().putString("error", "automatic backup failed: no directory access granted").build());
         }

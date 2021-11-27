@@ -322,24 +322,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		outState.putInt(KEY_CURRENT_WEEK, getCurrentWeekIndex());
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-
-		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if (DocumentTreeStorage.shouldRequestDirectoryGrant(this, prefs)) {
-			DocumentTreeStorage.requestDirectoryGrant(this,
-					R.string.documentTreePermissionsRequestTextOnStart,
-					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP);
-		}
-
-		// request location permissions if necessary
-		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
-				|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
-			requestMissingPermissionsForTracking();
-		}
-	}
-
 	private void requestMissingPermissionsForTracking() {
 		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
 		if (!missingPermissions.isEmpty()) {
@@ -693,7 +675,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void exportLogs() {
-		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
 			doExportLogs();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
@@ -758,6 +740,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	@Override
 	protected void onResume() {
 		Logger.debug("onResume called");
+
+		if (DocumentTreeStorage.shouldRequestDirectoryGrant(this)) {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+				R.string.documentTreePermissionsRequestTextOnStart,
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP);
+		}
+
+		// request location permissions if necessary
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)
+			|| prefs.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
+			requestMissingPermissionsForTracking();
+		}
 
 		visible = true;
 		if (reloadTasksOnResume) {
@@ -866,7 +861,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	// ---------------------------------------------------------------------------------------------
 
 	private void backup() {
-		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
 			doBackup();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
@@ -931,7 +926,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void restore() {
-		if (DocumentTreeStorage.hasDirectoryGrant(this)) {
+		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
 			doRestore();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
