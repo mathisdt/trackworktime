@@ -108,13 +108,11 @@ public class ReportsActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-			default:
-				throw new IllegalArgumentException("options menu: unknown item selected");
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
 		}
+		throw new IllegalArgumentException("options menu: unknown item selected");
 	}
 
 	private void restoreSelectionState() {
@@ -453,7 +451,7 @@ public class ReportsActivity extends AppCompatActivity {
 	 */
 	private boolean saveAndSendReport(String reportName, String filePrefix, String report) {
 		String fileName = filePrefix.replaceAll(" ", "-") + ".csv";
-		Uri reportUri = null;
+		Uri reportUri;
 		try {
 			reportUri = DocumentTreeStorage.writing(this, DocumentTreeStorage.Type.REPORT,
 					fileName,

@@ -178,7 +178,7 @@ public class TargetEditActivity extends AppCompatActivity
 				targetValue = TimerManager.parseHoursMinutesString(targetValueString);
 			}
 
-			String comment = binding.text.getText().toString();
+			String comment = binding.text.getText() == null ? null : binding.text.getText().toString();
 
 
 			if (newTarget) {

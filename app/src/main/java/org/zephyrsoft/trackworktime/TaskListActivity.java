@@ -267,8 +267,6 @@ public class TaskListActivity extends AppCompatActivity {
 					alert.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
                         // do nothing
                     });
-
-					alert.show();
 				} else {
 					// delete task after confirmation
 					alert.setTitle(getString(R.string.delete_task));
@@ -291,9 +289,8 @@ public class TaskListActivity extends AppCompatActivity {
 					alert.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
                         // do nothing
                     });
-
-					alert.show();
 				}
+				alert.show();
 
 				return true;
 			default:

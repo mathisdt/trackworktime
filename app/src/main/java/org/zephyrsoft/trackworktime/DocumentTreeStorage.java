@@ -87,8 +87,8 @@ public class DocumentTreeStorage {
             DocumentFile subDirectory = find(grantedDirectory, true, type.getSubdirectoryName());
             if (subDirectory != null) {
                 DocumentFile file = find(subDirectory, false, filename);
-                try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "r");
-                     InputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+                try (ParcelFileDescriptor fileDescriptor = file == null ? null : context.getContentResolver().openFileDescriptor(file.getUri(), "r");
+                     InputStream inputStream = fileDescriptor == null ? null : new FileInputStream(fileDescriptor.getFileDescriptor());
                      Reader reader = new InputStreamReader(inputStream)) {
                     Logger.debug("reading from {} {}", type, filename);
                     action.accept(reader);
@@ -122,7 +122,7 @@ public class DocumentTreeStorage {
         DocumentFile file = getForWriting(context, type, filename);
         if (file != null) {
             try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "w");
-                 OutputStream outputStream = new FileOutputStream(fileDescriptor.getFileDescriptor())) {
+                 OutputStream outputStream = fileDescriptor == null ? null : new FileOutputStream(fileDescriptor.getFileDescriptor())) {
                 Logger.debug("writing to {} {}", type, filename);
                 action.accept(outputStream);
                 return file.getUri();

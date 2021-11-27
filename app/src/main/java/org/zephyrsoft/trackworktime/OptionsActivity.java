@@ -68,13 +68,11 @@ public class OptionsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                throw new IllegalArgumentException("options menu: unknown item selected");
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
+        throw new IllegalArgumentException("options menu: unknown item selected");
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
@@ -167,9 +165,9 @@ public class OptionsActivity extends AppCompatActivity {
                     if (!missingPermissions.isEmpty()) {
                         Logger.debug("asking for permissions: {}", missingPermissions);
                         PermissionsUtil.askForLocationPermission(getContext(),
-                            () -> requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
+                            () -> requestPermissions(missingPermissions.toArray(new String[0]),
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
-                            () -> locationPermissionNotGranted());
+                            this::locationPermissionNotGranted);
                     }
                 }
             }
@@ -186,7 +184,7 @@ public class OptionsActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID) {
                 List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
                 if (ungranted.isEmpty()) {

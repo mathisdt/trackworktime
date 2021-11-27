@@ -19,6 +19,7 @@ package org.zephyrsoft.trackworktime;
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 import static java.lang.Math.abs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -216,7 +217,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		checkAllOptions();
 
 		if (!preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
-			DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+			@SuppressLint("ApplySharedPref") DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
                 final Editor editor = preferences.edit();
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -316,7 +317,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState, @NonNull PersistableBundle outPersistentState) {
+	public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
 
 		outState.putInt(KEY_CURRENT_WEEK, getCurrentWeekIndex());
@@ -328,7 +329,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			Logger.debug("asking for permissions: {}", missingPermissions);
 			PermissionsUtil.askForLocationPermission(this,
 				() -> ActivityCompat.requestPermissions(this,
-					missingPermissions.toArray(new String[missingPermissions.size()]),
+					missingPermissions.toArray(new String[0]),
 					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
 				() -> {
 					// do nothing
@@ -371,7 +372,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		binding.main.text.clearFocus();
 
 		Task selectedTask = (Task) binding.main.task.getSelectedItem();
-		String description = binding.main.text.getText().toString();
+		String description = binding.main.text.getText() == null
+			? null
+			: binding.main.text.getText().toString();
 		timerManager.startTracking(minutesToPredate, selectedTask, description);
 		externalNotificationManager.notifyPebble("started tracking");
 		refreshView();
@@ -442,6 +445,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
+	@SuppressLint("NotifyDataSetChanged")
 	protected void refreshView() {
 		if (preferences.getBoolean(getString(R.string.keyShowNavigationButtons), false)) {
 			binding.main.navigation.setVisibility(View.VISIBLE);
@@ -530,7 +534,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (toggle.onOptionsItemSelected(item)) {
 			return true;
 		}
@@ -795,16 +799,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions,
-			int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+										   @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSION_REQUEST_CODE_BACKUP:
-				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backup();
 				}
 				break;
 			case Constants.PERMISSION_REQUEST_CODE_RESTORE:
-				if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					restore();
 				}
 				break;
@@ -892,37 +896,46 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
+	private static class BackupAsyncTask extends AsyncTask<Void, Void, Boolean> {
+		private final BackupFileInfo info;
+		@SuppressLint("StaticFieldLeak")
+		private final WorkTimeTrackerActivity activity;
+		private ProgressDialog dialog;
+
+		@SuppressWarnings({"deprecation"})
+		public BackupAsyncTask(BackupFileInfo info, WorkTimeTrackerActivity activity) {
+			this.info = info;
+			this.activity = activity;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(activity, activity.getString(R.string.backup),
+				activity.getString(R.string.please_wait), true);
+			dialog.show();
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... none) {
+			return BackupUtil.doBackup(activity, info);
+		}
+
+		@Override
+		protected void onPostExecute(Boolean successful) {
+			if (successful) {
+				activity.refreshView();
+				Toast.makeText(activity, activity.getString(R.string.backup_finished)
+					+ "\n" + info.toString(), Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(activity, R.string.backup_failed, Toast.LENGTH_LONG).show();
+			}
+			dialog.dismiss();
+		}
+	}
+
 	private void backup(final BackupFileInfo info) {
 		// do in background
-		new AsyncTask<Void, Void, Boolean>() {
-			private ProgressDialog dialog;
-
-			@Override
-			protected void onPreExecute() {
-				dialog = ProgressDialog.show(WorkTimeTrackerActivity.this,
-					getString(R.string.backup), getString(R.string.please_wait), true);
-				dialog.show();
-			}
-
-			@Override
-			protected Boolean doInBackground(Void... none) {
-				return BackupUtil.doBackup(getApplicationContext(), info);
-			}
-
-			@Override
-			protected void onPostExecute(Boolean successful) {
-				if (successful) {
-					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this,
-						getString(R.string.backup_finished) + "\n" + info.toString(), Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(WorkTimeTrackerActivity.this,
-						R.string.backup_failed, Toast.LENGTH_LONG).show();
-				}
-				dialog.dismiss();
-			}
-
-		}.execute(null, null);
+		new BackupAsyncTask(info, this).execute(null, null);
 	}
 
 	private void restore() {
@@ -964,36 +977,45 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
+	private static class RestoreAsyncTask extends AsyncTask<Void, Void, Boolean> {
+		private final BackupFileInfo info;
+		@SuppressLint("StaticFieldLeak")
+		private final WorkTimeTrackerActivity activity;
+		private ProgressDialog dialog;
+
+		@SuppressWarnings({"deprecation"})
+		public RestoreAsyncTask(BackupFileInfo info, WorkTimeTrackerActivity activity) {
+			this.info = info;
+			this.activity = activity;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(activity, activity.getString(R.string.restore),
+				activity.getString(R.string.please_wait), true);
+			dialog.show();
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... none) {
+			return BackupUtil.doRestore(activity, info);
+		}
+
+		@Override
+		protected void onPostExecute(Boolean successful) {
+			if (successful) {
+				activity.refreshView();
+				Toast.makeText(activity, activity.getString(R.string.restore_finished)
+					+ "\n" + info.listAvailable(activity), Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(activity, R.string.restore_failed, Toast.LENGTH_LONG).show();
+			}
+			dialog.dismiss();
+		}
+	}
+
 	private void restore(final BackupFileInfo info) {
 		// do in background
-		new AsyncTask<Void, Void, Boolean>() {
-			private ProgressDialog dialog;
-
-			@Override
-			protected void onPreExecute() {
-				dialog = ProgressDialog.show(WorkTimeTrackerActivity.this,
-					getString(R.string.restore), getString(R.string.please_wait), true);
-				dialog.show();
-			}
-
-			@Override
-			protected Boolean doInBackground(Void... none) {
-				return BackupUtil.doRestore(getApplicationContext(), info);
-			}
-
-			@Override
-			protected void onPostExecute(Boolean successful) {
-				if (successful) {
-					refreshView();
-					Toast.makeText(WorkTimeTrackerActivity.this,
-						getString(R.string.restore_finished) + "\n" + info.listAvailable(WorkTimeTrackerActivity.this), Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(WorkTimeTrackerActivity.this,
-						R.string.restore_failed, Toast.LENGTH_LONG).show();
-				}
-				dialog.dismiss();
-			}
-
-		}.execute(null, null);
+		new RestoreAsyncTask(info, this).execute(null, null);
 	}
 }

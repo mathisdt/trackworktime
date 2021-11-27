@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -135,7 +136,7 @@ public class EventListActivity extends AppCompatActivity {
 		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<>() {
 			@Override
 			public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
-				if (key != null && key.intValue() >= 0 && key.intValue() < events.size()) {
+				if (key.intValue() >= 0 && key.intValue() < events.size()) {
 					return !(events.get(key.intValue()) instanceof EventSeparator);
 				}
 
@@ -254,6 +255,7 @@ public class EventListActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressLint("NotifyDataSetChanged")
 	private void refreshAdapter() {
 		if (myEventAdapter != null) {
 			myEventAdapter.notifyDataSetChanged();
@@ -373,7 +375,7 @@ public class EventListActivity extends AppCompatActivity {
 				return new ItemDetailsLookup.ItemDetails<>() {
 					@Override
 					public int getPosition() {
-						return getAdapterPosition();
+						return getBindingAdapterPosition();
 					}
 
 					@Override

@@ -76,13 +76,11 @@ public class TimeAheadActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-			default:
-				throw new IllegalArgumentException("options menu: unknown item selected");
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
 		}
+		throw new IllegalArgumentException("options menu: unknown item selected");
 	}
 
 	@Override
