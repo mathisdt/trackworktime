@@ -26,6 +26,16 @@ When using ClockIn, you can also set the parameters *task=...* and *text=...* in
 the intent so your events are more meaningful. Here are some screenshots to point out how it can be done in Automate:
 [Flow overview](https://zephyrsoft.org/images/automate-1.png),
 ["Broadcast send" block arguments](https://zephyrsoft.org/images/automate-2.png).
+You can also use the action *org.zephyrsoft.trackworktime.StatusRequest* to get the current state of TWT:
+is the user clocked in, and if so, with which task and how much time remains for today?
+Here's how you can use this in Automate:
+[Flow overview](https://zephyrsoft.org/images/automate-3.png),
+["Send broadcast" settings top](https://zephyrsoft.org/images/automate-4.png),
+["Send broadcast" settings bottom](https://zephyrsoft.org/images/automate-5.png),
+["Receive broadcast" settings top](https://zephyrsoft.org/images/automate-6.png),
+["Receive broadcast" settings bottom](https://zephyrsoft.org/images/automate-7.png),
+["Dialog message" settings](https://zephyrsoft.org/images/automate-8.png),
+[resulting message](https://zephyrsoft.org/images/automate-9.png).
 
 If you have a **Pebble** smart watch, the app will notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.

@@ -25,6 +25,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
@@ -37,7 +38,8 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		Bundle extras = intent.getExtras();
 
-		if (action != null && action.equals(Constants.CLOCK_IN_ACTION)) {
+		TimerManager timerManager = Basics.getOrCreateInstance(context).getTimerManager();
+		if (Constants.CLOCK_IN_ACTION.equals(action)) {
 			Integer taskId = getTaskId(context, extras);
 			if (taskId == null) {
 				taskId = getDefaultTaskId(context);
@@ -45,24 +47,43 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
-			Basics.getOrCreateInstance(context).getTimerManager().createEvent(OffsetDateTime.now(),
+			timerManager.createEvent(OffsetDateTime.now(),
 				taskId, TypeEnum.CLOCK_IN, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
 			Widget.dispatchUpdateIntent(context);
-		} else if (action != null && action.equals(Constants.CLOCK_OUT_ACTION)) {
+		} else if (Constants.CLOCK_OUT_ACTION.equals(action)) {
 			Integer taskId = getTaskId(context, extras);
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-out via broadcast / taskId={} / text={}", taskId, text);
-			Basics.getOrCreateInstance(context).getTimerManager().createEvent(OffsetDateTime.now(),
+			timerManager.createEvent(OffsetDateTime.now(),
 				taskId, TypeEnum.CLOCK_OUT, text);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
 			}
 			Widget.dispatchUpdateIntent(context);
+		} else if (Constants.STATUS_REQUEST_ACTION.equals(action)) {
+			String replyIntentName = getReplyIntent(extras);
+			if (replyIntentName == null) {
+				Logger.warn("no reply intent given, can't respond without it");
+			} else {
+				Intent replyIntent = new Intent(replyIntentName);
+
+				replyIntent.putExtra(Constants.INTENT_EXTRA_REPLY_STATUS,
+					timerManager.isTracking() ? "clocked-in" : "clocked-out");
+				Task currentTask = timerManager.getCurrentTask();
+				if (currentTask != null) {
+					replyIntent.putExtra(Constants.INTENT_EXTRA_REPLY_CURRENT_TASK_NAME, currentTask.getName());
+					replyIntent.putExtra(Constants.INTENT_EXTRA_REPLY_CURRENT_TASK_ID, currentTask.getId());
+				}
+				replyIntent.putExtra(Constants.INTENT_EXTRA_REPLY_MINUTES_REMAINING,
+					timerManager.getMinutesRemaining());
+				Logger.debug("sending status reply: {} {}", replyIntent.getAction(), replyIntent.getExtras());
+				context.sendBroadcast(replyIntent);
+			}
 		} else {
 			Logger.warn("TRACKING: unknown intent action");
 		}
@@ -106,6 +127,13 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			return null;
 		}
 		return extras.getString(Constants.INTENT_EXTRA_TEXT);
+	}
+
+	private static String getReplyIntent(Bundle extras) {
+		if (extras == null) {
+			return null;
+		}
+		return extras.getString(Constants.INTENT_EXTRA_REPLY_INTENT);
 	}
 
 }

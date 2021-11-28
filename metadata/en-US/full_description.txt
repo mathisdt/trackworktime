@@ -8,7 +8,7 @@ You may provide the geo-coordinates of your work place and the app can automatic
 
 You also may provide a Wi-Fi network name which is visible at your work place the app can use to clock in automatically when this SSID is in range (you don't need to be connected to this network). Of course you should have Wi-Fi enabled for this to work.
 
-If you prefer to use other apps like Llama or Tasker for tracking your movements, that's fine - TWT can be triggered from other apps and just do the book-keeping of your work time. In this case, you have to create broadcast intents called org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOut. When using ClockIn, you can also set the parameters task=... and text=... in the "extra" section of the intent so your events are more meaningful. For more details on this, see the web site.
+If you prefer to use other apps like LlamaLab Automate or Tasker for tracking your movements, that's fine - TWT can be triggered from other apps and just do the book-keeping of your work time. In this case, you have to create broadcast intents called org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOut. When using ClockIn, you can also set the parameters task=... and text=... in the "extra" section of the intent so your events are more meaningful. You can also use the action org.zephyrsoft.trackworktime.StatusRequest to get the current state of TWT: is the user clocked in, and if so, with which task and how much time remains for today? For more details on this, see the web site.
 
 If you have a Pebble smart watch, the app will notify you on clock-in and clock-out events which is especially useful if you want to be in the know about automatic time tracking via location and/or WiFi.
 

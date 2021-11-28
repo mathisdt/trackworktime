@@ -167,6 +167,7 @@ public class Basics extends BroadcastReceiver {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(Constants.CLOCK_IN_ACTION);
 		intentFilter.addAction(Constants.CLOCK_OUT_ACTION);
+		intentFilter.addAction(Constants.STATUS_REQUEST_ACTION);
 		context.registerReceiver(thirdPartyReceiver, intentFilter);
 		Logger.debug("Registered {}", ThirdPartyReceiver.class.getSimpleName());
 	}
@@ -326,10 +327,7 @@ public class Basics extends BroadcastReceiver {
 			String timeSoFar = DateTimeUtil.formatDuration(workedTime);
 			String targetTimeString = "";
 			if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-				Integer minutesRemaining = timerManager.getMinutesRemaining(preferences.getBoolean(
-						Key.NOTIFICATION_USES_FLEXI_TIME_AS_TARGET.getName(), false),
-					preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
-						false));
+				Integer minutesRemaining = timerManager.getMinutesRemaining();
 
 				if (minutesRemaining != null) {
 					if (minutesRemaining >= 0) {

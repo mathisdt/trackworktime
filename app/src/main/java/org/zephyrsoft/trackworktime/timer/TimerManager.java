@@ -282,11 +282,10 @@ public class TimerManager {
 	/**
 	 * Get the remaining time for today (in minutes). Takes into account the target work time for
 	 * the week and also if this is the last day in the working week.
-	 *
-	 * @param useFlexiTime use flexi overtime to reduce the working time
-	 * @return {@code null} if today is not a work day (as defined in the options)
 	 */
-	public Integer getMinutesRemaining(boolean useFlexiTime, boolean toZeroEveryDay) {
+	public Integer getMinutesRemaining() {
+		boolean toZeroEveryDay = preferences.getBoolean(Key.FLEXI_TIME_TO_ZERO_ON_EVERY_DAY.getName(),
+			false);
 		OffsetDateTime dateTime = OffsetDateTime.now();
 		DayOfWeek weekDay = dateTime.getDayOfWeek();
 		if (isWorkDay(weekDay)) {

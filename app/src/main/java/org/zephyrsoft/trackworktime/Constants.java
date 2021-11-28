@@ -83,9 +83,20 @@ public class Constants {
 	public static final String INTENT_EXTRA_TASK = "task";
 	/** the key for the new event's text (used for third-party events) */
 	public static final String INTENT_EXTRA_TEXT = "text";
+	/** the key for the intent name to reply to on status request (used for third-party events) */
+	public static final String INTENT_EXTRA_REPLY_INTENT = "reply_intent";
+	/** the key in the reply to on status request for status (checked-in or checked-out) */
+	public static final String INTENT_EXTRA_REPLY_STATUS = "status";
+	/** the key in the reply to on status request for current task (only if checked in currently) */
+	public static final String INTENT_EXTRA_REPLY_CURRENT_TASK_NAME = "current-task-name";
+	/** the key in the reply to on status request for current task (only if checked in currently) */
+	public static final String INTENT_EXTRA_REPLY_CURRENT_TASK_ID = "current-task-id";
+	/** the key in the reply to on status request for remaining time (in minutes) */
+	public static final String INTENT_EXTRA_REPLY_MINUTES_REMAINING = "minutes-remaining";
 
 	public static final String CLOCK_IN_ACTION = "org.zephyrsoft.trackworktime.ClockIn";
 	public static final String CLOCK_OUT_ACTION = "org.zephyrsoft.trackworktime.ClockOut";
+	public static final String STATUS_REQUEST_ACTION = "org.zephyrsoft.trackworktime.StatusRequest";
 
 	// Work manager unique name
 	public static final String WORK_AUTOBACKUP = "AUTOBACKUP";
