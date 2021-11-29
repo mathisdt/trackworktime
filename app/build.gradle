@@ -31,8 +31,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
 
-        versionCode 55                      // increment with every release
-        versionName '1.1.11'       // change with every release
+        versionCode 56                      // increment with every release
+        versionName '1.1.12-SNAPSHOT'       // change with every release
     }
 
     buildTypes {
