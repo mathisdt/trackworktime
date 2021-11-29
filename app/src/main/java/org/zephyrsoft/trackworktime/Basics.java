@@ -607,7 +607,7 @@ public class Basics extends BroadcastReceiver {
 			.setContentTitle(notificationTitle)
 			.setContentText(notificationSubtitle)
 			.setContentIntent(clickIntent)
-			.setSmallIcon(R.drawable.ic_launcher)
+			.setSmallIcon(R.drawable.ic_notification)
 			.setTicker(scrollingText)
 			.setOnlyAlertOnce(true)
 			.setOngoing(persistent);
