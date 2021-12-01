@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.util;
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
@@ -40,6 +41,16 @@ public class BackupUtil {
     public static Boolean doBackup(Context context, BackupFileInfo info) {
         try {
             DAO dao = Basics.getOrCreateInstance(context).getDao();
+            SharedPreferences preferences = Basics.getOrCreateInstance(context).getPreferences();
+
+            DocumentTreeStorage.writing(context, info.getType(), info.getPreferencesBackupFile(), outputStream -> {
+                try (Writer writer = new OutputStreamWriter(outputStream);
+                     BufferedWriter output = new BufferedWriter(writer)) {
+                    PreferencesUtil.writePreferences(preferences, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             DocumentTreeStorage.writing(context, info.getType(), info.getEventsBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
@@ -69,6 +80,18 @@ public class BackupUtil {
     public static Boolean doRestore(Context context, BackupFileInfo info) {
         try {
             DAO dao = Basics.getOrCreateInstance(context).getDao();
+            SharedPreferences preferences = Basics.getOrCreateInstance(context).getPreferences();
+
+            if (exists(context, info.getType(), info.getPreferencesBackupFile())) {
+                DocumentTreeStorage.reading(context, info.getType(), info.getPreferencesBackupFile(),
+                    reader -> {
+                        try (final BufferedReader input = new BufferedReader(reader)) {
+                            PreferencesUtil.readPreferences(preferences, input);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            }
 
             if (exists(context, info.getType(), info.getEventsBackupFile())) {
                 DocumentTreeStorage.reading(context, info.getType(), info.getEventsBackupFile(),

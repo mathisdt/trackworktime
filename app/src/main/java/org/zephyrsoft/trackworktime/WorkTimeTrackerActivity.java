@@ -878,7 +878,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		final BackupFileInfo info = BackupFileInfo.getBackupFiles(this, false);
 
 		if (exists(this, info.getType(), info.getEventsBackupFile())
-			|| exists(this, info.getType(), info.getTargetsBackupFile())) {
+			|| exists(this, info.getType(), info.getTargetsBackupFile())
+			|| exists(this, info.getType(), info.getPreferencesBackupFile())) {
 			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			final String msgBackupOverwrite = getString(R.string.backup_overwrite)
 					+ "\n" + info.listAvailable(this);

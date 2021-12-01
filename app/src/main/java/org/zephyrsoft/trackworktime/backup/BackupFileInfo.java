@@ -28,9 +28,11 @@ public class BackupFileInfo {
     private static final String BACKUP_FILE_OLD = "backup.csv";
     private static final String BACKUP_FILE_EVENTS = "backup.events.csv";
     private static final String BACKUP_FILE_TARGETS = "backup.targets.csv";
+    private static final String BACKUP_FILE_PREFERENCES = "backup.preferences.csv";
 
     private String eventsBackupFile;
     private String targetsBackupFile;
+    private final String preferencesBackupFile = BACKUP_FILE_PREFERENCES;
     private DocumentTreeStorage.Type type;
 
     private BackupFileInfo() {}
@@ -41,6 +43,9 @@ public class BackupFileInfo {
     public String getTargetsBackupFile() {
         return targetsBackupFile;
     }
+    public String getPreferencesBackupFile() {
+        return preferencesBackupFile;
+    }
 
     public DocumentTreeStorage.Type getType() {
         return type;
@@ -48,8 +53,9 @@ public class BackupFileInfo {
 
     @NonNull @Override
     public String toString() {
-        return eventsBackupFile +
-            "\n" + targetsBackupFile;
+        return eventsBackupFile
+            + "\n" + targetsBackupFile
+            + "\n" + preferencesBackupFile;
     }
 
     public String listAvailable(Context context) {
@@ -63,6 +69,10 @@ public class BackupFileInfo {
         }
         if (exists(context, type, targetsBackupFile)) {
             sb.append(separator).append(targetsBackupFile);
+            separator = "\n";
+        }
+        if (exists(context, type, preferencesBackupFile)) {
+            sb.append(separator).append(preferencesBackupFile);
         }
 
         return sb.toString();
@@ -88,7 +98,8 @@ public class BackupFileInfo {
 
         if (!existing
                 || exists(context, info.type, info.eventsBackupFile)
-                || exists(context, info.type, info.targetsBackupFile)) {
+                || exists(context, info.type, info.targetsBackupFile)
+                || exists(context, info.type, info.preferencesBackupFile)) {
             return info;
         } else {
             // no backup file exists
