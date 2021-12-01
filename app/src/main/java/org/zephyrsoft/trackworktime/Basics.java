@@ -38,6 +38,8 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 
+import androidx.annotation.NonNull;
+
 import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
@@ -317,6 +319,7 @@ public class Basics extends BroadcastReceiver {
 			// display/update
 
 			Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
+			clickIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			clickIntent.setAction(Intent.ACTION_MAIN);
 			clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 			Intent buttonOneIntent = new Intent(Constants.CLOCK_IN_ACTION);
@@ -598,9 +601,9 @@ public class Basics extends BroadcastReceiver {
 	 *            a unique number to identify the notification
 	 */
 	public void showNotification(String scrollingText, String notificationTitle, String notificationSubtitle,
-		PendingIntent clickIntent, Integer notificationId, boolean persistent, PendingIntent buttonOneIntent,
-		Integer buttonOneIcon, String buttonOneText, PendingIntent buttonTwoIntent, Integer buttonTwoIcon,
-		String buttonTwoText) {
+		PendingIntent clickIntent, @NonNull Integer notificationId, boolean persistent,
+		PendingIntent buttonOneIntent, Integer buttonOneIcon, String buttonOneText,
+		PendingIntent buttonTwoIntent,Integer buttonTwoIcon, String buttonTwoText) {
 		NotificationManager notificationManager = (NotificationManager) context
 			.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification.Builder notificationBuilder = new Notification.Builder(context)
@@ -610,7 +613,9 @@ public class Basics extends BroadcastReceiver {
 			.setSmallIcon(R.drawable.ic_notification)
 			.setTicker(scrollingText)
 			.setOnlyAlertOnce(true)
-			.setOngoing(persistent);
+			.setOngoing(persistent)
+			.setPriority(Notification.PRIORITY_DEFAULT)
+			.setSortKey("A is first");
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			notificationBuilder.setChannelId(getNotificationChannel().getId());
 		}
@@ -654,6 +659,7 @@ public class Basics extends BroadcastReceiver {
 
 	public Notification createNotificationTracking() {
 		Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
+		clickIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		clickIntent.setAction(Intent.ACTION_MAIN);
 		clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -662,7 +668,9 @@ public class Basics extends BroadcastReceiver {
 			.setContentTitle("automatic clock-in by location and/or WiFi active")
 			.setContentIntent(pendingIntent)
 			.setSmallIcon(R.drawable.ic_menu_mylocation)
-			.setOngoing(true);
+			.setOngoing(true)
+			.setPriority(Notification.PRIORITY_LOW)
+			.setSortKey("B is second");
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			notificationBuilder.setChannelId(getServiceNotificationChannel().getId());
 		}
