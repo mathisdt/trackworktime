@@ -363,10 +363,14 @@ public class Basics extends BroadcastReceiver {
 			Logger.debug("added persistent notification");
 		} else {
 			// try to remove
-			NotificationManager notificationManager = (NotificationManager) context
-				.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
-			Logger.debug("removed persistent notification");
+			try {
+				NotificationManager notificationManager = (NotificationManager) context
+					.getSystemService(Context.NOTIFICATION_SERVICE);
+				notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
+				Logger.debug("removed persistent notification");
+			} catch (Exception e) {
+				Logger.warn(e, "could not remove persistent notification");
+			}
 		}
 	}
 
@@ -419,27 +423,35 @@ public class Basics extends BroadcastReceiver {
 	 * start the location-based tracking service by serviceIntent
 	 */
 	private void startLocationTrackerService(double latitude, double longitude, double tolerance, Boolean vibrate) {
-		Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
-		// we can start the service again even if it is already running because
-		// onStartCommand(...) in LocationTrackerService won't do anything if the service
-		// is already running with the current parameters - if the location or the
-		// tolerance changed, then it will update the values for the service
-		Logger.debug("try to start location-based tracking service");
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			context.startForegroundService(startIntent);
-		} else {
-			context.startService(startIntent);
+		try {
+			Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
+			// we can start the service again even if it is already running because
+			// onStartCommand(...) in LocationTrackerService won't do anything if the service
+			// is already running with the current parameters - if the location or the
+			// tolerance changed, then it will update the values for the service
+			Logger.debug("try to start location-based tracking service");
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				context.startForegroundService(startIntent);
+			} else {
+				context.startService(startIntent);
+			}
+			Logger.debug("location-based tracking service started");
+		} catch (Exception e) {
+			Logger.warn(e, "could not start location-based tracking service");
 		}
-		Logger.debug("location-based tracking service started");
 	}
 
 	/**
 	 * stop the location-based tracking service by serviceIntent
 	 */
 	private void stopLocationTrackerService() {
-		Intent stopIntent = buildLocationTrackerServiceIntent(null, null, null, null);
-		context.stopService(stopIntent);
-		Logger.debug("location-based tracking service stopped");
+		try {
+			Intent stopIntent = buildLocationTrackerServiceIntent(null, null, null, null);
+			context.stopService(stopIntent);
+			Logger.debug("location-based tracking service stopped");
+		} catch (Exception e) {
+			Logger.warn(e, "could not stop location-based tracking service");
+		}
 	}
 
 	/**
@@ -466,24 +478,32 @@ public class Basics extends BroadcastReceiver {
 	 * start the wifi-based tracking service by serviceIntent
 	 */
 	private void startWifiTrackerService(String ssid, Boolean vibrate) {
-		Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
-		Logger.debug("try to start wifi-based tracking service");
-		// changes to settings will be adopted & wifi-check will be performed
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			context.startForegroundService(startIntent);
-		} else {
-			context.startService(startIntent);
+		try {
+			Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
+			Logger.debug("try to start wifi-based tracking service");
+			// changes to settings will be adopted & wifi-check will be performed
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				context.startForegroundService(startIntent);
+			} else {
+				context.startService(startIntent);
+			}
+			Logger.debug("wifi-based tracking service started");
+		} catch (Exception e) {
+			Logger.warn(e, "could not start wifi-based tracking service");
 		}
-		Logger.debug("wifi-based tracking service started");
 	}
 
 	/**
 	 * stop the wifi-based tracking service by serviceIntent
 	 */
 	private void stopWifiTrackerService() {
-		Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
-		context.stopService(stopIntent);
-		Logger.debug("wifi-based tracking service stopped");
+		try {
+			Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
+			context.stopService(stopIntent);
+			Logger.debug("wifi-based tracking service stopped");
+		} catch (Exception e) {
+			Logger.warn(e, "could not stop wifi-based tracking service");
+		}
 	}
 
 	/**
@@ -604,53 +624,62 @@ public class Basics extends BroadcastReceiver {
 		PendingIntent clickIntent, @NonNull Integer notificationId, boolean persistent,
 		PendingIntent buttonOneIntent, Integer buttonOneIcon, String buttonOneText,
 		PendingIntent buttonTwoIntent,Integer buttonTwoIcon, String buttonTwoText) {
-		NotificationManager notificationManager = (NotificationManager) context
-			.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification.Builder notificationBuilder = new Notification.Builder(context)
-			.setContentTitle(notificationTitle)
-			.setContentText(notificationSubtitle)
-			.setContentIntent(clickIntent)
-			.setSmallIcon(R.drawable.ic_notification)
-			.setTicker(scrollingText)
-			.setOnlyAlertOnce(true)
-			.setOngoing(persistent)
-			.setPriority(Notification.PRIORITY_DEFAULT)
-			.setSortKey("A is first");
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			notificationBuilder.setChannelId(getNotificationChannel().getId());
+		try {
+			NotificationManager notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+			Notification.Builder notificationBuilder = new Notification.Builder(context)
+				.setContentTitle(notificationTitle)
+				.setContentText(notificationSubtitle)
+				.setContentIntent(clickIntent)
+				.setSmallIcon(R.drawable.ic_notification)
+				.setTicker(scrollingText)
+				.setOnlyAlertOnce(true)
+				.setOngoing(persistent)
+				.setPriority(Notification.PRIORITY_DEFAULT)
+				.setSortKey("A is first");
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				notificationBuilder.setChannelId(getNotificationChannel().getId());
+			}
+			if (buttonOneIntent != null && buttonOneIcon != null) {
+				notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
+			}
+			if (buttonTwoIntent != null && buttonTwoIcon != null) {
+				notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
+			}
+			Notification notification = notificationBuilder.build();
+			Logger.debug("prepared notification {} / {} with button1={} and button2={}",
+				notificationTitle,
+				notificationSubtitle, buttonOneText, buttonTwoText);
+			notificationManager.notify(notificationId, notification);
+		} catch (Exception e) {
+			Logger.warn(e, "could not display notification");
 		}
-		if (buttonOneIntent != null && buttonOneIcon != null) {
-			notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
-		}
-		if (buttonTwoIntent != null && buttonTwoIcon != null) {
-			notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
-		}
-		Notification notification = notificationBuilder.build();
-		Logger.debug("prepared notification {} / {} with button1={} and button2={}",
-			notificationTitle,
-			notificationSubtitle, buttonOneText, buttonTwoText);
-		notificationManager.notify(notificationId, notification);
 	}
 
 	public Boolean isNotificationActive(int id) {
-		NotificationManager notificationManager = (NotificationManager) context
-			.getSystemService(Context.NOTIFICATION_SERVICE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			for (StatusBarNotification n : notificationManager.getActiveNotifications()) {
-				if (n.getId() == id) {
-					return Boolean.TRUE;
+		try {
+			NotificationManager notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				for (StatusBarNotification n : notificationManager.getActiveNotifications()) {
+					if (n.getId() == id) {
+						return Boolean.TRUE;
+					}
 				}
+				return Boolean.FALSE;
+			} else {
+				return null;
 			}
-			return Boolean.FALSE;
-		} else {
+		} catch (Exception e) {
+			Logger.warn(e, "could not check for notification");
 			return null;
 		}
 	}
 
 	public void removeNotification(int id) {
-		NotificationManager notificationManager = (NotificationManager) context
-			.getSystemService(Context.NOTIFICATION_SERVICE);
 		try {
+			NotificationManager notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(id);
 		} catch(Exception e) {
 			Logger.warn(e, "could not remove notification {}", id);
