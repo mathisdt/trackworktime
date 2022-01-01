@@ -92,28 +92,33 @@ public class TimerManager {
 		return FlexiReset.loadFromPreferences(preferences);
 	}
 
-	public void insertDefaultWorkTimes(LocalDate from, LocalDate to, Integer taskId, String text) {
-		LocalDate running = from;
+	public boolean insertDefaultWorkTimes(LocalDate from, LocalDate to, Integer taskId, String text) {
+		try {
+			LocalDate running = from;
 
-		while (!running.isAfter(to)) {
-			// clock-in at start of day (00:00) in home time zone
-			// TODO current time zone?
+			while (!running.isAfter(to)) {
+				// clock-in at start of day (00:00) in home time zone
+				// TODO current time zone?
 
-			DayOfWeek weekDay = running.getDayOfWeek();
-			int workDuration = getNormalWorkDurationFor(weekDay);
-			if (workDuration > 0) {
-				OffsetDateTime clockInTime = running.atStartOfDay(getHomeTimeZone()).toOffsetDateTime();
-				createEvent(clockInTime, taskId, TypeEnum.CLOCK_IN, text);
+				DayOfWeek weekDay = running.getDayOfWeek();
+				int workDuration = getNormalWorkDurationFor(weekDay);
+				if (workDuration > 0) {
+					OffsetDateTime clockInTime = running.atStartOfDay(getHomeTimeZone()).toOffsetDateTime();
+					createEvent(clockInTime, taskId, TypeEnum.CLOCK_IN, text);
 
-				OffsetDateTime clockOutTime = clockInTime.plusMinutes(workDuration);
-				if (isAutoPauseApplicable(clockOutTime)) {
-					long pauseDuration = getAutoPauseDuration();
-					clockOutTime = clockOutTime.plusMinutes(pauseDuration);
+					OffsetDateTime clockOutTime = clockInTime.plusMinutes(workDuration);
+					if (isAutoPauseApplicable(clockOutTime)) {
+						long pauseDuration = getAutoPauseDuration();
+						clockOutTime = clockOutTime.plusMinutes(pauseDuration);
+					}
+					createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null);
 				}
-				createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null);
-			}
 
-			running = running.plusDays(1);
+				running = running.plusDays(1);
+			}
+			return true;
+		} catch(Exception e) {
+			return false;
 		}
 	}
 
@@ -452,7 +457,7 @@ public class TimerManager {
 		}
 	}
 
-	private int countWorkDays() {
+	public int countWorkDays() {
 		int ret = 0;
 		for (DayOfWeek day : DayOfWeek.values()) {
 			if (isWorkDay(day)) {

@@ -66,7 +66,7 @@
     <string name="flexiTimeToZeroOnEveryDay">countdown to 0:00 every day</string>
     <string name="flexiTimeToZeroOnEveryDayDescription">only on last working day if disabled</string>
     <string name="flexiTimeStartValue">Start Value for Flexi Time</string>
-    <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 10:45</string>
+    <string name="flexiTimeStartValueDescription">in hours:minutes, e.g. 7:45</string>
     <string name="smallestTimeUnit">Smallest Time Unit</string>
     <string name="smallestTimeUnitDescription">in minutes, e.g. 15 - flattening rounds to this amount of time (has to be a divisor of 60)</string>
     <string name="backward">jumped backward</string>
@@ -185,9 +185,13 @@
     <string name="targetFlexiOverride">Ignore previous targets</string>
     <string name="targetFlexiAdd">Include previous targets</string>
     <string name="targetDate">Target date</string>
+    <string name="targetTimeDescription">in hours:minutes</string>
     <string name="targetTimeAbs">Time target in hours:minutes</string>
     <string name="targetTimeRel">Time target in percent</string>
     <string name="homeTimezone">Home time zone</string>
+    <string name="holidayVacationNonworkingday">Holiday / vacation / non-working day</string>
+    <string name="setWorkingTimeToTargetTime">Set working time to target time</string>
+    <string name="changeTargetTime">Change target time</string>
     <string-array name="day_targets">
         <item>Holiday / vacation / non-working day</item>
         <item>Set working time to target time</item>
@@ -217,5 +221,7 @@
     <string name="documentTreePermissionsRequestTextOnUserAction">This feature needs to access your device\'s storage.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, the feature will not be available.</string>
     <string name="notNow">Not Now</string>
     <string name="enableFlexiTimeOrItWontWork">Please configure and enable Flexi Time in the options, else this won\'t work.</string>
+    <string name="alsoOnNonWorkingDays">also on non-working days</string>
+    <string name="targetTime">Target Time</string>
 
 </resources>

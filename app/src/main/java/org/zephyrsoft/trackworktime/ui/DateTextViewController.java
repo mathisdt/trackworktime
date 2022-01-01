@@ -1,4 +1,6 @@
-package org.zephyrsoft.trackworktime.editevent;
+package org.zephyrsoft.trackworktime.ui;
+
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.dateToEpoch;
 
 import android.app.DatePickerDialog;
 import android.widget.DatePicker;
@@ -6,14 +8,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
-import static org.zephyrsoft.trackworktime.util.DateTimeUtil.dateToEpoch;
 
-class DateTextViewController {
+public class DateTextViewController {
 
 	private final TextView view;
 
@@ -26,9 +28,17 @@ class DateTextViewController {
 	@Nullable
 	private ZonedDateTime max;
 
-	DateTextViewController(@NonNull TextView view) {
+	@Nullable
+	private final Consumer<LocalDate> externalListener;
+
+	public DateTextViewController(@NonNull TextView view, @Nullable Consumer<LocalDate> externalListener) {
 		this.view = view;
+		this.externalListener = externalListener;
 		view.setOnClickListener(v -> showDatePicker());
+	}
+
+	public DateTextViewController(@NonNull TextView view) {
+		this(view, null);
 	}
 
 	private void showDatePicker() {
@@ -55,6 +65,9 @@ class DateTextViewController {
 	private void onNewDateSelected(DatePicker picker, int year, int month, int day) {
 		LocalDate newDate = LocalDate.of(year, month + 1, day);
 		setDate(newDate);
+		if (externalListener != null) {
+			externalListener.accept(newDate);
+		}
 	}
 
 	private void setDateLimits(DatePickerDialog dialog) {
@@ -68,7 +81,7 @@ class DateTextViewController {
 	}
 
 	public void setDate(LocalDate date) {
-		String text = DateTimeUtil.formatLocalizedDateShort(date);
+		String text = DateTimeUtil.formatLocalizedDayAndDate(date);
 		view.setText(text);
 		this.date = date;
 	}

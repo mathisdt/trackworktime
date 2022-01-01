@@ -1,15 +1,15 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License 3.0 as published by
  * the Free Software Foundation.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License 3.0 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,21 +18,25 @@ package org.zephyrsoft.trackworktime;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
-import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Consumer;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.DefaultTimesBinding;
+import org.zephyrsoft.trackworktime.model.Target;
+import org.zephyrsoft.trackworktime.model.TargetEnum;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.ui.DateTextViewController;
+import org.zephyrsoft.trackworktime.ui.TargetTimeValidityCheck;
 
 import java.util.List;
 
@@ -41,187 +45,219 @@ import java.util.List;
  */
 public class InsertDefaultTimesActivity extends AppCompatActivity {
 
-	private DAO dao = null;
-	private TimerManager timerManager = null;
+    private DAO dao = null;
+    private TimerManager timerManager = null;
 
-	private DefaultTimesBinding binding;
-	private DatePicker fromDate;
-	private DatePicker toDate;
-	private OnDateChangedListener fromDateListener = null;
-	private boolean noFromDateChangedReaction = false;
-	private boolean fromPickerIsInitialized = false;
-	private OnDateChangedListener toDateListener = null;
-	private boolean noToDateChangedReaction = false;
-	private boolean toPickerIsInitialized = false;
+    private DefaultTimesBinding binding;
+    private DateTextViewController dateToTextViewController;
+    private DateTextViewController dateFromTextViewController;
 
-	@Override
-	protected void onPause() {
-		dao.close();
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        dao.close();
+        super.onPause();
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		dao = Basics.getInstance().getDao();
-		timerManager = Basics.getInstance().getTimerManager();
+        dao = Basics.getInstance().getDao();
+        timerManager = Basics.getInstance().getTimerManager();
 
-		binding = DefaultTimesBinding.inflate(getLayoutInflater());
-		setContentView(binding.getRoot());
+        binding = DefaultTimesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-		fromDate = binding.fromDate;
-		toDate = binding.toDate;
+        // bind lists to spinners
+        List<Task> tasks = dao.getActiveTasks();
+        ArrayAdapter<Task> tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
+        tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.task.setAdapter(tasksAdapter);
 
-		// bind lists to spinners
-		List<Task> tasks = dao.getActiveTasks();
-		ArrayAdapter<Task> tasksAdapter = new ArrayAdapter<>(this, R.layout.list_item_spinner, tasks);
-		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		binding.task.setAdapter(tasksAdapter);
-
-		fromDateListener = (view, year, monthOfYear, dayOfMonth) -> {
-            if (noFromDateChangedReaction) {
-                Logger.debug("from date not changed - infinite loop protection");
-            } else {
-                LocalDate newFromDate = getCurrentlySetFromDate();
-                LocalDate newToDate = getCurrentlySetToDate();
-                try {
-                    noFromDateChangedReaction = true;
-
-                    // correct to date if from date would be after to date
-                    if (newFromDate.isAfter(newToDate)) {
-                        updateToDatePicker(newFromDate);
-                        Toast.makeText(InsertDefaultTimesActivity.this,
-                            "adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
-                            Toast.LENGTH_LONG).show();
-                    }
-                } finally {
-                    noFromDateChangedReaction = false;
-                }
-
-                Logger.debug("from date changed to {}-{}-{}", year, monthOfYear+1, dayOfMonth);
+        Consumer<LocalDate> fromDateListener = newDate -> {
+            // correct to date if from date would be after to date
+            if (dateToTextViewController.getDate() != null
+                && newDate.isAfter(dateToTextViewController.getDate())) {
+                updateToDate(newDate);
+                Toast.makeText(InsertDefaultTimesActivity.this,
+                    "adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
+                    Toast.LENGTH_LONG).show();
             }
+
+            Logger.debug("toDate changed to {}", newDate);
         };
-		toDateListener = (view, year, monthOfYear, dayOfMonth) -> {
-            if (noToDateChangedReaction) {
-                Logger.debug("to date not changed - infinite loop protection");
-            } else {
-                LocalDate newFromDate = getCurrentlySetFromDate();
-                LocalDate newToDate = getCurrentlySetToDate();
-                try {
-                    noToDateChangedReaction = true;
+        dateFromTextViewController = new DateTextViewController(binding.dateFrom, fromDateListener);
 
-                    // correct from date if to date would be before from date
-                    if (newToDate.isBefore(newFromDate)) {
-                        updateFromDatePicker(newToDate);
-                        Toast.makeText(InsertDefaultTimesActivity.this,
-                            "adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
-                            Toast.LENGTH_LONG).show();
-                    }
-                } finally {
-                    noToDateChangedReaction = false;
-                }
-
-                Logger.debug("to date changed to {}-{}-{}", year, monthOfYear+1, dayOfMonth);
+        Consumer<LocalDate> toDateListener = newDate -> {
+            // correct from date if to date would be before from date
+            if (dateFromTextViewController.getDate() != null
+                && newDate.isBefore(dateFromTextViewController.getDate())) {
+                updateFromDate(newDate);
+                Toast.makeText(InsertDefaultTimesActivity.this,
+                    "adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
+                    Toast.LENGTH_LONG).show();
             }
-        };
 
-		binding.save.setOnClickListener(v -> {
+            Logger.debug("fromDate changed to {}", newDate);
+        };
+        dateToTextViewController = new DateTextViewController(binding.dateTo, toDateListener);
+
+        TargetTimeValidityCheck targetTimeValidityCheck =
+            new TargetTimeValidityCheck(binding.targetTime, isValid -> binding.save.setEnabled(isValid));
+        binding.targetTime.addTextChangedListener(targetTimeValidityCheck);
+
+        binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            boolean isTask = checkedId == R.id.radioTask;
+            boolean isChangeTargetTime = checkedId == R.id.radioChangeTargetTime;
+
+            binding.task.setEnabled(isTask);
+            binding.targetTime.setEnabled(isChangeTargetTime);
+            binding.checkAlsoOnNonWorkingDays.setEnabled(!isTask);
+            if (isTask) {
+                binding.checkAlsoOnNonWorkingDays.setChecked(false);
+            }
+            if (isChangeTargetTime) {
+                targetTimeValidityCheck.check();
+            } else {
+                binding.targetTime.setText(null);
+            }
+        });
+
+        binding.save.setOnClickListener(v -> {
             // commit all edit fields
-            fromDate.clearFocus();
-            toDate.clearFocus();
             binding.text.clearFocus();
-
-            // call listener methods manually to make sure that even on buggy Android 5.0 the data is correct
-            // => https://code.google.com/p/android/issues/detail?id=78861
-            fromDateListener.onDateChanged(fromDate, fromDate.getYear(), fromDate.getMonth(), fromDate
-                .getDayOfMonth());
-            toDateListener.onDateChanged(toDate, toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
+            binding.targetTime.clearFocus();
 
             // fetch the data
-            LocalDate from = getCurrentlySetFromDate();
-            LocalDate to = getCurrentlySetToDate();
             Task selectedTask = (Task) binding.task.getSelectedItem();
             Integer taskId = selectedTask == null ? null : selectedTask.getId();
             String textString = binding.text.getText().toString();
+            LocalDate fromDate = dateFromTextViewController.getDate();
+            LocalDate toDate = dateToTextViewController.getDate();
+            String targetTime = binding.targetTime.getText() == null
+                ? null
+                : binding.targetTime.getText().toString();
+            boolean alsoOnNonWorkingDays = binding.checkAlsoOnNonWorkingDays.isChecked();
 
-            Logger.info("inserting default times from {} to {} with task=\"{}\" and text=\"{}\"", from, to,
-                taskId, textString);
+            boolean success = false;
+            final int selectedInsertType = binding.radioGroup.getCheckedRadioButtonId();
+            if (selectedInsertType == R.id.radioTask) {
+                Logger.info("inserting default times from {} to {} with task=\"{}\" and text=\"{}\"", fromDate, toDate,
+                    taskId, textString);
+                success = timerManager.insertDefaultWorkTimes(fromDate, toDate, taskId, textString);
+            } else if (selectedInsertType == R.id.radioHolidayVacationNonWorkingDay) {
+                Logger.info("setting holiday/vacation/non-working-day from {} to {} with text=\"{}\" and alsoOnNonWorkingDays={}",
+                    fromDate, toDate, textString, alsoOnNonWorkingDays);
+                success = setTarget(fromDate, toDate, TargetEnum.DAY_SET, textString, alsoOnNonWorkingDays, "0:00");
+            } else if (selectedInsertType == R.id.radioWorkingTimeToTargetTime) {
+                Logger.info("setting working time to target time from {} to {} with text=\"{}\" and alsoOnNonWorkingDays={}",
+                    fromDate, toDate, textString, alsoOnNonWorkingDays);
+                success = setTarget(fromDate, toDate, TargetEnum.DAY_GRANT, textString, alsoOnNonWorkingDays, "0:00");
+            } else if (selectedInsertType == R.id.radioChangeTargetTime) {
+                Logger.info("setting change target time from {} to {} with text=\"{}\" and alsoOnNonWorkingDays={} and targetTime={}",
+                    fromDate, toDate, textString, alsoOnNonWorkingDays, targetTime);
+                success = setTarget(fromDate, toDate, TargetEnum.DAY_SET, textString, alsoOnNonWorkingDays, targetTime);
+            } else {
+                throw new IllegalArgumentException("unknown Multi-Insert type selected");
+            }
 
-            // save the resulting events
-            timerManager.insertDefaultWorkTimes(from, to, taskId, textString);
-
-            finish();
+            if (success) {
+                finish();
+            }
         });
-		binding.cancel.setOnClickListener(v -> {
+        binding.cancel.setOnClickListener(v -> {
             Logger.debug("canceling InsertDefaultTimesActivity");
             finish();
         });
-	}
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == android.R.id.home) {
-			finish();
-			return true;
-		}
-		throw new IllegalArgumentException("options menu: unknown item selected");
-	}
+    private boolean setTarget(LocalDate fromInclusive, LocalDate toInclusive, TargetEnum type, String hint,
+                           boolean alsoOnNonWorkingDays, @Nullable String targetTime) {
+        try {
+            for (LocalDate day = fromInclusive; !day.isAfter(toInclusive); day = next(day, alsoOnNonWorkingDays)) {
+                Target target = dao.getDayTarget(day);
+                boolean wasPresentBefore = target != null;
+                if (!wasPresentBefore) {
+                    target = new Target();
+                }
 
-	@Override
-	public void onBackPressed() {
-		Logger.debug("canceling InsertDefaultTimesActivity (back button pressed)");
-		finish();
-	}
+                target.setDate(day);
+                target.setType(type.getValue());
+                target.setComment(hint);
+                int targetTimeValue = TimerManager.parseHoursMinutesString(targetTime);
+                target.setValue(targetTimeValue);
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+                if (wasPresentBefore) {
+                    dao.updateTarget(target);
+                } else {
+                    dao.insertTarget(target);
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            Logger.warn(e, "problem while setting target {} from {} until {} / alsoOnNonWorkingDays={} / targetTime={}",
+                type, fromInclusive, toInclusive, alsoOnNonWorkingDays, targetTime);
+            Toast.makeText(this, "could not set target: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
 
-		// prepare for entering dates
-		LocalDate now = LocalDate.now();
-		updateFromDatePicker(now);
-		updateToDatePicker(now);
+    private LocalDate next(LocalDate day, boolean alsoNonWorking) {
+        if (alsoNonWorking) {
+            return day.plusDays(1);
+        } else {
+            if (timerManager.countWorkDays() == 0) {
+                throw new IllegalStateException("no working days defined");
+            }
+            LocalDate potentialResult = day.plusDays(1);
+            while (!timerManager.isWorkDay(potentialResult.getDayOfWeek())) {
+                potentialResult = potentialResult.plusDays(1);
+            }
+            return potentialResult;
+        }
+    }
 
-		boolean flexiTimeEnabled = Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
-		if (!flexiTimeEnabled) {
-			Toast.makeText(this, R.string.enableFlexiTimeOrItWontWork, Toast.LENGTH_LONG).show();
-		}
-	}
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        throw new IllegalArgumentException("options menu: unknown item selected");
+    }
 
-	private void updateFromDatePicker(LocalDate date) {
-		if (fromPickerIsInitialized) {
-			fromDate.updateDate(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth());
-		} else {
-			fromDate.init(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth(), fromDateListener);
-			fromPickerIsInitialized = true;
-		}
-	}
+    @Override
+    public void onBackPressed() {
+        Logger.debug("canceling InsertDefaultTimesActivity (back button pressed)");
+        finish();
+    }
 
-	private void updateToDatePicker(LocalDate dateTime) {
-		if (toPickerIsInitialized) {
-			toDate.updateDate(dateTime.getYear(), dateTime.getMonthValue()-1, dateTime.getDayOfMonth());
-		} else {
-			toDate.init(dateTime.getYear(), dateTime.getMonthValue()-1, dateTime.getDayOfMonth(), toDateListener);
-			toPickerIsInitialized = true;
-		}
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-	private LocalDate getCurrentlySetFromDate() {
-		return getCurrentlySelectedDate(fromDate.getYear(), fromDate.getMonth(), fromDate.getDayOfMonth());
-	}
+        // prepare for entering dates
+        LocalDate now = LocalDate.now();
+        updateFromDate(now);
+        updateToDate(now);
 
-	private LocalDate getCurrentlySetToDate() {
-		return getCurrentlySelectedDate(toDate.getYear(), toDate.getMonth(), toDate.getDayOfMonth());
-	}
+        boolean flexiTimeEnabled = Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
+        if (!flexiTimeEnabled) {
+            Toast.makeText(this, R.string.enableFlexiTimeOrItWontWork, Toast.LENGTH_LONG).show();
+        }
+    }
 
-	private LocalDate getCurrentlySelectedDate(int year, int month, int day) {
-		return LocalDate.of(year, month + 1, day);
-	}
+    private void updateFromDate(LocalDate date) {
+        dateFromTextViewController.setDate(date);
+    }
+
+    private void updateToDate(LocalDate date) {
+        dateToTextViewController.setDate(date);
+    }
 
 }
