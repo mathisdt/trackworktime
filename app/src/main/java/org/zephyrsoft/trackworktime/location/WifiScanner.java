@@ -31,6 +31,7 @@ import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class responsible for retrieving wifi {@link ScanResult}s.
@@ -255,7 +256,7 @@ public class WifiScanner extends BroadcastReceiver {
 			return;
 		}
 
-		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
+		Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
 		if (!missingPermissions.isEmpty()) {
 			Logger.warn("wifi scanner - missing permissions: {}", missingPermissions);
 		}

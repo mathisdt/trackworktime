@@ -383,7 +383,7 @@
             android:id="@+id/debugLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total"
+            android:text="@string/total"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray"
             android:layout_span="3" />

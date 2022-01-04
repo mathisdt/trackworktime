@@ -37,131 +37,134 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class Widget extends AppWidgetProvider {
 
-	private static final String ACTION_UPDATE = BuildConfig.APPLICATION_ID + ".WIDGET_UPDATE";
+    private static final String ACTION_UPDATE = BuildConfig.APPLICATION_ID + ".WIDGET_UPDATE";
 
-	private Context context;
-	private AppWidgetManager manager;
-	private RemoteViews views;
-	private TimerManager timerManager;
-	private int[] widgetIds;
-	private Integer currentWidgetId;
+    private Context context;
+    private AppWidgetManager manager;
+    private RemoteViews views;
+    private TimerManager timerManager;
+    private int[] widgetIds;
+    private Integer currentWidgetId;
 
-	public static void dispatchUpdateIntent(Context context) {
-		Intent intent = new Intent(context, Widget.class);
-		intent.setAction(ACTION_UPDATE);
-		context.sendBroadcast(intent);
-	}
+    public static void dispatchUpdateIntent(Context context) {
+        Intent intent = new Intent(context, Widget.class);
+        intent.setAction(ACTION_UPDATE);
+        context.sendBroadcast(intent);
+    }
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		super.onReceive(context, intent);
-		if(ACTION_UPDATE.equals(intent.getAction())) {
-			onUpdate(context);
-		}
-	}
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        if (ACTION_UPDATE.equals(intent.getAction())) {
+            onUpdate(context);
+        }
+    }
 
-	private void onUpdate(Context context) {
-		AppWidgetManager manager = AppWidgetManager.getInstance(context);
-		ComponentName component = new ComponentName(context.getPackageName(),getClass().getName());
-		int[] ids = manager.getAppWidgetIds(component);
-		onUpdate(context, manager, ids);
-	}
+    private void onUpdate(Context context) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        ComponentName component = new ComponentName(context.getPackageName(), getClass().getName());
+        int[] ids = manager.getAppWidgetIds(component);
+        onUpdate(context, manager, ids);
+    }
 
-	@Override
-	public void onUpdate(Context context, AppWidgetManager widgetManager, int[] widgetIds) {
-		try {
-			init(context, widgetManager, widgetIds);
-			updateWidgets();
-		} finally {
-			clean();
-		}
-	}
+    @Override
+    public void onUpdate(Context context, AppWidgetManager widgetManager, int[] widgetIds) {
+        try {
+            init(context, widgetManager, widgetIds);
+            updateWidgets();
+        } finally {
+            clean();
+        }
+    }
 
-	private void init(Context context, AppWidgetManager manager, int[] widgetIds) {
-		this.context = context;
-		this.manager = manager;
-		this.widgetIds = widgetIds;
-		this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
-		Basics basics = Basics.getOrCreateInstance(context.getApplicationContext());
-		this.timerManager = basics.getTimerManager();
-	}
+    private void init(Context context, AppWidgetManager manager, int[] widgetIds) {
+        this.context = context;
+        this.manager = manager;
+        this.widgetIds = widgetIds;
+        this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
+        Basics basics = Basics.getOrCreateInstance(context.getApplicationContext());
+        this.timerManager = basics.getTimerManager();
+    }
 
-	private void clean() {
-		context = null;
-		manager = null;
-		views = null;
-		widgetIds = null;
-		currentWidgetId = null;
-		timerManager = null;
-	}
+    private void clean() {
+        context = null;
+        manager = null;
+        views = null;
+        widgetIds = null;
+        currentWidgetId = null;
+        timerManager = null;
+    }
 
-	private void updateWidgets() {
-		for(int id : widgetIds) {
-			currentWidgetId = id;
-			updateWidget();
-		}
-	}
+    private void updateWidgets() {
+        for (int id : widgetIds) {
+            currentWidgetId = id;
+            updateWidget();
+        }
+    }
 
-	private void updateWidget() {
-		try {
-			updateWorkTime();
-			updateClockInBtn();
-			updateClockOutBtn();
-			dispatchUpdate();
-		} catch (Exception e) {
-			Logger.warn(e,"could not update widget");
-		}
-	}
+    private void updateWidget() {
+        try {
+            updateWorkTime();
+            updateClockInBtn();
+            updateClockOutBtn();
+            dispatchUpdate();
+        } catch (Exception e) {
+            Logger.warn(e, "could not update widget");
+        }
+    }
 
-	private void updateWorkTime() {
-		int workedTime = (int)timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
-		String timeSoFar = DateTimeUtil.formatDuration(workedTime);
-		String workedText = getString(R.string.worked) + ": " + timeSoFar;
-		views.setTextViewText(R.id.workTime, workedText);
-	}
+    private void updateWorkTime() {
+        int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
+        String timeSoFar = DateTimeUtil.formatDuration(workedTime);
+        String workedText = getString(R.string.worked) + ": " + timeSoFar;
+        views.setTextViewText(R.id.workTime, workedText);
+    }
 
-	private void updateClockInBtn() {
-		int textRes = isClockedIn() ? R.string.clockInChangeShort : R.string.clockIn;
-		String text = getString(textRes);
-		int viewId = R.id.clockIn;
-		views.setTextViewText(viewId, text);
-		PendingIntent intent = createIntentForAction(Constants.CLOCK_IN_ACTION);
-		views.setOnClickPendingIntent(viewId, intent);
-	}
+    private void updateClockInBtn() {
+        int textRes = isClockedIn() ? R.string.clockInChangeShort : R.string.clockIn;
+        String text = getString(textRes);
+        int viewId = R.id.clockIn;
+        views.setTextViewText(viewId, text);
+        PendingIntent intent = createIntentForAction(Constants.CLOCK_IN_ACTION);
+        views.setOnClickPendingIntent(viewId, intent);
+    }
 
-	private void updateClockOutBtn() {
-		PendingIntent intent = createIntentForAction(Constants.CLOCK_OUT_ACTION);
-		int viewId = R.id.clockOut;
-		views.setOnClickPendingIntent(viewId, intent);
+    private void updateClockOutBtn() {
+        PendingIntent intent = createIntentForAction(Constants.CLOCK_OUT_ACTION);
+        int viewId = R.id.clockOut;
+        views.setOnClickPendingIntent(viewId, intent);
 
-		boolean isClockedIn = isClockedIn();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			views.setBoolean(viewId, "setEnabled", isClockedIn);
-		} else {
-			// setBoolean() is not supported. Make text appear like disabled.
-			@ColorRes int textColorRes = isClockedIn ? R.color.accent : R.color.text_disabled;
-			@ColorInt int textColor = ContextCompat.getColor(context, textColorRes);
-			views.setTextColor(viewId, textColor);
-		}
-	}
+        boolean isClockedIn = isClockedIn();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            views.setBoolean(viewId, "setEnabled", isClockedIn);
+        } else {
+            // setBoolean() is not supported. Make text appear like disabled.
+            @ColorRes int textColorRes = isClockedIn ? R.color.accent : R.color.text_disabled;
+            @ColorInt int textColor = ContextCompat.getColor(context, textColorRes);
+            views.setTextColor(viewId, textColor);
+        }
+    }
 
-	private boolean isClockedIn() {
-		return timerManager.isTracking();
-	}
+    private boolean isClockedIn() {
+        return timerManager.isTracking();
+    }
 
-	private PendingIntent createIntentForAction(String action) {
-		Intent intent = new Intent(context, ThirdPartyReceiver.class);
-		intent.setAction(action);
-		return PendingIntent.getBroadcast(context, 0, intent, 0);
-	}
+    private PendingIntent createIntentForAction(String action) {
+        Intent intent = new Intent(context, ThirdPartyReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(context, 0, intent,
+            (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
+                ? PendingIntent.FLAG_IMMUTABLE
+                : 0));
+    }
 
-	private void dispatchUpdate() {
-		manager.updateAppWidget(currentWidgetId, views);
-	}
+    private void dispatchUpdate() {
+        manager.updateAppWidget(currentWidgetId, views);
+    }
 
-	private String getString(@StringRes int id) {
-		return context.getString(id);
-	}
+    private String getString(@StringRes int id) {
+        return context.getString(id);
+    }
 
 }
 

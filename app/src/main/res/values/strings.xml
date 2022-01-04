@@ -130,6 +130,7 @@
 	<string name="today">today</string>
     <string name="customize">Customize</string>
     <string name="reports">Reports</string>
+    <string name="report_preview">Report Preview</string>
     <string name="backup_on_google_servers">Do you want to activate backup on Google servers? This setting can be changed anytime under options.</string>
     <string name="backup">Data Backup</string>
     <string name="backup_to_google">Backup to Google Servers</string>
@@ -210,9 +211,11 @@
     <string name="logsExported">Log file exported.</string>
     <string name="locationPermissionsRequestTitle">Location Permission</string>
     <string name="locationPermissionsRequestText">This app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use.</string>
-    <string name="locationPermissionsRequestTextSupplement">\n\nPlease allow it for all the time, even when you\'re not using the app actively (read the following dialog carefully).</string>
+    <string name="locationPermissionsRequestTextSupplementForAPI29">\n\nPlease allow it for \"at all times\", even when the app isn\'t visible (else the automatic clock-in feature will not work).</string>
+    <string name="locationPermissionsRequestTextSupplementForAPI30">\n\nYou will have to do that in the app\'s system settings, which will open automatically: please choose \"%s\".</string>
     <string name="locationPermissionsGranted">Please re-enable the automatic time tracking method you want - it was automatically disabled because the permission was missing until now.</string>
     <string name="locationPermissionsUngranted">You did not grant the requested permissions. Automatic time tracking is disabled now.\n\nIf you change your mind, you can re-enable it later in the options.\n\nIf you didn\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
+    <string name="locationPermissionsForCurrentLocationUngranted">You did not grant the requested permissions, so the current location cannot be determined.</string>
     <string name="storagePermissionsRequestTitle">Storage Permission</string>
     <string name="storagePermissionsRequestText">It\'s recommended to let this app write a daily backup of your data to your device or to your SD card (if present).\n\nIf you want that, please allow it in the following dialog.\n\nIf you don\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
     <string name="errorDateOrTimeNotSelected">Date or time not selected</string>

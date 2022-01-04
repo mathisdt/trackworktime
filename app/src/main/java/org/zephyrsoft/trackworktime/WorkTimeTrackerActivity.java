@@ -19,6 +19,7 @@ package org.zephyrsoft.trackworktime;
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 import static java.lang.Math.abs;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -26,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -84,6 +86,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Main activity of the application.
@@ -216,7 +219,16 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		// check options for logical errors
 		checkAllOptions();
 
-		if (!preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
+		boolean playServicesAvailable = false;
+		try {
+			PackageInfo info = getPackageManager().getPackageInfo("com.google.android.gms", 0);
+			if (info != null) {
+				playServicesAvailable = true;
+			}
+		} catch (Exception e) {
+			// do nothing
+		}
+		if (playServicesAvailable && !preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
 			@SuppressLint("ApplySharedPref") DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
                 final Editor editor = preferences.edit();
                 switch (which) {
@@ -324,7 +336,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void requestMissingPermissionsForTracking() {
-		List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
+		Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
 		if (!missingPermissions.isEmpty()) {
 			Logger.debug("asking for permissions: {}", missingPermissions);
 			PermissionsUtil.askForLocationPermission(this,
@@ -334,6 +346,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 				() -> {
 					// do nothing
 				});
+		} else if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
+			// TODO don't do this every time, we don't like infinite loops...
+//			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
 		}
 	}
 
@@ -656,13 +671,31 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	private void useCurrentLocationAsWorkplace() {
 		Logger.debug("use current location as work place");
+
+		Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(this);
+		if (!missingPermissions.isEmpty()) {
+			Logger.debug("asking for permissions: {}", missingPermissions);
+			PermissionsUtil.askForLocationPermission(this,
+				() -> ActivityCompat.requestPermissions(this,
+					missingPermissions.toArray(new String[0]),
+					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_FOR_CURRENT_LOCATION_ID),
+				() -> {
+					// do nothing
+				});
+		} else {
+			doUseCurrentLocationAsWorkplace();
+		}
+	}
+
+	private void doUseCurrentLocationAsWorkplace() {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle(getString(R.string.use_current_location));
 		alert.setMessage(getString(R.string.really_use_current_location));
-		alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this));
+		alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) ->
+			Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this));
 		alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
-            // do nothing
-        });
+			// do nothing
+		});
 		alert.show();
 	}
 
@@ -815,19 +848,41 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID:
 				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
 				if (ungranted.isEmpty()) {
-					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
-						getString(R.string.locationPermissionsGranted), null);
-					startActivity(messageIntent);
+					if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
+						ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
+					}
+				} else {
+					locationPermissionNotGranted(ungranted);
+				}
+				break;
+			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID:
+				// we only get here on API 30 and above
+				List<String> ungrantedForBackground = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
+				if (!ungrantedForBackground.isEmpty()) {
+					locationPermissionNotGranted(ungrantedForBackground);
+				}
+				break;
+			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_FOR_CURRENT_LOCATION_ID:
+				List<String> missingPermissions = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
+				if (missingPermissions.isEmpty()) {
+					doUseCurrentLocationAsWorkplace();
 				} else {
 					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
-						getString(R.string.locationPermissionsUngranted), null);
+						getString(R.string.locationPermissionsForCurrentLocationUngranted), null);
 					startActivity(messageIntent);
-					Logger.debug("ungranted tracking permissions: {}", ungranted);
+					Logger.debug("missing tracking permissions for current location: {}", missingPermissions);
 				}
 				break;
 			default:
 				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
+	}
+
+	private void locationPermissionNotGranted(List<String> ungranted) {
+		Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
+			getString(R.string.locationPermissionsUngranted), null);
+		startActivity(messageIntent);
+		Logger.debug("ungranted tracking permissions: {}", ungranted);
 	}
 
 	@Override

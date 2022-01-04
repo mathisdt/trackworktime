@@ -36,11 +36,11 @@ public class WorkTimeTrackerBackupManager {
 		backupManager = new BackupManager(context);
 		timestampPrefs = context.getSharedPreferences("timestampPrefs", Context.MODE_PRIVATE);
 		defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		enabled = defaultPrefs.getBoolean(prefKeyBackupEnabled, true);
+		enabled = defaultPrefs.getBoolean(prefKeyBackupEnabled, false);
 	}
 
 	public void checkIfBackupEnabledChanged() {
-		final boolean newValue = defaultPrefs.getBoolean(prefKeyBackupEnabled, true);
+		final boolean newValue = defaultPrefs.getBoolean(prefKeyBackupEnabled, false);
 		if (enabled != newValue && backupManager != null) {
 			// trigger if changed
 			backupManager.dataChanged();

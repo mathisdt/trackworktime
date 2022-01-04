@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -24,6 +25,7 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -45,6 +47,7 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Activity to set the preferences of the application.
@@ -161,13 +164,16 @@ public class OptionsActivity extends AppCompatActivity {
                     || Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName))
                     && sharedPreferences.getBoolean(keyName, false)) {
 
-                    List<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
+                    Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
                     if (!missingPermissions.isEmpty()) {
                         Logger.debug("asking for permissions: {}", missingPermissions);
                         PermissionsUtil.askForLocationPermission(getContext(),
                             () -> requestPermissions(missingPermissions.toArray(new String[0]),
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
                             this::locationPermissionNotGranted);
+                    } else if (getActivity() != null
+                        && PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
                     }
                 }
             }
@@ -188,15 +194,32 @@ public class OptionsActivity extends AppCompatActivity {
             if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID) {
                 List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
                 if (ungranted.isEmpty()) {
-                    reloadData();
-                    Intent messageIntent = Basics.getInstance()
-                        .createMessageIntent(getString(R.string.locationPermissionsGranted), null);
-                    startActivity(messageIntent);
+                    if (getActivity() != null
+                        && PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
+                    } else {
+                        allPermissionsInPlace();
+                    }
+                } else {
+                    locationPermissionNotGranted();
+                }
+            } else if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID) {
+                // we only get here on API 30 and above
+                List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
+                if (ungranted.isEmpty()) {
+                    allPermissionsInPlace();
                 } else {
                     locationPermissionNotGranted();
                 }
             }
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        private void allPermissionsInPlace() {
+            reloadData();
+            Intent messageIntent = Basics.getInstance()
+                .createMessageIntent(getString(R.string.locationPermissionsGranted), null);
+            startActivity(messageIntent);
         }
 
         private void locationPermissionNotGranted() {
