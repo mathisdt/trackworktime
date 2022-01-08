@@ -347,8 +347,14 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 					// do nothing
 				});
 		} else if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
-			// TODO don't do this every time, we don't like infinite loops...
-//			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
+			Logger.debug("asking for permission ACCESS_BACKGROUND_LOCATION");
+			PermissionsUtil.askForLocationPermission(this,
+				() -> ActivityCompat.requestPermissions(this,
+					new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
+				() -> {
+					// do nothing
+				});
 		}
 	}
 
@@ -879,6 +885,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void locationPermissionNotGranted(List<String> ungranted) {
+		Basics.getOrCreateInstance(this).disableLocationBasedTracking();
+		Basics.getOrCreateInstance(this).disableWifiBasedTracking();
 		Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
 			getString(R.string.locationPermissionsUngranted), null);
 		startActivity(messageIntent);

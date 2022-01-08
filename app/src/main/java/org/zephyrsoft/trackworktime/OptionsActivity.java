@@ -162,18 +162,24 @@ public class OptionsActivity extends AppCompatActivity {
             } else {
                 if ((Key.LOCATION_BASED_TRACKING_ENABLED.getName().equals(keyName)
                     || Key.WIFI_BASED_TRACKING_ENABLED.getName().equals(keyName))
-                    && sharedPreferences.getBoolean(keyName, false)) {
+                    && sharedPreferences.getBoolean(keyName, false)
+                    && getActivity() != null) {
 
                     Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
                     if (!missingPermissions.isEmpty()) {
                         Logger.debug("asking for permissions: {}", missingPermissions);
                         PermissionsUtil.askForLocationPermission(getContext(),
-                            () -> requestPermissions(missingPermissions.toArray(new String[0]),
+                            () -> ActivityCompat.requestPermissions(getActivity(),
+                                missingPermissions.toArray(new String[0]),
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
                             this::locationPermissionNotGranted);
-                    } else if (getActivity() != null
-                        && PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
-                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
+                    } else if (PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
+                        Logger.debug("asking for permission ACCESS_BACKGROUND_LOCATION");
+                        PermissionsUtil.askForLocationPermission(getContext(),
+                            () -> ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
+                            this::locationPermissionNotGranted);
                     }
                 }
             }

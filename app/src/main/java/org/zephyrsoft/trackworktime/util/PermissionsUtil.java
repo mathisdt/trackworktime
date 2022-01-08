@@ -55,7 +55,7 @@ public class PermissionsUtil {
         }
 
         // beginning with API version 30 (Android R), also asking for ACCESS_BACKGROUND_LOCATION
-        // results in no permission request shown at all!
+        // in parallel results in no permission request shown at all!
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
             addPermissionIfNotGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION, permissionsToRequest, context);
         }
