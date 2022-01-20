@@ -583,10 +583,11 @@ public class Basics extends BroadcastReceiver {
                 provider = LocationManager.NETWORK_PROVIDER;
             } else if (enabledProviders.contains(LocationManager.FUSED_PROVIDER)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // second best: the location provider preferred by Android
+                // second best: the location provider preferred by Android for low power consumption
                 provider = LocationManager.FUSED_PROVIDER;
             } else if (enabledProviders.contains(LocationManager.GPS_PROVIDER)) {
                 // if the above providers can't be used: GPS
+                // (this seems appropriate here because it's only a one-time request)
                 provider = LocationManager.GPS_PROVIDER;
             }
             Logger.info("using location provider \"{}\" out of {}", provider, enabledProviders);

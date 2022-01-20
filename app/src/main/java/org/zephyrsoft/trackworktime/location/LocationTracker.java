@@ -15,8 +15,12 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.os.Build;
+import android.os.Bundle;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
@@ -24,11 +28,9 @@ import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.AudioManager;
-import android.os.Bundle;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Enables the tracking of work time by presence at a specific location. This is an addition to the manual tracking, not
@@ -91,8 +93,20 @@ public class LocationTracker implements LocationListener {
 
         if (isTrackingByLocation.compareAndSet(false, true)) {
             try {
+                List<String> enabledProviders = locationManager.getProviders(true);
+                String provider = LocationManager.PASSIVE_PROVIDER;
+                if (enabledProviders.contains(LocationManager.NETWORK_PROVIDER)) {
+                    // preferred: coarse location, determined by cell towers
+                    provider = LocationManager.NETWORK_PROVIDER;
+                } else if (enabledProviders.contains(LocationManager.FUSED_PROVIDER)
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    // second best: the location provider preferred by Android for low power consumption
+                    provider = LocationManager.FUSED_PROVIDER;
+                }
+                // don't try GPS here because that would drain the battery
+                Logger.info("using location provider \"{}\" out of {}", provider, enabledProviders);
                 locationManager
-                    .requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Constants.REPEAT_TIME, 0, this);
+                    .requestLocationUpdates(provider, Constants.REPEAT_TIME, 0, this);
                 timerManager.activateTrackingMethod(TrackingMethod.LOCATION);
                 Logger.info("started location-based tracking");
                 return Result.SUCCESS;
