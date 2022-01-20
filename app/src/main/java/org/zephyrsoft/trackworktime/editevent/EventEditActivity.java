@@ -65,6 +65,11 @@ public class EventEditActivity extends AppCompatActivity {
 	private List<Task> tasks;
 	private ArrayAdapter<Task> tasksAdapter;
 
+	/** saved here so the resume can access the original value given via intent */
+	private long epochDay = -1;
+	/** saved here so the resume can access the original value given via intent */
+	private int eventId = -1;
+
 	private Week week = null;
 	/** only filled if an existing event is edited! blank for new events! */
 	private Event editedEvent = null;
@@ -182,8 +187,17 @@ public class EventEditActivity extends AppCompatActivity {
 		super.onResume();
 
 		// one of the following options
-		int eventId = getIntent().getIntExtra(Constants.EVENT_ID_EXTRA_KEY, -1);
-		long epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
+		if (getIntent().hasExtra(Constants.EVENT_ID_EXTRA_KEY)
+			&& getIntent().hasExtra(Constants.WEEK_START_EXTRA_KEY)) {
+			Logger.warn("both an event ID and a week start were given - event ID will win");
+		}
+		if (getIntent().hasExtra(Constants.EVENT_ID_EXTRA_KEY)) {
+			eventId = getIntent().getIntExtra(Constants.EVENT_ID_EXTRA_KEY, -1);
+			epochDay = -1;
+		} else if (getIntent().hasExtra(Constants.WEEK_START_EXTRA_KEY)) {
+			eventId = -1;
+			epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
+		}
 
 		if (eventId == -1 && epochDay == -1) {
 			throw new IllegalArgumentException("Either event ID or week start must be given");
@@ -199,8 +213,6 @@ public class EventEditActivity extends AppCompatActivity {
 		if (eventId == -1) {
 			newEvent = true;
 			// prepare for entering a new event: make sure the date is inside the currently selected week
-			// TODO why this restriction?
-
 			if (week.isInWeek(LocalDate.now())) {
 				updateDateAndTimePickers(ZonedDateTime.now());
 			} else {
