@@ -229,5 +229,7 @@
     <string name="enableFlexiTimeOrItWontWork">Please configure and enable Flexi Time in the options, else this won\'t work.</string>
     <string name="alsoOnNonWorkingDays">also on non-working days</string>
     <string name="targetTime">Target Time</string>
+    <string name="pebbleNotification">Notification on Pebble</string>
+    <string name="pebbleNotificationDescription">notify events on connected Pebble watch</string>
 
 </resources>

@@ -142,7 +142,7 @@ public class Basics extends BroadcastReceiver {
 
         timerManager = new TimerManager(dao, preferences, context);
         timeCalculator = new TimeCalculator(dao, timerManager);
-        externalNotificationManager = new ExternalNotificationManager(context);
+        externalNotificationManager = new ExternalNotificationManager(context, preferences);
 
         initTinyLog();
 

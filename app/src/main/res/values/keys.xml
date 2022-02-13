@@ -51,4 +51,5 @@
     <string name="keyShowNavigationButtons">keyShowNavigationButtons</string>
     <string name="keyLastAskedForDocumentTree">keyLastAskedForDocumentTree</string>
     <string name="keyGrantedDocumentTree">keyGrantedDocumentTree</string>
+    <string name="keyPebbleNotification">keyPebbleNotification</string>
 </resources>

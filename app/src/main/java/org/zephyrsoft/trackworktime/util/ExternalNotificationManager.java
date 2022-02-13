@@ -17,13 +17,13 @@ package org.zephyrsoft.trackworktime.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Vibrator;
-
-import com.getpebble.android.kit.PebbleKit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.options.Key;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,14 +33,16 @@ import java.util.Map;
  */
 public class ExternalNotificationManager {
 
-	private final Vibrator vibratorService;
 	private final Context context;
+	private final SharedPreferences preferences;
+	private final Vibrator vibratorService;
 
 	/**
 	 * Create the manager.
 	 */
-	public ExternalNotificationManager(Context context) {
+	public ExternalNotificationManager(Context context, SharedPreferences preferences) {
 		this.context = context;
+		this.preferences = preferences;
 		vibratorService = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
 
@@ -55,7 +57,7 @@ public class ExternalNotificationManager {
 
 	public void notifyPebble(String message) {
 		try {
-			if (PebbleKit.isWatchConnected(context)) {
+			if (preferences.getBoolean(Key.NOTIFICATION_ON_PEBBLE.getName(), false)) {
 				final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
 				final Map<String, String> data = new HashMap<>();
