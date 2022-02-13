@@ -129,6 +129,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/eventGroupingByTaskPerMonth"/>
+
+            <RadioButton
+                android:id="@+id/targetGroupingNone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/targetGroupingNone"/>
+
+            <RadioButton
+                android:id="@+id/targetGroupingPerWeek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/targetGroupingPerWeek"/>
+
+            <RadioButton
+                android:id="@+id/targetGroupingPerMonth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/targetGroupingPerMonth"/>
         </RadioGroup>
 
         <LinearLayout

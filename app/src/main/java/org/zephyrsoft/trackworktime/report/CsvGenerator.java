@@ -1,19 +1,21 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License 3.0 as published by
  * the Free Software Foundation.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License 3.0 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.zephyrsoft.trackworktime.report;
+
+import androidx.arch.core.util.Function;
 
 import org.pmw.tinylog.Logger;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
@@ -24,11 +26,14 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Target;
+import org.zephyrsoft.trackworktime.model.TargetWrapper;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
@@ -89,6 +94,41 @@ public class CsvGenerator {
 		new Optional()
 	};
 
+	/** date, type, value, comment */
+	private final CellProcessor[] targetProcessors = new CellProcessor[] {
+		new CellProcessorAdaptor() {
+			@Override
+			public Object execute(Object arg0, CsvContext arg1) {
+				if (arg0 == null) {
+					throw new IllegalStateException("target date may not be null");
+				} else {
+					return ((LocalDate) arg0).format(DateTimeFormatter.ISO_LOCAL_DATE);
+				}
+			}
+		},
+		new CellProcessorAdaptor() {
+			@Override
+			public Object execute(Object arg0, CsvContext arg1) {
+				if (arg0 == null) {
+					throw new IllegalStateException("target type may not be null");
+				} else {
+					return arg0;
+				}
+			}
+		},
+        new CellProcessorAdaptor() {
+            @Override
+            public Object execute(Object arg0, CsvContext arg1) {
+                if (arg0 == null || (arg0 instanceof Integer && ((Integer) arg0).intValue() == 0)) {
+                    return null;
+                } else {
+                    return DateTimeUtil.formatDuration((Integer) arg0);
+                }
+            }
+        },
+		new Optional()
+	};
+
 	/** task, spent */
 	private final CellProcessor[] sumsProcessors = new CellProcessor[] {
 		new NotNull(),
@@ -119,6 +159,37 @@ public class CsvGenerator {
 			}
 		}
 	};
+
+	/**
+	 * Warning: could modify the provided event list!
+	 */
+	public String createTargetCsv(List<Target> targets) {
+		ICsvBeanWriter beanWriter = null;
+		StringWriter resultWriter = new StringWriter();
+		try {
+			beanWriter = new CsvBeanWriter(resultWriter, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE);
+
+			// the header elements are used to map the bean values to each column (names must match!)
+			final String[] header = new String[] { "date", "type", "value", "comment" };
+
+			beanWriter.writeHeader(header);
+
+			for (Target target : targets) {
+				beanWriter.write(new TargetWrapper(target), header, targetProcessors);
+			}
+		} catch (IOException e) {
+			Logger.error(e, "error while writing");
+		} finally {
+			if (beanWriter != null) {
+				try {
+					beanWriter.close();
+				} catch (IOException e) {
+					// do nothing
+				}
+			}
+		}
+		return resultWriter.toString();
+	}
 
 	/**
 	 * Warning: could modify the provided event list!
@@ -188,47 +259,77 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "day", "task", "spent" }, sumsPerRangeProcessors);
 	}
 
-	public String createSumsPerWeekCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
+	public <T> String createSumsPerWeekCsv(Map<ZonedDateTime, Map<T, TimeSum>> sumsPerRange,
+										   String[] header, Function<T, String> extractor) {
 		List<TimeSumsHolder> prepared = new ArrayList<>();
-		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+		for (Entry<ZonedDateTime, Map<T, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String week = DateTimeUtil.dateToULString(rangeEntry.getKey());
-			Map<Task, TimeSum> sums = rangeEntry.getValue();
-			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
-				String task = "";
+			Map<T, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<T, TimeSum> entry : sums.entrySet()) {
+				String key = "";
 				if (entry.getKey() != null) {
-					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+					key = extractor.apply(entry.getKey());
 				}
-				prepared.add(TimeSumsHolder.createForWeek(week, task, entry.getValue()));
+				prepared.add(TimeSumsHolder.createForWeek(week, key, entry.getValue()));
 			}
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, new String[] { "week", "task", "spent" }, sumsPerRangeProcessors);
+		return createCsv(prepared, header, sumsPerRangeProcessors);
 	}
 
-	public String createSumsPerMonthCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
+	public String createDayCountPerWeekCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
+		List<TargetDaysHolder> prepared = new ArrayList<>();
+		for (Entry<ZonedDateTime, Map<String, Integer>> rangeEntry : sumsPerRange.entrySet()) {
+			String week = DateTimeUtil.dateToULString(rangeEntry.getKey());
+			Map<String, Integer> sums = rangeEntry.getValue();
+			for (Entry<String, Integer> entry : sums.entrySet()) {
+				prepared.add(TargetDaysHolder.createForWeek(week, entry.getKey(), entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, header, sumsPerRangeProcessors);
+	}
+
+	public <T> String createSumsPerMonthCsv(Map<ZonedDateTime, Map<T, TimeSum>> sumsPerRange,
+											String[] header, Function<T, String> extractor) {
 		List<TimeSumsHolder> prepared = new ArrayList<>();
-		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+		for (Entry<ZonedDateTime, Map<T, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
 			String month = DateTimeUtil.dateToULString(rangeEntry.getKey());
-			Map<Task, TimeSum> sums = rangeEntry.getValue();
-			for (Entry<Task, TimeSum> entry : sums.entrySet()) {
+			Map<T, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<T, TimeSum> entry : sums.entrySet()) {
 				String task = "";
 				if (entry.getKey() != null) {
-					task = entry.getKey().getName() + " (ID=" + entry.getKey().getId() + ")";
+					task = extractor.apply(entry.getKey());
 				}
 				prepared.add(TimeSumsHolder.createForMonth(month, task, entry.getValue()));
 			}
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, new String[] { "month", "task", "spent" }, sumsPerRangeProcessors);
+		return createCsv(prepared, header, sumsPerRangeProcessors);
+	}
+
+	public String createDayCountPerMonthCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
+		List<TargetDaysHolder> prepared = new ArrayList<>();
+		for (Entry<ZonedDateTime, Map<String, Integer>> rangeEntry : sumsPerRange.entrySet()) {
+			String month = DateTimeUtil.dateToULString(rangeEntry.getKey());
+			Map<String, Integer> sums = rangeEntry.getValue();
+			for (Entry<String, Integer> entry : sums.entrySet()) {
+				prepared.add(TargetDaysHolder.createForMonth(month, entry.getKey(), entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, header, sumsPerRangeProcessors);
 	}
 
 	/**
 	 * @param header
 	 *            the header elements are used to map the bean values to each column (names must match!)
 	 */
-	private String createCsv(List<TimeSumsHolder> dataToWrite, String[] header, CellProcessor[] processors) {
+	private String createCsv(List<?> dataToWrite, String[] header, CellProcessor[] processors) {
 		ICsvBeanWriter beanWriter = null;
 		StringWriter resultWriter = new StringWriter();
 		try {
@@ -236,8 +337,8 @@ public class CsvGenerator {
 
 			beanWriter.writeHeader(header);
 
-			for (TimeSumsHolder timeSumsHolder : dataToWrite) {
-				beanWriter.write(timeSumsHolder, header, processors);
+			for (Object dataElement : dataToWrite) {
+				beanWriter.write(dataElement, header, processors);
 			}
 		} catch (IOException e) {
 			Logger.error(e, "error while writing");

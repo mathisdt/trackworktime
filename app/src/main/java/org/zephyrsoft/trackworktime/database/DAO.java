@@ -15,56 +15,6 @@
  */
 package org.zephyrsoft.trackworktime.database;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
-import android.os.AsyncTask;
-
-import org.pmw.tinylog.Logger;
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.chrono.IsoChronology;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatterBuilder;
-import org.threeten.bp.format.ResolverStyle;
-import org.threeten.bp.temporal.ChronoField;
-import org.threeten.bp.temporal.TemporalAccessor;
-import org.zephyrsoft.trackworktime.Basics;
-import org.zephyrsoft.trackworktime.UpgradeActivity;
-import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
-import org.zephyrsoft.trackworktime.model.CalcCacheEntry;
-import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.Target;
-import org.zephyrsoft.trackworktime.model.TargetEnum;
-import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.model.TypeEnum;
-import org.zephyrsoft.trackworktime.model.Week;
-import org.zephyrsoft.trackworktime.timer.TimerManager;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import androidx.annotation.VisibleForTesting;
-
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.CACHE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.CACHE_DATE;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.CACHE_TARGET;
@@ -90,6 +40,57 @@ import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ID;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_NAME;
 import static org.zephyrsoft.trackworktime.database.MySQLiteHelper.TASK_ORDERING;
 
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+import android.os.AsyncTask;
+
+import androidx.annotation.VisibleForTesting;
+
+import org.pmw.tinylog.Logger;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.chrono.IsoChronology;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.ResolverStyle;
+import org.threeten.bp.temporal.ChronoField;
+import org.threeten.bp.temporal.ChronoUnit;
+import org.threeten.bp.temporal.TemporalAccessor;
+import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.UpgradeActivity;
+import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
+import org.zephyrsoft.trackworktime.model.CalcCacheEntry;
+import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Target;
+import org.zephyrsoft.trackworktime.model.TargetEnum;
+import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.model.Week;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * The data access object for structures from the app's SQLite database. The model consists of three main elements:
  * tasks (which are defined by the user and can be referenced when clocking in), events (which are generated when
@@ -106,6 +107,7 @@ public class DAO {
 	private final MySQLiteHelper dbHelper;
 	private final Context context;
 	private final WorkTimeTrackerBackupManager backupManager;
+	private final Basics basics;
 
 	private static final Pattern RESTORE_PATTERN = Pattern.compile(";");
 
@@ -116,6 +118,7 @@ public class DAO {
 		this.context = context;
 		dbHelper = new MySQLiteHelper(context);
 		backupManager = new WorkTimeTrackerBackupManager(context);
+		basics = Basics.getOrCreateInstance(context);
 	}
 
 	/**
@@ -291,7 +294,6 @@ public class DAO {
 	// =======================================================
 
 	private static final String[] EVENT_FIELDS = { EVENT_ID, EVENT_TIME, EVENT_ZONE_OFFSET, EVENT_TYPE, EVENT_TASK, EVENT_TEXT };
-	private static final String[] COUNT_FIELDS = { "count(*)" };
 	private static final String[] MAX_EVENT_FIELDS = { EVENT_ID, "max(" + EVENT_TIME + ")", EVENT_ZONE_OFFSET, EVENT_TYPE,
 		EVENT_TASK, EVENT_TEXT };
 
@@ -923,14 +925,21 @@ public class DAO {
 	public synchronized Cursor getAllTargets() {
 		open();
 		final String query = "SELECT"
-				+ " "  + MySQLiteHelper.TARGET_TIME
-				+ ", " + MySQLiteHelper.TARGET_TYPE
-				+ ", " + MySQLiteHelper.TARGET_VALUE
-				+ ", " + MySQLiteHelper.TARGET_TEXT
+				+ " "  + TARGET_TIME
+				+ ", " + TARGET_TYPE
+				+ ", " + TARGET_VALUE
+				+ ", " + TARGET_TEXT
 				+ " FROM " + MySQLiteHelper.TARGET
-				+ " ORDER BY " + MySQLiteHelper.TARGET_TIME;
+				+ " ORDER BY " + TARGET_TIME;
 
 		return db.rawQuery(query, new String[] {});
+	}
+
+	public List<Target> getTargets(Instant from, Instant to) {
+		return getTargetsWithConstraint(TARGET_TIME + " >= "
+			+ ChronoUnit.DAYS.between(Instant.EPOCH, from) +
+			" AND " + TARGET_TIME + " <= "
+			+ ChronoUnit.DAYS.between(Instant.EPOCH, to));
 	}
 
 
@@ -942,16 +951,16 @@ public class DAO {
 		final Cursor cur = getAllTargets();
 		cur.moveToFirst();
 
-		final int targetTimeCol = cur.getColumnIndex(MySQLiteHelper.TARGET_TIME);
-		final int targetTypeCol = cur.getColumnIndex(MySQLiteHelper.TARGET_TYPE);
-		final int targetValueCol = cur.getColumnIndex(MySQLiteHelper.TARGET_VALUE);
-		final int targetTextCol = cur.getColumnIndex(MySQLiteHelper.TARGET_TEXT);
+		final int targetTimeCol = cur.getColumnIndex(TARGET_TIME);
+		final int targetTypeCol = cur.getColumnIndex(TARGET_TYPE);
+		final int targetValueCol = cur.getColumnIndex(TARGET_VALUE);
+		final int targetTextCol = cur.getColumnIndex(TARGET_TEXT);
 
 		writer.write(
-				MySQLiteHelper.TARGET_TIME
-						+ ";" + MySQLiteHelper.TARGET_TYPE
-						+ ";" + MySQLiteHelper.TARGET_VALUE
-						+ ";" + MySQLiteHelper.TARGET_TEXT
+				TARGET_TIME
+						+ ";" + TARGET_TYPE
+						+ ";" + TARGET_VALUE
+						+ ";" + TARGET_TEXT
 						+ eol);
 
 		final StringBuilder buf = new StringBuilder();
@@ -1110,7 +1119,7 @@ public class DAO {
 		new MigrateEventsV2(zoneId, callback).execute();
 	}
 
-	private class MigrateEventsV2 extends AsyncTask<Void, Integer, Void> {
+    private class MigrateEventsV2 extends AsyncTask<Void, Integer, Void> {
 
 		private final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
 		private final int TYPE_FLEX = 2;

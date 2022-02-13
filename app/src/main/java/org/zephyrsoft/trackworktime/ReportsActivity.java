@@ -31,6 +31,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -38,6 +39,8 @@ import org.zephyrsoft.trackworktime.databinding.ReportsBinding;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Range;
 import org.zephyrsoft.trackworktime.model.Report;
+import org.zephyrsoft.trackworktime.model.Target;
+import org.zephyrsoft.trackworktime.model.TargetWrapper;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
@@ -155,6 +158,15 @@ public class ReportsActivity extends AppCompatActivity {
 			case R.id.groupingByTaskPerMonth:
 				report = createReportForTimesByTaskPerMonth();
 				break;
+			case R.id.targetGroupingNone:
+				report = createReportForAllTargets();
+				break;
+			case R.id.targetGroupingPerWeek:
+				report = createReportForTargetsDaysPerTypeAndCommentPerWeek();
+				break;
+			case R.id.targetGroupingPerMonth:
+				report = createReportForTargetsDaysPerTypeAndCommentPerMonth();
+				break;
 			default:
 				throw new RuntimeException("Grouping not implemented");
 		}
@@ -206,6 +218,15 @@ public class ReportsActivity extends AppCompatActivity {
 				break;
 			case R.id.groupingByTaskPerMonth:
 				exportTimesByTaskPerMonth();
+				break;
+			case R.id.targetGroupingNone:
+				exportAllTargets();
+				break;
+			case R.id.targetGroupingPerWeek:
+				exportTargetsDaysPerTypeAndCommentPerWeek();
+				break;
+			case R.id.targetGroupingPerMonth:
+				exportTargetsDaysPerTypeAndCommentPerMonth();
 				break;
 			default:
 				throw new RuntimeException("Grouping not implemented");
@@ -347,7 +368,9 @@ public class ReportsActivity extends AppCompatActivity {
 				beginAndEnd[1]);
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange);
+		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange,
+			new String[] { "week", "task", "spent" },
+			task -> task.getName() + " (ID=" + task.getId() + ")");
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
@@ -384,7 +407,9 @@ public class ReportsActivity extends AppCompatActivity {
 				beginAndEnd[1]);
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
-		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange);
+		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange,
+			new String[] { "month", "task", "spent" },
+			task -> task.getName() + " (ID=" + task.getId() + ")");
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
 			logAndShowError("could not generate report " + reportName);
@@ -392,6 +417,115 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 
 		return new Report(reportName, report);
+	}
+
+	private void exportAllTargets() {
+		Report report = createReportForAllTargets();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"targets-" + name.replaceAll(" ", "-"),
+			data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForAllTargets() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Target> targets = dao.getTargets(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
+
+		String report = csvGenerator.createTargetCsv(targets);
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private Report createReportForTargetsDaysPerTypeAndCommentPerWeek() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0], beginAndEnd[1]);
+		Map<ZonedDateTime, Map<String, Integer>> sumsPerRange = calculateTargetSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createDayCountPerWeekCsv(sumsPerRange,
+			new String[] { "week", "target", "days" });
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTargetsDaysPerTypeAndCommentPerWeek() {
+		Report report = createReportForTargetsDaysPerTypeAndCommentPerWeek();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"targets-per-week-" + name.replaceAll(" ", "-"),
+			data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForTargetsDaysPerTypeAndCommentPerMonth() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0], beginAndEnd[1]);
+		Map<ZonedDateTime, Map<String, Integer>> sumsPerRange = calculateTargetSumsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createDayCountPerMonthCsv(sumsPerRange,
+			new String[] { "month", "target", "days" });
+		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		if (report == null) {
+			logAndShowError("could not generate report " + reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTargetsDaysPerTypeAndCommentPerMonth() {
+		Report report = createReportForTargetsDaysPerTypeAndCommentPerMonth();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+			"targets-per-month-" + name.replaceAll(" ", "-"),
+			data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
 	}
 
 	private Map<ZonedDateTime, Map<Task, TimeSum>> calculateSumsPerRange(List<ZonedDateTime> rangeBeginnings, ZonedDateTime end) {
@@ -402,6 +536,27 @@ public class ReportsActivity extends AppCompatActivity {
 			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
 			List<Event> events = dao.getEvents(rangeStart.toInstant(), rangeEnd.toInstant());
 			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
+			sumsPerRange.put(rangeStart, sums);
+		}
+		return sumsPerRange;
+	}
+
+	private Map<ZonedDateTime, Map<String, Integer>> calculateTargetSumsPerRange(List<ZonedDateTime> rangeBeginnings, ZonedDateTime end) {
+		Map<ZonedDateTime, Map<String, Integer>> sumsPerRange = new HashMap<>();
+
+		for (int i = 0; i < rangeBeginnings.size(); i++) {
+			ZonedDateTime rangeStart = rangeBeginnings.get(i);
+			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
+			List<Target> targets = dao.getTargets(rangeStart.toInstant(), rangeEnd.toInstant());
+			Map<String, Integer> sums = new HashMap<>();
+			for (Target target : targets) {
+				String key = TargetWrapper.getType(target)
+					+ (StringUtils.isBlank(target.getComment()) ? "" : " - " + target.getComment());
+				if (!sums.containsKey(key)) {
+					sums.put(key, 0);
+				}
+				sums.put(key, sums.get(key) + 1);
+			}
 			sumsPerRange.put(rangeStart, sums);
 		}
 		return sumsPerRange;

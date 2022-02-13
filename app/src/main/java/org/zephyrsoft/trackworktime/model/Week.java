@@ -38,7 +38,7 @@ public class Week extends Base implements Comparable<Week> {
 	}
 
 	public LocalDate getEnd() {
-		// // TODO consider locale
+		// TODO consider locale
 		return startDay.with(DayOfWeek.SUNDAY);
 	}
 
