@@ -26,7 +26,16 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.zephyrsoft.trackworktime"
+        if (app_suffix == null || app_suffix.trim().isEmpty()) {
+            applicationId "org.zephyrsoft.trackworktime"
+            resValue "string", "app_name", "${app_title}"
+            buildConfigField "String", "APP_NAME", "\"${app_title}\""
+        } else {
+            applicationId "org.zephyrsoft.trackworktime_" + app_suffix.replaceAll("[^a-zA-Z0-9]", "")
+            resValue "string", "app_name", "${app_title} ${app_suffix}"
+            buildConfigField "String", "APP_NAME", "\"${app_title} ${app_suffix}\""
+        }
+
         minSdkVersion 21
         targetSdkVersion 31
 

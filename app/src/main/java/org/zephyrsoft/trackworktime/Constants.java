@@ -1,15 +1,15 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License 3.0 as published by
  * the Free Software Foundation.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License 3.0 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -97,9 +97,9 @@ public class Constants {
 	/** the key in the reply to on status request for remaining time (in minutes) */
 	public static final String INTENT_EXTRA_REPLY_MINUTES_REMAINING = "minutes-remaining";
 
-	public static final String CLOCK_IN_ACTION = "org.zephyrsoft.trackworktime.ClockIn";
-	public static final String CLOCK_OUT_ACTION = "org.zephyrsoft.trackworktime.ClockOut";
-	public static final String STATUS_REQUEST_ACTION = "org.zephyrsoft.trackworktime.StatusRequest";
+	public static final String CLOCK_IN_ACTION = BuildConfig.APPLICATION_ID + ".ClockIn";
+    public static final String CLOCK_OUT_ACTION = BuildConfig.APPLICATION_ID + ".ClockOut";
+    public static final String STATUS_REQUEST_ACTION = BuildConfig.APPLICATION_ID + ".StatusRequest";
 
 	// Work manager unique name
 	public static final String WORK_AUTOBACKUP = "AUTOBACKUP";
