@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.zephyrsoft.trackworktime" >
+    package="org.zephyrsoft.trackworktime">
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,18 +14,24 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name="WorkTimeTrackerApplication"
+        android:name=".WorkTimeTrackerApplication"
         android:allowBackup="true"
-        android:backupAgent="org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupAgentHelper"
+        android:backupAgent=".backup.WorkTimeTrackerBackupAgentHelper"
         android:hasCode="true"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/Theme.trackworktime"
-        android:label="@string/app_name" >
-        <receiver android:name=".Widget"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.trackworktime">
+        <activity
+            android:name=".ShortcutReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".Widget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
@@ -42,48 +48,53 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name="Basics"
+        <receiver
+            android:name=".Basics"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="Watchdog" />
+        <receiver android:name=".Watchdog" />
         <receiver
-            android:name="ThirdPartyReceiver"
+            android:name=".ThirdPartyReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver" />
 
         <service
             android:name=".location.LocationTrackerService"
-            android:foregroundServiceType="location"
-            android:enabled="true" />
+            android:enabled="true"
+            android:foregroundServiceType="location" />
         <service
             android:name=".location.WifiTrackerService"
-            android:foregroundServiceType="location"
-            android:enabled="true" />
+            android:enabled="true"
+            android:foregroundServiceType="location" />
 
         <activity
-            android:name="WorkTimeTrackerActivity"
-            android:label="@string/app_name"
+            android:name=".WorkTimeTrackerActivity"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.trackworktime.NoActionBar"
-            android:exported="true">
+            android:theme="@style/Theme.trackworktime.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
-            android:name="TimeAheadActivity"
+            android:name=".TimeAheadActivity"
             android:exported="false"
             android:label="@string/timeAheadTitle" />
         <activity
-            android:name="EventListActivity"
+            android:name=".EventListActivity"
             android:exported="false"
             android:label="@string/edit_events" />
         <activity
@@ -91,41 +102,41 @@
             android:exported="false"
             android:label="@string/edit_event" />
         <activity
-            android:name="TargetEditActivity"
+            android:name=".TargetEditActivity"
             android:exported="false"
             android:label="@string/edit_target" />
         <activity
-            android:name="TaskListActivity"
+            android:name=".TaskListActivity"
             android:exported="false"
             android:label="@string/edit_tasks" />
         <activity
-            android:name="InsertDefaultTimesActivity"
+            android:name=".InsertDefaultTimesActivity"
             android:exported="false"
             android:label="@string/insert_default_times" />
         <activity
-            android:name="OptionsActivity"
+            android:name=".OptionsActivity"
             android:exported="false"
             android:label="@string/preferences" />
         <activity
-            android:name="AboutActivity"
+            android:name=".AboutActivity"
             android:exported="false"
             android:label="@string/about" />
         <activity
-            android:name="ReportsActivity"
+            android:name=".ReportsActivity"
             android:exported="false"
             android:label="@string/reports" />
         <activity
-            android:name="MessageActivity"
+            android:name=".MessageActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:label="@string/message"
             android:theme="@style/Theme.AppCompat.Dialog" />
         <activity
-            android:name="UpgradeActivity"
+            android:name=".UpgradeActivity"
             android:exported="false"
             android:label="@string/upgrade" />
         <activity
-            android:name="DebugActivity"
+            android:name=".DebugActivity"
             android:exported="false"
             android:label="Debug" />
         <activity

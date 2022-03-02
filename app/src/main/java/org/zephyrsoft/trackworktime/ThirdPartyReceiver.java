@@ -29,7 +29,7 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 /**
  * Hook for clock-in with third-party apps like Tasker or Llama.
- * Also handles actions triggered directly from the notification of TWT.
+ * Also handles actions triggered directly from the notification and from the widget of TWT.
  */
 public class ThirdPartyReceiver extends BroadcastReceiver {
 
@@ -116,7 +116,8 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		return null;
 	}
 
-	private static Integer getDefaultTaskId(Context context) {
+	// also used by ShortcutReceiver
+	static Integer getDefaultTaskId(Context context) {
 		DAO dao = Basics.getOrCreateInstance(context).getDao();
 		Task task = dao.getDefaultTask();
 		return task == null ? null : task.getId();

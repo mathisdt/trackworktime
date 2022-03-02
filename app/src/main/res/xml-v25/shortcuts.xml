@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="twtClockIn"
+        android:icon="@drawable/ic_play"
+        android:shortcutShortLabel="@string/clockIn">
+        <intent android:action="org.zephyrsoft.trackworktime.ClockIn"
+            android:targetClass="org.zephyrsoft.trackworktime.ShortcutReceiver"
+            android:targetPackage="org.zephyrsoft.trackworktime" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="twtClockOut"
+        android:icon="@drawable/ic_stop"
+        android:shortcutShortLabel="@string/clockOut">
+        <intent android:action="org.zephyrsoft.trackworktime.ClockOut"
+            android:targetClass="org.zephyrsoft.trackworktime.ShortcutReceiver"
+            android:targetPackage="org.zephyrsoft.trackworktime" />
+    </shortcut>
+</shortcuts>
