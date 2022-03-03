@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="app_title_short">TWT</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="email">android@zephyrsoft.org</string>
@@ -23,6 +23,8 @@
     <string name="task">Task</string>
     <string name="text">Text</string>
     <string name="choose_task">Choose a task</string>
+    <string name="clockedIn">clocked in</string>
+    <string name="clockedOut">clocked out</string>
     <string name="clockIn">Start Tracking</string>
     <string name="clockInChange">Start New Period</string>
     <string name="clockInChangeShort">New Period</string>

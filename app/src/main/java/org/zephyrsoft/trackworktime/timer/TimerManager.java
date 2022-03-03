@@ -188,6 +188,13 @@ public class TimerManager {
 	}
 
 	/**
+	 * Returns the default task or {@code null} if no task is configured.
+	 */
+	public Task getDefaultTask() {
+		return dao.getDefaultTask();
+	}
+
+	/**
 	 * Either starts tracking (from non-tracked time) or changes the task and/or text (from already tracked time).
 	 * If the task is {@code null}, the default task is taken. If there is no default task, no task will be taken.
 	 *
