@@ -125,6 +125,9 @@ public class DocumentTreeStorage {
                  OutputStream outputStream = fileDescriptor == null ? null : new FileOutputStream(fileDescriptor.getFileDescriptor())) {
                 Logger.debug("writing to {} {}", type, filename);
                 action.accept(outputStream);
+                if (outputStream != null) {
+                    outputStream.flush();
+                }
                 return file.getUri();
             } catch (Exception e) {
                 throw new RuntimeException(e);

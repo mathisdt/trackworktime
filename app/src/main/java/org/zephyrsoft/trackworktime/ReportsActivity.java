@@ -50,6 +50,7 @@ import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -612,7 +613,7 @@ public class ReportsActivity extends AppCompatActivity {
 					fileName,
 					outputStream -> {
 						try {
-							outputStream.write(report.getBytes());
+							outputStream.write(report.getBytes(StandardCharsets.UTF_8));
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}

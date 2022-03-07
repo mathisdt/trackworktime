@@ -59,106 +59,122 @@ public class CsvGenerator {
 	}
 
 	/** time, type, task, text */
-	private final CellProcessor[] eventProcessors = new CellProcessor[] {
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("event time may not be null");
-				} else {
-					return ((OffsetDateTime) arg0).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getEventProcessors() {
+		return new CellProcessor[]{
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("event time may not be null");
+					} else {
+						return ((OffsetDateTime) arg0).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+					}
 				}
-			}
-		},
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("event type may not be null");
-				} else {
-					return TypeEnum.byValue((Integer) arg0).getReadableName();
+			},
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("event type may not be null");
+					} else {
+						return TypeEnum.byValue((Integer) arg0).getReadableName();
+					}
 				}
-			}
-		},
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					return null;
-				} else {
-					Task task = dao.getTask((Integer) arg0);
-					return task == null ? "" : task.getName();
+			},
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						return null;
+					} else {
+						Task task = dao.getTask((Integer) arg0);
+						return task == null ? "" : task.getName();
+					}
 				}
-			}
-		},
-		new Optional()
-	};
+			},
+			new Optional()
+		};
+	}
 
-	/** date, type, value, comment */
-	private final CellProcessor[] targetProcessors = new CellProcessor[] {
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("target date may not be null");
-				} else {
-					return ((LocalDate) arg0).format(DateTimeFormatter.ISO_LOCAL_DATE);
+	/**
+	 * date, type, value, comment
+	 */
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getTargetProcessors() {
+		return new CellProcessor[]{
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("target date may not be null");
+					} else {
+						return ((LocalDate) arg0).format(DateTimeFormatter.ISO_LOCAL_DATE);
+					}
 				}
-			}
-		},
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("target type may not be null");
-				} else {
-					return arg0;
+			},
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("target type may not be null");
+					} else {
+						return arg0;
+					}
 				}
-			}
-		},
-        new CellProcessorAdaptor() {
-            @Override
-            public Object execute(Object arg0, CsvContext arg1) {
-                if (arg0 == null || (arg0 instanceof Integer && ((Integer) arg0).intValue() == 0)) {
-                    return null;
-                } else {
-                    return DateTimeUtil.formatDuration((Integer) arg0);
-                }
-            }
-        },
-		new Optional()
-	};
+			},
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null || (arg0 instanceof Integer && ((Integer) arg0) == 0)) {
+						return null;
+					} else if (arg0 instanceof Integer) {
+						return DateTimeUtil.formatDuration((Integer) arg0);
+					} else {
+						return null;
+					}
+				}
+			},
+			new Optional()
+		};
+	}
 
 	/** task, spent */
-	private final CellProcessor[] sumsProcessors = new CellProcessor[] {
-		new NotNull(),
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("time sum may not be null");
-				} else {
-					return arg0.toString();
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getSumsProcessors() {
+		return new CellProcessor[] {
+			new NotNull(),
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("time sum may not be null");
+					} else {
+						return arg0.toString();
+					}
 				}
 			}
-		}
-	};
+		};
+	}
 
 	/** (month|week), task, spent */
-	private final CellProcessor[] sumsPerRangeProcessors = new CellProcessor[] {
-		new NotNull(),
-		new NotNull(),
-		new CellProcessorAdaptor() {
-			@Override
-			public Object execute(Object arg0, CsvContext arg1) {
-				if (arg0 == null) {
-					throw new IllegalStateException("time sum may not be null");
-				} else {
-					return arg0.toString();
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getSumsPerRangeProcessors() {
+		return new CellProcessor[]{
+			new NotNull(),
+			new NotNull(),
+			new CellProcessorAdaptor() {
+				@Override
+				public Object execute(Object arg0, CsvContext arg1) {
+					if (arg0 == null) {
+						throw new IllegalStateException("time sum may not be null");
+					} else {
+						return arg0.toString();
+					}
 				}
 			}
-		}
-	};
+		};
+	}
 
 	/**
 	 * Warning: could modify the provided event list!
@@ -174,6 +190,7 @@ public class CsvGenerator {
 
 			beanWriter.writeHeader(header);
 
+			CellProcessor[] targetProcessors = getTargetProcessors();
 			for (Target target : targets) {
 				beanWriter.write(new TargetWrapper(target), header, targetProcessors);
 			}
@@ -205,6 +222,7 @@ public class CsvGenerator {
 
 			beanWriter.writeHeader(header);
 
+			CellProcessor[] eventProcessors = getEventProcessors();
 			for (Event event : events) {
 				// "clock out" events shouldn't have a task and text:
 				if (TypeEnum.byValue(event.getType()) == TypeEnum.CLOCK_OUT) {
@@ -238,7 +256,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, new String[] { "task", "spent" }, sumsProcessors);
+		return createCsv(prepared, new String[] { "task", "spent" }, getSumsProcessors());
 	}
 
 	public String createSumsPerDayCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
@@ -256,7 +274,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, new String[] { "day", "task", "spent" }, sumsPerRangeProcessors);
+		return createCsv(prepared, new String[] { "day", "task", "spent" }, getSumsPerRangeProcessors());
 	}
 
 	public <T> String createSumsPerWeekCsv(Map<ZonedDateTime, Map<T, TimeSum>> sumsPerRange,
@@ -275,7 +293,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, header, sumsPerRangeProcessors);
+		return createCsv(prepared, header, getSumsPerRangeProcessors());
 	}
 
 	public String createDayCountPerWeekCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
@@ -289,7 +307,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, header, sumsPerRangeProcessors);
+		return createCsv(prepared, header, getSumsPerRangeProcessors());
 	}
 
 	public <T> String createSumsPerMonthCsv(Map<ZonedDateTime, Map<T, TimeSum>> sumsPerRange,
@@ -308,7 +326,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, header, sumsPerRangeProcessors);
+		return createCsv(prepared, header, getSumsPerRangeProcessors());
 	}
 
 	public String createDayCountPerMonthCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
@@ -322,7 +340,7 @@ public class CsvGenerator {
 		}
 		Collections.sort(prepared);
 
-		return createCsv(prepared, header, sumsPerRangeProcessors);
+		return createCsv(prepared, header, getSumsPerRangeProcessors());
 	}
 
 	/**
