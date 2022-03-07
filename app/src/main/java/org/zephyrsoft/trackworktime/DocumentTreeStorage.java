@@ -33,6 +33,7 @@ import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -122,7 +123,7 @@ public class DocumentTreeStorage {
         DocumentFile file = getForWriting(context, type, filename);
         if (file != null) {
             try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "w");
-                 OutputStream outputStream = fileDescriptor == null ? null : new FileOutputStream(fileDescriptor.getFileDescriptor())) {
+                 OutputStream outputStream = fileDescriptor == null ? null : new BufferedOutputStream(new FileOutputStream(fileDescriptor.getFileDescriptor()))) {
                 Logger.debug("writing to {} {}", type, filename);
                 action.accept(outputStream);
                 if (outputStream != null) {
