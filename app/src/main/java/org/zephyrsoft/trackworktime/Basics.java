@@ -281,6 +281,7 @@ public class Basics extends BroadcastReceiver {
     public void safeCheckExternalControls() {
         safeCheckWidget();
         safeCheckPersistentNotification();
+        timerManager.notifyListeners();
     }
 
     /**

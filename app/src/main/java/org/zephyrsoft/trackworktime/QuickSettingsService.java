@@ -24,12 +24,14 @@ import androidx.annotation.RequiresApi;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.Updatable;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class QuickSettingsService extends TileService {
+public class QuickSettingsService extends TileService implements Updatable {
     private final TimerManager timerManager = Basics.getOrCreateInstance(this).getTimerManager();
 
-    private void updateState() {
+    @Override
+    public void update() {
         if (timerManager.isTracking()) {
             getQsTile().setState(Tile.STATE_ACTIVE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -48,12 +50,18 @@ public class QuickSettingsService extends TileService {
 
     @Override
     public void onTileAdded() {
-        updateState();
+        update();
     }
 
     @Override
     public void onStartListening() {
-        updateState();
+        update();
+        timerManager.addListener(this);
+    }
+
+    @Override
+    public void onStopListening() {
+        timerManager.removeListener(this);
     }
 
     @Override
@@ -66,7 +74,7 @@ public class QuickSettingsService extends TileService {
             Task defaultTask = timerManager.getDefaultTask();
             timerManager.startTracking(0, defaultTask, null);
         }
-        updateState();
+        update();
         WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
         if (instanceOrNull != null) {
             instanceOrNull.refreshView();

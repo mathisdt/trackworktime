@@ -48,11 +48,13 @@ import org.zephyrsoft.trackworktime.model.TimeInfo;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.Updatable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -63,6 +65,7 @@ public class TimerManager {
 	private final DAO dao;
 	private final SharedPreferences preferences;
 	private final Context context;
+	private final List<Updatable> listeners = new ArrayList<>();
 
 	/**
 	 * Constructor
@@ -71,6 +74,27 @@ public class TimerManager {
 		this.dao = dao;
 		this.preferences = preferences;
 		this.context = context;
+	}
+
+	public void addListener(Updatable listener) {
+		listeners.add(listener);
+	}
+
+	public void removeListener(Updatable listener) {
+		listeners.remove(listener);
+	}
+
+	public void notifyListeners() {
+		Logger.debug("notifying {} listeners", listeners.size());
+		for (Updatable listener : listeners) {
+			try {
+				if (listener != null) {
+					listener.update();
+				}
+			} catch (Exception e) {
+				Logger.debug(e, "error while notifying listener");
+			}
+		}
 	}
 
 	public ZoneId getHomeTimeZone() {
@@ -586,6 +610,7 @@ public class TimerManager {
 		if (!insertedByRestore) {
 			Basics.getInstance().safeCheckExternalControls();
 		}
+		notifyListeners();
 	}
 
 	// TODO General invalidate function (possibly with notification)
