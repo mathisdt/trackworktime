@@ -479,7 +479,7 @@ public class TimeCalculatorV2 {
 	}
 
 	public boolean withFlexiTime() {
-		return handleFlexiTime && startDate.isBefore(LocalDate.now());
+		return handleFlexiTime && !startDate.isAfter(LocalDate.now());
 	}
 
 	public long getBalance() {
