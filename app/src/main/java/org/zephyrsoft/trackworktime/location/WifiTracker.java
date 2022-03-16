@@ -17,6 +17,7 @@ package org.zephyrsoft.trackworktime.location;
 
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
+
 import androidx.annotation.NonNull;
 
 import org.pmw.tinylog.Logger;
@@ -42,14 +43,16 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	private final AtomicBoolean isTrackingByWifi = new AtomicBoolean(false);
 
 	private String ssid = "";
-	private boolean vibrate = false;
+	private Boolean vibrate = false;
+	/** in minutes */
+	private Integer checkInterval = 1;
 
 	/** previous state of the wifi ssid occurence (from last check) */
 	private Boolean ssidWasPreviouslyInRange;
 
 	/**
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
-	 * {@link #startTrackingByWifi(String, boolean)} explicitly.
+	 * {@link #startTrackingByWifi(String, Boolean, Integer)} explicitly.
 	 */
 	public WifiTracker(TimerManager timerManager,
 		ExternalNotificationManager externalNotificationManager,
@@ -76,12 +79,13 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	 * Start the periodic checks to track by wifi.
 	 */
 	public Result startTrackingByWifi(@SuppressWarnings("hiding") String ssid,
-		@SuppressWarnings("hiding") boolean vibrate) {
+		@SuppressWarnings("hiding") Boolean vibrate, Integer checkInterval) {
 
 		Logger.debug("preparing wifi-based tracking");
 
 		this.ssid = ssid;
 		this.vibrate = vibrate;
+		this.checkInterval = checkInterval;
 
 		// just in case:
 		stopTrackingByWifi();
@@ -89,6 +93,9 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 		if (isTrackingByWifi.compareAndSet(false, true)) {
 			try {
 				timerManager.activateTrackingMethod(TrackingMethod.WIFI);
+				int time = checkInterval * 60 - 30;
+				wifiScanner.setMaxScanAge(time);
+				wifiScanner.setScanRequestTimeout(time);
 				wifiScanner.setWifiScanListener(this);
 				Logger.info("started wifi-based tracking");
 				return Result.SUCCESS;
@@ -112,7 +119,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 
 	@Override
 	public void onScanResultsUpdated(@NonNull List<ScanResult> wifiNetworksInRange) {
-		Logger.debug("checking wifi for ssid \"{}\"", ssid);
+		Logger.debug("hecking wifi for ssid \"{}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange(wifiNetworksInRange);
 		Logger.debug("wifi ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
 				ssidWasPreviouslyInRange);
@@ -230,5 +237,9 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	 */
 	public boolean shouldVibrate() {
 		return vibrate;
+	}
+
+	public int getCheckInterval() {
+		return checkInterval;
 	}
 }

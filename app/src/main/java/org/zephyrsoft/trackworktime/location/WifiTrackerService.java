@@ -26,7 +26,9 @@ import android.os.IBinder;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.options.Key;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -51,7 +53,11 @@ public class WifiTrackerService extends Service {
         }
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        int time = (int) (Constants.REPEAT_TIME / 1000 / 2);
+        String checkIntervalString = basics.getPreferences().getString(Key.WIFI_BASED_TRACKING_CHECK_INTERVAL.getName(), "1");
+        int checkInterval = checkIntervalString == null
+            ? 1
+            : Integer.parseInt(checkIntervalString);
+        int time = checkInterval * 60 - 30;
         wifiScanner = new WifiScanner(wifiManager, time, time);
         wifiScanner.register(getApplicationContext());
 
@@ -86,13 +92,20 @@ public class WifiTrackerService extends Service {
 
         String ssid = (String) intent.getExtras().get(Constants.INTENT_EXTRA_SSID);
         Boolean vibrate = (Boolean) intent.getExtras().get(Constants.INTENT_EXTRA_VIBRATE);
+        Integer checkInterval = (Integer) intent.getExtras().get(Constants.INTENT_EXTRA_WIFI_CHECK_INTERVAL);
         Result result = null;
         if (isRunning.compareAndSet(false, true)) {
             this.startId = startId;
-            result = wifiTracker.startTrackingByWifi(ssid, vibrate);
-        } else if (!ssid.equals(wifiTracker.getSSID()) || !vibrate.equals(wifiTracker.shouldVibrate())) {
+            result = wifiTracker.startTrackingByWifi(ssid, vibrate, checkInterval);
+            Logger.debug("started WifiTrackerService - ssid={} - vibrate={} - checkInterval={}",
+                ssid, vibrate, checkInterval);
+        } else if (!Objects.equals(ssid, wifiTracker.getSSID())
+            || !Objects.equals(vibrate, wifiTracker.shouldVibrate())
+            || !Objects.equals(checkInterval, wifiTracker.getCheckInterval())) {
             // already running, but the data has to be updated
-            result = wifiTracker.startTrackingByWifi(ssid, vibrate);
+            result = wifiTracker.startTrackingByWifi(ssid, vibrate, checkInterval);
+            Logger.debug("re-started WifiTrackerService because of updated settings - ssid={} - vibrate={} - checkInterval={}",
+                ssid, vibrate, checkInterval);
         } else {
             Logger.debug("WifiTrackerService is already running and nothing has to be updated - no action");
         }

@@ -34,6 +34,8 @@ import org.pmw.tinylog.Logger;
 import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.options.CheckIntervalPreference;
+import org.zephyrsoft.trackworktime.options.CheckIntervalPreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.DurationPreference;
 import org.zephyrsoft.trackworktime.options.DurationPreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.Key;
@@ -99,6 +101,9 @@ public class OptionsActivity extends AppCompatActivity {
 
             } else if (preference instanceof DurationPreference) {
                 dialogFragment = new DurationPreferenceDialogFragment();
+
+            } else if (preference instanceof CheckIntervalPreference) {
+                dialogFragment = new CheckIntervalPreferenceDialogFragment();
 
             } else if (preference instanceof TimeZonePreference) {
                 dialogFragment = new TimeZonePreferenceDialogFragment();

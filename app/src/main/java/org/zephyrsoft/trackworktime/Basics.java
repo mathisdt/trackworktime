@@ -477,8 +477,12 @@ public class Basics extends BroadcastReceiver {
         if (preferences.getBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false)) {
             String ssid = preferences.getString(Key.WIFI_BASED_TRACKING_SSID.getName(), null);
             Boolean vibrate = preferences.getBoolean(Key.WIFI_BASED_TRACKING_VIBRATE.getName(), Boolean.FALSE);
+            String checkIntervalString = preferences.getString(Key.WIFI_BASED_TRACKING_CHECK_INTERVAL.getName(), "1");
+            Integer checkInterval = checkIntervalString == null
+                ? 1
+                : Integer.parseInt(checkIntervalString);
             if (ssid != null && ssid.length() > 0) {
-                startWifiTrackerService(ssid, vibrate);
+                startWifiTrackerService(ssid, vibrate, checkInterval);
             } else {
                 Logger.warn("NOT starting wifi-based tracking service, the configured SSID is empty");
                 // just in case
@@ -492,9 +496,9 @@ public class Basics extends BroadcastReceiver {
     /**
      * start the wifi-based tracking service by serviceIntent
      */
-    private void startWifiTrackerService(String ssid, Boolean vibrate) {
+    private void startWifiTrackerService(String ssid, Boolean vibrate, Integer checkInterval) {
         try {
-            Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate);
+            Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate, checkInterval);
             Logger.debug("try to start wifi-based tracking service");
             // changes to settings will be adopted & wifi-check will be performed
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -513,7 +517,7 @@ public class Basics extends BroadcastReceiver {
      */
     private void stopWifiTrackerService() {
         try {
-            Intent stopIntent = buildWifiTrackerServiceIntent(null, null);
+            Intent stopIntent = buildWifiTrackerServiceIntent(null, null, null);
             context.stopService(stopIntent);
             Logger.debug("wifi-based tracking service stopped");
         } catch (Exception e) {
@@ -794,10 +798,11 @@ public class Basics extends BroadcastReceiver {
         return intent;
     }
 
-    private Intent buildWifiTrackerServiceIntent(String ssid, Boolean vibrate) {
+    private Intent buildWifiTrackerServiceIntent(String ssid, Boolean vibrate, Integer checkInterval) {
         Intent intent = new Intent(context, WifiTrackerService.class);
         intent.putExtra(Constants.INTENT_EXTRA_SSID, ssid);
         intent.putExtra(Constants.INTENT_EXTRA_VIBRATE, vibrate);
+        intent.putExtra(Constants.INTENT_EXTRA_WIFI_CHECK_INTERVAL, checkInterval);
         return intent;
     }
 

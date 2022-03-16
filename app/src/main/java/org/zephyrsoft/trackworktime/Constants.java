@@ -75,6 +75,8 @@ public class Constants {
 	public static final String INTENT_EXTRA_SSID = "SSID";
 	/** the key for the {@link Boolean} which determines if vibration should be used */
 	public static final String INTENT_EXTRA_VIBRATE = "VIBRATE";
+	/** the key for the {@link Integer} which determines the interval between Wi-Fi checks */
+	public static final String INTENT_EXTRA_WIFI_CHECK_INTERVAL = "WIFI_CHECK_INTERVAL";
 	/** the key for the {@link Double} which determines the latitude */
 	public static final String INTENT_EXTRA_LATITUDE = "LATITUDE";
 	/** the key for the {@link Double} which determines the longitude */

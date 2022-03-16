@@ -51,9 +51,9 @@ import java.util.Set;
 public class WifiScanner extends BroadcastReceiver {
 	@NonNull private final WifiManager wifiManager;
 	/** Max scan age [sec]. How old scan results are still considered "good enough". */
-	private final int maxScanAge;
+	private int maxScanAge;
 	/** Timeout value [sec], implying when next scan request can be made. */
-	private final int scanRequestTimeout;
+	private int scanRequestTimeout;
 
 	/** Flag indicating if {@code this} {@link BroadcastReceiver} was already registered.
 	 * {@code true} if registered, {@code false} otherwise. */
@@ -66,7 +66,7 @@ public class WifiScanner extends BroadcastReceiver {
 	@Nullable private WifiScanListener wifiScanListener;
 	/** Flag, when set to {@code true}, disables scan requests to prevent flooding. */
 	private boolean scanRequested = false;
-	@NonNull private final LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
+	@NonNull private LocalDateTime latestScanRequestTime = LocalDateTime.now().minusYears(1);
 	/** only filled when registered */
 	@Nullable private Context context;
 
@@ -266,7 +266,7 @@ public class WifiScanner extends BroadcastReceiver {
 
 		if (success) {
 			scanRequested = true;
-			latestScanResultTime = LocalDateTime.now();
+			latestScanRequestTime = LocalDateTime.now();
 		} else {
 			wifiScanListener.onScanRequestFailed(Result.FAIL_SCAN_REQUEST_FAILED);
 		}
@@ -294,5 +294,13 @@ public class WifiScanner extends BroadcastReceiver {
 		LocalDateTime disabledUntil = latestScanRequestTime.plusSeconds(scanRequestTimeout);
 
 		return !current.isBefore(disabledUntil);
+	}
+
+	public void setMaxScanAge(int maxScanAge) {
+		this.maxScanAge = maxScanAge;
+	}
+
+	public void setScanRequestTimeout(int scanRequestTimeout) {
+		this.scanRequestTimeout = scanRequestTimeout;
 	}
 }

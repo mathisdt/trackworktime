@@ -75,6 +75,8 @@ public enum Key {
 		R.string.wifiBasedTrackingVibrate),
 	WIFI_BASED_TRACKING_SSID("keyWifiBasedTrackingSSID", DataType.SSID, WIFI_BASED_TRACKING_ENABLED,
 		R.string.workplaceWifiSSID),
+	WIFI_BASED_TRACKING_CHECK_INTERVAL("keyWifiBasedTrackingCheckInterval", DataType.INTEGER, WIFI_BASED_TRACKING_ENABLED,
+		R.string.wifiBasedTrackingCheckInterval),
 
 	AUTOMATIC_TRACKING_METHODS_GENERATE_EVENTS_SEPARATELY(
 		"keyEachTrackingMethodGeneratesEventsSeparately", DataType.BOOLEAN, null,

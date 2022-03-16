@@ -130,6 +130,11 @@
             android:key="@string/keyWifiBasedTrackingSSID"
             android:summary="@string/workplaceWifiSSIDDescription"
             android:title="@string/workplaceWifiSSID" />
+
+        <org.zephyrsoft.trackworktime.options.CheckIntervalPreference
+            android:key="@string/keyWifiBasedTrackingCheckInterval"
+            android:summary="@string/wifiBasedTrackingCheckIntervalDescription"
+            android:title="@string/wifiBasedTrackingCheckInterval"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyAutomaticTrackingCategory"

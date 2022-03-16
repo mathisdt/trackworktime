@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
@@ -27,30 +28,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.R;
 
-public class DurationPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
+public class CheckIntervalPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
 	private EditText editText;
 
 	@Override
 	protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
 		super.onPrepareDialogBuilder(builder);
-		builder.setMessage(getPreference().getSummary() + "\n");
+		builder.setMessage(getContext().getString(R.string.wifiBasedTrackingCheckIntervalDescription)
+			+ "\n\n"
+			+ getContext().getString(R.string.wifiBasedTrackingCheckIntervalDescriptionExtension)
+			+ "\n");
 	}
 
 	@Override
-	protected View onCreateDialogView(Context context) {
+	protected View onCreateDialogView(@NonNull Context context) {
 		editText = new EditText(context);
 		return editText;
 	}
 
+	@SuppressLint("SetTextI18n")
 	@Override
-	protected void onBindDialogView(View view) {
+	protected void onBindDialogView(@NonNull View view) {
 		super.onBindDialogView(view);
-
-		DurationPreference pref = (DurationPreference) getPreference();
-		editText.setText(pref.getDuration());
+		CheckIntervalPreference pref = (CheckIntervalPreference) getPreference();
+		editText.setText(pref.getNumber().toString());
 	}
 
 	@Override
@@ -70,11 +74,11 @@ public class DurationPreferenceDialogFragment extends PreferenceDialogFragmentCo
 			}
 
 			@Override public void afterTextChanged(Editable s) {
-				if (DateTimeUtil.isDurationValid(editText.getText().toString())) {
+				if (CheckIntervalPreference.isValid(editText.getText().toString())) {
 					editText.setError(null);
 					buttonPositive.setEnabled(true);
 				} else {
-					editText.setError("Duration is invalid");
+					editText.setError("Interval is invalid");
 					buttonPositive.setEnabled(false);
 				}
 			}
@@ -85,7 +89,7 @@ public class DurationPreferenceDialogFragment extends PreferenceDialogFragmentCo
 	public void onDialogClosed(boolean positiveResult) {
 
 		if (positiveResult) {
-			DurationPreference pref = (DurationPreference) getPreference();
+			CheckIntervalPreference pref = (CheckIntervalPreference) getPreference();
 
 			pref.updateValue(editText.getText().toString());
 		}
