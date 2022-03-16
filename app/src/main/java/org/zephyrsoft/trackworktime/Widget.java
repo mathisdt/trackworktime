@@ -117,7 +117,15 @@ public class Widget extends AppWidgetProvider {
         int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
         String timeSoFar = DateTimeUtil.formatDuration(workedTime);
         String workedText = getString(R.string.worked) + ": " + timeSoFar;
-        views.setTextViewText(R.id.workTime, workedText);
+        int viewId = R.id.workTime;
+        views.setTextViewText(viewId, workedText);
+        Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ? PendingIntent.FLAG_IMMUTABLE
+                : 0));
+        views.setOnClickPendingIntent(viewId, pendingIntent);
     }
 
     private void updateClockInBtn() {
