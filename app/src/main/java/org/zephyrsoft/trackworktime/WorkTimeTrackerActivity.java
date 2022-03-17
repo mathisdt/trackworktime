@@ -267,6 +267,14 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		});
 	}
 
+	public void redrawWeekTable() {
+		Logger.debug("redrawing week table");
+		int index = binding.main.week.getCurrentItem();
+		binding.main.week.setAdapter(weekAdapter);
+		binding.main.week.setOffscreenPageLimit(1);
+		binding.main.week.setCurrentItem(index, false);
+	}
+
 	private void initWeekPagerAdapter() {
 		WeekStateLoaderManager weekStateLoaderManager = createWeekLoaderManger();
 		View.OnClickListener weekClickListener = v -> showEventList();

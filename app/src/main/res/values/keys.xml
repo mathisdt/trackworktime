@@ -31,6 +31,8 @@
     <string name="keyWifiBasedTrackingSSID">keyWifiBasedTrackingSSID</string>
     <string name="keyWifiBasedTrackingVibrate">keyWifiBasedTrackingVibrate</string>
     <string name="keyWifiBasedTrackingCheckInterval">keyWifiBasedTrackingCheckInterval</string>
+    <string name="keyUserInterfaceCategory">keyUserInterfaceCategory</string>
+    <string name="keyShowDecimalTimeAmounts">keyShowDecimalTimeAmounts</string>
     <string name="keyAutoPause">keyAutoPause</string>
     <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
     <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>

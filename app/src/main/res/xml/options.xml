@@ -84,6 +84,16 @@
             android:title="@string/smallestTimeUnit" />
     </PreferenceCategory>
     -->
+
+    <PreferenceCategory
+        android:key="@string/keyUserInterfaceCategory"
+        android:title="@string/userInterface">
+        <CheckBoxPreference
+            android:key="@string/keyShowDecimalTimeAmounts"
+            android:title="@string/showDecimalTimeAmounts"
+            android:summary="@string/showDecimalTimeAmountsDescription" />
+    </PreferenceCategory>
+
     <PreferenceCategory
         android:key="@string/keyLocationBasedTrackingCategory"
         android:title="@string/locationBasedTracking" >

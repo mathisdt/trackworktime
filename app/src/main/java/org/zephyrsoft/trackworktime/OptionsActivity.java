@@ -186,6 +186,9 @@ public class OptionsActivity extends AppCompatActivity {
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
                             this::locationPermissionNotGranted);
                     }
+                } else if (Key.DECIMAL_TIME_SUMS.getName().equals(keyName)
+                    && WorkTimeTrackerActivity.getInstance() != null) {
+                    WorkTimeTrackerActivity.getInstance().redrawWeekTable();
                 }
             }
 

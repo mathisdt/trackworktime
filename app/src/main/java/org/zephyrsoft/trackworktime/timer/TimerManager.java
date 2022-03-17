@@ -879,6 +879,11 @@ public class TimerManager {
 		return String.format(Locale.US, "%s%02d:%02d", sgn, Math.abs(time / 60), Math.abs(time % 60));
 	}
 
+	public static String formatDecimal(long time) {
+		double rounded = Math.round(time / 60.0 * 100.0) / 100.0;
+		return Double.toString(rounded);
+	}
+
 	public static long timeDiff(OffsetDateTime startTime, OffsetDateTime endTime) {
 		return MINUTES.between(startTime.truncatedTo(MINUTES), endTime.truncatedTo(MINUTES));
 	}

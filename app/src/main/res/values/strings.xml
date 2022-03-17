@@ -236,4 +236,7 @@
     <string name="wifiBasedTrackingCheckInterval">Wi-Fi check interval</string>
     <string name="wifiBasedTrackingCheckIntervalDescription">search for Wi-Fi networks only in this interval (smaller is more exact, but uses slightly more battery)</string>
     <string name="wifiBasedTrackingCheckIntervalDescriptionExtension">numbers between 1 and 60 are allowed (interpreted as minutes)</string>
+    <string name="userInterface">User Interface</string>
+    <string name="showDecimalTimeAmounts">Decimal time amounts</string>
+    <string name="showDecimalTimeAmountsDescription">in the main table, show time sums also as decimal number additionally to the normal representation with hours and minutes</string>
 </resources>

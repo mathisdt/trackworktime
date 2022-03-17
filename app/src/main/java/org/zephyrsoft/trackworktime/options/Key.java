@@ -41,6 +41,8 @@ public enum Key {
 	FLEXI_TIME_RESET_INTERVAL("keyFlexiTimeResetInterval", DataType.ENUM_NAME,
 			ENABLE_FLEXI_TIME, R.string.flexiTimeResetInterval),
 
+	DECIMAL_TIME_SUMS("keyShowDecimalTimeAmounts", DataType.BOOLEAN, null, R.string.showDecimalTimeAmounts),
+
 	FLATTENING_ENABLED("keyFlatteningEnabled", DataType.BOOLEAN, null, R.string.flatteningEnabled),
 	SMALLEST_TIME_UNIT("keySmallestTimeUnit", DataType.INTEGER, FLATTENING_ENABLED, R.string.smallestTimeUnit),
 

@@ -34,7 +34,9 @@ public class WeekState {
 		public String in = "";
 		public String out = "";
 		public String worked = "";
+		public String workedDecimal = "";
 		public String flexi = "";
+		public String flexiDecimal = "";
 
 		public boolean highlighted = false;
 
@@ -48,7 +50,9 @@ public class WeekState {
 	public static class SummaryRowState {
 		public String label = "";
 		public String worked = "";
+		public String workedDecimal = "";
 		public String flexi = "";
+		public String flexiDecimal = "";
 
 		@NonNull @Override
 		public String toString() {

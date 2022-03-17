@@ -53,7 +53,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="22dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/space_below_table">
 
         <Button
             android:id="@+id/clockInButton"

@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime.weektimes;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -27,11 +28,13 @@ import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.databinding.WeekTableBinding;
 import org.zephyrsoft.trackworktime.model.WeekState;
 import org.zephyrsoft.trackworktime.model.WeekState.DayRowState;
 import org.zephyrsoft.trackworktime.model.WeekState.SummaryRowState;
+import org.zephyrsoft.trackworktime.options.Key;
 
 public class WeekTimesView extends LinearLayout {
 	
@@ -39,9 +42,11 @@ public class WeekTimesView extends LinearLayout {
 	
 	private TableLayout weekTable = null;
 	private WeekTableBinding binding;
+	private SharedPreferences preferences;
 
 	public WeekTimesView(@NonNull Context context) {
 		super(context);
+		preferences = Basics.getOrCreateInstance(context).getPreferences();
 		startLayoutLoading();
 	}
 
@@ -107,12 +112,6 @@ public class WeekTimesView extends LinearLayout {
 		}
 		
 		setSummaryRow(weekState.totals, (TableRow) weekTable.getChildAt(8));
-		
-		binding.targetLabel.setOnClickListener(v -> {
-			if (onDayClickListener != null) {
-				onDayClickListener.onClick(v, null);
-			}
-		});
 	}
 	
 	private void setWeekRow(DayRowState dayRowState, TableRow tableRow, DayOfWeek day) {
@@ -130,10 +129,22 @@ public class WeekTimesView extends LinearLayout {
 		getTableCell(tableRow, 1).setText(dayRowState.in);
 		getTableCell(tableRow, 2).setText(dayRowState.out);
 		
-		textView = getTableCell(tableRow, 3);
+		textView = getCombinedTableCell1(tableRow, 3);
 		textView.setText(dayRowState.worked);
 
-		getTableCell(tableRow, 4).setText(dayRowState.flexi);
+		getCombinedTableCell1(tableRow, 4).setText(dayRowState.flexi);
+
+		TextView cell23 = getCombinedTableCell2(tableRow, 3);
+		TextView cell24 = getCombinedTableCell2(tableRow, 4);
+		if (preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false)) {
+			cell23.setVisibility(VISIBLE);
+			cell24.setVisibility(VISIBLE);
+			cell23.setText(dayRowState.workedDecimal);
+			cell24.setText(dayRowState.flexiDecimal);
+		} else {
+			cell23.setVisibility(GONE);
+			cell24.setVisibility(GONE);
+		}
 	}
 
 	private void setColorAccording(WeekState.HighlightType type, TextView textView) {
@@ -157,8 +168,20 @@ public class WeekTimesView extends LinearLayout {
 	
 	private void setSummaryRow(SummaryRowState summaryRowState, TableRow tableRow) {
 		getTableCell(tableRow, 0).setText(summaryRowState.label);
-		getTableCell(tableRow, 1).setText(summaryRowState.worked);
-		getTableCell(tableRow, 2).setText(summaryRowState.flexi);
+		getCombinedTableCell1(tableRow, 1).setText(summaryRowState.worked);
+		getCombinedTableCell1(tableRow, 2).setText(summaryRowState.flexi);
+
+		TextView cell21 = getCombinedTableCell2(tableRow, 1);
+		TextView cell22 = getCombinedTableCell2(tableRow, 2);
+		if (preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false)) {
+			cell21.setVisibility(VISIBLE);
+			cell22.setVisibility(VISIBLE);
+			cell21.setText(summaryRowState.workedDecimal);
+			cell22.setText(summaryRowState.flexiDecimal);
+		} else {
+			cell21.setVisibility(GONE);
+			cell22.setVisibility(GONE);
+		}
 	}
 
 	private void setRowHighlighting(DayRowState dayRowState, TableRow tableRow,  boolean isLight) {
@@ -168,6 +191,13 @@ public class WeekTimesView extends LinearLayout {
 				? R.drawable.table_row_highlighting : unhighlightedDrawable);
 	}	
 	
+	private TextView getCombinedTableCell1(TableRow tableRow, int index) {
+		return (TextView) ((LinearLayout) tableRow.getChildAt(index)).getChildAt(0);
+	}
+	private TextView getCombinedTableCell2(TableRow tableRow, int index) {
+		return (TextView) ((LinearLayout) tableRow.getChildAt(index)).getChildAt(1);
+	}
+
 	private TextView getTableCell(TableRow tableRow, int index) {
 		return (TextView) tableRow.getChildAt(index);
 	}
