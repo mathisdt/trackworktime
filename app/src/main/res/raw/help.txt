@@ -21,6 +21,11 @@ You also may provide a <b>Wi-Fi network name</b> which is visible at your work p
 when this SSID is in range (you don't need to be connected to this network). Of course you should have Wi-Fi enabled
 for this to work.<br>
 <br>
+You don't want to open the app for clocking in and out? No problem - there are at least three ways to do that:
+add the widget to your home screen, or use launcher shortcuts (long press the app icon for that), or
+add a new quick settings tile to your panel by tapping on the pencil below and dragging
+the "Track Work Time" tile up which then can toggle your clocked-in state.<br>
+<br>
 If you prefer to use other apps like LlamaLab Automate or Tasker for tracking your movements, that's fine - <b>TWT can be triggered
 from other apps</b> and just do the book-keeping of your work time. In this case, you have to create broadcast intents
 with the actions org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOutrespecively.

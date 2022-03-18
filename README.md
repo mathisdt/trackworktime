@@ -19,6 +19,11 @@ You may provide the **geo-coordinates** or the **Wi-Fi network name** of your wo
 **automatically clock you in** while you are at work. This is done **without using GPS**, so your battery won't
 be emptied by this app. (You don't have to be connected to the WiFi network at work, it just has to be visible.)
 
+You don't want to open the app for clocking in and out? No problem - there are at least three ways to do that:
+add the **widget** to your home screen, use **launcher shortcuts** (long press the app icon for that) or
+add a new **quick settings tile** to your panel by tapping on the pencil below and dragging the "Track Work Time"
+tile up which then can toggle your clocked-in state.
+
 If you prefer to use other apps like LlamaLab Automate or Tasker for tracking your movements, that's fine - **TWT can
 be triggered from other apps** and just do the book-keeping of your work time. In this case, you have to create
 broadcast intents with the action *org.zephyrsoft.trackworktime.ClockIn* or *org.zephyrsoft.trackworktime.ClockOut*.
