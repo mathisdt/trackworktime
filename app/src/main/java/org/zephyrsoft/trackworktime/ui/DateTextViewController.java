@@ -12,6 +12,7 @@ import androidx.core.util.Consumer;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 
@@ -81,7 +82,7 @@ public class DateTextViewController {
 	}
 
 	public void setDate(LocalDate date) {
-		String text = DateTimeUtil.formatLocalizedDayAndDate(date);
+		String text = DateTimeUtil.formatLocalizedDayAndDate(date, Basics.getOrCreateInstance(view.getContext()).getLocale());
 		view.setText(text);
 		this.date = date;
 	}

@@ -54,8 +54,6 @@ public class TargetEditActivity extends AppCompatActivity
 
 	private static final int DELETE_TARGET = 0;
 
-	private DateTimeFormatter SHORT_DAY;
-
 	private DAO dao = null;
 	private TimerManager timerManager = null;
 
@@ -86,8 +84,6 @@ public class TargetEditActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		SHORT_DAY = DateTimeFormatter.ofPattern("E, ", Locale.getDefault());
 
 		dao = Basics.getInstance().getDao();
 		timerManager = Basics.getInstance().getTimerManager();
@@ -250,6 +246,8 @@ public class TargetEditActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 
+		Locale locale = Basics.getInstance().getLocale();
+
 		long epochDay = getIntent().getLongExtra(Constants.DATE_EXTRA_KEY, -1);
 
 		if (epochDay == -1) {
@@ -277,7 +275,8 @@ public class TargetEditActivity extends AppCompatActivity
 			type.setOnItemSelectedListener(this);
 
 			targetDay = LocalDate.ofEpochDay(epochDay);
-			String dateText = targetDay.format(SHORT_DAY) + DateTimeUtil.formatLocalizedDate(targetDay);
+			DateTimeFormatter shortDayFormat = DateTimeFormatter.ofPattern("E, ", locale);
+			String dateText = targetDay.format(shortDayFormat) + DateTimeUtil.formatLocalizedDate(targetDay, locale);
 			binding.dateText.setText(dateText);
 
 

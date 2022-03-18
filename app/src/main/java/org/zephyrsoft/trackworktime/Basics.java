@@ -68,6 +68,7 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import java.io.File;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
@@ -344,7 +345,7 @@ public class Basics extends BroadcastReceiver {
                         LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
 
                         if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
-                            String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime);
+                            String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime, getLocale());
                             targetTimeString = "possible finishing time: " + targetTime;
                         } else {
                             targetTimeString = "target working time cannot be reached today!";
@@ -879,5 +880,14 @@ public class Basics extends BroadcastReceiver {
                 : Uri.parse(documenTreeString);
         }
         return documentTree;
+    }
+
+    public Locale getLocale() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return context.getResources().getConfiguration().getLocales().get(0);
+        } else {
+            //noinspection deprecation
+            return context.getResources().getConfiguration().locale;
+        }
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
+import android.content.Context;
+
 import org.apache.commons.lang3.StringUtils;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Instant;
@@ -29,6 +31,7 @@ import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.FormatStyle;
 import org.threeten.bp.temporal.TemporalAccessor;
 import org.threeten.bp.temporal.TemporalAdjusters;
+import org.zephyrsoft.trackworktime.Basics;
 
 import java.util.Locale;
 
@@ -47,20 +50,43 @@ public class DateTimeUtil {
 			.appendLocalized(FormatStyle.SHORT, null)
 			.toFormatter();
 
-	/** E.g. Fri, 12.9 */
-	private static final DateTimeFormatter LOCALIZED_DAY_AND_SHORT_DATE =
-			createLocalizedDayAndShortDateFormat();
+	public static class LocalizedDayAndShortDateFormatter {
+		private final Context context;
+		private Locale locale;
+		private DateTimeFormatter formatter;
 
-	private static DateTimeFormatter createLocalizedDayAndShortDateFormat() {
-		String shortDate = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+		public LocalizedDayAndShortDateFormatter(Context context) {
+			this.context = context;
+			updateLocale();
+		}
+
+		private DateTimeFormatter createLocalizedDayAndShortDateFormat() {
+			String shortDate = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
 				FormatStyle.SHORT,
 				null,
 				IsoChronology.INSTANCE,
-				Locale.getDefault())
+				locale)
 				// remove year and some year-separators (at least in german dates, the dot after the month has to exist)
 				.replaceAll("[ /-]? *[yY]+ *[ 年/.-]?", "");
-		String pattern = "eee, " + shortDate;
-		return DateTimeFormatter.ofPattern(pattern);
+			String pattern = "eee, " + shortDate;
+			return DateTimeFormatter.ofPattern(pattern);
+		}
+
+		public String format(TemporalAccessor date) {
+			String dateString = formatter.format(date)
+				// remove possible abbreviation point ("Mo., 27.09." (german) or "Lun., 27/09" (french) looks odd):
+				.replaceAll("^(\\p{Alpha}+)\\., ", "$1, ");
+			return StringUtils.capitalize(dateString);
+		}
+
+		public void updateLocale() {
+			locale = Basics.getOrCreateInstance(context).getLocale();
+			formatter = createLocalizedDayAndShortDateFormat();
+		}
+
+		public Locale getLocale() {
+			return locale;
+		}
 	}
 
 	/**
@@ -103,8 +129,8 @@ public class DateTimeUtil {
 	 * @param dateTime the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedDateTime(OffsetDateTime dateTime) {
-		return formatLocalizedDate(dateTime.toLocalDate()) + " / " + formatLocalizedTime(dateTime);
+	public static String formatLocalizedDateTime(OffsetDateTime dateTime, Locale locale) {
+		return formatLocalizedDate(dateTime.toLocalDate(), locale) + " / " + formatLocalizedTime(dateTime, locale);
 	}
 
 	/**
@@ -113,12 +139,12 @@ public class DateTimeUtil {
 	 * @param date the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedDate(LocalDate date) {
-		return date.format(LOCALIZED_DATE);
+	public static String formatLocalizedDate(LocalDate date, Locale locale) {
+		return date.format(LOCALIZED_DATE.withLocale(locale));
 	}
 
-	public static String formatLocalizedDateShort(TemporalAccessor temporal) {
-		return LOCALIZED_DATE_SHORT.format(temporal);
+	public static String formatLocalizedDateShort(TemporalAccessor temporal, Locale locale) {
+		return LOCALIZED_DATE_SHORT.withLocale(locale).format(temporal);
 	}
 
 	/**
@@ -127,8 +153,8 @@ public class DateTimeUtil {
 	 * @param temporal the input (may not be null)
 	 * @return the String which corresponds to the given input
 	 */
-	public static String formatLocalizedTime(TemporalAccessor temporal) {
-		return LOCALIZED_TIME.format(temporal);
+	public static String formatLocalizedTime(TemporalAccessor temporal, Locale locale) {
+		return LOCALIZED_TIME.withLocale(locale).format(temporal);
 	}
 
 	/**
@@ -137,15 +163,8 @@ public class DateTimeUtil {
 	 * @param date the input (may not be null)
 	 * @return the String which corresponds to the given input. E.g. "Friday, 22.2.2222".
 	 */
-	public static String formatLocalizedDayAndDate(TemporalAccessor date) {
-		String dateString = LOCALIZED_DAY_AND_DATE.format(date);
-		return StringUtils.capitalize(dateString);
-	}
-
-	public static String formatLocalizedDayAndShortDate(TemporalAccessor date) {
-		String dateString = LOCALIZED_DAY_AND_SHORT_DATE.format(date)
-				// remove possible abbreviation point ("Mo., 27.09." (german) or "Lun., 27/09" (french) looks odd):
-				.replaceAll("^(\\p{Alpha}+)\\., ", "$1, ");
+	public static String formatLocalizedDayAndDate(TemporalAccessor date, Locale locale) {
+		String dateString = LOCALIZED_DAY_AND_DATE.withLocale(locale).format(date);
 		return StringUtils.capitalize(dateString);
 	}
 

@@ -40,6 +40,7 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2.DayInfo;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class WeekStateCalculator {
@@ -47,7 +48,6 @@ public class WeekStateCalculator {
 	private final Context context;
 	private final DAO dao;
 	private final TimerManager timerManager;
-	private final SharedPreferences preferences;
 	private final Week week;
 	
 	private final boolean handleFlexiTime;
@@ -57,7 +57,6 @@ public class WeekStateCalculator {
 		this.context = context;
 		this.dao = dao;
 		this.timerManager = timerManager;
-		this.preferences = preferences;
 		this.week = week;
 		
 		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
@@ -65,12 +64,11 @@ public class WeekStateCalculator {
 
 	public @NonNull WeekState calculateWeekState() {
 		WeekState weekState = new WeekState();
-		boolean decimalTimeSums = preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false);
-		loadWeek(weekState, decimalTimeSums);
+		loadWeek(weekState);
 		return weekState;
 	}
 
-	private void loadWeek(WeekState weekState, boolean decimalTimeSums) {
+	private void loadWeek(WeekState weekState) {
 		long startTime = System.nanoTime();
 		
 		LocalDate startDate = week.getStart();
@@ -81,11 +79,12 @@ public class WeekStateCalculator {
 		
 			weekState.topLeftCorner = "W " + startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
 
+			DateTimeUtil.LocalizedDayAndShortDateFormatter formatter = new DateTimeUtil.LocalizedDayAndShortDateFormatter(context);
 			for (DayOfWeek day : DayOfWeek.values()) {
-				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day), decimalTimeSums);
+				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day), formatter);
 			}
 		
-			setSummaryRow(weekState.totals, timeCalc, decimalTimeSums);
+			setSummaryRow(weekState.totals, timeCalc);
 			
 		} catch (Exception e) {
 			Logger.debug(e, "could not calculate week");
@@ -96,16 +95,16 @@ public class WeekStateCalculator {
 		Logger.debug("Calculated week in {} ms", durationInMillis);
 	}
 
-	private void setRowValues(DayInfo dayInfo, DayRowState dayRowState, boolean decimalTimeSums) {
+	private void setRowValues(DayInfo dayInfo, DayRowState dayRowState, DateTimeUtil.LocalizedDayAndShortDateFormatter formatter) {
 		dayRowState.highlighted = dayInfo.isToday();
-		dayRowState.label = DateTimeUtil.formatLocalizedDayAndShortDate(dayInfo.getDate());
+		dayRowState.label = formatter.format(dayInfo.getDate());
 		
-		dayRowState.in = formatTime(dayInfo.getTimeIn());
+		dayRowState.in = formatTime(dayInfo.getTimeIn(), formatter.getLocale());
 
 		if (isCurrentMinute(dayInfo.getTimeOut()) && timerManager.isTracking()) {
 			dayRowState.out = getString(R.string.now);
 		} else {
-			dayRowState.out = formatTime(dayInfo.getTimeOut());
+			dayRowState.out = formatTime(dayInfo.getTimeOut(), formatter.getLocale());
 		}
 		
 		if (handleFlexiTime) {
@@ -162,7 +161,7 @@ public class WeekStateCalculator {
 		}
 	}
 
-	private void setSummaryRow(SummaryRowState summaryRow, TimeCalculatorV2 timeCalc, boolean decimalTimeSums) {
+	private void setSummaryRow(SummaryRowState summaryRow, TimeCalculatorV2 timeCalc) {
 		summaryRow.label = getString(R.string.total);
 		summaryRow.worked = TimerManager.formatTime(timeCalc.getTimeWorked());
 		summaryRow.workedDecimal = "(" + TimerManager.formatDecimal(timeCalc.getTimeWorked()) + ")";
@@ -185,8 +184,8 @@ public class WeekStateCalculator {
 		return dateTime.truncatedTo(ChronoUnit.MINUTES).isEqual(now.truncatedTo(ChronoUnit.MINUTES));
 	}
 
-	private String formatTime(LocalDateTime time) {
-		return time == null ? "" : DateTimeUtil.formatLocalizedTime(time);
+	private String formatTime(LocalDateTime time, Locale locale) {
+		return time == null ? "" : DateTimeUtil.formatLocalizedTime(time, locale);
 	}
 
 	private String formatSum(Long sum, String valueForZero) {

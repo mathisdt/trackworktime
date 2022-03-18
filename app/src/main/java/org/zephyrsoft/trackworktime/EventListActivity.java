@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -82,6 +83,8 @@ public class EventListActivity extends AppCompatActivity {
 	private EventAdapter myEventAdapter;
 	private SelectionTracker<Long> selectionTracker;
 
+	private Locale locale;
+
 	@Override
 	protected void onPause() {
 		dao.close();
@@ -89,8 +92,16 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	@Override
+	protected void onResume() {
+		locale = Basics.getOrCreateInstance(this).getLocale();
+		super.onResume();
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		locale = Basics.getOrCreateInstance(this).getLocale();
 
 		ListActivityBinding binding = ListActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -231,14 +242,14 @@ public class EventListActivity extends AppCompatActivity {
 		insertSeparators(events);
 	}
 
-	private static void insertSeparators(List<Event> eventList) {
+	private void insertSeparators(List<Event> eventList) {
 		ListIterator<Event> iter = eventList.listIterator();
 		Event prev = null;
 		while (iter.hasNext()) {
 			Event cur = iter.next();
 			if (prev == null || !isOnSameDay(prev, cur)) {
 				iter.previous();
-				String caption = DateTimeUtil.formatLocalizedDayAndDate(cur.getDateTime());
+				String caption = DateTimeUtil.formatLocalizedDayAndDate(cur.getDateTime(), locale);
 				iter.add(new EventSeparator(caption));
 				iter.next();
 			}
@@ -393,7 +404,7 @@ public class EventListActivity extends AppCompatActivity {
 			}
 
 			private String formatTime(OffsetDateTime time) {
-				return DateTimeUtil.formatLocalizedTime(time);
+				return DateTimeUtil.formatLocalizedTime(time, locale);
 			}
 
 			private String formatType(TypeEnum type) {

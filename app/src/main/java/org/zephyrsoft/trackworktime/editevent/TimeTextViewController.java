@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.threeten.bp.LocalTime;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class TimeTextViewController {
@@ -20,7 +21,7 @@ public class TimeTextViewController {
 	private LocalTime time;
 
 	public void setTime(@Nullable LocalTime time) {
-		String text = DateTimeUtil.formatLocalizedTime(time);
+		String text = DateTimeUtil.formatLocalizedTime(time, Basics.getOrCreateInstance(view.getContext()).getLocale());
 		view.setText(text);
 		this.time = time;
 	}
