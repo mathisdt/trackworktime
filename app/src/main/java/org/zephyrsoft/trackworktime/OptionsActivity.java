@@ -187,8 +187,8 @@ public class OptionsActivity extends AppCompatActivity {
                             this::locationPermissionNotGranted);
                     }
                 } else if (Key.DECIMAL_TIME_SUMS.getName().equals(keyName)
-                    && WorkTimeTrackerActivity.getInstance() != null) {
-                    WorkTimeTrackerActivity.getInstance().redrawWeekTable();
+                    && WorkTimeTrackerActivity.getInstanceOrNull() != null) {
+                    WorkTimeTrackerActivity.getInstanceOrNull().redrawWeekTable();
                 }
             }
 

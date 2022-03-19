@@ -188,6 +188,12 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		instance = null;
+	}
+
+	@Override
 	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 

@@ -149,7 +149,9 @@ public class EventEditActivity extends AppCompatActivity {
 			}
 
 			// refresh parents and close the event editor
-			EventListActivity.getInstance().refreshView();
+			if (EventListActivity.getInstance() != null) {
+				EventListActivity.getInstance().refreshView();
+			}
 			finish();
 		});
 

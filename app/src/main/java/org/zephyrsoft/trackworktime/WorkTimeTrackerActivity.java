@@ -250,6 +250,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		instance = null;
+	}
+
 	private void initWeekPager(@Nullable Bundle state) {
 		ViewPager2 weekPager = binding.main.week;
 
@@ -829,7 +835,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	/**
-	 * Get the instance of this activity. If it was garbage-collected in the meantime, throw an exception.
+	 * Get the instance of this activity. If it was destroyed in the meantime, throw an exception.
 	 */
 	public static WorkTimeTrackerActivity getInstance() {
 		if (instance == null) {
@@ -839,7 +845,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	/**
-	 * Get the instance of this activity. If it was garbage-collected in the meantime, return {@code null}.
+	 * Get the instance of this activity. If it was destroyed in the meantime, return {@code null}.
 	 */
 	public static WorkTimeTrackerActivity getInstanceOrNull() {
 		return instance;
