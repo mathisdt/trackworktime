@@ -48,6 +48,7 @@ public class WeekStateCalculator {
 	private final Context context;
 	private final DAO dao;
 	private final TimerManager timerManager;
+	private final SharedPreferences preferences;
 	private final Week week;
 	
 	private final boolean handleFlexiTime;
@@ -57,6 +58,7 @@ public class WeekStateCalculator {
 		this.context = context;
 		this.dao = dao;
 		this.timerManager = timerManager;
+		this.preferences = preferences;
 		this.week = week;
 		
 		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
@@ -64,11 +66,11 @@ public class WeekStateCalculator {
 
 	public @NonNull WeekState calculateWeekState() {
 		WeekState weekState = new WeekState();
-		loadWeek(weekState);
+		loadWeek(weekState, preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false));
 		return weekState;
 	}
 
-	private void loadWeek(WeekState weekState) {
+	private void loadWeek(WeekState weekState, boolean decimalAmounts) {
 		long startTime = System.nanoTime();
 		
 		LocalDate startDate = week.getStart();
@@ -81,10 +83,10 @@ public class WeekStateCalculator {
 
 			DateTimeUtil.LocalizedDayAndShortDateFormatter formatter = new DateTimeUtil.LocalizedDayAndShortDateFormatter(context);
 			for (DayOfWeek day : DayOfWeek.values()) {
-				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day), formatter);
+				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day), formatter, decimalAmounts);
 			}
 		
-			setSummaryRow(weekState.totals, timeCalc);
+			setSummaryRow(weekState.totals, timeCalc, decimalAmounts);
 			
 		} catch (Exception e) {
 			Logger.debug(e, "could not calculate week");
@@ -95,7 +97,7 @@ public class WeekStateCalculator {
 		Logger.debug("Calculated week in {} ms", durationInMillis);
 	}
 
-	private void setRowValues(DayInfo dayInfo, DayRowState dayRowState, DateTimeUtil.LocalizedDayAndShortDateFormatter formatter) {
+	private void setRowValues(DayInfo dayInfo, DayRowState dayRowState, DateTimeUtil.LocalizedDayAndShortDateFormatter formatter, boolean decimalAmounts) {
 		dayRowState.highlighted = dayInfo.isToday();
 		dayRowState.label = formatter.format(dayInfo.getDate());
 		
@@ -131,15 +133,19 @@ public class WeekStateCalculator {
 		if (isTodayOrEarlier && dayInfo.isWorkDay()) {
 			dayRowState.worked = formatSum(dayInfo.getTimeWorked(), null);
 			String workedDecimal = formatDecimal(dayInfo.getTimeWorked(), null);
-			dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
-				? "(" + workedDecimal + ")"
-				: null;
+			if (decimalAmounts) {
+				dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
+					? "(" + workedDecimal + ")"
+					: null;
+			}
 		} else {
 			dayRowState.worked = formatSum(dayInfo.getTimeWorked(), "");
 			String workedDecimal = formatDecimal(dayInfo.getTimeWorked(), "");
-			dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
-				? "(" + workedDecimal + ")"
-				: "";
+			if (decimalAmounts) {
+				dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
+					? "(" + workedDecimal + ")"
+					: "";
+			}
 		}
 
 
@@ -148,30 +154,44 @@ public class WeekStateCalculator {
 
 		if (!showFlexiTime || freeWithoutEvents || !handleFlexiTime) {
 			dayRowState.flexi = "";
-			dayRowState.flexiDecimal = "";
+			if (decimalAmounts) {
+				dayRowState.flexiDecimal = "";
+			}
 		} else if (isTodayOrEarlier && dayInfo.isWorkDay()) {
 			dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), null);
-			dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), null) + ")";
+			if (decimalAmounts) {
+				dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), null) + ")";
+			}
 		} else if (dayInfo.containsEvents()) {
 			dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), "");
-			dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), "") + ")";
+			if (decimalAmounts) {
+				dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), "") + ")";
+			}
 		} else {
 			dayRowState.flexi = "";
-			dayRowState.flexiDecimal = "";
+			if (decimalAmounts) {
+				dayRowState.flexiDecimal = "";
+			}
 		}
 	}
 
-	private void setSummaryRow(SummaryRowState summaryRow, TimeCalculatorV2 timeCalc) {
+	private void setSummaryRow(SummaryRowState summaryRow, TimeCalculatorV2 timeCalc, boolean decimalAmounts) {
 		summaryRow.label = getString(R.string.total);
 		summaryRow.worked = TimerManager.formatTime(timeCalc.getTimeWorked());
-		summaryRow.workedDecimal = "(" + TimerManager.formatDecimal(timeCalc.getTimeWorked()) + ")";
+		if (decimalAmounts) {
+			summaryRow.workedDecimal = "(" + TimerManager.formatDecimal(timeCalc.getTimeWorked()) + ")";
+		}
 
 		if (timeCalc.withFlexiTime()) {
 			summaryRow.flexi = TimerManager.formatTime(timeCalc.getBalance());
-			summaryRow.flexiDecimal = "(" + TimerManager.formatDecimal(timeCalc.getBalance()) + ")";
+			if (decimalAmounts) {
+				summaryRow.flexiDecimal = "(" + TimerManager.formatDecimal(timeCalc.getBalance()) + ")";
+			}
 		} else {
 			summaryRow.flexi = "";
-			summaryRow.flexiDecimal = "";
+			if (decimalAmounts) {
+				summaryRow.flexiDecimal = "";
+			}
 		}
 	}
 
