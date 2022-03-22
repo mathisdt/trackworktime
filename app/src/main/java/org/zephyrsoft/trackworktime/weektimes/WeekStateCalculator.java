@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
-import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
@@ -132,19 +131,13 @@ public class WeekStateCalculator {
 
 		if (isTodayOrEarlier && dayInfo.isWorkDay()) {
 			dayRowState.worked = formatSum(dayInfo.getTimeWorked(), null);
-			String workedDecimal = formatDecimal(dayInfo.getTimeWorked(), null);
 			if (decimalAmounts) {
-				dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
-					? "(" + workedDecimal + ")"
-					: null;
+				dayRowState.workedDecimal = formatDecimal(dayInfo.getTimeWorked(), null);
 			}
 		} else {
 			dayRowState.worked = formatSum(dayInfo.getTimeWorked(), "");
-			String workedDecimal = formatDecimal(dayInfo.getTimeWorked(), "");
 			if (decimalAmounts) {
-				dayRowState.workedDecimal = StringUtils.isNotBlank(workedDecimal)
-					? "(" + workedDecimal + ")"
-					: "";
+				dayRowState.workedDecimal = formatDecimal(dayInfo.getTimeWorked(), "");
 			}
 		}
 
@@ -160,12 +153,12 @@ public class WeekStateCalculator {
 		} else if (isTodayOrEarlier && dayInfo.isWorkDay()) {
 			dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), null);
 			if (decimalAmounts) {
-				dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), null) + ")";
+				dayRowState.flexiDecimal = formatDecimal(dayInfo.getTimeFlexi(), null);
 			}
 		} else if (dayInfo.containsEvents()) {
 			dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), "");
 			if (decimalAmounts) {
-				dayRowState.flexiDecimal = "(" + formatDecimal(dayInfo.getTimeFlexi(), "") + ")";
+				dayRowState.flexiDecimal = formatDecimal(dayInfo.getTimeFlexi(), "");
 			}
 		} else {
 			dayRowState.flexi = "";
@@ -179,13 +172,13 @@ public class WeekStateCalculator {
 		summaryRow.label = getString(R.string.total);
 		summaryRow.worked = TimerManager.formatTime(timeCalc.getTimeWorked());
 		if (decimalAmounts) {
-			summaryRow.workedDecimal = "(" + TimerManager.formatDecimal(timeCalc.getTimeWorked()) + ")";
+			summaryRow.workedDecimal = TimerManager.formatDecimal(timeCalc.getTimeWorked());
 		}
 
 		if (timeCalc.withFlexiTime()) {
 			summaryRow.flexi = TimerManager.formatTime(timeCalc.getBalance());
 			if (decimalAmounts) {
-				summaryRow.flexiDecimal = "(" + TimerManager.formatDecimal(timeCalc.getBalance()) + ")";
+				summaryRow.flexiDecimal = TimerManager.formatDecimal(timeCalc.getBalance());
 			}
 		} else {
 			summaryRow.flexi = "";

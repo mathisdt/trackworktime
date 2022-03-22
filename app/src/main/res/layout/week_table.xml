@@ -75,47 +75,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- tuesday row -->
@@ -143,47 +113,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- wednesday row -->
@@ -212,47 +152,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- thursday row -->
@@ -280,47 +190,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- friday row -->
@@ -349,47 +229,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- saturday row -->
@@ -417,47 +267,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- sunday row -->
@@ -486,47 +306,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
 
     <!-- total row -->
@@ -546,47 +336,16 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/light_gray"
-                android:textStyle="italic"
-                android:paddingStart="@dimen/indentation" />
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/light_gray" />
     </TableRow>
-
 </TableLayout>

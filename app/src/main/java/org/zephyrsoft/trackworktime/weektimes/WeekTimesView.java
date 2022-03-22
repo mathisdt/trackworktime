@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.threeten.bp.DayOfWeek;
 import org.zephyrsoft.trackworktime.Basics;
@@ -129,21 +130,14 @@ public class WeekTimesView extends LinearLayout {
 		getTableCell(tableRow, 1).setText(dayRowState.in);
 		getTableCell(tableRow, 2).setText(dayRowState.out);
 		
-		textView = getCombinedTableCell1(tableRow, 3);
-		textView.setText(dayRowState.worked);
-
-		getCombinedTableCell1(tableRow, 4).setText(dayRowState.flexi);
-
-		TextView cell23 = getCombinedTableCell2(tableRow, 3);
-		TextView cell24 = getCombinedTableCell2(tableRow, 4);
 		if (preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false)) {
-			cell23.setVisibility(VISIBLE);
-			cell24.setVisibility(VISIBLE);
-			cell23.setText(dayRowState.workedDecimal);
-			cell24.setText(dayRowState.flexiDecimal);
+			getTableCell(tableRow, 3)
+				.setText(bothTimes(dayRowState.worked, dayRowState.workedDecimal));
+			getTableCell(tableRow, 4)
+				.setText(bothTimes(dayRowState.flexi, dayRowState.flexiDecimal));
 		} else {
-			cell23.setVisibility(GONE);
-			cell24.setVisibility(GONE);
+			getTableCell(tableRow, 3).setText(dayRowState.worked);
+			getTableCell(tableRow, 4).setText(dayRowState.flexi);
 		}
 	}
 
@@ -165,22 +159,25 @@ public class WeekTimesView extends LinearLayout {
 				throw new IllegalStateException("unknown highlight type " + type);
 		}
 	}
+
+	private String bothTimes(String normal, String decimal) {
+		if (StringUtils.isBlank(decimal)) {
+			return String.format("%s\n", normal);
+		} else {
+			return String.format("%s\n   (%s)", normal, decimal);
+		}
+	}
 	
 	private void setSummaryRow(SummaryRowState summaryRowState, TableRow tableRow) {
 		getTableCell(tableRow, 0).setText(summaryRowState.label);
-		getCombinedTableCell1(tableRow, 1).setText(summaryRowState.worked);
-		getCombinedTableCell1(tableRow, 2).setText(summaryRowState.flexi);
-
-		TextView cell21 = getCombinedTableCell2(tableRow, 1);
-		TextView cell22 = getCombinedTableCell2(tableRow, 2);
 		if (preferences.getBoolean(Key.DECIMAL_TIME_SUMS.getName(), false)) {
-			cell21.setVisibility(VISIBLE);
-			cell22.setVisibility(VISIBLE);
-			cell21.setText(summaryRowState.workedDecimal);
-			cell22.setText(summaryRowState.flexiDecimal);
+			getTableCell(tableRow, 1)
+				.setText(bothTimes(summaryRowState.worked, summaryRowState.workedDecimal));
+			getTableCell(tableRow, 2)
+				.setText(bothTimes(summaryRowState.flexi, summaryRowState.flexiDecimal));
 		} else {
-			cell21.setVisibility(GONE);
-			cell22.setVisibility(GONE);
+			getTableCell(tableRow, 1).setText(summaryRowState.worked);
+			getTableCell(tableRow, 2).setText(summaryRowState.flexi);
 		}
 	}
 
@@ -191,13 +188,6 @@ public class WeekTimesView extends LinearLayout {
 				? R.drawable.table_row_highlighting : unhighlightedDrawable);
 	}	
 	
-	private TextView getCombinedTableCell1(TableRow tableRow, int index) {
-		return (TextView) ((LinearLayout) tableRow.getChildAt(index)).getChildAt(0);
-	}
-	private TextView getCombinedTableCell2(TableRow tableRow, int index) {
-		return (TextView) ((LinearLayout) tableRow.getChildAt(index)).getChildAt(1);
-	}
-
 	private TextView getTableCell(TableRow tableRow, int index) {
 		return (TextView) tableRow.getChildAt(index);
 	}
