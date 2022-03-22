@@ -59,8 +59,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/clockIn"
-                    android:checked="true" />
+                    android:checked="true"
+                    android:minHeight="48dp"
+                    android:text="@string/clockIn" />
 
                 <RadioButton
                     android:id="@+id/radioClockOut"
@@ -68,6 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:minHeight="48dp"
                     android:text="@string/clockOut" />
             </RadioGroup>
 
@@ -80,12 +82,12 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                style="@style/TextViewLikeEditText"
                 android:id="@+id/date"
+                style="@style/TextViewLikeEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="12.4.2015"
-                />
+                android:minHeight="48dp"
+                tools:text="12.4.2015" />
 
             <TextView
                 android:id="@+id/timeLabel"
@@ -96,10 +98,25 @@
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                style="@style/TextViewLikeEditText"
                 android:id="@+id/time"
+                style="@style/TextViewLikeEditText"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                android:id="@+id/endLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/end"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/end"
+                style="@style/TextViewLikeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
 
             <org.zephyrsoft.trackworktime.ui.TimeZonePicker
                 android:id="@+id/time_zone_picker"
@@ -118,9 +135,11 @@
                 <TextView
                     android:id="@+id/taskLabel"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="3dp"
+                    android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
+                    android:layout_marginBottom="3dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
                     android:text="@string/task"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -128,6 +147,7 @@
                     android:id="@+id/task"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:prompt="@string/choose_task" />
             </LinearLayout>
 
@@ -140,7 +160,8 @@
                     android:id="@+id/text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/comment_hint" />
+                    android:hint="@string/comment_hint"
+                    android:minHeight="48dp" />
 
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>

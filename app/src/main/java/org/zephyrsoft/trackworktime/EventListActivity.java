@@ -68,6 +68,7 @@ import java.util.Map;
 public class EventListActivity extends AppCompatActivity {
 
 	private static final int NEW_EVENT = 0;
+	private static final int NEW_PERIOD = 1;
 
 	private static final String BUNDLE_KEY_WEEK_START_DATE = "BUNDLE_KEY_WEEK_START_DATE";
 
@@ -206,8 +207,15 @@ public class EventListActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case NEW_EVENT:
 				Logger.debug("starting to enter a new event");
+				Intent startEventEditActivity = new Intent(this, EventEditActivity.class);
+				startEventEditActivity.putExtra(Constants.WEEK_START_EXTRA_KEY, week.toEpochDay());
+				startActivity(startEventEditActivity);
+				return true;
+			case NEW_PERIOD:
+				Logger.debug("starting to enter a new period");
 				Intent i = new Intent(this, EventEditActivity.class);
 				i.putExtra(Constants.WEEK_START_EXTRA_KEY, week.toEpochDay());
+				i.putExtra(Constants.PERIOD_EXTRA_KEY, true);
 				startActivity(i);
 				return true;
 			case android.R.id.home:
@@ -221,6 +229,7 @@ public class EventListActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, NEW_EVENT, NEW_EVENT, getString(R.string.new_event)).setIcon(R.drawable.ic_menu_add);
+		menu.add(Menu.NONE, NEW_PERIOD, NEW_PERIOD, getString(R.string.newPeriod)).setIcon(R.drawable.ic_menu_add);
 		return super.onCreateOptionsMenu(menu);
 	}
 

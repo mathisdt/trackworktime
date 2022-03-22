@@ -35,6 +35,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.EventListActivity;
@@ -74,8 +75,10 @@ public class EventEditActivity extends AppCompatActivity {
 	/** only filled if an existing event is edited! blank for new events! */
 	private Event editedEvent = null;
 	private boolean newEvent = false;
+	private boolean period = false;
 
 	private TimeTextViewController timeTextViewController;
+	private TimeTextViewController endTextViewController;
 	private DateTextViewController dateTextViewController;
 
 	@Override
@@ -100,6 +103,7 @@ public class EventEditActivity extends AppCompatActivity {
 		}
 
 		timeTextViewController = new TimeTextViewController(binding.time);
+		endTextViewController = new TimeTextViewController(binding.end);
 		dateTextViewController = new DateTextViewController(binding.date);
 
 		task = binding.task;
@@ -111,42 +115,77 @@ public class EventEditActivity extends AppCompatActivity {
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		task.setAdapter(tasksAdapter);
 
+		timeTextViewController.setListener(lt -> {
+			if (period && lt.isAfter(LocalTime.of(23, 58))) {
+				timeTextViewController.setTime(LocalTime.of(23, 58));
+			} else if (period && endTextViewController.getTime() != null
+				&& !endTextViewController.getTime().isAfter(lt)) {
+				endTextViewController.setTime(lt.plusMinutes(1));
+			}
+		});
+		endTextViewController.setListener(lt -> {
+			if (period && lt.isBefore(LocalTime.of(0, 1))) {
+				endTextViewController.setTime(LocalTime.of(0, 1));
+			} else if (period && timeTextViewController.getTime() != null
+				&& !timeTextViewController.getTime().isBefore(lt)) {
+				timeTextViewController.setTime(lt.minusMinutes(1));
+			}
+		});
+
 		binding.save.setOnClickListener(v -> {
             // commit all edit fields
             text.clearFocus();
 
-			// save the event
-			TypeEnum typeEnum = binding.radioClockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
+			if (period) {
+				OffsetDateTime startDateTime = getCurrentlySetDateTime();
+				OffsetDateTime endDateTime = getCurrentlySetEndDateTime();
+				if (startDateTime == null || endDateTime == null) {
+					// TODO: Would be better to disable save button, if date/time is not selected
+					showMsgDateTimeNotSelected();
+					return;
+				}
 
-			OffsetDateTime dateTime = getCurrentlySetDateTime();
-			if (dateTime == null) {
-				// TODO: Would be better to disable save button, if date/time is not selected
-				showMsgDateTimeNotSelected();
-				return;
-			}
+				Task selectedTask = (Task) task.getSelectedItem();
+				Integer taskId = selectedTask.getId();
+				String textString = text.getText().toString();
 
-			Task selectedTask = (Task) task.getSelectedItem();
-			Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
-					selectedTask.getId());
-			String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
-
-			if (newEvent) {
-				Logger.debug("saving new event: {} @ {}", typeEnum.name(), dateTime);
-				timerManager.createEvent(dateTime, taskId, typeEnum, textString);
+				Logger.debug("saving new period: {} - {}", startDateTime, endDateTime);
+				timerManager.createEvent(startDateTime, taskId, TypeEnum.CLOCK_IN, textString);
+				timerManager.createEvent(endDateTime, null, TypeEnum.CLOCK_OUT, null);
 			} else {
-				Logger.debug("saving changed event with ID {}: {} @ {}", editedEvent.getId(), typeEnum.name(),
-						dateTime);
-				editedEvent.setType(typeEnum.getValue());
-				editedEvent.setDateTime(dateTime);
-				editedEvent.setTask(taskId);
-				editedEvent.setText(textString);
-				dao.updateEvent(editedEvent);
+				// save the event
+				TypeEnum typeEnum = binding.radioClockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
 
-				// we have to call this manually when using the DAO directly
-				timerManager.invalidateCacheFrom(dateTime);
+				OffsetDateTime dateTime = getCurrentlySetDateTime();
+				if (dateTime == null) {
+					// TODO: Would be better to disable save button, if date/time is not selected
+					showMsgDateTimeNotSelected();
+					return;
+				}
 
-				Basics.getInstance().safeCheckExternalControls();
+				Task selectedTask = (Task) task.getSelectedItem();
+				Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
+					selectedTask.getId());
+				String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
+
+				if (newEvent) {
+					Logger.debug("saving new event: {} @ {}", typeEnum.name(), dateTime);
+					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
+				} else {
+					Logger.debug("saving changed event with ID {}: {} @ {}",
+						editedEvent.getId(), typeEnum.name(), dateTime);
+					editedEvent.setType(typeEnum.getValue());
+					editedEvent.setDateTime(dateTime);
+					editedEvent.setTask(taskId);
+					editedEvent.setText(textString);
+					dao.updateEvent(editedEvent);
+
+					// we have to call this manually when using the DAO directly
+					timerManager.invalidateCacheFrom(dateTime);
+				}
 			}
+
+			Basics.getInstance().safeCheckExternalControls();
 
 			// refresh parents and close the event editor
 			if (EventListActivity.getInstance() != null) {
@@ -188,6 +227,21 @@ public class EventEditActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
+		period = getIntent().getBooleanExtra(Constants.PERIOD_EXTRA_KEY, false);
+		if (period) {
+			setTitle(R.string.editPeriod);
+			binding.timeLabel.setText(R.string.start);
+			binding.typeLabel.setVisibility(View.GONE);
+			binding.radioType.setVisibility(View.GONE);
+			binding.endLabel.setVisibility(View.VISIBLE);
+			binding.end.setVisibility(View.VISIBLE);
+		} else {
+			binding.typeLabel.setVisibility(View.VISIBLE);
+			binding.radioType.setVisibility(View.VISIBLE);
+			binding.endLabel.setVisibility(View.GONE);
+			binding.end.setVisibility(View.GONE);
+		}
+
 		// one of the following options
 		if (getIntent().hasExtra(Constants.EVENT_ID_EXTRA_KEY)
 			&& getIntent().hasExtra(Constants.WEEK_START_EXTRA_KEY)) {
@@ -216,7 +270,7 @@ public class EventEditActivity extends AppCompatActivity {
 			newEvent = true;
 			// prepare for entering a new event: make sure the date is inside the currently selected week
 			if (week.isInWeek(LocalDate.now())) {
-				updateDateAndTimePickers(ZonedDateTime.now());
+				updateDateAndTimePickers(ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 			} else {
 				// assume home time zone
 				updateDateAndTimePickers(week.getStart().atStartOfDay(timerManager.getHomeTimeZone()));
@@ -256,8 +310,10 @@ public class EventEditActivity extends AppCompatActivity {
 		updateDatePicker(dateTime.toLocalDate());
 
 		if (!pickersAreInitialized) {
-			initTimePicker(time);
 			initDatePicker();
+			if (period) {
+				updateEndPicker(time.plusMinutes(1));
+			}
 			pickersAreInitialized = true;
 		}
 	}
@@ -266,13 +322,12 @@ public class EventEditActivity extends AppCompatActivity {
 		timeTextViewController.setTime(localTime);
 	}
 
-	private void updateDatePicker(LocalDate date) {
-		dateTextViewController.setDate(date);
+	private void updateEndPicker(LocalTime localTime) {
+		endTextViewController.setTime(localTime);
 	}
 
-	private void initTimePicker(LocalTime localTime) {
-		timeTextViewController.setTime(localTime);
-		pickersAreInitialized = true;
+	private void updateDatePicker(LocalDate date) {
+		dateTextViewController.setDate(date);
 	}
 
 	private void initDatePicker() {
@@ -296,6 +351,23 @@ public class EventEditActivity extends AppCompatActivity {
 	@Nullable
 	private OffsetDateTime getCurrentlySetDateTime() {
 		LocalTime time = timeTextViewController.getTime();
+		if (time == null) {
+			return null;
+		}
+
+		LocalDate date = dateTextViewController.getDate();
+		if (date == null) {
+			return null;
+		}
+
+		return date.atTime(time)
+				.atZone(getSelectedZone())
+				.toOffsetDateTime();
+	}
+
+	@Nullable
+	private OffsetDateTime getCurrentlySetEndDateTime() {
+		LocalTime time = endTextViewController.getTime();
 		if (time == null) {
 			return null;
 		}

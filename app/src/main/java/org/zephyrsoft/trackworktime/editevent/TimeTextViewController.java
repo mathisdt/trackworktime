@@ -23,6 +23,7 @@ import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.Basics;
@@ -31,6 +32,7 @@ import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 public class TimeTextViewController {
 
 	private final TextView view;
+	private Consumer<LocalTime> listener;
 
 	@Nullable
 	private LocalTime time;
@@ -39,11 +41,19 @@ public class TimeTextViewController {
 		String text = DateTimeUtil.formatLocalizedTime(time, Basics.getOrCreateInstance(view.getContext()).getLocale());
 		view.setText(text);
 		this.time = time;
+
+		if (listener != null) {
+			listener.accept(time);
+		}
 	}
 
 	@Nullable
 	public LocalTime getTime() {
 		return time;
+	}
+
+	public void setListener(Consumer<LocalTime> listener) {
+		this.listener = listener;
 	}
 
 	public TimeTextViewController(@NonNull TextView view) {

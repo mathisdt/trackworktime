@@ -63,6 +63,8 @@ public class Constants {
 	public static final String WEEK_START_EXTRA_KEY = "WEEK_START_EXTRA_KEY";
 	/** key for the intent extra "event id" */
 	public static final String EVENT_ID_EXTRA_KEY = "EVENT_ID_EXTRA_KEY";
+	/** key for the intent extra "period" */
+	public static final String PERIOD_EXTRA_KEY = "PERIOD_EXTRA_KEY";
 	/** used to transport the message via an intent's extended data */
 	public static final String MESSAGE_EXTRA_KEY = "message";
 	/** used to transport the notification' ID via an intent's extended data */
