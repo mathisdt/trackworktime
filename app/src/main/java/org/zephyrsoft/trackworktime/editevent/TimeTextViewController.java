@@ -25,9 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 
-import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.time.LocalTime;
 
 public class TimeTextViewController {
 

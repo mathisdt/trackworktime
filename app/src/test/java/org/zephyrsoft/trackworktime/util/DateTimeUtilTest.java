@@ -15,10 +15,11 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import org.junit.Test;
-import org.threeten.bp.LocalTime;
-
 import static com.google.common.truth.Truth.assertThat;
+
+import org.junit.Test;
+
+import java.time.LocalTime;
 
 public class DateTimeUtilTest {
 

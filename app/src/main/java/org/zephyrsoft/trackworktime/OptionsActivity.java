@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -31,7 +32,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.options.CheckIntervalPreference;
@@ -47,6 +47,7 @@ import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -203,6 +204,7 @@ public class OptionsActivity extends AppCompatActivity {
             }
         }
 
+        @SuppressLint("deprecation")
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID) {

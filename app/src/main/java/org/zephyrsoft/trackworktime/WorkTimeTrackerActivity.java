@@ -59,8 +59,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.navigation.NavigationView;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ActivityMainBinding;
@@ -85,6 +83,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 

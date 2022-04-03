@@ -39,8 +39,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
 import org.zephyrsoft.trackworktime.databinding.ListItemBinding;
@@ -55,6 +53,8 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

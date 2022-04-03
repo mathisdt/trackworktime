@@ -21,10 +21,11 @@ import android.util.AttributeSet;
 
 import androidx.preference.DialogPreference;
 
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.format.DateTimeFormatter;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class TimePreference extends DialogPreference {
 	private static final DateTimeFormatter LOCAL_TIME = DateTimeFormatter.ofPattern("HH:mm");

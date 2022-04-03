@@ -17,7 +17,7 @@ package org.zephyrsoft.trackworktime.model;
 
 import androidx.annotation.NonNull;
 
-import org.threeten.bp.DayOfWeek;
+import java.time.DayOfWeek;
 
 public class WeekState {
 

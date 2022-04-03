@@ -26,9 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDateTime;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

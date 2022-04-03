@@ -15,8 +15,9 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
+
+import java.time.OffsetDateTime;
 
 /**
  * Data class for an event.

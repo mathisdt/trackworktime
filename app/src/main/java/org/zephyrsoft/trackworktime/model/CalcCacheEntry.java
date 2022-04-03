@@ -15,9 +15,9 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.threeten.bp.LocalDate;
-
 import org.zephyrsoft.trackworktime.database.DAO;
+
+import java.time.LocalDate;
 
 /**
  * Data class for an event.

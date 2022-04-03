@@ -18,10 +18,11 @@ package org.zephyrsoft.trackworktime.database;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public class DAOTest {
 

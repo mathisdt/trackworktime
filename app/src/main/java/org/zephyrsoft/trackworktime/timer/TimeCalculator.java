@@ -16,10 +16,6 @@
 package org.zephyrsoft.trackworktime.timer;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Range;
@@ -28,16 +24,16 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
-import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
-import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfYear;
-import static org.threeten.bp.temporal.TemporalAdjusters.lastDayOfMonth;
 
 /**
  * Calculates the actual work times from events.
@@ -102,7 +98,7 @@ public class TimeCalculator {
 			mapForCounting.put(task, sumForTask);
 		}
 		// add new times to sum
-		long minutesWorked = MINUTES.between(from, to);
+		long minutesWorked = ChronoUnit.MINUTES.between(from, to);
 		if (minutesWorked > Integer.MAX_VALUE - 60) {
 			// this is extremely unlikely, someone would have to work 4084 years without pause...
 			int correctedMinutesWorked = Integer.MAX_VALUE - 60;
@@ -125,18 +121,18 @@ public class TimeCalculator {
 				daysInLastUnit = 7;
 				break;
 			case MONTH:
-				beginOfTimeFrame = now.with(firstDayOfMonth());
-				endOfTimeFrame = now.with(lastDayOfMonth());
+				beginOfTimeFrame = now.with(TemporalAdjusters.firstDayOfMonth());
+				endOfTimeFrame = now.with(TemporalAdjusters.lastDayOfMonth());
 
 				ZonedDateTime lastMonthBegin = beginOfTimeFrame.minusMonths(1);
-				daysInLastUnit = DAYS.between(lastMonthBegin, beginOfTimeFrame);
+				daysInLastUnit = ChronoUnit.DAYS.between(lastMonthBegin, beginOfTimeFrame);
 				break;
 			case YEAR:
-				beginOfTimeFrame = now.with(firstDayOfYear());
+				beginOfTimeFrame = now.with(TemporalAdjusters.firstDayOfYear());
 				endOfTimeFrame = beginOfTimeFrame.plusYears(1);
 
 				ZonedDateTime lastYearBegin = beginOfTimeFrame.minusYears(1);
-				daysInLastUnit = DAYS.between(lastYearBegin, beginOfTimeFrame);
+				daysInLastUnit = ChronoUnit.DAYS.between(lastYearBegin, beginOfTimeFrame);
 				break;
 			default:
 				throw new IllegalArgumentException("unknown unit");

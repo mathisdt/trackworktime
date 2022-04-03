@@ -15,26 +15,12 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
-import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
-import static org.threeten.bp.temporal.TemporalAdjusters.firstDayOfMonth;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.temporal.TemporalAdjusters;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -52,6 +38,17 @@ import org.zephyrsoft.trackworktime.util.Updatable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -294,7 +291,7 @@ public class TimerManager {
 			}
 
 			case MONTH:
-				infoStart = getTimesAt(date.with(firstDayOfMonth()));
+				infoStart = getTimesAt(date.with(TemporalAdjusters.firstDayOfMonth()));
 
 				LocalDate endDate = date.with(date.with(TemporalAdjusters.firstDayOfNextMonth()));
 				if (endDate.isAfter(LocalDate.now())) {
@@ -404,7 +401,7 @@ public class TimerManager {
 
 		Logger.debug("Start sum: {}", formatTime(ret.getBalance()));
 
-		long iter = DAYS.between(startDate, targetDate);
+		long iter = ChronoUnit.DAYS.between(startDate, targetDate);
 		Logger.debug("Date range to calculate: {} -> {}", startDate, targetDate);
 		Logger.debug("Number of days to calculate: {}", iter);
 
@@ -885,10 +882,10 @@ public class TimerManager {
 	}
 
 	public static long timeDiff(OffsetDateTime startTime, OffsetDateTime endTime) {
-		return MINUTES.between(startTime.truncatedTo(MINUTES), endTime.truncatedTo(MINUTES));
+		return ChronoUnit.MINUTES.between(startTime.truncatedTo(ChronoUnit.MINUTES), endTime.truncatedTo(ChronoUnit.MINUTES));
 	}
 
 	public static long timeDiff(LocalTime startTime, LocalTime endTime) {
-		return MINUTES.between(startTime.truncatedTo(MINUTES), endTime.truncatedTo(MINUTES));
+		return ChronoUnit.MINUTES.between(startTime.truncatedTo(ChronoUnit.MINUTES), endTime.truncatedTo(ChronoUnit.MINUTES));
 	}
 }

@@ -25,9 +25,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.ZoneId;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ActivityDebugBinding;
+
+import java.time.ZoneId;
 
 public class DebugActivity extends AppCompatActivity {
 

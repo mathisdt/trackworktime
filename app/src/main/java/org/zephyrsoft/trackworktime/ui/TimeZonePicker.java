@@ -15,11 +15,6 @@
  */
 package org.zephyrsoft.trackworktime.ui;
 
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-import org.zephyrsoft.trackworktime.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -35,6 +30,12 @@ import androidx.fragment.app.FragmentManager;
 
 import com.android.timezonepicker.TimeZoneInfo;
 import com.android.timezonepicker.TimeZonePickerDialog;
+
+import org.zephyrsoft.trackworktime.R;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 public class TimeZonePicker extends LinearLayout
 		implements TimeZonePickerDialog.OnTimeZoneSetListener {

@@ -20,11 +20,12 @@ import android.content.SharedPreferences;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoUnit;
-import org.threeten.bp.temporal.TemporalAdjusters;
 import org.zephyrsoft.trackworktime.options.Key;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 
 public enum FlexiReset {
 	NONE(1, Unit.NULL, "none"),
@@ -50,7 +51,8 @@ public enum FlexiReset {
 		return friendlyName;
 	}
 
-	public @NonNull LocalDate getLastResetDate(LocalDate fromDate) {
+	public @NonNull
+	LocalDate getLastResetDate(LocalDate fromDate) {
 		switch (intervalUnit) {
 			case NULL:
 				return LocalDate.ofEpochDay(0);

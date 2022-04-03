@@ -15,8 +15,8 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 /**
  * Data class for a week.

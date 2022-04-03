@@ -19,9 +19,10 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.OffsetDateTime;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+
+import java.time.OffsetDateTime;
 
 /**
  * This technically is an activity but it only receives intents from shortcuts

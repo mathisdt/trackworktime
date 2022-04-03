@@ -22,11 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
-import org.threeten.bp.temporal.IsoFields;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Week;
@@ -39,6 +34,11 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculatorV2.DayInfo;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 

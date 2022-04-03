@@ -15,7 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.threeten.bp.LocalDate;
+import java.time.LocalDate;
 
 /**
  * Getters are used via reflection!

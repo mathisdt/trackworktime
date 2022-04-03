@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.DefaultTimesBinding;
 import org.zephyrsoft.trackworktime.model.Target;
@@ -38,6 +37,7 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.ui.DateTextViewController;
 import org.zephyrsoft.trackworktime.ui.TargetTimeValidityCheck;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**

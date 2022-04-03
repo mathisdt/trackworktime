@@ -22,8 +22,9 @@ import android.util.AttributeSet;
 import androidx.preference.DialogPreference;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.ZoneId;
 import org.zephyrsoft.trackworktime.R;
+
+import java.time.ZoneId;
 
 public class TimeZonePreference extends DialogPreference {
 

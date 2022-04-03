@@ -30,10 +30,11 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.time.LocalDate;
 
 public class Widget extends AppWidgetProvider {
 

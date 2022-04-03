@@ -18,10 +18,11 @@ package org.zephyrsoft.trackworktime.weektimes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoUnit;
 import org.zephyrsoft.trackworktime.model.Week;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Converts week-index to {@link Week} and vice versa, where week-index is number of weeks after epoch,

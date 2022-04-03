@@ -15,11 +15,12 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.junit.Test;
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-
 import static com.google.common.truth.Truth.assertWithMessage;
+
+import org.junit.Test;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 public class FlexiResetTest {
 

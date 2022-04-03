@@ -15,10 +15,10 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.database.DAO;
 
-import static org.threeten.bp.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Data class for an event.
@@ -96,7 +96,7 @@ public class Target extends Base implements Comparable<Target> {
 	 */
 	@Override
 	public String toString() {
-		return date.format(ISO_LOCAL_DATE) + " / " + TargetEnum.byValue(getType()).name() + " / " + getValue() + " / " + getComment();
+		return date.format(DateTimeFormatter.ISO_LOCAL_DATE) + " / " + TargetEnum.byValue(getType()).name() + " / " + getValue() + " / " + getComment();
 	}
 
 }

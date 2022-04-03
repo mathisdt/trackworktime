@@ -28,7 +28,6 @@ import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.DayOfWeek;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.databinding.WeekTableBinding;
@@ -36,6 +35,8 @@ import org.zephyrsoft.trackworktime.model.WeekState;
 import org.zephyrsoft.trackworktime.model.WeekState.DayRowState;
 import org.zephyrsoft.trackworktime.model.WeekState.SummaryRowState;
 import org.zephyrsoft.trackworktime.options.Key;
+
+import java.time.DayOfWeek;
 
 public class WeekTimesView extends LinearLayout {
 	

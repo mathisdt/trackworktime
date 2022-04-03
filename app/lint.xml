@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lint>
+    <issue id="Deprecated" severity="informational" />
+    <issue id="LongLogTag" severity="ignore" />
+    <issue id="InvalidResourceFolder" severity="ignore" />
+    <issue id="ApplySharedPref" severity="ignore" />
 </lint>

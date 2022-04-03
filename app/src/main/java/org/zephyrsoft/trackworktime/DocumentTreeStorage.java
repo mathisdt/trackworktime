@@ -30,7 +30,6 @@ import androidx.core.util.Consumer;
 import androidx.documentfile.provider.DocumentFile;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalDate;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 
 import java.io.BufferedOutputStream;
@@ -40,6 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**

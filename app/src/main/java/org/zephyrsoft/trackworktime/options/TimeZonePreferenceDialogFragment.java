@@ -82,9 +82,10 @@ public class TimeZonePreferenceDialogFragment extends PreferenceDialogFragmentCo
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Preference findPreference(CharSequence key) {
-		return getPreference();
+	public <T extends Preference> T findPreference(CharSequence key) {
+		return (T) getPreference();
 	}
 
 	@Override

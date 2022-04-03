@@ -15,12 +15,12 @@
  */
 package org.zephyrsoft.trackworktime.options;
 
-import java.util.regex.Pattern;
-
 import android.content.SharedPreferences;
 
-import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+
+import java.time.LocalTime;
+import java.util.regex.Pattern;
 
 /**
  * Data types for the options.

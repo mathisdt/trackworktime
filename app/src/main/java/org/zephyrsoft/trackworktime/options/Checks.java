@@ -18,10 +18,10 @@ package org.zephyrsoft.trackworktime.options;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.LocalTime;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 

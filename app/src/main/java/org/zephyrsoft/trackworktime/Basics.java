@@ -49,9 +49,6 @@ import org.pmw.tinylog.labelers.CountLabeler;
 import org.pmw.tinylog.policies.DailyPolicy;
 import org.pmw.tinylog.writers.LogcatWriter;
 import org.pmw.tinylog.writers.RollingFileWriter;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneId;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.location.CoordinateUtil;
 import org.zephyrsoft.trackworktime.location.LocationCallback;
@@ -66,6 +63,9 @@ import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -89,15 +89,6 @@ public class Basics extends BroadcastReceiver {
     private ThirdPartyReceiver thirdPartyReceiver;
 
     private static Basics instance = null;
-
-    /**
-     * Creates an instance of this class.
-     */
-    public Basics() {
-        if (instance == null) {
-            instance = this;
-        }
-    }
 
     /**
      * Fetches the singleton.

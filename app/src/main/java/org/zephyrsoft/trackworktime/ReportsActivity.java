@@ -33,7 +33,6 @@ import androidx.preference.PreferenceManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
-import org.threeten.bp.ZonedDateTime;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ReportsBinding;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -51,6 +50,7 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

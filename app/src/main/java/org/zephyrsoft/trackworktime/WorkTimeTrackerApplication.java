@@ -40,8 +40,6 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 import org.acra.ACRA;
 import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.DialogConfigurationBuilder;
@@ -61,8 +59,6 @@ public class WorkTimeTrackerApplication extends Application {
 	@Override
 	public void onCreate() {
 		Logger.info("creating application");
-
-		AndroidThreeTen.init(this);
 
 		NotificationChannel notificationChannel = null;
 		NotificationChannel serviceNotificationChannel = null;
