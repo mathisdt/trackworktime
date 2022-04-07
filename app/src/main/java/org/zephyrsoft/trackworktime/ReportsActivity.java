@@ -169,7 +169,7 @@ public class ReportsActivity extends AppCompatActivity {
 				report = createReportForTargetsDaysPerTypeAndCommentPerMonth();
 				break;
 			default:
-				throw new RuntimeException("Grouping not implemented");
+				throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
 		}
 
 		if (report == null) {
@@ -230,7 +230,7 @@ public class ReportsActivity extends AppCompatActivity {
 				exportTargetsDaysPerTypeAndCommentPerMonth();
 				break;
 			default:
-				throw new RuntimeException("Grouping not implemented");
+				throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
 		}
 	}
 
