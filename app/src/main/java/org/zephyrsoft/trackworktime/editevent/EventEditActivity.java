@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.editevent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +34,7 @@ import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.EventListActivity;
 import org.zephyrsoft.trackworktime.R;
+import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.EventBinding;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -256,7 +258,10 @@ public class EventEditActivity extends AppCompatActivity {
 		}
 
 		if (eventId == -1 && epochDay == -1) {
-			throw new IllegalArgumentException("Either event ID or week start must be given");
+			Logger.debug("we don't know which event or even which week is meant, return to main screen");
+			Intent i = new Intent(this, WorkTimeTrackerActivity.class);
+			startActivity(i);
+			finish();
 		} else if (eventId != -1) {
 			editedEvent = dao.getEvent(eventId);
 
