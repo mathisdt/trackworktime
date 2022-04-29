@@ -39,8 +39,9 @@
     <string name="options">Options</string>
     <string name="request_to_ignore_battery_optimizations">Disable Restrictions</string>
     <string name="request_to_ignore_battery_optimizations_title">Disable Battery Optimization</string>
-    <string name="request_to_ignore_battery_optimizations_text">If you have problems using the WiFi tracking method, you may disable Android\'s built-in battery optimization so the app is not restricted in tracking available WiFi networks.\n\nYou have to grant the right yourself in the settings dialog. When you go there, select \"All apps\", scroll to \"Track Work Time\", tap on it and select \"Don\'t optimize\".</string>
-    <string name="request_to_ignore_battery_optimizations_go_to_settings">go to settings</string>
+    <string name="request_to_ignore_battery_optimizations_text">If you have problems using the location or WiFi tracking method, you may disable Android\'s built-in battery optimization so the app is not restricted so much by the system. This may stress the battery slightly more, but if you grant this, the app can be active in the background and thus help you track your work time automatically.\n\nIf you want that, please allow it in the following dialog.</string>
+    <string name="request_to_ignore_battery_optimizations_nothing_to_do">Nothing to do - either your Android system is old enough to not have battery optimization yet, or the app is already on the system\'s exemption list for battery optimization and thus can be active in the background.</string>
+    <string name="request_to_ignore_battery_optimizations_positive">Yes, I want that</string>
     <string name="new_task">New Task</string>
     <string name="new_event">New Event</string>
     <string name="enter_new_task_name">Enter the new task name:</string>

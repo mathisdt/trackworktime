@@ -34,6 +34,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -854,11 +855,21 @@ public class Basics extends BroadcastReceiver {
         }
     }
 
-    public void openBatterySettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    public boolean hasToRemoveAppFromBatteryOptimization() {
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+            && !pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
+
+    @SuppressLint("BatteryLife")
+    public void removeAppFromBatteryOptimization() {
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+            && !pm.isIgnoringBatteryOptimizations(context.getPackageName())) {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             context.startActivity(intent);
         }
     }

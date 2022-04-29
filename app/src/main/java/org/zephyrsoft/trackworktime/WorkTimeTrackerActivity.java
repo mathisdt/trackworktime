@@ -677,16 +677,27 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void showRequestToIgnoreBatteryOptimizations() {
-		Logger.debug("showing request to ignore battery optimizations");
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(getString(R.string.request_to_ignore_battery_optimizations_title));
-		alert.setMessage(getString(R.string.request_to_ignore_battery_optimizations_text));
-		alert.setPositiveButton(getString(R.string.request_to_ignore_battery_optimizations_go_to_settings),
-			(dialog, whichButton) -> Basics.getInstance().openBatterySettings());
-		alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
-			// do nothing
-		});
-		alert.show();
+		if (Basics.getInstance().hasToRemoveAppFromBatteryOptimization()) {
+			Logger.debug("showing request to ignore battery optimizations");
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(getString(R.string.request_to_ignore_battery_optimizations_title));
+			alert.setMessage(getString(R.string.request_to_ignore_battery_optimizations_text));
+			alert.setPositiveButton(getString(R.string.request_to_ignore_battery_optimizations_positive),
+				(dialog, whichButton) -> Basics.getInstance().removeAppFromBatteryOptimization());
+			alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
+				// do nothing
+			});
+			alert.show();
+		} else {
+			Logger.debug("not showing request to ignore battery optimizations - nothing to do");
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(getString(R.string.request_to_ignore_battery_optimizations_title));
+			alert.setMessage(getString(R.string.request_to_ignore_battery_optimizations_nothing_to_do));
+			alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) -> {
+				// do nothing
+			});
+			alert.show();
+		}
 	}
 
 	private void useCurrentLocationAsWorkplace() {
