@@ -80,25 +80,24 @@ public class WorkTimeTrackerApplication extends Application {
 			notificationManager.createNotificationChannel(serviceNotificationChannel);
 		}
 
-		CoreConfigurationBuilder builder = new CoreConfigurationBuilder(this)
-				.withBuildConfigClass(BuildConfig.class)
-				.withReportFormat(StringFormat.JSON)
-				.withReportContent(ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME,
-						BRAND, CRASH_CONFIGURATION, INSTALLATION_ID, LOGCAT,
-						PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES,
-						STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE)
-				.withEnabled(true);
-
-		builder.getPluginConfigurationBuilder(DialogConfigurationBuilder.class)
-				.withResTitle(R.string.acraTitle)
-				.withResText(R.string.acraText)
-				.withResCommentPrompt(R.string.acraCommentPrompt)
-				.withEnabled(true);
-
-		builder.getPluginConfigurationBuilder(HttpSenderConfigurationBuilder.class)
-				.withHttpMethod(HttpSender.Method.POST)
-				.withUri("https://crashreport.zephyrsoft.org/")
-				.withEnabled(true);
+        CoreConfigurationBuilder builder = new CoreConfigurationBuilder()
+            .withBuildConfigClass(BuildConfig.class)
+            .withReportFormat(StringFormat.JSON)
+            .withReportContent(ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME,
+                BRAND, CRASH_CONFIGURATION, INSTALLATION_ID, LOGCAT,
+                PACKAGE_NAME, PHONE_MODEL, PRODUCT, REPORT_ID, SHARED_PREFERENCES,
+                STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE)
+            .withPluginConfigurations(new DialogConfigurationBuilder()
+                    .withTitle(getString(R.string.acraTitle))
+                    .withText(getString(R.string.acraText))
+                    .withCommentPrompt(getString(R.string.acraCommentPrompt))
+                    .withEnabled(true)
+                    .build(),
+                new HttpSenderConfigurationBuilder()
+                    .withHttpMethod(HttpSender.Method.POST)
+                    .withUri("https://crashreport.zephyrsoft.org/")
+                    .withEnabled(true)
+                    .build());
 
 		ACRA.init(this, builder);
 		ACRA.log = new TinylogAndLogcatLogger();
