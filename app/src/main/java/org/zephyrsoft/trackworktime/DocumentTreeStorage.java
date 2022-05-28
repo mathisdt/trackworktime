@@ -122,8 +122,9 @@ public class DocumentTreeStorage {
     public static Uri writing(Context context, Type type, String filename, Consumer<OutputStream> action) {
         DocumentFile file = getForWriting(context, type, filename);
         if (file != null) {
-            try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "w");
-                 OutputStream outputStream = fileDescriptor == null ? null : new BufferedOutputStream(new FileOutputStream(fileDescriptor.getFileDescriptor()))) {
+            try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "rwt");
+                 FileOutputStream fileOutputStream = fileDescriptor == null ? null : new FileOutputStream(fileDescriptor.getFileDescriptor());
+                 BufferedOutputStream outputStream = fileDescriptor == null ? null : new BufferedOutputStream(fileOutputStream)) {
                 Logger.debug("writing to {} {}", type, filename);
                 action.accept(outputStream);
                 if (outputStream != null) {
