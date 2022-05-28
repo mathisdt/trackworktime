@@ -663,13 +663,13 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	private void showWeekNavigation() {
 		Logger.debug("showing week navigation");
-		LocalDate date = LocalDate.now(timerManager.getHomeTimeZone());
+		Week week = WeekIndexConverter.getWeekForIndex(binding.main.week.getCurrentItem());
 		DatePickerDialog dialog = new DatePickerDialog(
 			this,
 			(view, year, month, day) -> navigateToWeek(LocalDate.of(year, month + 1, day)),
-			date.getYear(),
-			date.getMonthValue() - 1,
-			date.getDayOfMonth()
+			week.getStart().getYear(),
+			week.getStart().getMonthValue() - 1,
+			week.getStart().getDayOfMonth()
 		);
 		dialog.show();
 	}
