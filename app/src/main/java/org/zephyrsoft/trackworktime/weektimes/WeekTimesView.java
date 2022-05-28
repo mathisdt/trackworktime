@@ -52,6 +52,11 @@ public class WeekTimesView extends LinearLayout {
 		startLayoutLoading();
 	}
 
+	private OnClickListener onTopLeftClickListener;
+	public void setTopLeftClickListener(OnClickListener onClickListener) {
+		this.onTopLeftClickListener = onClickListener;
+	}
+
 	private void startLayoutLoading() {
 		new AsyncLayoutInflater(getContext()).inflate(R.layout.week_table,this, ((view, resid, parent) -> {
 			binding = WeekTableBinding.bind(view);
@@ -65,6 +70,10 @@ public class WeekTimesView extends LinearLayout {
 		
 		if(isDataSet()) {
 			loadWeekState();
+		}
+
+		if (onTopLeftClickListener != null) {
+			binding.topLeftCorner.setOnClickListener(onTopLeftClickListener);
 		}
 	}
 

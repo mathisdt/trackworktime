@@ -22,6 +22,7 @@ import static java.lang.Math.abs;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -283,10 +284,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	private void initWeekPagerAdapter() {
 		WeekStateLoaderManager weekStateLoaderManager = createWeekLoaderManger();
+		View.OnClickListener topLeftClickListener = v -> showWeekNavigation();
 		View.OnClickListener weekClickListener = v -> showEventList();
 		WeekTimesView.OnDayClickListener dayClickListener = (v, day) -> setTarget(day);
 
-		weekAdapter = new WeekAdapter(weekStateLoaderManager, dayClickListener, weekClickListener);
+		weekAdapter = new WeekAdapter(weekStateLoaderManager, dayClickListener,
+			topLeftClickListener, weekClickListener);
 		binding.main.week.setAdapter(weekAdapter);
 	}
 
@@ -656,6 +659,23 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			i.putExtra(Constants.WEEK_START_EXTRA_KEY, currentWeek.toEpochDay());
 			startActivity(i);
 		}
+	}
+
+	private void showWeekNavigation() {
+		Logger.debug("showing week navigation");
+		LocalDate date = LocalDate.now(timerManager.getHomeTimeZone());
+		DatePickerDialog dialog = new DatePickerDialog(
+			this,
+			(view, year, month, day) -> navigateToWeek(LocalDate.of(year, month + 1, day)),
+			date.getYear(),
+			date.getMonthValue() - 1,
+			date.getDayOfMonth()
+		);
+		dialog.show();
+	}
+
+	private void navigateToWeek(LocalDate date) {
+		showWeek(WeekIndexConverter.getIndexForDate(date), true);
 	}
 
 	private void showTaskList() {
