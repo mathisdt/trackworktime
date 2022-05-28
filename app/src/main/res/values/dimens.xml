@@ -8,5 +8,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="indentation">8dp</dimen>
-    <dimen name="padding_in_table">4dp</dimen>
+    <dimen name="padding_in_table">7dp</dimen>
 </resources>
