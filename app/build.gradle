@@ -41,7 +41,7 @@ android {
         targetSdkVersion 31
 
         versionCode 59                      // increment with every release
-        versionName '1.1.15-SNAPSHOT'       // change with every release
+        versionName '1.1.15'       // change with every release
     }
 
     buildTypes {
