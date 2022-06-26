@@ -262,6 +262,8 @@ public class EventEditActivity extends AppCompatActivity {
 			Intent i = new Intent(this, WorkTimeTrackerActivity.class);
 			startActivity(i);
 			finish();
+			// we don't want to run the rest of this method because it wouldn't do anything sensible
+			return;
 		} else if (eventId != -1) {
 			editedEvent = dao.getEvent(eventId);
 
