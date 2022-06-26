@@ -32,6 +32,9 @@ public class QuickSettingsService extends TileService implements Updatable {
 
     @Override
     public void update() {
+        if (getQsTile() == null) {
+            return;
+        }
         if (timerManager.isTracking()) {
             getQsTile().setState(Tile.STATE_ACTIVE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
