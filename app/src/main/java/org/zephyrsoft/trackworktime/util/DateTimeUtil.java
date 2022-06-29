@@ -259,4 +259,8 @@ public class DateTimeUtil {
 	public static String timestampNow() {
 		return LocalDateTime.now().format(TIMESTAMP);
 	}
+
+	public static OffsetDateTime truncateToMinute(OffsetDateTime dt) {
+		return dt.withSecond(0).withNano(0);
+	}
 }

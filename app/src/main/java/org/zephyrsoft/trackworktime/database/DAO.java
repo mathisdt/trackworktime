@@ -65,6 +65,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -301,7 +302,9 @@ public class DAO {
 		Event event = new Event();
 		event.setId(cursor.getInt(0));
 
-		Instant instant = Instant.ofEpochSecond(cursor.getLong(1));
+		long epochSeconds = cursor.getLong(1);
+		// truncate to whole minutes:
+		Instant instant = Instant.ofEpochSecond(epochSeconds - (epochSeconds % 60));
 		ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(cursor.getInt(2) * 60);
 		event.setDateTime(instant.atOffset(zoneOffset));
 
@@ -314,7 +317,7 @@ public class DAO {
 	private ContentValues eventToContentValues(Event event) {
 		ContentValues ret = new ContentValues();
 
-		OffsetDateTime dateTime = event.getDateTime();
+		OffsetDateTime dateTime = DateTimeUtil.truncateToMinute(event.getDateTime());
 		ret.put(EVENT_TIME, dateTime.toEpochSecond());
 		ret.put(EVENT_ZONE_OFFSET, dateTime.getOffset().getTotalSeconds() / 60);
 
@@ -449,7 +452,7 @@ public class DAO {
 	 */
 	public Event getLastEventBefore(OffsetDateTime dateTime) {
 		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " < \""
-			+ dateTime.toEpochSecond() + "\"", true, true);
+			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -463,7 +466,7 @@ public class DAO {
 	 */
 	public Event getLastEventUpTo(OffsetDateTime dateTime) {
 		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " <= \""
-			+ dateTime.toEpochSecond() + "\"", true, true);
+			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -476,7 +479,7 @@ public class DAO {
 	 */
 	public Event getFirstEventAfter(OffsetDateTime dateTime) {
 		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > \""
-			+ dateTime.toEpochSecond() + "\"", false, true);
+			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", false, true);
 		// if firstEvent is empty, then there is no such event in the database
 		return firstEvent.isEmpty() ? null : firstEvent.get(0);
 	}
