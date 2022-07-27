@@ -78,7 +78,7 @@ public class WeekStateCalculator {
 			TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, timerManager, startDate, handleFlexiTime);
 			timeCalc.setStartSums(timerManager.getTimesAt(startDate));
 		
-			weekState.topLeftCorner = "W " + startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+			weekState.topLeftCorner = context.getString(R.string.weekNumber, startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
 
 			DateTimeUtil.LocalizedDayAndShortDateFormatter formatter = new DateTimeUtil.LocalizedDayAndShortDateFormatter(context);
 			for (DayOfWeek day : DayOfWeek.values()) {

@@ -55,4 +55,6 @@
     <string name="keyLastAskedForDocumentTree">keyLastAskedForDocumentTree</string>
     <string name="keyGrantedDocumentTree">keyGrantedDocumentTree</string>
     <string name="keyPebbleNotification">keyPebbleNotification</string>
+    <string name="keyNeverUpdatePersistentNotification">keyNeverUpdatePersistentNotification</string>
+
 </resources>

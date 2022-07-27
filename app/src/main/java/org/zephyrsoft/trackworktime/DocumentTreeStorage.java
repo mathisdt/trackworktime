@@ -17,6 +17,7 @@ package org.zephyrsoft.trackworktime;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -226,7 +227,13 @@ public class DocumentTreeStorage {
                         Logger.debug(e, "couldn't use old granted directory {}", grantedDir);
                     }
                 }
-                activity.startActivityForResult(intent, requestCode);
+                try {
+                    activity.startActivityForResult(intent, requestCode);
+                } catch (ActivityNotFoundException anf) {
+                    Intent messageIntent = Basics.getOrCreateInstance(activity).createMessageIntent(
+                        activity.getString(R.string.noFileManagerApp), null);
+                    activity.startActivity(messageIntent);
+                }
                 // result is fetched e.g. in WorkTimeTrackerActivity.onActivityResult(...)
             }, () -> {
                 Logger.debug("document tree dialog cancelled");

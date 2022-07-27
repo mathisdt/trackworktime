@@ -85,7 +85,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
                 && newDate.isAfter(dateToTextViewController.getDate())) {
                 updateToDate(newDate);
                 Toast.makeText(InsertDefaultTimesActivity.this,
-                    "adjusted \"to\" date to match \"from\" date (\"to\" cannot be before \"from\")",
+                    getString(R.string.dateAdjustment1),
                     Toast.LENGTH_LONG).show();
             }
 
@@ -99,7 +99,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
                 && newDate.isBefore(dateFromTextViewController.getDate())) {
                 updateFromDate(newDate);
                 Toast.makeText(InsertDefaultTimesActivity.this,
-                    "adjusted \"from\" date to match \"to\" date (\"from\" cannot be after \"to\")",
+                    getString(R.string.dateAdjustment2),
                     Toast.LENGTH_LONG).show();
             }
 
@@ -108,7 +108,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
         dateToTextViewController = new DateTextViewController(binding.dateTo, toDateListener);
 
         TargetTimeValidityCheck targetTimeValidityCheck =
-            new TargetTimeValidityCheck(binding.targetTime, isValid -> binding.save.setEnabled(isValid));
+            new TargetTimeValidityCheck(binding.targetTime, isValid -> binding.save.setEnabled(isValid), this);
         binding.targetTime.addTextChangedListener(targetTimeValidityCheck);
 
         binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -202,7 +202,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
         } catch (Exception e) {
             Logger.warn(e, "problem while setting target {} from {} until {} / alsoOnNonWorkingDays={} / targetTime={}",
                 type, fromInclusive, toInclusive, alsoOnNonWorkingDays, targetTime);
-            Toast.makeText(this, "could not set target: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.couldNotSetTarget, e.getMessage()), Toast.LENGTH_LONG).show();
             return false;
         }
     }

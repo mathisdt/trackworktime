@@ -677,7 +677,7 @@ public class DAO {
 		final StringBuilder buf = new StringBuilder();
 		while (!cur.isAfterLast()) {
 			if (!cur.isNull(eventIdCol)) {
-				buf.append(TypeEnum.byValue(cur.getInt(eventTypeCol)).getReadableName());
+				buf.append(TypeEnum.byValue(cur.getInt(eventTypeCol)).getReadableName(context));
 				buf.append(";");
 
 				Instant instant = Instant.ofEpochSecond(cur.getLong(eventTimeCol));
@@ -756,8 +756,8 @@ public class DAO {
 
         String line;
         // cache values
-        final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName();
-        final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName();
+        final String clockInReadableName = TypeEnum.CLOCK_IN.getReadableName(context);
+        final String clockOutNowReadableName = TypeEnum.CLOCK_OUT_NOW.getReadableName(context);
 
 		while ((line = reader.readLine()) != null) {
             final String[] columns = RESTORE_PATTERN.split(line, -1);

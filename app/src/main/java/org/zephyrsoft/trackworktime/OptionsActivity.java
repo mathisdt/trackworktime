@@ -152,9 +152,7 @@ public class OptionsActivity extends AppCompatActivity {
                 Intent messageIntent = Basics
                     .getInstance()
                     .createMessageIntent(
-                        "The option \""
-                            + getString(sectionToDisable.getReadableNameResourceId())
-                            + "\" was disabled due to invalid settings.\n\nYou can re-enable it after you have checked the values you entered in that section.",
+                        getString(R.string.disabledDueToInvalidSettings, getString(sectionToDisable.getReadableNameResourceId())),
                         null);
 
                 startActivity(messageIntent);
@@ -190,6 +188,8 @@ public class OptionsActivity extends AppCompatActivity {
                 } else if (Key.DECIMAL_TIME_SUMS.getName().equals(keyName)
                     && WorkTimeTrackerActivity.getInstanceOrNull() != null) {
                     WorkTimeTrackerActivity.getInstanceOrNull().redrawWeekTable();
+                } else if (Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName().equals(keyName)) {
+                    Basics.getOrCreateInstance(getContext()).fixPersistentNotification();
                 }
             }
 

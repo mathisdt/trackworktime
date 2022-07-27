@@ -15,19 +15,23 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.content.Context;
+
+import org.zephyrsoft.trackworktime.R;
+
 public enum Range {
-	LAST("last"),
-	CURRENT("current"),
-	LAST_AND_CURRENT("last and current"),
-	ALL_DATA("all data");
+	LAST(R.string.reportRangeLast),
+	CURRENT(R.string.reportRangeCurrent),
+	LAST_AND_CURRENT(R.string.reportRangeLastAndCurrent),
+	ALL_DATA(R.string.reportRangeAllData);
 
-	private final String name;
+	private final int name;
 
-	Range(String name) {
+	Range(int name) {
 		this.name = name;
 	}
 
-	public String getName() {
-		return name;
+	public String getName(Context context) {
+		return context.getString(name);
 	}
 }

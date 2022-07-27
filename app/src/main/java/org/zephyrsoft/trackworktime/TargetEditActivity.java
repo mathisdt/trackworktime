@@ -114,7 +114,7 @@ public class TargetEditActivity extends AppCompatActivity
 					dateEdit.setError(null);
 					binding.save.setEnabled(true);
 				} else {
-					dateEdit.setError("Target is invalid");
+					dateEdit.setError(TargetEditActivity.this.getString(R.string.targetInvalid));
 					binding.save.setEnabled(false);
 				}
 			}

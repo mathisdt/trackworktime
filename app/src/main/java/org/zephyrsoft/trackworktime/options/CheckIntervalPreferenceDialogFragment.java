@@ -78,7 +78,7 @@ public class CheckIntervalPreferenceDialogFragment extends PreferenceDialogFragm
 					editText.setError(null);
 					buttonPositive.setEnabled(true);
 				} else {
-					editText.setError("Interval is invalid");
+					editText.setError(getString(R.string.invalidInterval));
 					buttonPositive.setEnabled(false);
 				}
 			}

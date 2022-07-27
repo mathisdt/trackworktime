@@ -15,6 +15,10 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.content.Context;
+
+import org.zephyrsoft.trackworktime.R;
+
 import java.time.LocalDate;
 
 /**
@@ -31,24 +35,24 @@ public class TargetWrapper {
         return wrapped.getDate();
     }
 
-    public static String getType(Target target) {
+    public static String getType(Target target, Context context) {
         TargetEnum type = TargetEnum.byValue(target.getType());
         if (type == TargetEnum.DAY_SET
             && target.getValue() != null
             && target.getValue() > 0) {
-            return "change target time";
+            return context.getString(R.string.targetTypeChangeTargetTime);
         } else if (type == TargetEnum.DAY_SET
             && (target.getValue() == null
             || target.getValue() == 0)) {
-            return "holiday / vacation / non-working day";
+            return context.getString(R.string.targetTypeNonWorking);
         } else if (type == TargetEnum.DAY_GRANT) {
-            return "working time = target time";
+            return context.getString(R.string.targetTypeWorkingEqualsTarget);
         }
-        return "unknown type";
+        return context.getString(R.string.targetTypeUnknown);
     }
 
-    public String getType() {
-        return getType(wrapped);
+    public String getType(Context context) {
+        return getType(wrapped, context);
     }
 
     public Integer getValue() {

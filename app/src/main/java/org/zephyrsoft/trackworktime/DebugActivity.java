@@ -61,7 +61,7 @@ public class DebugActivity extends AppCompatActivity {
             dao.deleteCacheFrom(null);
             dao.close();
 
-            Toast.makeText(this, "Cache deleted...", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.cacheDeleted), Toast.LENGTH_LONG).show();
         });
     }
 

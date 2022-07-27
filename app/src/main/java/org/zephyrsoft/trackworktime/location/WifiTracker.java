@@ -15,6 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.location;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
@@ -49,6 +51,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 
 	/** previous state of the wifi ssid occurence (from last check) */
 	private Boolean ssidWasPreviouslyInRange;
+	private Context context;
 
 	/**
 	 * Creates a new wifi-based tracker. By only creating it, the tracking does not start yet - you have to call
@@ -56,7 +59,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 	 */
 	public WifiTracker(TimerManager timerManager,
 		ExternalNotificationManager externalNotificationManager,
-		AudioManager audioManager, WifiScanner wifiScanner) {
+		AudioManager audioManager, WifiScanner wifiScanner, Context context) {
 		if (timerManager == null) {
 			throw new IllegalArgumentException("the TimerManager is null");
 		}
@@ -73,6 +76,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 		this.externalNotificationManager = externalNotificationManager;
 		this.audioManager = audioManager;
 		this.wifiScanner = wifiScanner;
+		this.context = context;
 	}
 
 	/**
@@ -132,7 +136,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 				if (vibrate && isVibrationAllowed()) {
 					tryVibration();
 				}
-				tryPebbleNotification("stopped tracking via WiFi");
+				tryPebbleNotification(context.getString(R.string.pebbleNotifyStopByWifi));
 				Logger.info("clocked out via wifi-based tracking");
 			}
 		} else if ((ssidWasPreviouslyInRange == null || !ssidWasPreviouslyInRange) && ssidIsNowInRange) {
@@ -143,7 +147,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 				if (vibrate && isVibrationAllowed()) {
 					tryVibration();
 				}
-				tryPebbleNotification("started tracking via WiFi");
+				tryPebbleNotification(context.getString(R.string.pebbleNotifyStartByWifi));
 				Logger.info("clocked in via wifi-based tracking");
 			}
 		}

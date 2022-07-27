@@ -68,6 +68,8 @@ public enum Key {
 	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled),
 	NOTIFICATION_USES_FLEXI_TIME_AS_TARGET("keyNotificationUsesFlexiTimeAsTarget", DataType.BOOLEAN,
 		NOTIFICATION_ENABLED, R.string.notificationUsesFlexiTimeAsTarget),
+	NEVER_UPDATE_PERSISTENT_NOTIFICATION("keyNeverUpdatePersistentNotification", DataType.BOOLEAN,
+		NOTIFICATION_ENABLED, R.string.neverUpdatePersistentNotification),
 	FLEXI_TIME_TO_ZERO_ON_EVERY_DAY("keyFlexiTimeToZeroOnEveryDay", DataType.BOOLEAN, NOTIFICATION_ENABLED,
 		R.string.flexiTimeToZeroOnEveryDay),
 	NOTIFICATION_ON_PEBBLE("keyPebbleNotification", DataType.BOOLEAN, null, R.string.pebbleNotification),

@@ -26,6 +26,7 @@ import android.os.IBinder;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.R;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,7 +50,8 @@ public class LocationTrackerService extends Service {
             startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
         }
         locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics
-            .getTimerManager(), basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE));
+            .getTimerManager(), basics.getExternalNotificationManager(), (AudioManager) getSystemService(Context.AUDIO_SERVICE),
+            getApplicationContext());
         // restart if service crashed previously
         basics.safeCheckLocationBasedTracking();
     }
@@ -95,12 +97,12 @@ public class LocationTrackerService extends Service {
             basics.disableLocationBasedTracking();
             basics
                 .showNotification(
-                    "Disabling the location-based tracking because of missing privileges!",
-                    "Disabled location-based tracking!",
-                    "(open to see details)",
+                    getString(R.string.trackingByLocationErrorText),
+                    getString(R.string.trackingByLocationErrorTitle),
+                    getString(R.string.trackingByLocationErrorSubtitle),
                     basics
                         .createMessagePendingIntent(
-                            "Track Work Time disabled the location-based tracking because of missing privileges. You can re-enable it in the options and then grant the required permissions.",
+                            getString(R.string.trackingByLocationErrorExplanation),
                             Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
                     Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID, false, null, null, null, null, null, null);
         } else if (result == Result.SUCCESS) {

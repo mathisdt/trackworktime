@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class DurationPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
@@ -74,7 +75,7 @@ public class DurationPreferenceDialogFragment extends PreferenceDialogFragmentCo
 					editText.setError(null);
 					buttonPositive.setEnabled(true);
 				} else {
-					editText.setError("Duration is invalid");
+					editText.setError(getString(R.string.invalidDuration));
 					buttonPositive.setEnabled(false);
 				}
 			}

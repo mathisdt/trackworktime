@@ -173,6 +173,10 @@
             android:key="@string/keyPebbleNotification"
             android:title="@string/pebbleNotification"
             android:summary="@string/pebbleNotificationDescription" />
+        <CheckBoxPreference
+            android:key="@string/keyNeverUpdatePersistentNotification"
+            android:summary="@string/neverUpdatePersistentNotificationDescription"
+            android:title="@string/neverUpdatePersistentNotification" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyBackupCategory"

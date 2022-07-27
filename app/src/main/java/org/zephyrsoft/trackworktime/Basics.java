@@ -41,6 +41,8 @@ import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import org.acra.ACRA;
 import org.pmw.tinylog.Configurator;
@@ -324,61 +326,90 @@ public class Basics extends BroadcastReceiver {
             Intent buttonOneIntent = new Intent(Constants.CLOCK_IN_ACTION);
             Intent buttonTwoIntent = new Intent(Constants.CLOCK_OUT_ACTION);
 
-            // calculated in home time zone
-            int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
-            String timeSoFar = DateTimeUtil.formatDuration(workedTime);
-            String targetTimeString = "";
-            if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-                Integer minutesRemaining = timerManager.getMinutesRemaining();
-
-                if (minutesRemaining != null) {
-                    if (minutesRemaining >= 0) {
-                        // target time in future
-                        LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
-
-                        if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
-                            String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime, getLocale());
-                            targetTimeString = "possible finishing time: " + targetTime;
-                        } else {
-                            targetTimeString = "target working time cannot be reached today!";
-                        }
-                    } else {
-                        // target time in past
-                        targetTimeString = "regular work time is over since "
-                            + TimerManager.formatTime(-minutesRemaining);
-                    }
-                } // else not a working day
+            String title;
+            String text = null;
+            if (preferences.getBoolean(Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName(), false)) {
+                title = context.getString(R.string.notificationTitle2);
             } else {
-                // no second line displayed because no flexi time can be calculated
+                // calculated in home time zone
+                int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
+                String timeSoFar = DateTimeUtil.formatDuration(workedTime);
+                title = context.getString(R.string.notificationTitle1, timeSoFar);
+                if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+                    Integer minutesRemaining = timerManager.getMinutesRemaining();
+
+                    if (minutesRemaining != null) {
+                        if (minutesRemaining >= 0) {
+                            // target time in future
+                            LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
+
+                            if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
+                                String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime, getLocale());
+                                text = context.getString(R.string.notificationText1, targetTime);
+                            } else {
+                                text = context.getString(R.string.notificationText2);
+                            }
+                        } else {
+                            // target time in past
+                            text = context.getString(R.string.notificationText3, TimerManager.formatTime(-minutesRemaining));
+                        }
+                    } // else not a working day
+                } else {
+                    // no second line displayed because no flexi time can be calculated
+                }
             }
-            Logger.debug("persistent notification: worked={} possiblefinish={}", timeSoFar, targetTimeString);
-            showNotification(null, "worked " + timeSoFar + " so far", targetTimeString,
-                PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT +
-                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                        ? PendingIntent.FLAG_IMMUTABLE
-                        : 0)),
-                Constants.PERSISTENT_STATUS_ID, true,
-                PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT +
-                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                        ? PendingIntent.FLAG_IMMUTABLE
-                        : 0)),
-                R.drawable.ic_menu_forward, context.getString(R.string.clockInChangeShort),
-                PendingIntent.getBroadcast(context, 0, buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT +
-                    (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                        ? PendingIntent.FLAG_IMMUTABLE
-                        : 0)),
-                R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOutShort));
-            Logger.debug("added persistent notification");
+            Logger.debug("prepared persistent notification: title={} text={}", title, text);
+            Boolean notificationActive = isNotificationActive(Constants.PERSISTENT_STATUS_ID);
+            if (preferences.getBoolean(Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName(), false)
+                && notificationActive != null
+                && notificationActive) {
+                Logger.debug("not updated persistent notification, configuration forbids it");
+            } else {
+                showNotification(null, title, text,
+                    PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT +
+                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE
+                            : 0)),
+                    Constants.PERSISTENT_STATUS_ID, true,
+                    PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT +
+                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE
+                            : 0)),
+                    R.drawable.ic_menu_forward, context.getString(R.string.clockInChangeShort),
+                    PendingIntent.getBroadcast(context, 0, buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT +
+                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE
+                            : 0)),
+                    R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOutShort));
+                Logger.debug("added persistent notification");
+            }
         } else {
             // try to remove
-            try {
-                NotificationManager notificationManager = (NotificationManager) context
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
-                Logger.debug("removed persistent notification");
-            } catch (Exception e) {
-                Logger.warn(e, "could not remove persistent notification");
-            }
+            safeRemovePersistentNotification();
+        }
+    }
+
+    private void safeRemovePersistentNotification() {
+        try {
+            NotificationManager notificationManager = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(Constants.PERSISTENT_STATUS_ID);
+            Logger.debug("removed persistent notification");
+        } catch (Exception e) {
+            Logger.warn(e, "could not remove persistent notification");
+        }
+    }
+
+    /**
+     * correct type of persistent notification (updatable or non-updatable)
+     * because the type was just changed in the options
+     */
+    public void fixPersistentNotification() {
+        Logger.debug("fixing persistent notification");
+        if (preferences.getBoolean(Key.NOTIFICATION_ENABLED.getName(), false)
+            && timerManager.isTracking()) {
+            safeRemovePersistentNotification();
+            checkPersistentNotification();
         }
     }
 
@@ -520,7 +551,7 @@ public class Basics extends BroadcastReceiver {
 
     /**
      * Check the current device location and use that as work place.
-     *
+     * <p>
      * Only to be called when all necessary permissions are granted!
      */
     @SuppressLint("MissingPermission")
@@ -541,24 +572,21 @@ public class Basics extends BroadcastReceiver {
                 editor.putString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), roundedLatitude);
                 String roundedLongitude = CoordinateUtil.roundCoordinate(longitude);
                 editor.putString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), roundedLongitude);
-                editor.putString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), String.valueOf(tolerance));
+
+                String toleranceStr = String.valueOf(tolerance);
+                editor.putString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), toleranceStr);
                 editor.commit();
 
                 Intent i = new Intent(activity, OptionsActivity.class);
                 activity.startActivity(i);
 
                 Intent messageIntent = createMessageIntent(
-                    "New values:\n\nLatitude = "
-                        + roundedLatitude
-                        + "\nLongitude = "
-                        + roundedLongitude
-                        + "\nTolerance = "
-                        + tolerance
-                        + "\n\nPlease review the settings in the options. "
+                    activity.getString(R.string.currentLocationAsWorkplaceSuccess,
+                        roundedLatitude, roundedLongitude, toleranceStr)
                         + (locationBasedTrackingEnabled
-                        ? "Location-based tracking was switched on already and is still enabled."
-                        : "You can now enable location-based tracking, just check \""
-                        + activity.getText(R.string.enableLocationBasedTracking) + "\"."), null);
+                        ? activity.getString(R.string.currentLocationAsWorkplaceSuccessExt1)
+                        : activity.getString(R.string.currentLocationAsWorkplaceSuccessExt2,
+                        activity.getText(R.string.enableLocationBasedTracking))), null);
                 activity.startActivity(messageIntent);
             }
 
@@ -566,7 +594,7 @@ public class Basics extends BroadcastReceiver {
             public void error(Throwable t) {
                 Logger.warn(t, "error receiving the current device location");
                 Intent messageIntent = createMessageIntent(
-                    "Could not get the current location. Please ensure that this app can access the coarse location.",
+                    activity.getString(R.string.currentLocationAsWorkplaceError),
                     null);
                 activity.startActivity(messageIntent);
             }
@@ -636,14 +664,21 @@ public class Basics extends BroadcastReceiver {
                                  PendingIntent buttonOneIntent, Integer buttonOneIcon, String buttonOneText,
                                  PendingIntent buttonTwoIntent, Integer buttonTwoIcon, String buttonTwoText) {
         try {
-            NotificationManager notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification.Builder notificationBuilder = new Notification.Builder(context)
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+            @SuppressWarnings("deprecation")
+            NotificationCompat.Builder notificationBuilder = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? new NotificationCompat.Builder(context, notificationChannel.getId())
+                : new NotificationCompat.Builder(context));
+            notificationBuilder
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationSubtitle)
                 .setContentIntent(clickIntent)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setTicker(scrollingText)
+                .setCategory(persistent
+                    ? (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Notification.CATEGORY_REMINDER : Notification.CATEGORY_PROGRESS)
+                    : Notification.CATEGORY_EVENT)
                 .setOnlyAlertOnce(true)
                 .setOngoing(persistent)
                 .setPriority(Notification.PRIORITY_DEFAULT)
@@ -658,12 +693,12 @@ public class Basics extends BroadcastReceiver {
                 notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
             }
             Notification notification = notificationBuilder.build();
-            Logger.debug("prepared notification {} / {} with button1={} and button2={}",
+            notificationManager.notify(notificationId, notification);
+            Logger.debug("displayed/updated notification {} / {} with button1={} and button2={}",
                 notificationTitle,
                 notificationSubtitle, buttonOneText, buttonTwoText);
-            notificationManager.notify(notificationId, notification);
         } catch (Exception e) {
-            Logger.warn(e, "could not display notification");
+            Logger.warn(e, "could not display/update notification");
         }
     }
 
@@ -708,7 +743,7 @@ public class Basics extends BroadcastReceiver {
                 : 0));
 
         Notification.Builder notificationBuilder = new Notification.Builder(context)
-            .setContentTitle("automatic clock-in by location and/or WiFi active")
+            .setContentTitle(context.getString(R.string.serviceNotificationTitle))
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_menu_mylocation)
             .setOngoing(true)
@@ -856,14 +891,14 @@ public class Basics extends BroadcastReceiver {
     }
 
     public boolean hasToRemoveAppFromBatteryOptimization() {
-        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
             && !pm.isIgnoringBatteryOptimizations(context.getPackageName());
     }
 
     @SuppressLint("BatteryLife")
     public void removeAppFromBatteryOptimization() {
-        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
             && !pm.isIgnoringBatteryOptimizations(context.getPackageName())) {
             Intent intent = new Intent();

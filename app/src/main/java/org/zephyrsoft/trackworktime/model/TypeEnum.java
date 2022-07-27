@@ -15,6 +15,10 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.content.Context;
+
+import org.zephyrsoft.trackworktime.R;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,21 +30,21 @@ public enum TypeEnum {
 	/**
 	 * clock-in type of event
 	 */
-	CLOCK_IN(Values.CLOCK_IN_VALUE, "in"),
+	CLOCK_IN(Values.CLOCK_IN_VALUE, R.string.eventTypeIn),
 	/**
 	 * clock-out type of event
 	 */
-	CLOCK_OUT(Values.CLOCK_OUT_VALUE, "out"),
+	CLOCK_OUT(Values.CLOCK_OUT_VALUE, R.string.eventTypeOut),
 	/**
 	 * clock-out now type of event used to display correct amount of worked time on current day when currently clocked
 	 * in - THIS TYPE NEVER COMES FROM THE DATABASE
 	 */
-	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, "out (current time)");
+	CLOCK_OUT_NOW(Values.CLOCK_OUT_NOW_VALUE, R.string.eventTypeOutNow);
 
 	private final Integer value;
-	private final String readableName;
+	private final int readableName;
 
-	TypeEnum(Integer value, String readableName) {
+	TypeEnum(Integer value, int readableName) {
 		this.value = value;
 		this.readableName = readableName;
 	}
@@ -52,8 +56,8 @@ public enum TypeEnum {
 		return value;
 	}
 
-	public String getReadableName() {
-		return readableName;
+	public String getReadableName(Context context) {
+		return context.getString(readableName);
 	}
 
 	@Override

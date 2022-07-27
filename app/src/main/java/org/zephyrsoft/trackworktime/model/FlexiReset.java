@@ -15,11 +15,13 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.options.Key;
 
 import java.time.DayOfWeek;
@@ -28,27 +30,27 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 public enum FlexiReset {
-	NONE(1, Unit.NULL, "none"),
-	DAILY(1, Unit.DAY, "daily"),
-	WEEKLY(1, Unit.WEEK, "weekly"),
-	MONTHLY(1, Unit.MONTH, "monthly"),
-	QUARTERLY(3, Unit.MONTH, "quarterly"),
-	HALF_YEARLY(6, Unit.MONTH, "half-yearly"),
-	YEARLY(12, Unit.MONTH, "yearly");
+	NONE(1, Unit.NULL, R.string.flexiResetNone),
+	DAILY(1, Unit.DAY, R.string.flexiResetDaily),
+	WEEKLY(1, Unit.WEEK, R.string.flexiResetWeekly),
+	MONTHLY(1, Unit.MONTH, R.string.flexiResetMonthly),
+	QUARTERLY(3, Unit.MONTH, R.string.flexiResetQuarterly),
+	HALF_YEARLY(6, Unit.MONTH, R.string.flexiResetHalfYearly),
+	YEARLY(12, Unit.MONTH, R.string.flexiResetYearly);
 
 	private final int intervalSize;
 	private final Unit intervalUnit;
-	private final String friendlyName;
+	private final int friendlyName;
 
 	FlexiReset(@IntRange(from=1) int intervalSize, @NonNull Unit intervalUnit,
-			@NonNull String friendlyName) {
+			int friendlyName) {
 		this.intervalSize = intervalSize;
 		this.intervalUnit = intervalUnit;
 		this.friendlyName = friendlyName;
 	}
 
-	public String getFriendlyName() {
-		return friendlyName;
+	public String getFriendlyName(Context context) {
+		return context.getString(friendlyName);
 	}
 
 	public @NonNull

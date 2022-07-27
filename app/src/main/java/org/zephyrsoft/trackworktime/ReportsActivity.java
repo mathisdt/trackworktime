@@ -87,7 +87,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 		dao = Basics.getInstance().getDao();
 		timeCalculator = Basics.getInstance().getTimeCalculator();
-		csvGenerator = new CsvGenerator(dao);
+		csvGenerator = new CsvGenerator(dao, this);
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		binding = ReportsBinding.inflate(getLayoutInflater());
@@ -262,7 +262,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createEventCsv(events);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -298,7 +298,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createSumsCsv(sums);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -335,7 +335,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -374,7 +374,7 @@ public class ReportsActivity extends AppCompatActivity {
 			task -> task.getName() + " (ID=" + task.getId() + ")");
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -413,7 +413,7 @@ public class ReportsActivity extends AppCompatActivity {
 			task -> task.getName() + " (ID=" + task.getId() + ")");
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -448,7 +448,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createTargetCsv(targets);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -467,7 +467,7 @@ public class ReportsActivity extends AppCompatActivity {
 			new String[] { "week", "target", "days" });
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -504,7 +504,7 @@ public class ReportsActivity extends AppCompatActivity {
 			new String[] { "month", "target", "days" });
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
 		if (report == null) {
-			logAndShowError("could not generate report " + reportName);
+			logAndShowError(reportName);
 			return null;
 		}
 
@@ -551,7 +551,7 @@ public class ReportsActivity extends AppCompatActivity {
 			List<Target> targets = dao.getTargets(rangeStart.toInstant(), rangeEnd.toInstant());
 			Map<String, Integer> sums = new HashMap<>();
 			for (Target target : targets) {
-				String key = TargetWrapper.getType(target)
+				String key = TargetWrapper.getType(target, this)
 					+ (StringUtils.isBlank(target.getComment()) ? "" : " - " + target.getComment());
 				if (!sums.containsKey(key)) {
 					sums.put(key, 0);
@@ -563,9 +563,9 @@ public class ReportsActivity extends AppCompatActivity {
 		return sumsPerRange;
 	}
 
-	private void logAndShowError(String errorMessage) {
-		Logger.error(errorMessage);
-		Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+	private void logAndShowError(String reportName) {
+		Logger.error("could not generate report " + reportName);
+		Toast.makeText(getApplicationContext(), getString(R.string.reportGenerationError, reportName), Toast.LENGTH_LONG).show();
 	}
 
 	private Range getSelectedRange() {
@@ -596,8 +596,8 @@ public class ReportsActivity extends AppCompatActivity {
 
 	private String getNameForSelection(Range range, Unit unit) {
 		return range == Range.ALL_DATA
-            ? range.getName()
-            : range.getName() + " " + unit.getName();
+            ? range.getName(this)
+            : range.getName(this) + " " + unit.getName(this);
 	}
 
 	/**
@@ -619,20 +619,19 @@ public class ReportsActivity extends AppCompatActivity {
 						}
 					});
 		} catch (Exception e) {
-			String errorMessage = "could not write report " + fileName;
-			Logger.error(errorMessage);
-			Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+			Logger.error("could not write report " + fileName);
+			Toast.makeText(getApplicationContext(), getString(R.string.reportWritingError, fileName), Toast.LENGTH_LONG).show();
 			return false;
 		}
 
 		// send the report
 		Intent sendingIntent = new Intent(Intent.ACTION_SEND);
-		sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Track Work Time Report");
-		sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "report time frame: " + reportName);
+		sendingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.reportTitle));
+		sendingIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.reportTimeFrame, reportName));
 		sendingIntent.putExtra(Intent.EXTRA_STREAM, reportUri);
 		sendingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		sendingIntent.setType("text/plain");
-		startActivity(Intent.createChooser(sendingIntent, "Send report..."));
+		startActivity(Intent.createChooser(sendingIntent, getString(R.string.sendReport)));
 
 		return true;
 	}

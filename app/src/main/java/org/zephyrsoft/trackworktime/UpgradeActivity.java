@@ -70,7 +70,7 @@ public class UpgradeActivity extends AppCompatActivity implements MigrationCallb
 
 	@Override
 	public void migrationDone() {
-		Toast.makeText(this, "Successfully migrated database.", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, getString(R.string.databaseMigrationSuccess), Toast.LENGTH_LONG).show();
 		finish();
 	}
 }

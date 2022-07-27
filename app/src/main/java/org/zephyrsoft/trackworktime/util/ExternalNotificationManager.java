@@ -23,6 +23,7 @@ import android.os.Vibrator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.options.Key;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class ExternalNotificationManager {
 				final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
 				final Map<String, String> data = new HashMap<>();
-				data.put("title", "Track Work Time");
+				data.put("title", context.getString(R.string.app_name));
 				data.put("body", message);
 				final JSONObject jsonData = new JSONObject(data);
 				final String notificationData = new JSONArray().put(jsonData).toString();

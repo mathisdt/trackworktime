@@ -60,7 +60,7 @@ public class FlexiIntervalPreference extends ListPreference {
 		List<String> values = new ArrayList<>();
 		List<String> names = new ArrayList<>();
 		for(FlexiReset flexiReset : FlexiReset.values()) {
-			String name = flexiReset.getFriendlyName();
+			String name = flexiReset.getFriendlyName(getContext());
 			names.add(name);
 			String value = flexiReset.name();
 			values.add(value);

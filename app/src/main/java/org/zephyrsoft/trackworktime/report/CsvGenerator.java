@@ -15,6 +15,8 @@
  */
 package org.zephyrsoft.trackworktime.report;
 
+import android.content.Context;
+
 import androidx.arch.core.util.Function;
 
 import org.pmw.tinylog.Logger;
@@ -53,9 +55,11 @@ import java.util.Map.Entry;
 public class CsvGenerator {
 
 	private final DAO dao;
+	private final Context context;
 
-	public CsvGenerator(DAO dao) {
+	public CsvGenerator(DAO dao, Context context) {
 		this.dao = dao;
+		this.context = context;
 	}
 
 	/** time, type, task, text */
@@ -78,7 +82,7 @@ public class CsvGenerator {
 					if (arg0 == null) {
 						throw new IllegalStateException("event type may not be null");
 					} else {
-						return TypeEnum.byValue((Integer) arg0).getReadableName();
+						return TypeEnum.byValue((Integer) arg0).getReadableName(context);
 					}
 				}
 			},

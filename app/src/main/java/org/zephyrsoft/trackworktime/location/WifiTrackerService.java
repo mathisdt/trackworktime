@@ -26,6 +26,7 @@ import android.os.IBinder;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.options.Key;
 
 import java.util.Objects;
@@ -65,7 +66,7 @@ public class WifiTrackerService extends Service {
             basics.getTimerManager(),
             basics.getExternalNotificationManager(),
             (AudioManager) getSystemService(Context.AUDIO_SERVICE),
-            wifiScanner);
+            wifiScanner, getApplicationContext());
 
         // restart if service crashed previously
         Basics.getOrCreateInstance(getApplicationContext()).safeCheckWifiBasedTracking();
@@ -114,12 +115,12 @@ public class WifiTrackerService extends Service {
             // disable the tracking and notify user of it
             basics.disableWifiBasedTracking();
             basics.showNotification(
-                "Disabling the wifi-based tracking because of missing privileges!",
-                "Disabled wifi-based tracking!",
-                "(open to see details)",
+                getString(R.string.trackingByWifiErrorText),
+                getString(R.string.trackingByWifiErrorTitle),
+                getString(R.string.trackingByWifiErrorSubtitle),
                 basics
                     .createMessagePendingIntent(
-                        "Track Work Time disabled the wifi-based tracking because of missing privileges. You can re-enable it in the options and then grant the required permissions.",
+                        getString(R.string.trackingByWifiErrorExplanation),
                         Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID),
                 Constants.MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID, false, null, null, null, null, null, null);
         } else if (result == Result.SUCCESS) {

@@ -15,20 +15,24 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import android.content.Context;
+
+import org.zephyrsoft.trackworktime.R;
+
 public enum Unit {
-	NULL("null"),
-	DAY("day"),
-	WEEK("week"),
-	MONTH("month"),
-	YEAR("year");
+	NULL(R.string.reportUnitNull),
+	DAY(R.string.reportUnitDay),
+	WEEK(R.string.reportUnitWeek),
+	MONTH(R.string.reportUnitMonth),
+	YEAR(R.string.reportUnitYear);
 
-	private final String name;
+	private final int name;
 
-	Unit(String name) {
+	Unit(int name) {
 		this.name = name;
 	}
 
-	public String getName() {
-		return name;
+	public String getName(Context context) {
+		return context.getString(name);
 	}
 }

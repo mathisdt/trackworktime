@@ -132,9 +132,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 				.getInstance()
 				.createMessageIntent(
 					disabledSections == 1
-						? "One option was disabled due to invalid values or value combinations.\n\nYou can re-enable it after you checked the values you entered."
-						: disabledSections
-							+ " options were disabled due to invalid values or value combinations.\n\nYou can re-enable them after you checked the values you entered.",
+						? getString(R.string.optionSectionDisabled)
+						: getString(R.string.optionSectionsDisabled, disabledSections),
 					null);
 			startActivity(messageIntent);
 		}
@@ -414,7 +413,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			? null
 			: binding.main.text.getText().toString();
 		timerManager.startTracking(minutesToPredate, selectedTask, description);
-		externalNotificationManager.notifyPebble("started tracking");
+		externalNotificationManager.notifyPebble(getString(R.string.pebbleNotifyStart));
 		refreshView();
 	}
 
@@ -450,7 +449,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 
 		timerManager.stopTracking(minutesToPredate);
-		externalNotificationManager.notifyPebble("stopped tracking");
+		externalNotificationManager.notifyPebble(getString(R.string.pebbleNotifyStop));
 		refreshView();
 	}
 
@@ -785,9 +784,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 				});
 			Toast.makeText(this, getString(R.string.logsExported), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
-			String msg = "failed to export logs";
-			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-			Logger.error(e, msg);
+			Toast.makeText(this, getString(R.string.exportLogsError), Toast.LENGTH_SHORT).show();
+			Logger.error(e, "failed to export logs");
 		}
 	}
 
