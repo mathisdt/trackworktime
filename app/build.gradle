@@ -63,7 +63,7 @@ android {
 }
 
 dependencies {
-    def acraVersion = "5.9.3"
+    def acraVersion = "5.9.6"
 
     implementation project(':timezonepicker')
 
