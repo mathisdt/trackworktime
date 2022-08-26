@@ -50,19 +50,28 @@
         </menu>
     </item>
 
-    <item
-        android:id="@+id/nav_export_logs"
-        android:icon="@drawable/ic_download"
-        android:title="@string/exportLogs" />
+    <item android:title="@string/advanced">
+        <menu>
+            <item
+                android:id="@+id/nav_export_logs"
+                android:icon="@drawable/ic_download"
+                android:title="@string/exportLogs" />
 
-    <item
-        android:id="@+id/nav_send_logs"
-        android:icon="@android:drawable/ic_menu_send"
-        android:title="@string/sendLogs" />
+            <item
+                android:id="@+id/nav_send_logs"
+                android:icon="@android:drawable/ic_menu_send"
+                android:title="@string/sendLogs" />
 
-    <item
-        android:id="@+id/nav_ignore_battery_optimizations"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/request_to_ignore_battery_optimizations"
-        android:visible="false" />
+            <item
+                android:id="@+id/nav_ignore_battery_optimizations"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:title="@string/request_to_ignore_battery_optimizations"
+                android:visible="false" />
+
+            <item
+                android:id="@+id/nav_select_data_directory"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:title="@string/select_data_directory"/>
+        </menu>
+    </item>
 </menu>

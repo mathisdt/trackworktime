@@ -55,6 +55,7 @@ public class Constants {
 	public static final int PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_RESTORE = 512;
 	public static final int PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_REPORT = 1024;
 	public static final int PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_LOGEXPORT = 2048;
+	public static final int PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_RESELECT = 4096;
 
 	// intent extra keys
 	/** used to transport the date via an intent's extended data */

@@ -210,10 +210,9 @@ public class DocumentTreeStorage {
     }
 
     @SuppressLint("ApplySharedPref")
-    public static void requestDirectoryGrant(Activity activity, int textResourceId, int requestCode) {
+    public static void requestDirectoryGrant(Activity activity, int requestCode, int textResourceId, String... textParameters) {
         Logger.debug("showing explanation dialog for document tree permission");
         PermissionsUtil.askForDocumentTreePermission(activity,
-            textResourceId,
             () -> {
                 Logger.debug("document tree dialog confirmed, asking for permission");
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -242,7 +241,9 @@ public class DocumentTreeStorage {
                 editor.putString(activity.getString(R.string.keyLastAskedForDocumentTree),
                         LocalDate.now().toString());
                 editor.commit();
-            });
+            },
+            textResourceId,
+            textParameters);
     }
 
     @SuppressLint({"WrongConstant", "ApplySharedPref"})
@@ -260,6 +261,16 @@ public class DocumentTreeStorage {
             editor.putString(activity.getString(R.string.keyGrantedDocumentTree), uri.toString());
             editor.remove(activity.getString(R.string.keyLastAskedForDocumentTree));
             editor.commit();
+        }
+    }
+
+    public static String getDirectoryName(Activity activity) {
+        String grantedDocumentTree = Basics.getOrCreateInstance(activity).getPreferences()
+            .getString(activity.getString(R.string.keyGrantedDocumentTree), null);
+        if (grantedDocumentTree == null) {
+            return "";
+        } else {
+            return grantedDocumentTree;
         }
     }
 

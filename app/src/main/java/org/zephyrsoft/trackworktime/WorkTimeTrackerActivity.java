@@ -633,11 +633,27 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		} else if (itemId == R.id.nav_ignore_battery_optimizations) {
 			showRequestToIgnoreBatteryOptimizations();
 
+		} else if (itemId == R.id.nav_select_data_directory) {
+			selectDataDirectory();
+
 		} else {
 			return false;
 		}
 
 		return true;
+	}
+
+	private void selectDataDirectory() {
+		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_RESELECT,
+				R.string.documentTreePermissionsRequestTextOnReselect,
+				DocumentTreeStorage.getDirectoryName(this));
+		} else {
+			DocumentTreeStorage.requestDirectoryGrant(this,
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP,
+				R.string.documentTreePermissionsRequestTextOnStart);
+		}
 	}
 
 	private Week getCurrentWeek() {
@@ -766,8 +782,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			doExportLogs();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
-					R.string.documentTreePermissionsRequestTextOnUserAction,
-					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_LOGEXPORT);
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_LOGEXPORT,
+				R.string.documentTreePermissionsRequestTextOnUserAction);
 		}
 	}
 
@@ -829,8 +845,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 		if (DocumentTreeStorage.shouldRequestDirectoryGrant(this)) {
 			DocumentTreeStorage.requestDirectoryGrant(this,
-				R.string.documentTreePermissionsRequestTextOnStart,
-				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP);
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP,
+				R.string.documentTreePermissionsRequestTextOnStart);
 		}
 
 		// request location permissions if necessary
@@ -938,7 +954,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
-		if (requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP
+		if ((requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP
+			|| requestCode == Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_RESELECT)
 			&& resultCode == RESULT_OK) {
 			if (intent != null) {
 				DocumentTreeStorage.saveDirectoryGrant(this, intent);
@@ -975,8 +992,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			doBackup();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
-					R.string.documentTreePermissionsRequestTextOnUserAction,
-					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_BACKUP);
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_BACKUP,
+				R.string.documentTreePermissionsRequestTextOnUserAction);
 		}
 	}
 
@@ -1050,8 +1067,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			doRestore();
 		} else {
 			DocumentTreeStorage.requestDirectoryGrant(this,
-					R.string.documentTreePermissionsRequestTextOnUserAction,
-					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_RESTORE);
+				Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_MANUAL_RESTORE,
+				R.string.documentTreePermissionsRequestTextOnUserAction);
 		}
 	}
 

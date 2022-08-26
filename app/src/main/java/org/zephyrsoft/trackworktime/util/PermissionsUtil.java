@@ -118,12 +118,13 @@ public class PermissionsUtil {
     }
 
     public static void askForDocumentTreePermission(Context context,
-                                                    int textResourceId,
                                                     Runnable positiveConsequence,
-                                                    Runnable negativeConsequence) {
+                                                    Runnable negativeConsequence,
+                                                    int textResourceId,
+                                                    String... textParameters) {
         new AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.documentTreePermissionsRequestTitle))
-            .setMessage(context.getString(textResourceId))
+            .setMessage(context.getString(textResourceId, textParameters))
             .setPositiveButton(android.R.string.ok, (dialog, which) -> positiveConsequence.run())
             .setNegativeButton(R.string.notNow, (dialog, which) -> negativeConsequence.run())
             .create()

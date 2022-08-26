@@ -184,9 +184,9 @@ public class ReportsActivity extends AppCompatActivity {
 		if (DocumentTreeStorage.hasValidDirectoryGrant(this)) {
 			doExport();
 		} else {
-			DocumentTreeStorage.requestDirectoryGrant(this,
-					R.string.documentTreePermissionsRequestTextOnUserAction,
-					Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_REPORT);
+            DocumentTreeStorage.requestDirectoryGrant(this,
+                Constants.PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_REPORT,
+                R.string.documentTreePermissionsRequestTextOnUserAction);
 		}
 	}
 

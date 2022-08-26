@@ -230,6 +230,7 @@
     <string name="documentTreePermissionsRequestTitle">Storage Permission</string>
     <string name="documentTreePermissionsRequestTextOnStart">This app needs a little space on your device to save a daily backup of your data and the reports you generate.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, no daily backups will be created and you can\'t generate any reports (you\'ll be asked again if you try).</string>
     <string name="documentTreePermissionsRequestTextOnUserAction">This feature needs to access your device\'s storage.\n\nPlease choose a directory in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a custom directory.\n\nIf you don\'t want that now, the feature will not be available.</string>
+    <string name="documentTreePermissionsRequestTextOnReselect">This app needs a little space on your device to save a daily backup of your data and the reports you generate.\n\nPlease select the directory of your choice in the following dialog, e.g. \"Documents\". Of course, you\'re also welcome to create a new directory.\n\nIf you cancel this, the directory you selected previously will stay active:\n\n%1$s</string>
     <string name="notNow">Not Now</string>
     <string name="enableFlexiTimeOrItWontWork">Please configure and enable Flexi Time in the options, else this won\'t work.</string>
     <string name="alsoOnNonWorkingDays">also on non-working days</string>
@@ -314,4 +315,6 @@
     <string name="invalidDuration">Duration is invalid</string>
     <string name="invalidTarget">Target is invalid</string>
     <string name="weekNumber">W %1$d</string>
+    <string name="advanced">Advanced</string>
+    <string name="select_data_directory">Select Data Directory</string>
 </resources>
