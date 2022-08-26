@@ -43,6 +43,7 @@ import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetWrapper;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeSum;
+import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
@@ -539,6 +540,13 @@ public class ReportsActivity extends AppCompatActivity {
 			ZonedDateTime rangeStart = rangeBeginnings.get(i);
 			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
 			List<Event> events = dao.getEvents(rangeStart.toInstant(), rangeEnd.toInstant());
+			ZonedDateTime now = ZonedDateTime.now();
+			if (rangeStart.isBefore(now) && rangeEnd.isAfter(now)
+				&& !events.isEmpty()
+				&& events.get(events.size() - 1).getTypeEnum() == TypeEnum.CLOCK_IN
+				&& events.get(events.size() - 1).getDateTime().isBefore(now.toOffsetDateTime())) {
+				events.add(new Event(null, null, TypeEnum.CLOCK_OUT_NOW.getValue(), now.toOffsetDateTime(), null));
+			}
 			truncateEventsToMinute(events);
 			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
 			sumsPerRange.put(rangeStart, sums);
