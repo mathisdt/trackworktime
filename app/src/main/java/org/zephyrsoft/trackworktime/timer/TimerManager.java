@@ -154,6 +154,16 @@ public class TimerManager {
 	}
 
 	/**
+	 * @return the timestamp - or {@code null} if currently not clocked in
+	 */
+	public OffsetDateTime getLastClockIn() {
+		Event latestEvent = dao.getLastEventUpTo(OffsetDateTime.now());
+		return latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())
+			? latestEvent.getDateTime()
+			: null;
+	}
+
+	/**
 	 * Returns {@code true} if the options are set in a way that an event is in the defined time before/after an
 	 * existing event (not counting CLOCK_OUT_NOW).
 	 */

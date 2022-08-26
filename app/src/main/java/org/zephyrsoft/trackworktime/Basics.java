@@ -68,6 +68,7 @@ import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
@@ -329,7 +330,8 @@ public class Basics extends BroadcastReceiver {
             String title;
             String text = null;
             if (preferences.getBoolean(Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName(), false)) {
-                title = context.getString(R.string.notificationTitle2);
+                OffsetDateTime lastClockIn = timerManager.getLastClockIn();
+                title = context.getString(R.string.notificationTitle2, DateTimeUtil.formatLocalizedTime(lastClockIn, getLocale()));
             } else {
                 // calculated in home time zone
                 int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);

@@ -248,7 +248,7 @@
     <string name="end">End</string>
     <string name="noFileManagerApp">No file manager app available which supports opening directories!\n\nPlease install one, e.g. "Simple File Manager" by "Simple Mobile Tools".</string>
     <string name="notificationTitle1">worked %1$s so far</string>
-    <string name="notificationTitle2">currently clocked in</string>
+    <string name="notificationTitle2">clocked in since %1$s</string>
     <string name="notificationText1">possible finishing time: %1$s</string>
     <string name="notificationText2">target working time cannot be reached today!</string>
     <string name="notificationText3">regular work time is over since %1$s</string>
