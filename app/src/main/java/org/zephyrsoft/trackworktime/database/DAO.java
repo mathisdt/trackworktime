@@ -65,7 +65,6 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -317,7 +316,8 @@ public class DAO {
 	private ContentValues eventToContentValues(Event event) {
 		ContentValues ret = new ContentValues();
 
-		OffsetDateTime dateTime = DateTimeUtil.truncateToMinute(event.getDateTime());
+		// don't truncate to minutes here, we save the data exact to the second - it's truncated to minutes on reading
+		OffsetDateTime dateTime = event.getDateTime();
 		ret.put(EVENT_TIME, dateTime.toEpochSecond());
 		ret.put(EVENT_ZONE_OFFSET, dateTime.getOffset().getTotalSeconds() / 60);
 
@@ -452,7 +452,7 @@ public class DAO {
 	 */
 	public Event getLastEventBefore(OffsetDateTime dateTime) {
 		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " < \""
-			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", true, true);
+			+ dateTime.toEpochSecond() + "\"", true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -466,7 +466,7 @@ public class DAO {
 	 */
 	public Event getLastEventUpTo(OffsetDateTime dateTime) {
 		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " <= \""
-			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", true, true);
+			+ dateTime.toEpochSecond() + "\"", true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -479,7 +479,7 @@ public class DAO {
 	 */
 	public Event getFirstEventAfter(OffsetDateTime dateTime) {
 		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > \""
-			+ DateTimeUtil.truncateToMinute(dateTime).toEpochSecond() + "\"", false, true);
+			+ dateTime.toEpochSecond() + "\"", false, true);
 		// if firstEvent is empty, then there is no such event in the database
 		return firstEvent.isEmpty() ? null : firstEvent.get(0);
 	}
@@ -510,15 +510,6 @@ public class DAO {
 		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, null, false, true);
 		// if firstEvent is empty, then there is no event in the database
 		return firstEvent.isEmpty() ? null : firstEvent.get(0);
-	}
-
-	/**
-	 * Return the last recorded event or {@code null} if no event exists.
-	 */
-	public Event getLatestEvent() {
-		List<Event> latestEvent = getEventsWithParameters(MAX_EVENT_FIELDS, null, false, true);
-		// if latestEvent is empty, then there is no event in the database
-		return latestEvent.isEmpty() ? null : latestEvent.get(0);
 	}
 
 	private synchronized List<Event> getEventsWithParameters(String[] fields, String constraint,

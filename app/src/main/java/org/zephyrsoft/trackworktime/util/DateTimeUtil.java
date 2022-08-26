@@ -19,6 +19,7 @@ import android.content.Context;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.model.Event;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -33,6 +34,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Collection;
 import java.util.Locale;
 
 /**
@@ -260,7 +262,23 @@ public class DateTimeUtil {
 		return LocalDateTime.now().format(TIMESTAMP);
 	}
 
+	public static void truncateEventsToMinute(Collection<Event> events) {
+		if (events != null) {
+			for (Event event : events) {
+				truncateEventToMinute(event);
+			}
+		}
+	}
+
+	public static void truncateEventToMinute(Event event) {
+		if (event != null && event.getDateTime() != null) {
+			event.setDateTime(truncateToMinute(event.getDateTime()));
+		}
+	}
+
 	public static OffsetDateTime truncateToMinute(OffsetDateTime dt) {
-		return dt.withSecond(0).withNano(0);
+		return dt != null
+			? dt.withSecond(0).withNano(0)
+			: null;
 	}
 }

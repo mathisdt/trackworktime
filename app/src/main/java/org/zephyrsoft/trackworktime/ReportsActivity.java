@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime;
 
 import static android.view.View.NO_ID;
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateEventsToMinute;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -258,6 +259,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
 		List<Event> events = dao.getEvents(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
+		truncateEventsToMinute(events);
 
 		String report = csvGenerator.createEventCsv(events);
 		String reportName = getNameForSelection(selectedRange, selectedUnit);
@@ -293,6 +295,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
 		List<Event> events = dao.getEvents(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
+		truncateEventsToMinute(events);
 		Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0].toOffsetDateTime(), beginAndEnd[1].toOffsetDateTime(), events);
 
 		String report = csvGenerator.createSumsCsv(sums);
@@ -536,6 +539,7 @@ public class ReportsActivity extends AppCompatActivity {
 			ZonedDateTime rangeStart = rangeBeginnings.get(i);
 			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
 			List<Event> events = dao.getEvents(rangeStart.toInstant(), rangeEnd.toInstant());
+			truncateEventsToMinute(events);
 			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
 			sumsPerRange.put(rangeStart, sums);
 		}

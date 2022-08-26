@@ -15,6 +15,8 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateToMinute;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -159,7 +161,7 @@ public class TimerManager {
 	public OffsetDateTime getLastClockIn() {
 		Event latestEvent = dao.getLastEventUpTo(OffsetDateTime.now());
 		return latestEvent != null && latestEvent.getType().equals(TypeEnum.CLOCK_IN.getValue())
-			? latestEvent.getDateTime()
+			? truncateToMinute(latestEvent.getDateTime())
 			: null;
 	}
 

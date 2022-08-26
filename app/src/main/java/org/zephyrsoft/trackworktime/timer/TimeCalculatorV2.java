@@ -15,6 +15,9 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateEventToMinute;
+import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateEventsToMinute;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -158,6 +161,7 @@ public class TimeCalculatorV2 {
 		// get last event before start
 		this.lastEventBeforeDay =
 				dao.getLastEventBefore(this.startDate.atStartOfDay(zoneId).toOffsetDateTime());
+		truncateEventToMinute(this.lastEventBeforeDay);
 
 		// get next flexi reset
 		if (flexiReset != FlexiReset.NONE) {
@@ -317,10 +321,12 @@ public class TimeCalculatorV2 {
 		if (!isToday) {
 			Logger.debug("Fetching events for day: {}", currentDate);
 			events = dao.getEventsOnDay(currentDate.atStartOfDay(zoneId));
+			truncateEventsToMinute(events);
 
 		} else {
 			Logger.debug("Fetching events for today");
 			events = dao.getEventsOnDayUpTo(now);
+			truncateEventsToMinute(events);
 
 			currentDayHasEvents = (events != null && !events.isEmpty());
 
@@ -349,6 +355,7 @@ public class TimeCalculatorV2 {
 
 			// add remaining events for today
 			List<Event> eventsAfter = dao.getEventsOnDayAfter(now);
+			truncateEventsToMinute(eventsAfter);
 			events.addAll(eventsAfter);
 		}
 
