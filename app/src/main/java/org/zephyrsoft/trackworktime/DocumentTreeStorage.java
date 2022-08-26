@@ -40,6 +40,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -270,7 +273,12 @@ public class DocumentTreeStorage {
         if (grantedDocumentTree == null) {
             return "";
         } else {
-            return grantedDocumentTree;
+            try {
+                return URLDecoder.decode(grantedDocumentTree, StandardCharsets.UTF_8.name());
+            } catch (UnsupportedEncodingException e) {
+                // won't happen, but Java expects something as outcome
+                throw new RuntimeException(e);
+            }
         }
     }
 
