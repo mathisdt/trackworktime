@@ -15,7 +15,7 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.content.Context;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -28,24 +28,24 @@ import org.zephyrsoft.trackworktime.util.BackupUtil;
 
 public class AutomaticBackup extends Worker {
 
-    private final Context context;
+    private final Activity activity;
 
-    public AutomaticBackup(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-        this.context = context;
+    public AutomaticBackup(@NonNull Activity activity, @NonNull WorkerParameters workerParams) {
+        super(activity, workerParams);
+        this.activity = activity;
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        if (!DocumentTreeStorage.hasValidDirectoryGrant(context)) {
+        if (!DocumentTreeStorage.hasValidDirectoryGrant(activity)) {
             Logger.warn("automatic backup failed because no document tree access has been granted");
-            return Result.failure(new Data.Builder().putString("error", context.getString(R.string.noDirectoryAccessGrantedError)).build());
+            return Result.failure(new Data.Builder().putString("error", activity.getString(R.string.noDirectoryAccessGrantedError)).build());
         }
-        final BackupFileInfo info = BackupFileInfo.getBackupFiles(context, false, true);
+        final BackupFileInfo info = BackupFileInfo.getBackupFiles(activity, false, true);
 
         Logger.info("starting automatic backup");
-        BackupUtil.doBackup(context, info);
+        BackupUtil.doBackup(activity, info);
         return Result.success();
     }
 }

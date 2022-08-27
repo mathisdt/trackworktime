@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime.util;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -96,20 +97,20 @@ public class PermissionsUtil {
         return result;
     }
 
-    public static void askForLocationPermission(Context context, Runnable positiveConsequence, Runnable negativeConsequence) {
-        new AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.locationPermissionsRequestTitle))
-            .setMessage(context.getString(R.string.locationPermissionsRequestText)
+    public static void askForLocationPermission(Activity activity, Runnable positiveConsequence, Runnable negativeConsequence) {
+        new AlertDialog.Builder(activity)
+            .setTitle(activity.getString(R.string.locationPermissionsRequestTitle))
+            .setMessage(activity.getString(R.string.locationPermissionsRequestText)
                 + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                ? context.getString(R.string.locationPermissionsRequestTextSupplementForAPI29)
+                ? activity.getString(R.string.locationPermissionsRequestTextSupplementForAPI29)
                 : "")
                 + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                ? String.format(context.getString(R.string.locationPermissionsRequestTextSupplementForAPI30),
-                    context.getPackageManager().getBackgroundPermissionOptionLabel())
+                ? String.format(activity.getString(R.string.locationPermissionsRequestTextSupplementForAPI30),
+                    activity.getPackageManager().getBackgroundPermissionOptionLabel())
                 : ""))
             .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                Basics.getOrCreateInstance(context).disableLocationBasedTracking();
-                Basics.getOrCreateInstance(context).disableWifiBasedTracking();
+                Basics.get(activity).disableLocationBasedTracking();
+                Basics.get(activity).disableWifiBasedTracking();
                 negativeConsequence.run();
             })
             .setPositiveButton(android.R.string.ok, (dialog, which) -> positiveConsequence.run())
@@ -124,7 +125,7 @@ public class PermissionsUtil {
                                                     String... textParameters) {
         new AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.documentTreePermissionsRequestTitle))
-            .setMessage(context.getString(textResourceId, textParameters))
+            .setMessage(context.getString(textResourceId, (Object[]) textParameters))
             .setPositiveButton(android.R.string.ok, (dialog, which) -> positiveConsequence.run())
             .setNegativeButton(R.string.notNow, (dialog, which) -> negativeConsequence.run())
             .create()

@@ -17,6 +17,7 @@ package org.zephyrsoft.trackworktime.backup;
 
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -58,20 +59,19 @@ public class BackupFileInfo {
             + "\n" + preferencesBackupFile;
     }
 
-    public String listAvailable(Context context) {
-        // TODO use StringJoiner
+    public String listAvailable(Activity activity) {
         String separator = "";
         StringBuilder sb = new StringBuilder();
 
-        if (exists(context, type, eventsBackupFile)) {
+        if (exists(activity, type, eventsBackupFile)) {
             sb.append(eventsBackupFile);
             separator = "\n";
         }
-        if (exists(context, type, targetsBackupFile)) {
+        if (exists(activity, type, targetsBackupFile)) {
             sb.append(separator).append(targetsBackupFile);
             separator = "\n";
         }
-        if (exists(context, type, preferencesBackupFile)) {
+        if (exists(activity, type, preferencesBackupFile)) {
             sb.append(separator).append(preferencesBackupFile);
         }
 

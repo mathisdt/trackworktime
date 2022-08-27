@@ -55,7 +55,7 @@ public class DebugActivity extends AppCompatActivity {
         binding.resetCache.setOnClickListener(v -> {
             Logger.debug("Deleting cache...");
 
-            Basics basics = Basics.getOrCreateInstance(getApplicationContext());
+            Basics basics = Basics.get(this);
             DAO dao = basics.getDao();
 
             dao.deleteCacheFrom(null);

@@ -54,7 +54,7 @@ public class UpgradeActivity extends AppCompatActivity implements MigrationCallb
 			binding.migrationProgress.setVisibility(View.VISIBLE);
 
 			// save home time zone
-			Basics basics = Basics.getOrCreateInstance(getApplicationContext());
+			Basics basics = Basics.get(this);
 			basics.setHomeTimeZone(binding.timeZonePicker.getZoneId());
 
 			// start migration

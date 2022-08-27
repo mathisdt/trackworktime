@@ -53,6 +53,7 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
+import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class EventListActivity extends AppCompatActivity {
 
 	private static final String BUNDLE_KEY_WEEK_START_DATE = "BUNDLE_KEY_WEEK_START_DATE";
 
-	private static EventListActivity instance = null;
+	private static WeakReference<EventListActivity> instance = null;
 
 	private DAO dao = null;
 	private TimerManager timerManager = null;
@@ -94,7 +95,7 @@ public class EventListActivity extends AppCompatActivity {
 
 	@Override
 	protected void onResume() {
-		locale = Basics.getOrCreateInstance(this).getLocale();
+		locale = Basics.get(this).getLocale();
 		super.onResume();
 	}
 
@@ -102,7 +103,7 @@ public class EventListActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		locale = Basics.getOrCreateInstance(this).getLocale();
+		locale = Basics.get(this).getLocale();
 
 		ListActivityBinding binding = ListActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -114,10 +115,10 @@ public class EventListActivity extends AppCompatActivity {
 
 		RecyclerView myRecyclerView = binding.recyclerView;
 
-		instance = this;
+		instance = new WeakReference<>(this);
 
-		dao = Basics.getInstance().getDao();
-		timerManager = Basics.getInstance().getTimerManager();
+		dao = Basics.get(this).getDao();
+		timerManager = Basics.get(this).getTimerManager();
 
 		long epochDay = getIntent().getLongExtra(Constants.WEEK_START_EXTRA_KEY, -1);
 		if (epochDay >= 0) {
@@ -293,10 +294,12 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	/**
-	 * Getter for the singleton.
+	 * Getter for the weakly referenced instance.
 	 */
 	public static EventListActivity getInstance() {
-		return instance;
+		return instance == null
+			? null
+			: instance.get();
 	}
 
 	private ActionMode myActionMode;
@@ -348,7 +351,7 @@ public class EventListActivity extends AppCompatActivity {
 								refreshView();
 							}
 
-							Basics.getInstance().safeCheckExternalControls();
+							Basics.get(EventListActivity.this).safeCheckExternalControls();
 						});
 				alert.setNegativeButton(getString(R.string.cancel),
 						(dialog, which) -> {

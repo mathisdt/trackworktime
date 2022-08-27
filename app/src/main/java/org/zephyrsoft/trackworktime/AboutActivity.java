@@ -55,7 +55,7 @@ public class AboutActivity extends AppCompatActivity {
 
 		String aboutText = readRawTextFile(R.raw.about);
 		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
-		CharSequence version = Basics.getInstance().getVersionName();
+		CharSequence version = Basics.get(this).getVersionName();
 
 		CharSequence email = getApplicationContext().getResources().getText(R.string.email);
 		aboutText = MessageFormat.format(aboutText, name, version, email);

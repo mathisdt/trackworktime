@@ -56,6 +56,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class WorkTimeTrackerApplication extends Application {
 
+	private Basics basics;
+
+	public WorkTimeTrackerApplication() {
+		Logger.info("instantiating application");
+	}
+
 	@Override
 	public void onCreate() {
 		Logger.info("creating application");
@@ -101,8 +107,11 @@ public class WorkTimeTrackerApplication extends Application {
 
 		ACRA.init(this, builder);
 		ACRA.log = new TinylogAndLogcatLogger();
-		Basics.getOrCreateInstance(getApplicationContext()).setNotificationChannel(notificationChannel);
-		Basics.getOrCreateInstance(getApplicationContext()).setServiceNotificationChannel(serviceNotificationChannel);
+
+		basics = new Basics(this);
+
+		basics.setNotificationChannel(notificationChannel);
+		basics.setServiceNotificationChannel(serviceNotificationChannel);
 
 		try {
 			PeriodicWorkRequest automaticBackup = new PeriodicWorkRequest.Builder(AutomaticBackup.class, 24, TimeUnit.HOURS, 6, TimeUnit.HOURS)
@@ -114,7 +123,6 @@ public class WorkTimeTrackerApplication extends Application {
 			Logger.error(e.getMessage());
 		}
 
-
 		Logger.info("handing off to super");
 		super.onCreate();
 	}
@@ -122,8 +130,8 @@ public class WorkTimeTrackerApplication extends Application {
 	@Override
 	public void onTerminate() {
 		Logger.info("terminating application");
-		Basics.getOrCreateInstance(getApplicationContext()).getDao().close();
-		Basics.getInstance().unregisterThirdPartyReceiver();
+		basics.getDao().close();
+		basics.unregisterThirdPartyReceiver();
 		super.onTerminate();
 	}
 
@@ -131,6 +139,10 @@ public class WorkTimeTrackerApplication extends Application {
 	public void onLowMemory() {
 		Logger.info("low memory for application");
 		super.onLowMemory();
+	}
+
+	public Basics getBasics() {
+		return basics;
 	}
 
 }

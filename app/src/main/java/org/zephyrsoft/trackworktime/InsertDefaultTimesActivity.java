@@ -62,8 +62,8 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        dao = Basics.getInstance().getDao();
-        timerManager = Basics.getInstance().getTimerManager();
+        dao = Basics.get(this).getDao();
+        timerManager = Basics.get(this).getTimerManager();
 
         binding = DefaultTimesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -246,7 +246,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
         updateFromDate(now);
         updateToDate(now);
 
-        boolean flexiTimeEnabled = Basics.getInstance().getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
+        boolean flexiTimeEnabled = Basics.get(this).getPreferences().getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
         if (!flexiTimeEnabled) {
             Toast.makeText(this, R.string.enableFlexiTimeOrItWontWork, Toast.LENGTH_LONG).show();
         }

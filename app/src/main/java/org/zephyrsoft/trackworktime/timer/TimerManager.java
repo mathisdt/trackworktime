@@ -244,7 +244,7 @@ public class TimerManager {
 			taskToLink = dao.getDefaultTask();
 		}
 		createEvent(minutesToPredate, (taskToLink == null ? null : taskToLink.getId()), TypeEnum.CLOCK_IN, text);
-		Basics.getInstance().safeCheckExternalControls();
+		Basics.get(context).safeCheckExternalControls();
 	}
 
 	/**
@@ -255,7 +255,7 @@ public class TimerManager {
 	 */
 	public void stopTracking(int minutesToPredate) {
 		createEvent(minutesToPredate, null, TypeEnum.CLOCK_OUT, null);
-		Basics.getInstance().safeCheckExternalControls();
+		Basics.get(context).safeCheckExternalControls();
 	}
 
 	/**
@@ -617,7 +617,7 @@ public class TimerManager {
 		dao.deleteCacheFrom(event.getDateTime().toLocalDate());
 
 		if (!insertedByRestore) {
-			Basics.getInstance().safeCheckExternalControls();
+			Basics.get(context).safeCheckExternalControls();
 		}
 		notifyListeners();
 	}

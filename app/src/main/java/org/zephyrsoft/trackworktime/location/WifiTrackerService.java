@@ -48,7 +48,7 @@ public class WifiTrackerService extends Service {
     @Override
     public void onCreate() {
         Logger.info("creating WifiTrackerService");
-        basics = Basics.getOrCreateInstance(getApplicationContext());
+        basics = Basics.get(getApplicationContext());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
         }
@@ -69,7 +69,7 @@ public class WifiTrackerService extends Service {
             wifiScanner, getApplicationContext());
 
         // restart if service crashed previously
-        Basics.getOrCreateInstance(getApplicationContext()).safeCheckWifiBasedTracking();
+        Basics.get(getApplication()).safeCheckWifiBasedTracking();
     }
 
     @Override

@@ -48,7 +48,7 @@ public class WeekTimesView extends LinearLayout {
 
 	public WeekTimesView(@NonNull Context context) {
 		super(context);
-		preferences = Basics.getOrCreateInstance(context).getPreferences();
+		preferences = Basics.get(context).getPreferences();
 		startLayoutLoading();
 	}
 

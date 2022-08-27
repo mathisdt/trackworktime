@@ -54,8 +54,8 @@
         </provider>
 
         <receiver
-            android:name=".Basics"
-            android:exported="false">
+            android:name=".BootCompletedReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE" />

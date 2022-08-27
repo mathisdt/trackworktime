@@ -18,11 +18,11 @@ package org.zephyrsoft.trackworktime;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -79,7 +79,7 @@ import java.util.Locale;
  * tracking is enabled) and/or the wifi-based tracking service. Also schedules periodic intents for {@link Watchdog}
  * which in turn checks if {@link LocationTrackerService} needs to be (re-)started.
  */
-public class Basics extends BroadcastReceiver {
+public class Basics {
 
     private Context context = null;
     private SharedPreferences preferences = null;
@@ -92,45 +92,22 @@ public class Basics extends BroadcastReceiver {
     private NotificationChannel serviceNotificationChannel = null;
     private ThirdPartyReceiver thirdPartyReceiver;
 
-    private static Basics instance = null;
-
-    /**
-     * Fetches the singleton.
-     */
-    public static Basics getInstance() {
-        return instance;
-    }
-
-    /**
-     * Creates the singleton if not already created.
-     */
-    public static Basics getOrCreateInstance(Context androidContext) {
-        if (instance == null) {
-            Logger.debug("created a new Basics instance from context {}", androidContext);
-            instance = new Basics();
-            instance.receivedIntent(androidContext);
-        }
-        return instance;
-    }
-
-    @Override
-    public void onReceive(Context androidContext, Intent intent) {
-        // always only use the one instance
-        instance.receivedIntent(androidContext);
-    }
-
-    /**
-     * Forwarding from {@link #onReceive(Context, Intent)}, but this method is only called on the singleton instance -
-     * no matter how many instances Android might choose to create of this class.
-     */
-    public void receivedIntent(Context androidContext) {
-        context = androidContext;
+    public Basics(Context context) {
+        Logger.info("instantiating Basics");
+        this.context = context;
         init();
         schedulePeriodicIntents();
     }
 
     private void init() {
+        if (context == null) {
+            throw new IllegalStateException("no context set");
+        }
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (dao != null) {
+            // let's be nice in case this was already initialized
+            dao.close();
+        }
         dao = new DAO(context);
 
         // run database migrations if needed
@@ -155,6 +132,32 @@ public class Basics extends BroadcastReceiver {
             .writingThread(threadToObserve, 1)
             .activate();
         Logger.info("logger initialized - writing thread observes \"{}\"", threadToObserve);
+    }
+
+    public static Basics get(Context context) {
+        if (context != null && context.getApplicationContext() instanceof WorkTimeTrackerApplication) {
+            return get((WorkTimeTrackerApplication) context.getApplicationContext());
+        } else {
+            throw new IllegalStateException("no context given or of wrong type: " + context);
+        }
+    }
+
+    public static Basics get(Activity activity) {
+        if (activity != null) {
+            return get(activity.getApplication());
+        } else {
+            throw new IllegalStateException("no activity given");
+        }
+    }
+
+    public static Basics get(Application application) {
+        if (application instanceof WorkTimeTrackerApplication) {
+            return ((WorkTimeTrackerApplication) application).getBasics();
+        } else if (application == null) {
+            throw new IllegalStateException("no application given");
+        } else {
+            throw new IllegalStateException("application was of type " + application.getClass());
+        }
     }
 
     private void registerThirdPartyReceiver() {
@@ -203,7 +206,7 @@ public class Basics extends BroadcastReceiver {
         this.serviceNotificationChannel = serviceNotificationChannel;
     }
 
-    private void schedulePeriodicIntents() {
+    public void schedulePeriodicIntents() {
         AlarmManager service = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intentToSchedule = new Intent(context, Watchdog.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intentToSchedule,
@@ -219,6 +222,7 @@ public class Basics extends BroadcastReceiver {
         // schedule once every minute
         service.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), Constants.REPEAT_TIME,
             pendingIntent);
+        Logger.info("scheduled periodic intents for watchdog");
     }
 
     /**
@@ -236,11 +240,11 @@ public class Basics extends BroadcastReceiver {
     }
 
     /**
-     * Wrapper for {@link PreferencesUtil#checkAllPreferenceSections()} that doesn't throw any exception.
+     * Wrapper for {@link PreferencesUtil#checkAllPreferenceSections(Context)} that doesn't throw any exception.
      */
     private void safeCheckPreferences() {
         try {
-            PreferencesUtil.checkAllPreferenceSections();
+            PreferencesUtil.checkAllPreferenceSections(context);
         } catch (Exception e) {
             Logger.warn(e, "exception handled by ACRA");
             ACRA.getErrorReporter().handleException(e);

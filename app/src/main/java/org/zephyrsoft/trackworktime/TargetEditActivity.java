@@ -85,8 +85,8 @@ public class TargetEditActivity extends AppCompatActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		dao = Basics.getInstance().getDao();
-		timerManager = Basics.getInstance().getTimerManager();
+		dao = Basics.get(this).getDao();
+		timerManager = Basics.get(this).getTimerManager();
 
 		binding = TargetBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -196,7 +196,7 @@ public class TargetEditActivity extends AppCompatActivity
 
 			// we have to call this manually when using the DAO directly
 			timerManager.invalidateCacheFrom(targetDay);
-			Basics.getInstance().safeCheckPersistentNotification();
+			Basics.get(this).safeCheckPersistentNotification();
 
 			// close the editor
 			finish();
@@ -246,7 +246,7 @@ public class TargetEditActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 
-		Locale locale = Basics.getInstance().getLocale();
+		Locale locale = Basics.get(this).getLocale();
 
 		long epochDay = getIntent().getLongExtra(Constants.DATE_EXTRA_KEY, -1);
 

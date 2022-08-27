@@ -45,7 +45,7 @@ public class LocationTrackerService extends Service {
     @Override
     public void onCreate() {
         Logger.info("creating LocationTrackerService");
-        basics = Basics.getOrCreateInstance(getApplicationContext());
+        basics = Basics.get(getApplicationContext());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
         }

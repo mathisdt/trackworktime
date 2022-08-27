@@ -15,7 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.util;
 
-import android.content.Context;
+import android.app.Activity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zephyrsoft.trackworktime.Basics;
@@ -53,12 +53,12 @@ public class DateTimeUtil {
 			.toFormatter();
 
 	public static class LocalizedDayAndShortDateFormatter {
-		private final Context context;
+		private final Activity activity;
 		private Locale locale;
 		private DateTimeFormatter formatter;
 
-		public LocalizedDayAndShortDateFormatter(Context context) {
-			this.context = context;
+		public LocalizedDayAndShortDateFormatter(Activity activity) {
+			this.activity = activity;
 			updateLocale();
 		}
 
@@ -82,7 +82,7 @@ public class DateTimeUtil {
 		}
 
 		public void updateLocale() {
-			locale = Basics.getOrCreateInstance(context).getLocale();
+			locale = Basics.get(activity).getLocale();
 			formatter = createLocalizedDayAndShortDateFormat();
 		}
 

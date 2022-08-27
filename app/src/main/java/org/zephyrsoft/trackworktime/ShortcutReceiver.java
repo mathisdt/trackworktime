@@ -33,7 +33,7 @@ public class ShortcutReceiver extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         String action = getIntent().getAction();
-        TimerManager timerManager = Basics.getOrCreateInstance(this).getTimerManager();
+        TimerManager timerManager = Basics.get(getApplication()).getTimerManager();
         if (Constants.CLOCK_IN_ACTION.equals(action)) {
             Logger.info("TRACKING: clock-in via shortcut");
             Integer taskId = ThirdPartyReceiver.getDefaultTaskId(this);

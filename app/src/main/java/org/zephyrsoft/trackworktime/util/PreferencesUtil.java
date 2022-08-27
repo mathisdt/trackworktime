@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime.util;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
@@ -50,8 +51,8 @@ public class PreferencesUtil {
 	 *
 	 * @return the number of sections that were disabled because of failed checks
 	 */
-	public static int checkAllPreferenceSections() {
-		SharedPreferences preferences = Basics.getInstance().getPreferences();
+	public static int checkAllPreferenceSections(Context context) {
+		SharedPreferences preferences = Basics.get(context).getPreferences();
 		int disabledSections = 0;
 		for (String key : preferences.getAll().keySet()) {
 			Key sectionToDisable = PreferencesUtil.check(preferences, key);

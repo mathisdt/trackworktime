@@ -83,7 +83,7 @@ public class Widget extends AppWidgetProvider {
         this.manager = manager;
         this.widgetIds = widgetIds;
         this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        Basics basics = Basics.getOrCreateInstance(context.getApplicationContext());
+        Basics basics = Basics.get(context);
         this.timerManager = basics.getTimerManager();
     }
 

@@ -75,7 +75,7 @@ public class DocumentTreeStorage {
     }
 
     public static boolean exists(Context context, Type type, String filename) {
-        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, Basics.getOrCreateInstance(context).getDocumentTree());
+        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, Basics.get(context).getDocumentTree());
         if (grantedDirectory != null) {
             DocumentFile subDirectory = find(grantedDirectory, true, type.getSubdirectoryName());
             if (subDirectory != null) {
@@ -86,13 +86,13 @@ public class DocumentTreeStorage {
         return false;
     }
 
-    public static void reading(Context context, Type type, String filename, Consumer<Reader> action) {
-        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, Basics.getOrCreateInstance(context).getDocumentTree());
+    public static void reading(Activity activity, Type type, String filename, Consumer<Reader> action) {
+        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(activity, Basics.get(activity).getDocumentTree());
         if (grantedDirectory != null) {
             DocumentFile subDirectory = find(grantedDirectory, true, type.getSubdirectoryName());
             if (subDirectory != null) {
                 DocumentFile file = find(subDirectory, false, filename);
-                try (ParcelFileDescriptor fileDescriptor = file == null ? null : context.getContentResolver().openFileDescriptor(file.getUri(), "r");
+                try (ParcelFileDescriptor fileDescriptor = file == null ? null : activity.getContentResolver().openFileDescriptor(file.getUri(), "r");
                      InputStream inputStream = fileDescriptor == null ? null : new FileInputStream(fileDescriptor.getFileDescriptor());
                      Reader reader = new InputStreamReader(inputStream)) {
                     Logger.debug("reading from {} {}", type, filename);
@@ -108,8 +108,8 @@ public class DocumentTreeStorage {
         }
     }
 
-    public static DocumentFile getForWriting(Context context, Type type, String filename) {
-        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, Basics.getOrCreateInstance(context).getDocumentTree());
+    public static DocumentFile getForWriting(Activity activity, Type type, String filename) {
+        DocumentFile grantedDirectory = DocumentFile.fromTreeUri(activity, Basics.get(activity).getDocumentTree());
         if (grantedDirectory != null) {
             DocumentFile subDirectory = findOrCreate(grantedDirectory, true, type.getSubdirectoryName(), type.getMimeType());
             if (subDirectory != null) {
@@ -123,10 +123,10 @@ public class DocumentTreeStorage {
         return null;
     }
 
-    public static Uri writing(Context context, Type type, String filename, Consumer<OutputStream> action) {
-        DocumentFile file = getForWriting(context, type, filename);
+    public static Uri writing(Activity activity, Type type, String filename, Consumer<OutputStream> action) {
+        DocumentFile file = getForWriting(activity, type, filename);
         if (file != null) {
-            try (ParcelFileDescriptor fileDescriptor = context.getContentResolver().openFileDescriptor(file.getUri(), "rwt");
+            try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(file.getUri(), "rwt");
                  FileOutputStream fileOutputStream = fileDescriptor == null ? null : new FileOutputStream(fileDescriptor.getFileDescriptor());
                  BufferedOutputStream outputStream = fileDescriptor == null ? null : new BufferedOutputStream(fileOutputStream)) {
                 Logger.debug("writing to {} {}", type, filename);
@@ -163,30 +163,30 @@ public class DocumentTreeStorage {
         return result;
     }
 
-    public static boolean shouldRequestDirectoryGrant(Context context) {
-        SharedPreferences prefs = Basics.getOrCreateInstance(context).getPreferences();
+    public static boolean shouldRequestDirectoryGrant(Activity activity) {
+        SharedPreferences prefs = Basics.get(activity).getPreferences();
 
-        boolean noGrantAndNeverAsked = !prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
-            && !prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree));
-        boolean noGrantAndAskedLongAgo = !prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
-            && prefs.contains(context.getString(R.string.keyLastAskedForDocumentTree))
-            && dateIsUnreadableOrOld(prefs.getString(context.getString(R.string.keyLastAskedForDocumentTree), null));
-        boolean grantPresentButInvalidAndAskedLongAgo = prefs.contains(context.getString(R.string.keyGrantedDocumentTree))
-            && !hasValidDirectoryGrant(context)
-            && dateIsUnreadableOrOld(prefs.getString(context.getString(R.string.keyLastAskedForDocumentTree), null));
+        boolean noGrantAndNeverAsked = !prefs.contains(activity.getString(R.string.keyGrantedDocumentTree))
+            && !prefs.contains(activity.getString(R.string.keyLastAskedForDocumentTree));
+        boolean noGrantAndAskedLongAgo = !prefs.contains(activity.getString(R.string.keyGrantedDocumentTree))
+            && prefs.contains(activity.getString(R.string.keyLastAskedForDocumentTree))
+            && dateIsUnreadableOrOld(prefs.getString(activity.getString(R.string.keyLastAskedForDocumentTree), null));
+        boolean grantPresentButInvalidAndAskedLongAgo = prefs.contains(activity.getString(R.string.keyGrantedDocumentTree))
+            && !hasValidDirectoryGrant(activity)
+            && dateIsUnreadableOrOld(prefs.getString(activity.getString(R.string.keyLastAskedForDocumentTree), null));
 
         return noGrantAndNeverAsked || noGrantAndAskedLongAgo || grantPresentButInvalidAndAskedLongAgo;
     }
 
-    public static boolean hasValidDirectoryGrant(Context context) {
-        String grantedDocumentTree = Basics.getOrCreateInstance(context).getPreferences()
-            .getString(context.getString(R.string.keyGrantedDocumentTree), null);
+    public static boolean hasValidDirectoryGrant(Activity activity) {
+        String grantedDocumentTree = Basics.get(activity).getPreferences()
+            .getString(activity.getString(R.string.keyGrantedDocumentTree), null);
         if (grantedDocumentTree == null) {
             return false;
         }
         try {
             Uri dir = Uri.parse(grantedDocumentTree);
-            DocumentFile grantedDirectory = DocumentFile.fromTreeUri(context, dir);
+            DocumentFile grantedDirectory = DocumentFile.fromTreeUri(activity, dir);
             if (grantedDirectory != null) {
                 DocumentFile marker = findOrCreate(grantedDirectory, true,
                     Type.AUTOMATIC_BACKUP.getSubdirectoryName(), DocumentTreeStorage.Type.AUTOMATIC_BACKUP.getMimeType());
@@ -219,7 +219,7 @@ public class DocumentTreeStorage {
             () -> {
                 Logger.debug("document tree dialog confirmed, asking for permission");
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                String grantedDir = Basics.getOrCreateInstance(activity).getPreferences()
+                String grantedDir = Basics.get(activity).getPreferences()
                     .getString(activity.getString(R.string.keyGrantedDocumentTree), null);
                 if (grantedDir != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     try {
@@ -232,7 +232,7 @@ public class DocumentTreeStorage {
                 try {
                     activity.startActivityForResult(intent, requestCode);
                 } catch (ActivityNotFoundException anf) {
-                    Intent messageIntent = Basics.getOrCreateInstance(activity).createMessageIntent(
+                    Intent messageIntent = Basics.get(activity).createMessageIntent(
                         activity.getString(R.string.noFileManagerApp), null);
                     activity.startActivity(messageIntent);
                 }
@@ -240,7 +240,7 @@ public class DocumentTreeStorage {
             }, () -> {
                 Logger.debug("document tree dialog cancelled");
                 final SharedPreferences.Editor editor =
-                    Basics.getOrCreateInstance(activity).getPreferences().edit();
+                    Basics.get(activity).getPreferences().edit();
                 editor.putString(activity.getString(R.string.keyLastAskedForDocumentTree),
                         LocalDate.now().toString());
                 editor.commit();
@@ -268,7 +268,7 @@ public class DocumentTreeStorage {
     }
 
     public static String getDirectoryName(Activity activity) {
-        String grantedDocumentTree = Basics.getOrCreateInstance(activity).getPreferences()
+        String grantedDocumentTree = Basics.get(activity).getPreferences()
             .getString(activity.getString(R.string.keyGrantedDocumentTree), null);
         if (grantedDocumentTree == null) {
             return "";

@@ -87,8 +87,8 @@ public class ReportsActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		dao = Basics.getInstance().getDao();
-		timeCalculator = Basics.getInstance().getTimeCalculator();
+		dao = Basics.get(this).getDao();
+		timeCalculator = Basics.get(this).getTimeCalculator();
 		csvGenerator = new CsvGenerator(dao, this);
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 

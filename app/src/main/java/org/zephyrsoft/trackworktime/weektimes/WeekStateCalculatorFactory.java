@@ -15,7 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.weektimes;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
@@ -26,21 +26,21 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 public class WeekStateCalculatorFactory {
 
-	private final @NonNull Context context;
+	private final @NonNull Activity activity;
 	private final @NonNull DAO dao;
 	private final @NonNull TimerManager timerManager;
 	private final @NonNull SharedPreferences preferences;
 
-	public WeekStateCalculatorFactory(@NonNull Context context, @NonNull DAO dao,
-			@NonNull TimerManager timerManager, @NonNull SharedPreferences preferences) {
-		this.context = context;
+	public WeekStateCalculatorFactory(@NonNull Activity activity, @NonNull DAO dao,
+									  @NonNull TimerManager timerManager, @NonNull SharedPreferences preferences) {
+		this.activity = activity;
 		this.dao = dao;
 		this.timerManager = timerManager;
 		this.preferences = preferences;
 	}
 
 	public @NonNull WeekStateCalculator createForWeek(@NonNull Week week) {
-		return new WeekStateCalculator(context, dao, timerManager, preferences, week);
+		return new WeekStateCalculator(activity, dao, timerManager, preferences, week);
 	}
 
 }

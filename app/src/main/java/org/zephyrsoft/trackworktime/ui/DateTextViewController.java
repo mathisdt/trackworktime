@@ -98,7 +98,7 @@ public class DateTextViewController {
 	}
 
 	public void setDate(LocalDate date) {
-		String text = DateTimeUtil.formatLocalizedDayAndDate(date, Basics.getOrCreateInstance(view.getContext()).getLocale());
+		String text = DateTimeUtil.formatLocalizedDayAndDate(date, Basics.get(view.getContext()).getLocale());
 		view.setText(text);
 		this.date = date;
 	}

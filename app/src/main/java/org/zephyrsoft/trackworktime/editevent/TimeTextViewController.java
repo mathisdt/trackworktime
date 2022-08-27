@@ -39,7 +39,7 @@ public class TimeTextViewController {
 	private LocalTime time;
 
 	public void setTime(@Nullable LocalTime time) {
-		String text = DateTimeUtil.formatLocalizedTime(time, Basics.getOrCreateInstance(view.getContext()).getLocale());
+		String text = DateTimeUtil.formatLocalizedTime(time, Basics.get(view.getContext()).getLocale());
 		view.setText(text);
 		this.time = time;
 

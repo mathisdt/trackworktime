@@ -123,7 +123,7 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 
 	@Override
 	public void onScanResultsUpdated(@NonNull List<ScanResult> wifiNetworksInRange) {
-		Logger.debug("hecking wifi for ssid \"{}\"", ssid);
+		Logger.debug("checking wifi for ssid \"{}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange(wifiNetworksInRange);
 		Logger.debug("wifi ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,
 				ssidWasPreviouslyInRange);

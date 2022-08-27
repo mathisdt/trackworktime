@@ -118,7 +118,7 @@ public class DAO {
 		this.context = context;
 		dbHelper = new MySQLiteHelper(context);
 		backupManager = new WorkTimeTrackerBackupManager(context);
-		basics = Basics.getOrCreateInstance(context);
+		this.basics = Basics.get(context);
 	}
 
 	/**
@@ -739,7 +739,7 @@ public class DAO {
 
 	public void restoreEventsFromReader(final BufferedReader reader) throws IOException {
         final String eol = System.getProperty("line.separator");
-        final TimerManager timerManager = Basics.getInstance().getTimerManager();
+        final TimerManager timerManager = basics.getTimerManager();
 
         deleteAll();
 

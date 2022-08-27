@@ -79,7 +79,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 		parentActivity = WorkTimeTrackerActivity.getInstanceOrNull();
 
-		dao = Basics.getInstance().getDao();
+		dao = Basics.get(this).getDao();
 		tasks = dao.getAllTasks();
 		tasksAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tasks);
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

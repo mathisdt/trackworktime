@@ -93,8 +93,8 @@ public class EventEditActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		dao = Basics.getInstance().getDao();
-		timerManager = Basics.getInstance().getTimerManager();
+		dao = Basics.get(this).getDao();
+		timerManager = Basics.get(this).getTimerManager();
 
 		binding = EventBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -187,7 +187,7 @@ public class EventEditActivity extends AppCompatActivity {
 				}
 			}
 
-			Basics.getInstance().safeCheckExternalControls();
+			Basics.get(this).safeCheckExternalControls();
 
 			// refresh parents and close the event editor
 			if (EventListActivity.getInstance() != null) {

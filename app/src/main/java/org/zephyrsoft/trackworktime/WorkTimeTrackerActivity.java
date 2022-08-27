@@ -84,6 +84,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -105,7 +106,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
-	private static WorkTimeTrackerActivity instance = null;
+	private static WeakReference<WorkTimeTrackerActivity> instance = null;
 
 	private ActivityMainBinding binding;
 
@@ -124,12 +125,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	private WeekAdapter weekAdapter;
 
 	private void checkAllOptions() {
-		int disabledSections = PreferencesUtil.checkAllPreferenceSections();
+		int disabledSections = PreferencesUtil.checkAllPreferenceSections(this);
 
 		if (disabledSections > 0) {
 			// show message to user
-			Intent messageIntent = Basics
-				.getInstance()
+			Intent messageIntent = Basics.get(this)
 				.createMessageIntent(
 					disabledSections == 1
 						? getString(R.string.optionSectionDisabled)
@@ -143,8 +143,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		instance = this;
-		Basics basics = Basics.getOrCreateInstance(getApplicationContext());
+		instance = new WeakReference<>(this);
+		Basics basics = Basics.get(this);
 		// fill basic data from central structures
 		preferences = basics.getPreferences();
 		dao = basics.getDao();
@@ -476,9 +476,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	 * Reloads the view's data if the view is currently shown.
 	 */
 	public static void refreshViewIfShown() {
-		if (instance != null && instance.visible) {
+		if (instance != null && instance.get() != null && instance.get().visible) {
 			Logger.debug("refreshing main view (it is visible at the moment)");
-			instance.refreshView();
+			instance.get().refreshView();
 		}
 	}
 
@@ -554,7 +554,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (Basics.getOrCreateInstance(this).isDevelopmentVersion()) {
+		if (Basics.get(this).isDevelopmentVersion()) {
 			menu.add(Menu.NONE, MenuAction.RAISE_EXCEPTION.ordinal(), MenuAction.RAISE_EXCEPTION.ordinal(), "[DEV] Raise Exception")
 					.setIcon(R.drawable.ic_menu_star);
 			menu.add(Menu.NONE, MenuAction.SHOW_DEBUG.ordinal(), MenuAction.SHOW_DEBUG.ordinal(), "[DEV] Show Debug")
@@ -712,13 +712,13 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void showRequestToIgnoreBatteryOptimizations() {
-		if (Basics.getInstance().hasToRemoveAppFromBatteryOptimization()) {
+		if (Basics.get(this).hasToRemoveAppFromBatteryOptimization()) {
 			Logger.debug("showing request to ignore battery optimizations");
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(getString(R.string.request_to_ignore_battery_optimizations_title));
 			alert.setMessage(getString(R.string.request_to_ignore_battery_optimizations_text));
 			alert.setPositiveButton(getString(R.string.request_to_ignore_battery_optimizations_positive),
-				(dialog, whichButton) -> Basics.getInstance().removeAppFromBatteryOptimization());
+				(dialog, whichButton) -> Basics.get(this).removeAppFromBatteryOptimization());
 			alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
 				// do nothing
 			});
@@ -758,7 +758,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		alert.setTitle(getString(R.string.use_current_location));
 		alert.setMessage(getString(R.string.really_use_current_location));
 		alert.setPositiveButton(getString(R.string.ok), (dialog, whichButton) ->
-			Basics.getInstance().useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this));
+			Basics.get(this).useCurrentLocationAsWorkplace(WorkTimeTrackerActivity.this));
 		alert.setNegativeButton(getString(R.string.cancel), (dialog, whichButton) -> {
 			// do nothing
 		});
@@ -789,7 +789,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 	private void doExportLogs() {
 		try {
-			File logfile = Basics.getInstance().getCurrentLogFile();
+			File logfile = Basics.get(this).getCurrentLogFile();
 			DocumentTreeStorage.writing(this, DocumentTreeStorage.Type.LOGFILE,
 				DateTimeUtil.timestampNow() + ".txt", outputStream -> {
 					try (InputStream in = new FileInputStream(logfile)) {
@@ -820,11 +820,11 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void doSendLogs() {
-		Logger.info("app version: {}", Basics.getOrCreateInstance(getApplicationContext()).getVersionName());
+		Logger.info("app version: {}", Basics.get(this).getVersionName());
 		Intent emailIntent = new Intent(Intent.ACTION_SEND);
 		emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendLogsSubject));
 		Uri fileUri = FileProvider.getUriForFile(this,
-			BuildConfig.APPLICATION_ID + ".util.GenericFileProvider", Basics.getInstance().getCurrentLogFile());
+			BuildConfig.APPLICATION_ID + ".util.GenericFileProvider", Basics.get(this).getCurrentLogFile());
 		emailIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
 		emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		emailIntent.setType("text/plain");
@@ -862,7 +862,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			setupTasksAdapter();
 		}
 
-		Basics.getInstance().safeCheckExternalControls();
+		Basics.get(this).safeCheckExternalControls();
 
 		// always start with closed navigation drawer
 		binding.drawer.closeDrawer(GravityCompat.START, false);
@@ -883,17 +883,19 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	 * Get the instance of this activity. If it was destroyed in the meantime, throw an exception.
 	 */
 	public static WorkTimeTrackerActivity getInstance() {
-		if (instance == null) {
+		if (instance == null || instance.get() == null) {
 			throw new IllegalStateException("the main activity is not created yet or was dumped in the meantime");
 		}
-		return instance;
+		return instance.get();
 	}
 
 	/**
 	 * Get the instance of this activity. If it was destroyed in the meantime, return {@code null}.
 	 */
 	public static WorkTimeTrackerActivity getInstanceOrNull() {
-		return instance;
+		return instance == null
+			? null
+			: instance.get();
 	}
 
 	@Override
@@ -932,7 +934,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 				if (missingPermissions.isEmpty()) {
 					doUseCurrentLocationAsWorkplace();
 				} else {
-					Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
+					Intent messageIntent = Basics.get(this).createMessageIntent(
 						getString(R.string.locationPermissionsForCurrentLocationUngranted), null);
 					startActivity(messageIntent);
 					Logger.debug("missing tracking permissions for current location: {}", missingPermissions);
@@ -944,9 +946,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private void locationPermissionNotGranted(List<String> ungranted) {
-		Basics.getOrCreateInstance(this).disableLocationBasedTracking();
-		Basics.getOrCreateInstance(this).disableWifiBasedTracking();
-		Intent messageIntent = Basics.getOrCreateInstance(this).createMessageIntent(
+		Basics.get(this).disableLocationBasedTracking();
+		Basics.get(this).disableWifiBasedTracking();
+		Intent messageIntent = Basics.get(this).createMessageIntent(
 			getString(R.string.locationPermissionsUngranted), null);
 		startActivity(messageIntent);
 		Logger.debug("ungranted tracking permissions: {}", ungranted);

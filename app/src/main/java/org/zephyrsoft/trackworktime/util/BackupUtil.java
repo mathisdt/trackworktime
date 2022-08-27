@@ -17,7 +17,7 @@ package org.zephyrsoft.trackworktime.util;
 
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
@@ -38,12 +38,12 @@ public class BackupUtil {
         // only static usage
     }
 
-    public static Boolean doBackup(Context context, BackupFileInfo info) {
+    public static Boolean doBackup(Activity activity, BackupFileInfo info) {
         try {
-            DAO dao = Basics.getOrCreateInstance(context).getDao();
-            SharedPreferences preferences = Basics.getOrCreateInstance(context).getPreferences();
+            DAO dao = Basics.get(activity).getDao();
+            SharedPreferences preferences = Basics.get(activity).getPreferences();
 
-            DocumentTreeStorage.writing(context, info.getType(), info.getPreferencesBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(activity, info.getType(), info.getPreferencesBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     PreferencesUtil.writePreferences(preferences, output);
@@ -52,7 +52,7 @@ public class BackupUtil {
                 }
             });
 
-            DocumentTreeStorage.writing(context, info.getType(), info.getEventsBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(activity, info.getType(), info.getEventsBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupEventsToWriter(output);
@@ -61,7 +61,7 @@ public class BackupUtil {
                 }
             });
 
-            DocumentTreeStorage.writing(context, info.getType(), info.getTargetsBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(activity, info.getType(), info.getTargetsBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupTargetsToWriter(output);
@@ -77,13 +77,13 @@ public class BackupUtil {
         }
     }
 
-    public static Boolean doRestore(Context context, BackupFileInfo info) {
+    public static Boolean doRestore(Activity activity, BackupFileInfo info) {
         try {
-            DAO dao = Basics.getOrCreateInstance(context).getDao();
-            SharedPreferences preferences = Basics.getOrCreateInstance(context).getPreferences();
+            DAO dao = Basics.get(activity).getDao();
+            SharedPreferences preferences = Basics.get(activity).getPreferences();
 
-            if (exists(context, info.getType(), info.getPreferencesBackupFile())) {
-                DocumentTreeStorage.reading(context, info.getType(), info.getPreferencesBackupFile(),
+            if (exists(activity, info.getType(), info.getPreferencesBackupFile())) {
+                DocumentTreeStorage.reading(activity, info.getType(), info.getPreferencesBackupFile(),
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             PreferencesUtil.readPreferences(preferences, input);
@@ -93,8 +93,8 @@ public class BackupUtil {
                     });
             }
 
-            if (exists(context, info.getType(), info.getEventsBackupFile())) {
-                DocumentTreeStorage.reading(context, info.getType(), info.getEventsBackupFile(),
+            if (exists(activity, info.getType(), info.getEventsBackupFile())) {
+                DocumentTreeStorage.reading(activity, info.getType(), info.getEventsBackupFile(),
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             dao.restoreEventsFromReader(input);
@@ -104,8 +104,8 @@ public class BackupUtil {
                     });
             }
 
-            if (exists(context, info.getType(), info.getTargetsBackupFile())) {
-                DocumentTreeStorage.reading(context, info.getType(), info.getTargetsBackupFile(),
+            if (exists(activity, info.getType(), info.getTargetsBackupFile())) {
+                DocumentTreeStorage.reading(activity, info.getType(), info.getTargetsBackupFile(),
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             dao.restoreTargetsFromReader(input);

@@ -15,7 +15,7 @@
  */
 package org.zephyrsoft.trackworktime.weektimes;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 public class WeekStateCalculator {
 
-	private final Context context;
+	private final Activity activity;
 	private final DAO dao;
 	private final TimerManager timerManager;
 	private final SharedPreferences preferences;
@@ -54,9 +54,9 @@ public class WeekStateCalculator {
 	
 	private final boolean handleFlexiTime;
 
-	public WeekStateCalculator(Context context, DAO dao, TimerManager timerManager,
-		   SharedPreferences preferences, Week week) {
-		this.context = context;
+	public WeekStateCalculator(Activity activity, DAO dao, TimerManager timerManager,
+							   SharedPreferences preferences, Week week) {
+		this.activity = activity;
 		this.dao = dao;
 		this.timerManager = timerManager;
 		this.preferences = preferences;
@@ -89,9 +89,9 @@ public class WeekStateCalculator {
 			TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, timerManager, startDate, handleFlexiTime);
 			timeCalc.setStartSums(timerManager.getTimesAt(startDate));
 		
-			weekState.topLeftCorner = context.getString(R.string.weekNumber, startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
+			weekState.topLeftCorner = activity.getString(R.string.weekNumber, startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
 
-			DateTimeUtil.LocalizedDayAndShortDateFormatter formatter = new DateTimeUtil.LocalizedDayAndShortDateFormatter(context);
+			DateTimeUtil.LocalizedDayAndShortDateFormatter formatter = new DateTimeUtil.LocalizedDayAndShortDateFormatter(activity);
 			for (DayOfWeek day : DayOfWeek.values()) {
 				setRowValues(timeCalc.getNextDayInfo(), weekState.getRowForDay(day), formatter, decimalAmounts, displayTimes);
 			}
@@ -235,7 +235,7 @@ public class WeekStateCalculator {
 	}
 
 	private String getString(@StringRes int id) {
-		return context.getString(id);
+		return activity.getString(id);
 	}
 
 }

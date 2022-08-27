@@ -139,7 +139,7 @@ public class OptionsActivity extends AppCompatActivity {
             getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 
             // make sure that location-based tracking gets enabled/disabled
-            Basics.getOrCreateInstance(requireContext().getApplicationContext()).safeCheckLocationBasedTracking();
+            Basics.get(getActivity()).safeCheckLocationBasedTracking();
         }
 
         @Override
@@ -150,7 +150,7 @@ public class OptionsActivity extends AppCompatActivity {
 
                 // show message to user
                 Intent messageIntent = Basics
-                    .getInstance()
+                    .get(getActivity())
                     .createMessageIntent(
                         getString(R.string.disabledDueToInvalidSettings, getString(sectionToDisable.getReadableNameResourceId())),
                         null);
@@ -172,14 +172,14 @@ public class OptionsActivity extends AppCompatActivity {
                     Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(getContext());
                     if (!missingPermissions.isEmpty()) {
                         Logger.debug("asking for permissions: {}", missingPermissions);
-                        PermissionsUtil.askForLocationPermission(getContext(),
+                        PermissionsUtil.askForLocationPermission(getActivity(),
                             () -> ActivityCompat.requestPermissions(getActivity(),
                                 missingPermissions.toArray(new String[0]),
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
                             this::locationPermissionNotGranted);
                     } else if (PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
                         Logger.debug("asking for permission ACCESS_BACKGROUND_LOCATION");
-                        PermissionsUtil.askForLocationPermission(getContext(),
+                        PermissionsUtil.askForLocationPermission(getActivity(),
                             () -> ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                                 Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
@@ -189,7 +189,7 @@ public class OptionsActivity extends AppCompatActivity {
                     && WorkTimeTrackerActivity.getInstanceOrNull() != null) {
                     WorkTimeTrackerActivity.getInstanceOrNull().redrawWeekTable();
                 } else if (Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName().equals(keyName)) {
-                    Basics.getOrCreateInstance(getContext()).fixPersistentNotification();
+                    Basics.get(getActivity()).fixPersistentNotification();
                 }
             }
 
@@ -200,7 +200,7 @@ public class OptionsActivity extends AppCompatActivity {
                     key.equals(Key.ENABLE_FLEXI_TIME) ||
                     Key.ENABLE_FLEXI_TIME.equals(key.getParent())
             )) {
-                Basics.getInstance().getTimerManager().invalidateCacheFrom((LocalDate) null);
+                Basics.get(getActivity()).getTimerManager().invalidateCacheFrom((LocalDate) null);
             }
         }
 
@@ -233,7 +233,7 @@ public class OptionsActivity extends AppCompatActivity {
 
         private void allPermissionsInPlace() {
             reloadData();
-            Intent messageIntent = Basics.getInstance()
+            Intent messageIntent = Basics.get(getActivity())
                 .createMessageIntent(getString(R.string.locationPermissionsGranted), null);
             startActivity(messageIntent);
         }
@@ -244,7 +244,7 @@ public class OptionsActivity extends AppCompatActivity {
             editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
             editor.apply();
 
-            Intent messageIntent = Basics.getInstance()
+            Intent messageIntent = Basics.get(getActivity())
                 .createMessageIntent(getString(R.string.locationPermissionsUngranted), null);
             startActivity(messageIntent);
 

@@ -39,7 +39,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		Bundle extras = intent.getExtras();
 
-		TimerManager timerManager = Basics.getOrCreateInstance(context).getTimerManager();
+		TimerManager timerManager = Basics.get(context).getTimerManager();
 		if (Constants.CLOCK_IN_ACTION.equals(action)) {
 			Integer taskId = getTaskId(context, extras);
 			if (taskId == null) {
@@ -100,13 +100,13 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			try {
 				// try to extract the ID
 				Integer parsedTaskId = Integer.parseInt(task);
-				Task taskInstance = Basics.getOrCreateInstance(context).getDao().getTask(parsedTaskId);
+				Task taskInstance = Basics.get(context).getDao().getTask(parsedTaskId);
 				if (taskInstance != null && !taskInstance.getActive().equals(0)) {
 					return parsedTaskId;
 				}
 			} catch (NumberFormatException nfe) {
 				// apparently it isn't an ID, try to look up the task name
-				Task taskInstance = Basics.getOrCreateInstance(context).getDao().getTask(task);
+				Task taskInstance = Basics.get(context).getDao().getTask(task);
 				if (taskInstance != null && !taskInstance.getActive().equals(0)) {
 					return taskInstance.getId();
 				}
@@ -119,7 +119,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 
 	// also used by ShortcutReceiver
 	static Integer getDefaultTaskId(Context context) {
-		DAO dao = Basics.getOrCreateInstance(context).getDao();
+		DAO dao = Basics.get(context).getDao();
 		Task task = dao.getDefaultTask();
 		return task == null ? null : task.getId();
 	}
