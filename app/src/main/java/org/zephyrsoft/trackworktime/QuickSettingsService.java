@@ -28,7 +28,13 @@ import org.zephyrsoft.trackworktime.util.Updatable;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class QuickSettingsService extends TileService implements Updatable {
-    private final TimerManager timerManager = Basics.get(getApplication()).getTimerManager();
+    private TimerManager timerManager;
+
+    @Override
+    public void onCreate() {
+        timerManager = Basics.get(getApplication()).getTimerManager();
+        super.onCreate();
+    }
 
     @Override
     public void update() {
