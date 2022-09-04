@@ -36,15 +36,6 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Test
         run: ./gradlew clean test
-      - name: Integrationtest
-        uses: reactivecircus/android-emulator-runner@v2.25.0
-        with:
-          api-level: 31
-          arch: x86_64
-          emulator-options: >-
-            -no-boot-anim -no-audio -no-snapshot -no-window -camera-back none
-            -camera-front none -gpu swiftshader_indirect
-          script: ./gradlew connectedAndroidTest
       - name: Assemble
         run: ./gradlew assemble
       - name: Upload APKs
