@@ -20,6 +20,12 @@ jobs:
   ui_tests:
     needs: [check_date]
     if: ${{ needs.check_date.outputs.WAS_EDITED == 'true' }}
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        # test on the minimum and on a more recent version
+        android: [ 21, 31 ]
+      fail-fast: false
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -46,9 +52,9 @@ jobs:
       - name: "UI Tests"
         uses: reactivecircus/android-emulator-runner@v2.25.0
         with:
-          api-level: 31
+          api-level: ${{ matrix.android }}
           arch: x86_64
           emulator-options: >-
             -no-boot-anim -no-audio -no-snapshot -no-window -camera-back none
             -camera-front none -gpu swiftshader_indirect
-          script: ./gradlew connectedAndroidTest
+          script: ./gradlew connectedAndroidTest --no-daemon
