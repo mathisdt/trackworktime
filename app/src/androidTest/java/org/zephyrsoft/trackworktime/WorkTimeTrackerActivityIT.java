@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.test.espresso.IdlingPolicies;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -28,11 +29,14 @@ import androidx.test.filters.LargeTest;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
+
+import java.util.concurrent.TimeUnit;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -41,6 +45,13 @@ public class WorkTimeTrackerActivityIT {
     @Rule
     public RuleChain rules = RuleChain.outerRule(new ClearAppDataRule())
         .around(new ActivityScenarioRule<>(WorkTimeTrackerActivity.class));
+
+    @BeforeClass
+    public static void beforeClass() {
+        // let's be generous, Github Actions are slow
+        IdlingPolicies.setMasterPolicyTimeout(90, TimeUnit.SECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(90, TimeUnit.SECONDS);
+    }
 
     @Test
     public void workTimeTrackerActivityIT() {
