@@ -35,7 +35,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Test
-        run: ./gradlew test
+        run: ./gradlew clean test
+      - name: Integrationtest
+        uses: reactivecircus/android-emulator-runner@v2.25.0
+          with:
+            api-level: 31
+            script: ./gradlew connectedAndroidTest
       - name: Assemble
         run: ./gradlew assemble
       - name: Upload APKs

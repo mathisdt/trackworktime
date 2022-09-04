@@ -58,30 +58,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/mondayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/mondayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/mondayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/mondayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/mondayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -96,30 +101,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/tuesdayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/tuesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/tuesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/tuesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/tuesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -135,30 +145,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/wednesdayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/wednesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/wednesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/wednesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/wednesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -173,30 +188,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/thursdayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/thursdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/thursdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/thursdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/thursdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -212,30 +232,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/fridayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/fridayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/fridayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/fridayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/fridayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -250,30 +275,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/saturdayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/saturdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/saturdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/saturdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/saturdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -289,30 +319,35 @@
         android:padding="@dimen/padding_in_table">
 
         <TextView
+            android:id="@+id/sundayDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/sundayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/sundayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/sundayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/sundayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -337,12 +372,14 @@
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/totalWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/light_gray" />
 
         <TextView
+            android:id="@+id/totalFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
