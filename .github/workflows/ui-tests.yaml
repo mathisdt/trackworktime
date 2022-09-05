@@ -2,7 +2,7 @@ name: "UI Tests"
 
 on:
   schedule:
-    - cron: '00 03 * * *'
+    - cron: '00 02 * * *'
 
 jobs:
   check_date:
@@ -26,6 +26,7 @@ jobs:
         # test on the minimum and on a more recent version
         android: [ 21, 31 ]
       fail-fast: false
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
