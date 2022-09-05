@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@v2
       - id: check_date
         name: Check if there were commits in the last day
-        if: ${{ github.event_name == 'schedule' }}
         run: echo '::set-output name=WAS_EDITED::'$(test -n "$(git log --format=%H --since='25 hours ago')" && echo 'true' || echo 'false')
   ui_tests:
     needs: [check_date]
