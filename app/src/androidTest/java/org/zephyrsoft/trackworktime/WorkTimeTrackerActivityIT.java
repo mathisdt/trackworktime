@@ -6,7 +6,6 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -21,7 +20,6 @@ import android.view.ViewParent;
 
 import androidx.test.espresso.IdlingPolicies;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -38,6 +36,10 @@ import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Attention: DON'T USE visibility expectations or assertions for UI elements!
+ * The script running this test in a Github Action doesn't support that, it will result in test failure.
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class WorkTimeTrackerActivityIT {
@@ -49,8 +51,8 @@ public class WorkTimeTrackerActivityIT {
     @BeforeClass
     public static void beforeClass() {
         // let's be generous, Github Actions are slow
-        IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.SECONDS);
-        IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.SECONDS);
+        IdlingPolicies.setMasterPolicyTimeout(120, TimeUnit.SECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(120, TimeUnit.SECONDS);
     }
 
     @Test
@@ -85,12 +87,11 @@ public class WorkTimeTrackerActivityIT {
         weekTimesView.perform(scrollTo(), click());
 
         ViewInteraction menuButton = onView(
-            allOf(childAtPosition(
+            childAtPosition(
                     childAtPosition(
                         withId(androidx.appcompat.R.id.action_bar),
                         2),
-                    0),
-                withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                    0));
         menuButton.perform(click());
 
         ViewInteraction newPeriodMenuItem = onView(
@@ -99,8 +100,7 @@ public class WorkTimeTrackerActivityIT {
                     childAtPosition(
                         withId(androidx.appcompat.R.id.content),
                         0),
-                    0),
-                withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                    0)));
         newPeriodMenuItem.perform(click());
 
         ViewInteraction saveNewPeriodButton = onView(
@@ -109,18 +109,16 @@ public class WorkTimeTrackerActivityIT {
                     childAtPosition(
                         withClassName(is("android.widget.LinearLayout")),
                         0),
-                    1),
-                withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                    1)));
         saveNewPeriodButton.perform(click());
 
         ViewInteraction backToMainActivity = onView(
-            allOf(childAtPosition(
+            childAtPosition(
                     allOf(withId(androidx.appcompat.R.id.action_bar),
                         childAtPosition(
                             withId(androidx.appcompat.R.id.action_bar_container),
                             0)),
-                    1),
-                withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                    1));
         backToMainActivity.perform(click());
 
         ViewInteraction totalWorked2 = onView(
@@ -135,7 +133,7 @@ public class WorkTimeTrackerActivityIT {
     private static Matcher<View> childAtPosition(
         final Matcher<View> parentMatcher, final int position) {
 
-        return new TypeSafeMatcher<View>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public void describeTo(Description description) {
                 description.appendText("Child at position " + position + " in parent ");
