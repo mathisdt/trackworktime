@@ -58,4 +58,4 @@ jobs:
           emulator-options: >-
             -no-boot-anim -no-audio -no-snapshot -no-window -camera-back none
             -camera-front none -gpu swiftshader_indirect
-          script: ./gradlew connectedAndroidTest --no-daemon --stacktrace
+          script: ./gradlew connectedAndroidTest --no-daemon --info
