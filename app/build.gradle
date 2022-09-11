@@ -40,8 +40,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 32
 
-        versionCode 60                      // increment with every release
-        versionName '1.1.16'       // change with every release
+        versionCode 61                      // increment with every release
+        versionName '1.1.17-SNAPSHOT'       // change with every release
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
