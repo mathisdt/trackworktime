@@ -41,7 +41,7 @@ android {
         targetSdkVersion 32
 
         versionCode 61                      // increment with every release
-        versionName '1.1.17-SNAPSHOT'       // change with every release
+        versionName '1.1.17'       // change with every release
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
