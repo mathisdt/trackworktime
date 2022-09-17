@@ -111,14 +111,15 @@ public class DAO {
 
 	private static final Pattern RESTORE_PATTERN = Pattern.compile(";");
 
-	/**
-	 * Constructor
-	 */
 	public DAO(Context context) {
+		this(context, Basics.get(context));
+	}
+
+	public DAO(Context context, Basics basics) {
 		this.context = context;
 		dbHelper = new MySQLiteHelper(context);
 		backupManager = new WorkTimeTrackerBackupManager(context);
-		this.basics = Basics.get(context);
+		this.basics = basics;
 	}
 
 	/**

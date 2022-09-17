@@ -36,6 +36,7 @@ import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -132,7 +133,11 @@ public class DocumentTreeStorage {
                 Logger.debug("writing to {} {}", type, filename);
                 action.accept(outputStream);
                 if (outputStream != null) {
-                    outputStream.flush();
+                    try {
+                        outputStream.flush();
+                    } catch (IOException ioe) {
+                        Logger.debug("exception while flushing (probably stream already closed which is no problem): {}", ioe.getMessage());
+                    }
                 }
                 return file.getUri();
             } catch (Exception e) {

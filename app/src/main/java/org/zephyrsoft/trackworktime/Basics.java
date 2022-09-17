@@ -108,7 +108,7 @@ public class Basics {
             // let's be nice in case this was already initialized
             dao.close();
         }
-        dao = new DAO(context);
+        dao = new DAO(context, this);
 
         // run database migrations if needed
         dao.executePendingMigrations();
