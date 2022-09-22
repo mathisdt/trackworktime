@@ -499,6 +499,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			binding.main.clockInButton.setText(R.string.clockIn);
 			taskToSelect = dao.getDefaultTask();
 		}
+		setupTasksAdapter();
 		if (taskToSelect != null) {
 			int i = 0;
 			for (Task oneTask : tasks) {
