@@ -16,17 +16,17 @@
 package org.zephyrsoft.trackworktime;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -82,6 +82,42 @@ public class OptionsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+
+        private final ActivityResultLauncher<String[]> postNotificationRequest = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+                // we only get here on API 33 and above
+                List<String> ungranted = PermissionsUtil.notGrantedPermissions(result);
+                if (!ungranted.isEmpty()) {
+                    notificationPermissionNotGranted();
+                }
+            });
+        private final ActivityResultLauncher<String[]> backgroundLocationRequest = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+                // we only get here on API 29 and above
+                List<String> ungranted = PermissionsUtil.notGrantedPermissions(result);
+                if (ungranted.isEmpty()) {
+                    allPermissionsInPlace();
+                } else {
+                    locationPermissionNotGranted();
+                }
+            });
+        private final ActivityResultLauncher<String[]> locationRequest = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+                List<String> ungranted = PermissionsUtil.notGrantedPermissions(result);
+                if (ungranted.isEmpty()) {
+                    if (getActivity() != null
+                        && PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
+                        backgroundLocationRequest.launch(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION});
+                    } else {
+                        allPermissionsInPlace();
+                    }
+                } else {
+                    locationPermissionNotGranted();
+                }
+            });
 
         private WorkTimeTrackerBackupManager backupManager;
 
@@ -173,18 +209,24 @@ public class OptionsActivity extends AppCompatActivity {
                     if (!missingPermissions.isEmpty()) {
                         Logger.debug("asking for permissions: {}", missingPermissions);
                         PermissionsUtil.askForLocationPermission(getActivity(),
-                            () -> ActivityCompat.requestPermissions(getActivity(),
-                                missingPermissions.toArray(new String[0]),
-                                Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
+                            () -> {
+                                locationRequest.launch(missingPermissions.toArray(new String[]{}));
+                            },
                             this::locationPermissionNotGranted);
                     } else if (PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
                         Logger.debug("asking for permission ACCESS_BACKGROUND_LOCATION");
                         PermissionsUtil.askForLocationPermission(getActivity(),
-                            () -> ActivityCompat.requestPermissions(getActivity(),
-                                new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
+                            () -> backgroundLocationRequest.launch(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}),
                             this::locationPermissionNotGranted);
                     }
+                } else if (Key.NOTIFICATION_ENABLED.getName().equals(keyName)
+                    && sharedPreferences.getBoolean(keyName, false)
+                    && getActivity() != null
+                    && PermissionsUtil.isNotificationPermissionMissing(getActivity())) {
+                    Logger.debug("asking for permission POST_NOTIFICATIONS");
+
+                    postNotificationRequest.launch(new String[]{Manifest.permission.POST_NOTIFICATIONS});
+
                 } else if (Key.DECIMAL_TIME_SUMS.getName().equals(keyName)
                     && WorkTimeTrackerActivity.getInstanceOrNull() != null) {
                     WorkTimeTrackerActivity.getInstanceOrNull().redrawWeekTable();
@@ -204,33 +246,6 @@ public class OptionsActivity extends AppCompatActivity {
             }
         }
 
-        @SuppressLint("deprecation")
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID) {
-                List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
-                if (ungranted.isEmpty()) {
-                    if (getActivity() != null
-                        && PermissionsUtil.isBackgroundPermissionMissing(getContext())) {
-                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
-                    } else {
-                        allPermissionsInPlace();
-                    }
-                } else {
-                    locationPermissionNotGranted();
-                }
-            } else if (requestCode == Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID) {
-                // we only get here on API 30 and above
-                List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
-                if (ungranted.isEmpty()) {
-                    allPermissionsInPlace();
-                } else {
-                    locationPermissionNotGranted();
-                }
-            }
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
         private void allPermissionsInPlace() {
             reloadData();
             Intent messageIntent = Basics.get(getActivity())
@@ -246,6 +261,18 @@ public class OptionsActivity extends AppCompatActivity {
 
             Intent messageIntent = Basics.get(getActivity())
                 .createMessageIntent(getString(R.string.locationPermissionsUngranted), null);
+            startActivity(messageIntent);
+
+            reloadData();
+        }
+
+        private void notificationPermissionNotGranted() {
+            final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
+            editor.putBoolean(Key.NOTIFICATION_ENABLED.getName(), false);
+            editor.apply();
+
+            Intent messageIntent = Basics.get(getActivity())
+                .createMessageIntent(getString(R.string.notification_permissions_ungranted), null);
             startActivity(messageIntent);
 
             reloadData();

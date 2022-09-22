@@ -221,7 +221,7 @@
     <string name="locationPermissionsRequestText">This app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use.</string>
     <string name="locationPermissionsRequestTextSupplementForAPI29">\n\nPlease allow it for \"at all times\", even when the app isn\'t visible (else the automatic clock-in feature will not work).</string>
     <string name="locationPermissionsRequestTextSupplementForAPI30">\n\nYou will have to do that in the app\'s system settings, which will open automatically: please choose \"%s\".</string>
-    <string name="locationPermissionsGranted">Please re-enable the automatic time tracking method you want - it was automatically disabled because the permission was missing until now.</string>
+    <string name="locationPermissionsGranted">Please check if the automatic time tracking method you want is still enabled - it could be disabled because the permission was missing until now.</string>
     <string name="locationPermissionsUngranted">You did not grant the requested permissions. Automatic time tracking is disabled now.\n\nIf you change your mind, you can re-enable it later in the options.\n\nIf you didn\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
     <string name="locationPermissionsForCurrentLocationUngranted">You did not grant the requested permissions, so the current location cannot be determined.</string>
     <string name="storagePermissionsRequestTitle">Storage Permission</string>
@@ -317,4 +317,6 @@
     <string name="weekNumber">W %1$d</string>
     <string name="advanced">Advanced</string>
     <string name="select_data_directory">Select Data Directory</string>
+    <string name="notification_permission_removed">Disabled notifications in the settings because the permission was removed for the app.</string>
+    <string name="notification_permissions_ungranted">Disabled notifications in the settings because the permission was not granted for the app. You can always allow notifications in the Android settings for this app.</string>
 </resources>

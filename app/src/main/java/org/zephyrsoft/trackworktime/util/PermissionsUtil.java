@@ -31,9 +31,9 @@ import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,7 +47,12 @@ public class PermissionsUtil {
     public static Set<String> missingPermissionsForTracking(Context context) {
         Set<String> permissionsToRequest = new HashSet<>();
 
-        List<String> locationPermissions = Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION);
+        List<String> locationPermissions = new ArrayList<>();
+        locationPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        locationPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            locationPermissions.add(Manifest.permission.NEARBY_WIFI_DEVICES);
+        }
         for (String permission : locationPermissions) {
             if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                 permissionsToRequest.addAll(locationPermissions);
@@ -74,24 +79,25 @@ public class PermissionsUtil {
             && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED;
     }
 
+    public static boolean isNotificationPermissionMissing(Context context) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED;
+    }
+
     private static void addPermissionIfNotGranted(String permission, Set<String> permissionsToRequest, Context context) {
         if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(permission);
         }
     }
 
-    /**
-     * @return the permissions which were not granted in the diven results
-     * @see android.app.Activity#onRequestPermissionsResult(int, String[], int[])
-     */
-    public static List<String> notGrantedPermissions(String[] permissions, int[] grantResults) {
+    public static List<String> notGrantedPermissions(Map<String, Boolean> permissionsWithGrantResults) {
         List<String> result = new ArrayList<>();
-        if (permissions == null || grantResults == null) {
+        if (permissionsWithGrantResults == null) {
             return result;
         }
-        for (int i = 0; i < grantResults.length; i++) {
-            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                result.add(permissions[i]);
+        for (Map.Entry<String, Boolean> entry : permissionsWithGrantResults.entrySet()) {
+            if (entry.getValue()==null || !entry.getValue()) {
+                result.add(entry.getKey());
             }
         }
         return result;

@@ -39,6 +39,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -63,6 +64,7 @@ import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
+import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.io.File;
@@ -670,6 +672,12 @@ public class Basics {
                                  PendingIntent buttonOneIntent, Integer buttonOneIcon, String buttonOneText,
                                  PendingIntent buttonTwoIntent, Integer buttonTwoIcon, String buttonTwoText) {
         try {
+            if (PermissionsUtil.isNotificationPermissionMissing(context)) {
+                PreferencesUtil.disablePreference(preferences, Key.NOTIFICATION_ENABLED);
+                Toast.makeText(context, context.getString(R.string.notification_permission_removed), Toast.LENGTH_LONG).show();
+                return;
+            }
+
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
             @SuppressWarnings("deprecation")

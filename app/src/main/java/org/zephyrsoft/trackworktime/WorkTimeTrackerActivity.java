@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
@@ -45,13 +44,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -107,6 +107,41 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	}
 
 	private static WeakReference<WorkTimeTrackerActivity> instance = null;
+
+	private final ActivityResultLauncher<String[]> backgroundLocationRequest = registerForActivityResult(
+		new ActivityResultContracts.RequestMultiplePermissions(),
+		result -> {
+			// we only get here on API 29 and above
+			List<String> ungrantedForBackground = PermissionsUtil.notGrantedPermissions(result);
+			if (!ungrantedForBackground.isEmpty()) {
+				locationPermissionNotGranted(ungrantedForBackground);
+			}
+		});
+	private final ActivityResultLauncher<String[]> locationRequest = registerForActivityResult(
+		new ActivityResultContracts.RequestMultiplePermissions(),
+		result -> {
+			List<String> ungranted = PermissionsUtil.notGrantedPermissions(result);
+			if (ungranted.isEmpty()) {
+				if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
+					backgroundLocationRequest.launch(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION});
+				}
+			} else {
+				locationPermissionNotGranted(ungranted);
+			}
+		});
+	private final ActivityResultLauncher<String[]> currentLocationRequest = registerForActivityResult(
+		new ActivityResultContracts.RequestMultiplePermissions(),
+		result -> {
+			List<String> missingPermissions = PermissionsUtil.notGrantedPermissions(result);
+			if (missingPermissions.isEmpty()) {
+				doUseCurrentLocationAsWorkplace();
+			} else {
+				Intent messageIntent = Basics.get(this).createMessageIntent(
+					getString(R.string.locationPermissionsForCurrentLocationUngranted), null);
+				startActivity(messageIntent);
+				Logger.debug("missing tracking permissions for current location: {}", missingPermissions);
+			}
+		});
 
 	private ActivityMainBinding binding;
 
@@ -356,18 +391,14 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		if (!missingPermissions.isEmpty()) {
 			Logger.debug("asking for permissions: {}", missingPermissions);
 			PermissionsUtil.askForLocationPermission(this,
-				() -> ActivityCompat.requestPermissions(this,
-					missingPermissions.toArray(new String[0]),
-					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID),
+				() -> locationRequest.launch(missingPermissions.toArray(new String[0])),
 				() -> {
 					// do nothing
 				});
 		} else if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
 			Logger.debug("asking for permission ACCESS_BACKGROUND_LOCATION");
 			PermissionsUtil.askForLocationPermission(this,
-				() -> ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID),
+				() -> backgroundLocationRequest.launch(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}),
 				() -> {
 					// do nothing
 				});
@@ -743,9 +774,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		if (!missingPermissions.isEmpty()) {
 			Logger.debug("asking for permissions: {}", missingPermissions);
 			PermissionsUtil.askForLocationPermission(this,
-				() -> ActivityCompat.requestPermissions(this,
-					missingPermissions.toArray(new String[0]),
-					Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_FOR_CURRENT_LOCATION_ID),
+				() -> currentLocationRequest.launch(missingPermissions.toArray(new String[0])),
 				() -> {
 					// do nothing
 				});
@@ -897,53 +926,6 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		return instance == null
 			? null
 			: instance.get();
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-										   @NonNull int[] grantResults) {
-		switch (requestCode) {
-			case Constants.PERMISSION_REQUEST_CODE_BACKUP:
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					backup();
-				}
-				break;
-			case Constants.PERMISSION_REQUEST_CODE_RESTORE:
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					restore();
-				}
-				break;
-			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_ID:
-				List<String> ungranted = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
-				if (ungranted.isEmpty()) {
-					if (PermissionsUtil.isBackgroundPermissionMissing(this)) {
-						ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID);
-					}
-				} else {
-					locationPermissionNotGranted(ungranted);
-				}
-				break;
-			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_IN_BACKGROUND_ID:
-				// we only get here on API 30 and above
-				List<String> ungrantedForBackground = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
-				if (!ungrantedForBackground.isEmpty()) {
-					locationPermissionNotGranted(ungrantedForBackground);
-				}
-				break;
-			case Constants.MISSING_PRIVILEGE_ACCESS_LOCATION_FOR_CURRENT_LOCATION_ID:
-				List<String> missingPermissions = PermissionsUtil.notGrantedPermissions(permissions, grantResults);
-				if (missingPermissions.isEmpty()) {
-					doUseCurrentLocationAsWorkplace();
-				} else {
-					Intent messageIntent = Basics.get(this).createMessageIntent(
-						getString(R.string.locationPermissionsForCurrentLocationUngranted), null);
-					startActivity(messageIntent);
-					Logger.debug("missing tracking permissions for current location: {}", missingPermissions);
-				}
-				break;
-			default:
-				super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		}
 	}
 
 	private void locationPermissionNotGranted(List<String> ungranted) {

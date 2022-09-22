@@ -226,7 +226,7 @@ public class DAO {
 	 * @return the task (first if more than one exist) or {@code null} if the specified name does not exist at all
 	 */
 	public Task getTask(String name) {
-		List<Task> tasks = getTasksWithConstraint(TASK_NAME + "=\"" + name + "\"");
+		List<Task> tasks = getTasksWithConstraint(TASK_NAME + "='" + name + "'");
 		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
@@ -360,8 +360,8 @@ public class DAO {
 	 * Return the events that are in the specified time frame.
 	 */
 	public List<Event> getEvents(Instant beginOfTimeFrame, Instant endOfTimeFrame) {
-		return getEventsWithConstraint(EVENT_TIME + " >= \"" + beginOfTimeFrame.getEpochSecond()
-			+ "\" AND " + EVENT_TIME + " < \"" + endOfTimeFrame.getEpochSecond() + "\"");
+		return getEventsWithConstraint(EVENT_TIME + " >= " + beginOfTimeFrame.getEpochSecond()
+			+ " AND " + EVENT_TIME + " < " + endOfTimeFrame.getEpochSecond());
 	}
 
 	/**
@@ -401,8 +401,8 @@ public class DAO {
 		long instantA = date.with(LocalTime.MIN).toEpochSecond();
 		long instantB = date.toEpochSecond();
 
-		return getEventsWithConstraint(EVENT_TIME + " >= \"" + instantA +
-			"\" AND " + EVENT_TIME + " < \"" + instantB + "\"");
+		return getEventsWithConstraint(EVENT_TIME + " >= " + instantA +
+			" AND " + EVENT_TIME + " < " + instantB);
 	}
 
 	/**
@@ -414,8 +414,8 @@ public class DAO {
 		long instantA = date.with(LocalTime.MIN).toEpochSecond();
 		long instantB = date.toEpochSecond();
 
-		return getEventsWithConstraint(EVENT_TIME + " >= \"" + instantA +
-				"\" AND " + EVENT_TIME + "<= \"" + instantB + "\"");
+		return getEventsWithConstraint(EVENT_TIME + " >= " + instantA +
+				" AND " + EVENT_TIME + "<= " + instantB);
 	}
 
 	/**
@@ -428,8 +428,8 @@ public class DAO {
 		long instantB = date.with(LocalTime.MAX).toEpochSecond();
 
 
-		return getEventsWithConstraint(EVENT_TIME + " > \"" + instantA +
-				"\" AND " + EVENT_TIME + "<= \"" + instantB + "\"");
+		return getEventsWithConstraint(EVENT_TIME + " > " + instantA +
+				" AND " + EVENT_TIME + "<= " + instantB);
 	}
 
 	/**
@@ -452,8 +452,8 @@ public class DAO {
 	 *            the date and time before which the event is searched
 	 */
 	public Event getLastEventBefore(OffsetDateTime dateTime) {
-		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " < \""
-			+ dateTime.toEpochSecond() + "\"", true, true);
+		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " < "
+			+ dateTime.toEpochSecond(), true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -466,8 +466,8 @@ public class DAO {
 	 *            the date and time before which the event is searched
 	 */
 	public Event getLastEventUpTo(OffsetDateTime dateTime) {
-		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " <= \""
-			+ dateTime.toEpochSecond() + "\"", true, true);
+		List<Event> lastEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " <= "
+			+ dateTime.toEpochSecond(), true, true);
 		// if lastEvent is empty, then there is no such event in the database
 		return lastEvent.isEmpty() ? null : lastEvent.get(0);
 	}
@@ -479,8 +479,8 @@ public class DAO {
 	 *            the date and time after which the event is searched
 	 */
 	public Event getFirstEventAfter(OffsetDateTime dateTime) {
-		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > \""
-			+ dateTime.toEpochSecond() + "\"", false, true);
+		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, EVENT_TIME + " > "
+			+ dateTime.toEpochSecond(), false, true);
 		// if firstEvent is empty, then there is no such event in the database
 		return firstEvent.isEmpty() ? null : firstEvent.get(0);
 	}
@@ -496,7 +496,7 @@ public class DAO {
 		long instantA = dateTime.toEpochSecond();
 
 		String constraint =
-				EVENT_TIME + " > \"" + instantA + "\" AND " + EVENT_TYPE + " = " + type.toString();
+				EVENT_TIME + " > " + instantA + " AND " + EVENT_TYPE + " = " + type.getValue();
 
 		List<Event> firstEvent = getEventsWithParameters(EVENT_FIELDS, constraint, false, true);
 
@@ -1093,7 +1093,7 @@ public class DAO {
 	public void executePendingMigrations() {
 		open();
 
-		SQLiteStatement s = db.compileStatement("SELECT count(*) FROM sqlite_master WHERE type=\"table\" AND name=\"" + EVENT_V1 + "\"");
+		SQLiteStatement s = db.compileStatement("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + EVENT_V1 + "'");
 
 		if (s.simpleQueryForLong() > 0) {
 			Logger.debug("Starting upgrade activity.");

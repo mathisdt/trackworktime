@@ -80,10 +80,12 @@ There are three occasions in which personal data may be sent somewhere by the ap
 The following sections explain why the app needs the permission it requests:<br>
 <h4>ACCESS_COARSE_LOCATION / ACCESS_BACKGROUND_LOCATION / FOREGROUND_SERVICE</h4>
 If you want to auto-clock your time being at a specific location, you may give the coordinates and the app will detect when you enter and exit the location. It uses the cell phone network to get the coarse location, so your battery won't be drained by GPS. Please be aware that this app collects location data to enable tracking your work time by location and/or Wi-Fi even when the app is closed or not in use. If you don't like the app being able to do this, you may take away the permission - the app will continue to work without it.<br>
-<h4>ACCESS_WIFI_STATE / CHANGE_WIFI_STATE / ACCESS_FINE_LOCATION / FOREGROUND_SERVICE</h4>
+<h4>ACCESS_WIFI_STATE / CHANGE_WIFI_STATE / ACCESS_FINE_LOCATION / NEARBY_WIFI_DEVICES / FOREGROUND_SERVICE</h4>
 If you want to auto-clock your time being in range of a specific Wi-Fi network, you may give the network name (a.k.a. SSID) and the app will detect when you enter and exit the range of the Wi-Fi network. If you don't like the app being able to do this, you may take away the permission - the app will continue to work without it.<br>
 <h4>RECEIVE_BOOT_COMPLETED</h4>
 If you enable location-based clock-in and clock-out, the app checks periodically where you are. If your device reboots, it has to tell this to TWT or else TWT won't check the location correctly until you open it manually for the first time after the reboot. The background service is disabled by default.<br>
+<h4>POST_NOTIFICATIONS</h4>
+The app can display a persistent notification about your work day, including when you can expect to leave (based on your configured working time). It's disabled by default.<br>
 <h4>INTERNET</h4>
 In some rare cases, the app might crash. To fix these crashes if they occur, it is critical to receive reports about them, so the app will offer you to send some information about the problem to the developer (me). The log file appended to the bug report may include personal data - if so, it will kept strictly confidential and only used to identify the problem. As this is an open source project, you can verify this very easily, just look at <a href="http://svn.zephyrsoft.org/svn/trackworktime/trunk/src/org/zephyrsoft/trackworktime/" target="_blank" rel="noopener noreferrer">the code</a>! Please note, if you don't like the app being able to do this, you may take away the permission or just tap "no" when asked to send a bug report - the app will continue to work without it, but perhaps some bugs might not be fixed.<br>
 <h4>VIBRATE</h4>
