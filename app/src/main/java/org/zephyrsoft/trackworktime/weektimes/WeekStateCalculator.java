@@ -172,7 +172,7 @@ public class WeekStateCalculator {
 					dayRowState.flexiDecimal = formatDecimal(dayInfo.getTimeFlexi(), null);
 				}
 			} else if (dayInfo.containsEvents()) {
-				dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), "");
+				dayRowState.flexi = formatSum(dayInfo.getTimeFlexi(), "00:00");
 				if (decimalAmounts) {
 					dayRowState.flexiDecimal = formatDecimal(dayInfo.getTimeFlexi(), "");
 				}
