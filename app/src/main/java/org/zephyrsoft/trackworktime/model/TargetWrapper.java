@@ -62,4 +62,12 @@ public class TargetWrapper {
     public String getComment() {
         return wrapped.getComment();
     }
+
+    public Integer getId() {
+        return wrapped.getId();
+    }
+
+    public Integer getType() {
+        return wrapped.getType();
+    }
 }
