@@ -58,7 +58,8 @@
     <string name="really_enable_task">Really enable the task?</string>
     <string name="really_disable_task">Really disable the task?</string>
     <string name="really_delete_task">Really delete the task?</string>
-    <string name="cannot_delete_task">The task cannot be deleted because it is still used in events.</string>
+    <string name="cannot_delete_task_used">The task cannot be deleted because it is still used in events.</string>
+    <string name="cannot_delete_task_last_one">The task cannot be deleted because it is the last one.\n\nFirst create another one, then delete this one (or just rename it).</string>
     <string name="really_delete_event">Really delete the selected event(s)?</string>
     <string name="enableFlexiTime">Enable Flexi Time</string>
     <string name="flexiTimeBalancing">Flexi Time Balancing</string>

@@ -263,10 +263,18 @@ public class TaskListActivity extends AppCompatActivity {
 					// can't delete, task is used in events
 					alert.setCancelable(false);
 					alert.setTitle(getString(R.string.delete_task));
-					alert.setMessage(getString(R.string.cannot_delete_task));
+					alert.setMessage(getString(R.string.cannot_delete_task_used));
 					alert.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                        // do nothing
-                    });
+						// do nothing
+					});
+				} else if (tasks.size() == 1) {
+					// can't delete, task is last one
+					alert.setCancelable(false);
+					alert.setTitle(getString(R.string.delete_task));
+					alert.setMessage(getString(R.string.cannot_delete_task_last_one));
+					alert.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+						// do nothing
+					});
 				} else {
 					// delete task after confirmation
 					alert.setTitle(getString(R.string.delete_task));
