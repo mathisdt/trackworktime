@@ -26,7 +26,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.databinding.ReportPreviewBinding;
@@ -48,6 +47,7 @@ public class ReportPreviewActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.report_preview);
+		setTitle();
 
 		Report report = getReport();
 		loadReport(report);
@@ -58,17 +58,16 @@ public class ReportPreviewActivity extends AppCompatActivity {
 	}
 
 	private void loadReport(Report report) {
-		setTitle(report.getName());
 		setContent(report.getData());
 	}
 
-	private void setTitle(String title) {
+	private void setTitle() {
 		ActionBar bar = getSupportActionBar();
 		if (bar == null) {
 			Logger.error("Action bar was null");
 			return;
 		}
-		bar.setTitle(StringUtils.capitalize(title));
+		bar.setTitle(R.string.report_preview);
 		bar.setDisplayHomeAsUpEnabled(true);
 	}
 

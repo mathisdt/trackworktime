@@ -49,6 +49,7 @@ import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -263,7 +264,7 @@ public class ReportsActivity extends AppCompatActivity {
 		truncateEventsToMinute(events);
 
 		String report = csvGenerator.createEventCsv(events);
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -300,7 +301,7 @@ public class ReportsActivity extends AppCompatActivity {
 		Map<Task, TimeSum> sums = timeCalculator.calculateSums(beginAndEnd[0].toOffsetDateTime(), beginAndEnd[1].toOffsetDateTime(), events);
 
 		String report = csvGenerator.createSumsCsv(sums);
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -337,7 +338,7 @@ public class ReportsActivity extends AppCompatActivity {
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -376,7 +377,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createSumsPerWeekCsv(sumsPerRange,
 			new String[] { "week", "task", "spent" },
 			task -> task.getName() + " (ID=" + task.getId() + ")");
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -415,7 +416,7 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange,
 			new String[] { "month", "task", "spent" },
 			task -> task.getName() + " (ID=" + task.getId() + ")");
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -450,7 +451,7 @@ public class ReportsActivity extends AppCompatActivity {
 		List<Target> targets = dao.getTargets(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
 
 		String report = csvGenerator.createTargetCsv(targets);
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -469,7 +470,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 		String report = csvGenerator.createDayCountPerWeekCsv(sumsPerRange,
 			new String[] { "week", "target", "days" });
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -506,7 +507,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 		String report = csvGenerator.createDayCountPerMonthCsv(sumsPerRange,
 			new String[] { "month", "target", "days" });
-		String reportName = getNameForSelection(selectedRange, selectedUnit);
+		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
 			return null;
@@ -606,14 +607,13 @@ public class ReportsActivity extends AppCompatActivity {
 		}
 	}
 
-	private String getNameForSelection(Range range, Unit unit) {
-		return range == Range.ALL_DATA
-            ? range.getName(this)
-            : range.getName(this) + " " + unit.getName(this);
+	private String describeTimeRange(ZonedDateTime[] beginAndEnd) {
+		return "from " + DateTimeUtil.dateToULString(beginAndEnd[0])
+			+ " to " + DateTimeUtil.dateToULString(beginAndEnd[1]);
 	}
 
 	/**
-	 * @param reportName readable name
+	 * @param reportName readable name for time frame
 	 * @param filePrefix file name without the extension ".csv"
 	 * @param report report contents
 	 */
