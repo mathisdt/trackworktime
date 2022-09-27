@@ -35,6 +35,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TimeInfo;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.util.BroadcastUtil;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.Updatable;
 
@@ -613,13 +614,14 @@ public class TimerManager {
 
 		Event event = new Event(null, taskId, type.getValue(), dateTime, text);
 		Logger.debug("TRACKING: {} @ {} taskId={} text={}", type.name(), dateTime, taskId, text);
-		dao.insertEvent(event);
+		Event inserted = dao.insertEvent(event);
 		dao.deleteCacheFrom(event.getDateTime().toLocalDate());
 
 		if (!insertedByRestore) {
 			Basics.get(context).safeCheckExternalControls();
 		}
 		notifyListeners();
+		BroadcastUtil.sendEventBroadcast(inserted, context, BroadcastUtil.Action.CREATED);
 	}
 
 	// TODO General invalidate function (possibly with notification)

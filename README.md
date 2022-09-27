@@ -42,6 +42,21 @@ Here's how you can use this in Automate:
 ["Dialog message" settings](https://zephyrsoft.org/images/automate-8.png),
 [resulting message](https://zephyrsoft.org/images/automate-9.png).
 
+Even the other way around is possible, **TWT generates broadcast intents on event creation/update/deletion**.
+Automation apps can listen for the actions *org.zephyrsoft.trackworktime.event.Created*,
+*org.zephyrsoft.trackworktime.event.Updated* and *org.zephyrsoft.trackworktime.event.Deleted*.  
+There are the following extras available: id (number uniquely identifying an event),
+date (the event's date, formatted YYYY-MM-DD), time (the event's time, formatted HH\:MM\:SS),
+timezone_offset (offset in standard format, e.g. +02:00),
+timezone_offset_minutes (offset in minutes, e.g. 120),
+type_id (number uniquely identifying the event's type, 0=clock-out / 1=clock-in),
+type (name of the event's type, CLOCK_IN or CLOCK_OUT),
+task_id (number uniquely identifying the event's task, not available on clock-out events),
+task (name of the event's task, not available on clock-out events),
+comment (only available if the user provided it).  
+These broadcasts are sent *on every corresponding event* in TWT, so you might want to
+temporarily disable your automation if you restore a backup because that will generate many broadcasts.
+
 If you have a **Pebble** smart watch, the app will notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.
   

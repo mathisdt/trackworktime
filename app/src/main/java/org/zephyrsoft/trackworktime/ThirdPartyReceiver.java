@@ -29,7 +29,7 @@ import org.zephyrsoft.trackworktime.timer.TimerManager;
 import java.time.OffsetDateTime;
 
 /**
- * Hook for clock-in with third-party apps like Tasker or Llama.
+ * Hook for clock-in with third-party apps like Tasker or LlamaLab Automate.
  * Also handles actions triggered directly from the notification and from the widget of TWT.
  */
 public class ThirdPartyReceiver extends BroadcastReceiver {

@@ -43,6 +43,7 @@ import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.ui.DateTextViewController;
+import org.zephyrsoft.trackworktime.util.BroadcastUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -184,6 +185,8 @@ public class EventEditActivity extends AppCompatActivity {
 
 					// we have to call this manually when using the DAO directly
 					timerManager.invalidateCacheFrom(dateTime);
+
+					BroadcastUtil.sendEventBroadcast(editedEvent, this, BroadcastUtil.Action.UPDATED);
 				}
 			}
 

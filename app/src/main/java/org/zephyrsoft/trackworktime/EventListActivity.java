@@ -50,6 +50,7 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
+import org.zephyrsoft.trackworktime.util.BroadcastUtil;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
@@ -337,6 +338,7 @@ public class EventListActivity extends AppCompatActivity {
 											|| event.getDateTime().isBefore(cacheInvalidationStart)) {
 											cacheInvalidationStart = event.getDateTime();
 										}
+										BroadcastUtil.sendEventBroadcast(event, EventListActivity.this, BroadcastUtil.Action.DELETED);
 									} else {
 										Logger.warn("could not delete event with ID {}", event.getId());
 									}

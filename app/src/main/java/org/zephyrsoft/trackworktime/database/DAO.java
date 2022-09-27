@@ -309,7 +309,9 @@ public class DAO {
 		event.setDateTime(instant.atOffset(zoneOffset));
 
 		event.setType(cursor.getInt(3));
-		event.setTask(cursor.getInt(4));
+		if (!cursor.isNull(4)) {
+			event.setTask(cursor.getInt(4));
+		}
 		event.setText(cursor.getString(5));
 		return event;
 	}

@@ -100,6 +100,9 @@ public class Constants {
 	public static final String CLOCK_IN_ACTION = BuildConfig.APPLICATION_ID + ".ClockIn";
     public static final String CLOCK_OUT_ACTION = BuildConfig.APPLICATION_ID + ".ClockOut";
     public static final String STATUS_REQUEST_ACTION = BuildConfig.APPLICATION_ID + ".StatusRequest";
+    public static final String EVENT_CREATED_ACTION = BuildConfig.APPLICATION_ID + ".event.Created";
+    public static final String EVENT_UPDATED_ACTION = BuildConfig.APPLICATION_ID + ".event.Updated";
+    public static final String EVENT_DELETED_ACTION = BuildConfig.APPLICATION_ID + ".event.Deleted";
 
 	// Work manager unique name
 	public static final String WORK_AUTOBACKUP = "AUTOBACKUP";
