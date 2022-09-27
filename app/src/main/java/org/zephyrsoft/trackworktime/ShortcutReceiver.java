@@ -37,7 +37,7 @@ public class ShortcutReceiver extends Activity {
         if (Constants.CLOCK_IN_ACTION.equals(action)) {
             Logger.info("TRACKING: clock-in via shortcut");
             Integer taskId = ThirdPartyReceiver.getDefaultTaskId(this);
-            timerManager.createEvent(OffsetDateTime.now(), taskId, TypeEnum.CLOCK_IN, null);
+            timerManager.createEvent(OffsetDateTime.now(), taskId, TypeEnum.CLOCK_IN, null, TimerManager.EventOrigin.LAUNCHER_SHORTCUT);
             WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
             if (instanceOrNull != null) {
                 instanceOrNull.refreshView();
@@ -45,7 +45,7 @@ public class ShortcutReceiver extends Activity {
             Widget.dispatchUpdateIntent(this);
         } else if (Constants.CLOCK_OUT_ACTION.equals(action)) {
             Logger.info("TRACKING: clock-out via shortcut");
-            timerManager.createEvent(OffsetDateTime.now(), null, TypeEnum.CLOCK_OUT, null);
+            timerManager.createEvent(OffsetDateTime.now(), null, TypeEnum.CLOCK_OUT, null, TimerManager.EventOrigin.LAUNCHER_SHORTCUT);
             WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
             if (instanceOrNull != null) {
                 instanceOrNull.refreshView();

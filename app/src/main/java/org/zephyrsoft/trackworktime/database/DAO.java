@@ -782,11 +782,12 @@ public class DAO {
                     } else {
                         typeEnum = TypeEnum.CLOCK_OUT;
                     }
-                    timerManager.createEvent(dateTime,
-                            Integer.parseInt(columns[INDEX_EVENT_TASK]),
-                            typeEnum,
-                            columns.length > INDEX_EVENT_TEXT ?
-                                    columns[INDEX_EVENT_TEXT] : "", true);
+					timerManager.createEvent(dateTime,
+						Integer.parseInt(columns[INDEX_EVENT_TASK]),
+						typeEnum,
+						columns.length > INDEX_EVENT_TEXT ?
+							columns[INDEX_EVENT_TEXT] : "",
+						TimerManager.EventOrigin.RESTORE_BACKUP);
                 }
             } catch (NumberFormatException e) {
                 // ignore rest of current row

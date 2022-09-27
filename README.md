@@ -42,7 +42,7 @@ Here's how you can use this in Automate:
 ["Dialog message" settings](https://zephyrsoft.org/images/automate-8.png),
 [resulting message](https://zephyrsoft.org/images/automate-9.png).
 
-Even the other way around is possible, **TWT generates broadcast intents on event creation/update/deletion**.
+It's also possible the other way around: **TWT generates broadcast intents on event creation/update/deletion**.
 Automation apps can listen for the actions *org.zephyrsoft.trackworktime.event.Created*,
 *org.zephyrsoft.trackworktime.event.Updated* and *org.zephyrsoft.trackworktime.event.Deleted*.  
 There are the following extras available: id (number uniquely identifying an event),
@@ -53,9 +53,17 @@ type_id (number uniquely identifying the event's type, 0=clock-out / 1=clock-in)
 type (name of the event's type, CLOCK_IN or CLOCK_OUT),
 task_id (number uniquely identifying the event's task, not available on clock-out events),
 task (name of the event's task, not available on clock-out events),
-comment (only available if the user provided it).  
-These broadcasts are sent *on every corresponding event* in TWT, so you might want to
-temporarily disable your automation if you restore a backup because that will generate many broadcasts.
+comment (only available if the user provided it),
+source (where the event was generated originally, possible values are
+MAIN_SCREEN_BUTTON, EVENT_LIST, QUICK_SETTINGS, LAUNCHER_SHORTCUT, MULTI_INSERT, AUTO_PAUSE,
+LOCATION, WIFI, RECEIVED_INTENT [includes both externally created broadcasts and actions from TWT's own widget]).  
+Some screenshots so you can see it in action in Automate:
+[Flow overview](https://zephyrsoft.org/images/automate-receive-1.png),
+["Receive Broadcast" settings top](https://zephyrsoft.org/images/automate-receive-2.png),
+["Receive Broadcast" settings bottom](https://zephyrsoft.org/images/automate-receive-3.png),
+["Dialog Message" settings](https://zephyrsoft.org/images/automate-receive-4.png),
+[Result 1](https://zephyrsoft.org/images/automate-receive-5.png),
+[Result 2](https://zephyrsoft.org/images/automate-receive-6.png).
 
 If you have a **Pebble** smart watch, the app will notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.

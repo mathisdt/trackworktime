@@ -49,7 +49,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-in via broadcast / taskId={} / text={}", taskId, text);
 			timerManager.createEvent(OffsetDateTime.now(),
-				taskId, TypeEnum.CLOCK_IN, text);
+				taskId, TypeEnum.CLOCK_IN, text, TimerManager.EventOrigin.RECEIVED_INTENT);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();
@@ -60,7 +60,7 @@ public class ThirdPartyReceiver extends BroadcastReceiver {
 			String text = getText(extras);
 			Logger.info("TRACKING: clock-out via broadcast / taskId={} / text={}", taskId, text);
 			timerManager.createEvent(OffsetDateTime.now(),
-				taskId, TypeEnum.CLOCK_OUT, text);
+				taskId, TypeEnum.CLOCK_OUT, text, TimerManager.EventOrigin.RECEIVED_INTENT);
 			WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();
 			if (instanceOrNull != null) {
 				instanceOrNull.refreshView();

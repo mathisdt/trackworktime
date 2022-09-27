@@ -153,8 +153,8 @@ public class EventEditActivity extends AppCompatActivity {
 				String textString = text.getText().toString();
 
 				Logger.debug("saving new period: {} - {}", startDateTime, endDateTime);
-				timerManager.createEvent(startDateTime, taskId, TypeEnum.CLOCK_IN, textString);
-				timerManager.createEvent(endDateTime, null, TypeEnum.CLOCK_OUT, null);
+				timerManager.createEvent(startDateTime, taskId, TypeEnum.CLOCK_IN, textString, TimerManager.EventOrigin.EVENT_LIST);
+				timerManager.createEvent(endDateTime, null, TypeEnum.CLOCK_OUT, null, TimerManager.EventOrigin.EVENT_LIST);
 			} else {
 				// save the event
 				TypeEnum typeEnum = binding.radioClockIn.isChecked() ? TypeEnum.CLOCK_IN : TypeEnum.CLOCK_OUT;
@@ -173,7 +173,7 @@ public class EventEditActivity extends AppCompatActivity {
 
 				if (newEvent) {
 					Logger.debug("saving new event: {} @ {}", typeEnum.name(), dateTime);
-					timerManager.createEvent(dateTime, taskId, typeEnum, textString);
+					timerManager.createEvent(dateTime, taskId, typeEnum, textString, TimerManager.EventOrigin.EVENT_LIST);
 				} else {
 					Logger.debug("saving changed event with ID {}: {} @ {}",
 						editedEvent.getId(), typeEnum.name(), dateTime);
@@ -186,7 +186,8 @@ public class EventEditActivity extends AppCompatActivity {
 					// we have to call this manually when using the DAO directly
 					timerManager.invalidateCacheFrom(dateTime);
 
-					BroadcastUtil.sendEventBroadcast(editedEvent, this, BroadcastUtil.Action.UPDATED);
+					BroadcastUtil.sendEventBroadcast(editedEvent, this,
+						BroadcastUtil.Action.UPDATED, TimerManager.EventOrigin.EVENT_LIST);
 				}
 			}
 

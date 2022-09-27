@@ -77,11 +77,11 @@ public class QuickSettingsService extends TileService implements Updatable {
     public void onClick() {
         if (timerManager.isTracking()) {
             Logger.info("TRACKING: clock-out via quick settings");
-            timerManager.stopTracking(0);
+            timerManager.stopTracking(0, TimerManager.EventOrigin.QUICK_SETTINGS);
         } else {
             Logger.info("TRACKING: clock-in via quick settings");
             Task defaultTask = timerManager.getDefaultTask();
-            timerManager.startTracking(0, defaultTask, null);
+            timerManager.startTracking(0, defaultTask, null, TimerManager.EventOrigin.QUICK_SETTINGS);
         }
         update();
         WorkTimeTrackerActivity instanceOrNull = WorkTimeTrackerActivity.getInstanceOrNull();

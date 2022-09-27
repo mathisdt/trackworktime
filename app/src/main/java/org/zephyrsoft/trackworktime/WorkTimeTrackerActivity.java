@@ -443,7 +443,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		String description = binding.main.text.getText() == null
 			? null
 			: binding.main.text.getText().toString();
-		timerManager.startTracking(minutesToPredate, selectedTask, description);
+		timerManager.startTracking(minutesToPredate, selectedTask, description, TimerManager.EventOrigin.MAIN_SCREEN_BUTTON);
 		externalNotificationManager.notifyPebble(getString(R.string.pebbleNotifyStart));
 		refreshView();
 	}
@@ -479,7 +479,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			throw new IllegalArgumentException("no negative argument allowed");
 		}
 
-		timerManager.stopTracking(minutesToPredate);
+		timerManager.stopTracking(minutesToPredate, TimerManager.EventOrigin.MAIN_SCREEN_BUTTON);
 		externalNotificationManager.notifyPebble(getString(R.string.pebbleNotifyStop));
 		refreshView();
 	}

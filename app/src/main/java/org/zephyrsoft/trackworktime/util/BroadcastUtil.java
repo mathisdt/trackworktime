@@ -22,6 +22,7 @@ import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,16 +48,16 @@ public class BroadcastUtil {
         }
     }
 
-    public static void sendEventBroadcast(Event event, Context context, Action action) {
+    public static void sendEventBroadcast(Event event, Context context, Action action, TimerManager.EventOrigin source) {
         Intent intent = new Intent();
         intent.setAction(action.getName());
-        fillIntent(event, context, intent);
+        fillIntent(event, context, intent, source);
         context.sendBroadcast(intent);
-        Logger.debug("sent broadcast intent with action {} for event {}: {}",
-            action.name(), event.getId(), event.toString());
+        Logger.debug("sent broadcast intent with action {} for event {} with source {}: {}",
+            action.name(), event.getId(), source, event.toString());
     }
 
-    private static void fillIntent(Event event, Context context, Intent intent) {
+    private static void fillIntent(Event event, Context context, Intent intent, TimerManager.EventOrigin source) {
         intent.putExtra("id", event.getId());
         OffsetDateTime dateTime = event.getDateTime().withNano(0);
         intent.putExtra("date", DateTimeFormatter.ISO_LOCAL_DATE.format(dateTime));
@@ -70,5 +71,6 @@ public class BroadcastUtil {
             intent.putExtra("task", Basics.get(context).getDao().getTask(event.getTask()).getName());
         }
         intent.putExtra("comment", event.getText());
+        intent.putExtra("source", source.name());
     }
 }

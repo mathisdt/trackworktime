@@ -338,7 +338,8 @@ public class EventListActivity extends AppCompatActivity {
 											|| event.getDateTime().isBefore(cacheInvalidationStart)) {
 											cacheInvalidationStart = event.getDateTime();
 										}
-										BroadcastUtil.sendEventBroadcast(event, EventListActivity.this, BroadcastUtil.Action.DELETED);
+										BroadcastUtil.sendEventBroadcast(event, EventListActivity.this,
+											BroadcastUtil.Action.DELETED, TimerManager.EventOrigin.EVENT_LIST);
 									} else {
 										Logger.warn("could not delete event with ID {}", event.getId());
 									}

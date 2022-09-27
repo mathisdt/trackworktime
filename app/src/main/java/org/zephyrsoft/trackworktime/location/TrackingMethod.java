@@ -16,23 +16,29 @@
 package org.zephyrsoft.trackworktime.location;
 
 import org.zephyrsoft.trackworktime.R;
+import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 /**
  * Available methods of automatically tracking work time.
  */
 public enum TrackingMethod {
 
-	LOCATION(R.string.keyClockedInByLocation),
-	WIFI(R.string.keyClockedInByWifi);
+	LOCATION(R.string.keyClockedInByLocation, TimerManager.EventOrigin.LOCATION),
+	WIFI(R.string.keyClockedInByWifi, TimerManager.EventOrigin.WIFI);
 
 	private final int preferenceKeyId;
+	private final TimerManager.EventOrigin source;
 
-	TrackingMethod(int preferenceKeyId) {
+	TrackingMethod(int preferenceKeyId, TimerManager.EventOrigin source) {
 		this.preferenceKeyId = preferenceKeyId;
+		this.source = source;
 	}
 
 	public int getPreferenceKeyId() {
 		return preferenceKeyId;
 	}
 
+	public TimerManager.EventOrigin getSource() {
+		return source;
+	}
 }

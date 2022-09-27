@@ -62,6 +62,21 @@ import java.util.Locale;
  */
 public class TimerManager {
 
+	public enum EventOrigin {
+		QUICK_SETTINGS,
+		LAUNCHER_SHORTCUT,
+		MAIN_SCREEN_BUTTON,
+		EVENT_LIST,
+		MULTI_INSERT,
+		AUTO_PAUSE,
+		LOCATION,
+		WIFI,
+		/** this includes both externally created broadcasts and actions from TWT's own widget */
+		RECEIVED_INTENT,
+		/** events with this source are NOT sent out as broadcasts! */
+		RESTORE_BACKUP
+	}
+
 	private final DAO dao;
 	private final SharedPreferences preferences;
 	private final Context context;
@@ -128,14 +143,14 @@ public class TimerManager {
 				int workDuration = getNormalWorkDurationFor(weekDay);
 				if (workDuration > 0) {
 					OffsetDateTime clockInTime = running.atStartOfDay(getHomeTimeZone()).toOffsetDateTime();
-					createEvent(clockInTime, taskId, TypeEnum.CLOCK_IN, text);
+					createEvent(clockInTime, taskId, TypeEnum.CLOCK_IN, text, EventOrigin.MULTI_INSERT);
 
 					OffsetDateTime clockOutTime = clockInTime.plusMinutes(workDuration);
 					if (isAutoPauseApplicable(clockOutTime)) {
 						long pauseDuration = getAutoPauseDuration();
 						clockOutTime = clockOutTime.plusMinutes(pauseDuration);
 					}
-					createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null);
+					createEvent(clockOutTime, null, TypeEnum.CLOCK_OUT, null, EventOrigin.MULTI_INSERT);
 				}
 
 				running = running.plusDays(1);
@@ -239,12 +254,12 @@ public class TimerManager {
 	 * @param text
 	 *            free text to describe in detail what was done
 	 */
-	public void startTracking(int minutesToPredate, Task selectedTask, String text) {
+	public void startTracking(int minutesToPredate, Task selectedTask, String text, EventOrigin source) {
 		Task taskToLink = selectedTask;
 		if (taskToLink == null) {
 			taskToLink = dao.getDefaultTask();
 		}
-		createEvent(minutesToPredate, (taskToLink == null ? null : taskToLink.getId()), TypeEnum.CLOCK_IN, text);
+		createEvent(minutesToPredate, (taskToLink == null ? null : taskToLink.getId()), TypeEnum.CLOCK_IN, text, source);
 		Basics.get(context).safeCheckExternalControls();
 	}
 
@@ -254,8 +269,8 @@ public class TimerManager {
 	 * @param minutesToPredate
 	 *            how many minutes in the future should the event be
 	 */
-	public void stopTracking(int minutesToPredate) {
-		createEvent(minutesToPredate, null, TypeEnum.CLOCK_OUT, null);
+	public void stopTracking(int minutesToPredate, EventOrigin source) {
+		createEvent(minutesToPredate, null, TypeEnum.CLOCK_OUT, null, source);
 		Basics.get(context).safeCheckExternalControls();
 	}
 
@@ -561,12 +576,12 @@ public class TimerManager {
 	 * @param text
 	 *            the text (may be {@code null})
 	 */
-	public void createEvent(int minutesToPredate, Integer taskId, TypeEnum type, String text) {
+	public void createEvent(int minutesToPredate, Integer taskId, TypeEnum type, String text, EventOrigin source) {
 		if (minutesToPredate < 0) {
 			throw new IllegalArgumentException("no negative minute amount allowed");
 		}
 		ZonedDateTime targetTime = ZonedDateTime.now().plusMinutes(minutesToPredate);
-		createEvent(targetTime.toOffsetDateTime(), taskId, type, text);
+		createEvent(targetTime.toOffsetDateTime(), taskId, type, text, source);
 	}
 
 	/**
@@ -580,27 +595,11 @@ public class TimerManager {
 	 *            the type
 	 * @param text
 	 *            the text (may be {@code null})
+	 * @param source
+	 *            source of the event. In case it originated from a restore, auto pause and
+	 *            refresh of notifications are suppressed.
 	 */
-	public void createEvent(OffsetDateTime dateTime, Integer taskId, TypeEnum type, String text) {
-		createEvent(dateTime, taskId, type, text, false);
-	}
-
-	/**
-	 * Create a new event at the given time.
-	 *
-	 * @param dateTime
-	 *            the time for which the new event should be created
-	 * @param taskId
-	 *            the task id (may be {@code null})
-	 * @param type
-	 *            the type
-	 * @param text
-	 *            the text (may be {@code null})
-	 * @param insertedByRestore
-	 *            true if the event is inserted by a restore. In that case, auto pause and refresh of notifications are
-	 *            suppressed.
-	 */
-	public void createEvent(OffsetDateTime dateTime, Integer taskId, TypeEnum type, String text, boolean insertedByRestore) {
+	public void createEvent(OffsetDateTime dateTime, Integer taskId, TypeEnum type, String text, EventOrigin source) {
 		if (dateTime == null) {
 			throw new IllegalArgumentException("date/time has to be given");
 		}
@@ -608,7 +607,7 @@ public class TimerManager {
 			throw new IllegalArgumentException("type has to be given");
 		}
 
-		if (!insertedByRestore && type == TypeEnum.CLOCK_OUT) {
+		if (source != EventOrigin.RESTORE_BACKUP && type == TypeEnum.CLOCK_OUT) {
 			tryToInsertAutoPause(dateTime);
 		}
 
@@ -617,11 +616,13 @@ public class TimerManager {
 		Event inserted = dao.insertEvent(event);
 		dao.deleteCacheFrom(event.getDateTime().toLocalDate());
 
-		if (!insertedByRestore) {
+		if (source != EventOrigin.RESTORE_BACKUP) {
 			Basics.get(context).safeCheckExternalControls();
 		}
 		notifyListeners();
-		BroadcastUtil.sendEventBroadcast(inserted, context, BroadcastUtil.Action.CREATED);
+		if (source != EventOrigin.RESTORE_BACKUP) {
+			BroadcastUtil.sendEventBroadcast(inserted, context, BroadcastUtil.Action.CREATED, source);
+		}
 	}
 
 	// TODO General invalidate function (possibly with notification)
@@ -650,9 +651,9 @@ public class TimerManager {
 			Logger.debug("inserting auto-pause, begin={}, end={}", begin, end);
 
 			Event lastBeforePause = dao.getLastEventBefore(begin);
-			createEvent(begin, null,TypeEnum.CLOCK_OUT, null);
+			createEvent(begin, null,TypeEnum.CLOCK_OUT, null, EventOrigin.AUTO_PAUSE);
 			createEvent(end, (lastBeforePause == null ? null : lastBeforePause.getTask()), TypeEnum.CLOCK_IN,
-				(lastBeforePause == null ? null : lastBeforePause.getText()));
+				(lastBeforePause == null ? null : lastBeforePause.getText()), EventOrigin.AUTO_PAUSE);
 		} else {
 			Logger.debug("NOT inserting auto-pause");
 		}
@@ -819,7 +820,7 @@ public class TimerManager {
 			if (!isClockedInWithAnyOtherTrackingMethod(method) && !isTracking()) {
 				// we are not clocked in already by hand or by another method, so generate an event (first method
 				// clocking in)
-				startTracking(0, null, null);
+				startTracking(0, null, null, method.getSource());
 				Logger.debug("method {}: started tracking", method);
 				return true;
 			} else {
@@ -831,7 +832,7 @@ public class TimerManager {
 			// method is clocked out now - should we generate a clock-out event?
 			if (!isClockedInWithAnyOtherTrackingMethod(method) && isTracking()) {
 				// we are not clocked in by hand or by another method, so generate an event (last method clocking out)
-				stopTracking(0);
+				stopTracking(0, method.getSource());
 				Logger.debug("method {}: stopped tracking", method);
 				return true;
 			} else {
@@ -846,7 +847,7 @@ public class TimerManager {
 		if (state) {
 			// method is clocked in now - should we generate a clock-in event?
 			if (!isTracking()) {
-				startTracking(0, null, null);
+				startTracking(0, null, null, method.getSource());
 				Logger.debug("method {}: started tracking forcibly", method);
 				return true;
 			} else {
@@ -857,7 +858,7 @@ public class TimerManager {
 		} else {
 			// method is clocked out now - should we generate a clock-out event?
 			if (isTracking()) {
-				stopTracking(0);
+				stopTracking(0, method.getSource());
 				Logger.debug("method {}: stopped tracking forcibly", method);
 				return true;
 			} else {
