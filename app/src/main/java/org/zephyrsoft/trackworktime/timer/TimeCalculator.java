@@ -15,6 +15,13 @@
  */
 package org.zephyrsoft.trackworktime.timer;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
+
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
@@ -24,16 +31,18 @@ import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Calculates the actual work times from events.
@@ -42,6 +51,63 @@ public class TimeCalculator {
 
 	private final DAO dao;
 	private final TimerManager timerManager;
+
+	private static class RangeAndUnit {
+		private final Range range;
+		private final Unit unit;
+
+		public RangeAndUnit(Range range, Unit unit) {
+			this.range = range;
+			this.unit = unit;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			RangeAndUnit that = (RangeAndUnit) o;
+			return range == that.range && unit == that.unit;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(range, unit);
+		}
+	}
+
+	private static final Map<RangeAndUnit, Function<ZonedDateTime, ZonedDateTime[]>> TIMESPAN_FUNCTIONS = new HashMap<>();
+
+	static {
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.CURRENT, Unit.WEEK), reference ->
+			new ZonedDateTime[]{reference.with(LocalTime.MIN).with(previousOrSame(DayOfWeek.MONDAY)),
+				reference.with(LocalTime.MAX).with(nextOrSame(DayOfWeek.SUNDAY))});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.CURRENT, Unit.MONTH), reference ->
+			new ZonedDateTime[]{reference.with(LocalTime.MIN).with(firstDayOfMonth()),
+				reference.with(LocalTime.MAX).with(lastDayOfMonth())});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.CURRENT, Unit.YEAR), reference ->
+			new ZonedDateTime[]{reference.with(LocalTime.MIN).with(firstDayOfYear()),
+				reference.with(LocalTime.MAX).with(lastDayOfYear())});
+
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST_AND_CURRENT, Unit.WEEK), reference ->
+			new ZonedDateTime[]{reference.minusDays(7).with(LocalTime.MIN).with(previousOrSame(DayOfWeek.MONDAY)),
+				reference.with(LocalTime.MAX).with(nextOrSame(DayOfWeek.SUNDAY))});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST_AND_CURRENT, Unit.MONTH), reference ->
+			new ZonedDateTime[]{reference.minusMonths(1).with(LocalTime.MIN).with(firstDayOfMonth()),
+				reference.with(LocalTime.MAX).with(lastDayOfMonth())});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST_AND_CURRENT, Unit.YEAR), reference ->
+			new ZonedDateTime[]{reference.minusYears(1).with(LocalTime.MIN).with(firstDayOfYear()),
+				reference.with(LocalTime.MAX).with(lastDayOfYear())});
+
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST, Unit.WEEK), reference ->
+			new ZonedDateTime[]{reference.minusDays(7).with(LocalTime.MIN).with(previousOrSame(DayOfWeek.MONDAY)),
+				reference.minusDays(7).with(LocalTime.MAX).with(nextOrSame(DayOfWeek.SUNDAY))});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST, Unit.MONTH), reference ->
+			new ZonedDateTime[]{reference.minusMonths(1).with(LocalTime.MIN).with(firstDayOfMonth()),
+				reference.minusMonths(1).with(LocalTime.MAX).with(lastDayOfMonth())});
+		TIMESPAN_FUNCTIONS.put(new RangeAndUnit(Range.LAST, Unit.YEAR), reference ->
+			new ZonedDateTime[]{reference.minusYears(1).with(LocalTime.MIN).with(firstDayOfYear()),
+				reference.minusYears(1).with(LocalTime.MAX).with(lastDayOfYear())});
+	}
 
 	public TimeCalculator(DAO dao, TimerManager timerManager) {
 		this.dao = dao;
@@ -109,64 +175,23 @@ public class TimeCalculator {
 	}
 
 	public ZonedDateTime[] calculateBeginAndEnd(Range range, Unit unit) {
-		ZonedDateTime beginOfToday = ZonedDateTime.now(timerManager.getHomeTimeZone()).with(LocalTime.MIN);
-		ZonedDateTime beginOfTimeFrame = null;
-		ZonedDateTime endOfTimeFrame = null;
+		ZonedDateTime now = ZonedDateTime.now(timerManager.getHomeTimeZone());
 
-		long daysInLastUnit = 0;
-		if (range != Range.ALL_DATA) {
-			switch (unit) {
-				case WEEK:
-					beginOfTimeFrame = DateTimeUtil.getWeekStart(beginOfToday);
-					endOfTimeFrame = beginOfTimeFrame.plusDays(6).with(LocalTime.MAX);
-					daysInLastUnit = 7;
-					break;
-				case MONTH:
-					beginOfTimeFrame = beginOfToday.with(TemporalAdjusters.firstDayOfMonth());
-					endOfTimeFrame = beginOfToday.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
-
-					ZonedDateTime lastMonthBegin = beginOfTimeFrame.minusMonths(1);
-					daysInLastUnit = ChronoUnit.DAYS.between(lastMonthBegin, beginOfTimeFrame);
-					break;
-				case YEAR:
-					beginOfTimeFrame = beginOfToday.with(TemporalAdjusters.firstDayOfYear());
-					endOfTimeFrame = beginOfTimeFrame.plusYears(1).minusDays(1).with(LocalTime.MAX);
-
-					ZonedDateTime lastYearBegin = beginOfTimeFrame.minusYears(1);
-					daysInLastUnit = ChronoUnit.DAYS.between(lastYearBegin, beginOfTimeFrame);
-					break;
-				default:
-					throw new IllegalArgumentException("unknown unit");
-			}
-		}
-
-		switch (range) {
-			case CURRENT:
-				// nothing to do
-				break;
-			case LAST_AND_CURRENT:
-				beginOfTimeFrame = beginOfTimeFrame.minusDays(daysInLastUnit);
-				break;
-			case LAST:
-				endOfTimeFrame = beginOfTimeFrame.minusDays(1).with(LocalTime.MAX);
-				beginOfTimeFrame = beginOfTimeFrame.minusDays(daysInLastUnit);
-				break;
-			case ALL_DATA:
+		if (range == Range.ALL_DATA) {
 				List<Event> allEvents = dao.getAllEvents();
-				if (allEvents.isEmpty()) {
-					// FIXME check twice
-					beginOfTimeFrame = beginOfToday.with(LocalTime.MIN);
-					endOfTimeFrame = beginOfToday.with(LocalTime.MAX);
-				} else {
-					// FIXME check twice
-					beginOfTimeFrame = allEvents.get(0).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MIN);
-					endOfTimeFrame = allEvents.get(allEvents.size() - 1).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MAX);
-				}
-				break;
-			default:
-				throw new IllegalArgumentException("unknown range");
+			if (allEvents.isEmpty()) {
+				return new ZonedDateTime[]{now.with(LocalTime.MIN), now.with(LocalTime.MAX)};
+			} else {
+				return new ZonedDateTime[]{allEvents.get(0).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MIN),
+					allEvents.get(allEvents.size() - 1).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MAX)};
+			}
+		} else {
+			Function<ZonedDateTime, ZonedDateTime[]> timespanFunction = TIMESPAN_FUNCTIONS.get(new RangeAndUnit(range, unit));
+			if (timespanFunction == null) {
+				throw new IllegalArgumentException("unknown combination of range and unit: " + range + " / " + unit);
+			}
+			return timespanFunction.apply(now);
 		}
-		return new ZonedDateTime[]{beginOfTimeFrame, endOfTimeFrame};
 	}
 
 	/**
