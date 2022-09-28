@@ -109,38 +109,36 @@ public class TimeCalculator {
 	}
 
 	public ZonedDateTime[] calculateBeginAndEnd(Range range, Unit unit) {
-		ZonedDateTime now =  ZonedDateTime.now(timerManager.getHomeTimeZone());
-		ZonedDateTime beginOfTimeFrame;
-		ZonedDateTime endOfTimeFrame;
+		ZonedDateTime beginOfToday = ZonedDateTime.now(timerManager.getHomeTimeZone()).with(LocalTime.MIN);
+		ZonedDateTime beginOfTimeFrame = null;
+		ZonedDateTime endOfTimeFrame = null;
 
-		long daysInLastUnit;
-		switch (unit) {
-			case WEEK:
-				beginOfTimeFrame = DateTimeUtil.getWeekStart(now);
-				endOfTimeFrame = beginOfTimeFrame.plusDays(7);
-				daysInLastUnit = 7;
-				break;
-			case MONTH:
-				beginOfTimeFrame = now.with(TemporalAdjusters.firstDayOfMonth());
-				endOfTimeFrame = now.with(TemporalAdjusters.lastDayOfMonth());
+		long daysInLastUnit = 0;
+		if (range != Range.ALL_DATA) {
+			switch (unit) {
+				case WEEK:
+					beginOfTimeFrame = DateTimeUtil.getWeekStart(beginOfToday);
+					endOfTimeFrame = beginOfTimeFrame.plusDays(6).with(LocalTime.MAX);
+					daysInLastUnit = 7;
+					break;
+				case MONTH:
+					beginOfTimeFrame = beginOfToday.with(TemporalAdjusters.firstDayOfMonth());
+					endOfTimeFrame = beginOfToday.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
 
-				ZonedDateTime lastMonthBegin = beginOfTimeFrame.minusMonths(1);
-				daysInLastUnit = ChronoUnit.DAYS.between(lastMonthBegin, beginOfTimeFrame);
-				break;
-			case YEAR:
-				beginOfTimeFrame = now.with(TemporalAdjusters.firstDayOfYear());
-				endOfTimeFrame = beginOfTimeFrame.plusYears(1);
+					ZonedDateTime lastMonthBegin = beginOfTimeFrame.minusMonths(1);
+					daysInLastUnit = ChronoUnit.DAYS.between(lastMonthBegin, beginOfTimeFrame);
+					break;
+				case YEAR:
+					beginOfTimeFrame = beginOfToday.with(TemporalAdjusters.firstDayOfYear());
+					endOfTimeFrame = beginOfTimeFrame.plusYears(1).minusDays(1).with(LocalTime.MAX);
 
-				ZonedDateTime lastYearBegin = beginOfTimeFrame.minusYears(1);
-				daysInLastUnit = ChronoUnit.DAYS.between(lastYearBegin, beginOfTimeFrame);
-				break;
-			default:
-				throw new IllegalArgumentException("unknown unit");
+					ZonedDateTime lastYearBegin = beginOfTimeFrame.minusYears(1);
+					daysInLastUnit = ChronoUnit.DAYS.between(lastYearBegin, beginOfTimeFrame);
+					break;
+				default:
+					throw new IllegalArgumentException("unknown unit");
+			}
 		}
-
-		// time frame is expected to align with day boundaries
-		beginOfTimeFrame = beginOfTimeFrame.with(LocalTime.MIN);
-		endOfTimeFrame = endOfTimeFrame.with(LocalTime.MAX);
 
 		switch (range) {
 			case CURRENT:
@@ -150,19 +148,19 @@ public class TimeCalculator {
 				beginOfTimeFrame = beginOfTimeFrame.minusDays(daysInLastUnit);
 				break;
 			case LAST:
-				endOfTimeFrame = beginOfTimeFrame;
+				endOfTimeFrame = beginOfTimeFrame.minusDays(1).with(LocalTime.MAX);
 				beginOfTimeFrame = beginOfTimeFrame.minusDays(daysInLastUnit);
 				break;
 			case ALL_DATA:
 				List<Event> allEvents = dao.getAllEvents();
 				if (allEvents.isEmpty()) {
 					// FIXME check twice
-					beginOfTimeFrame = now.with(LocalTime.MIN);
-					endOfTimeFrame = now.with(LocalTime.MAX);
+					beginOfTimeFrame = beginOfToday.with(LocalTime.MIN);
+					endOfTimeFrame = beginOfToday.with(LocalTime.MAX);
 				} else {
 					// FIXME check twice
 					beginOfTimeFrame = allEvents.get(0).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MIN);
-					endOfTimeFrame = allEvents.get(allEvents.size() - 1).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).plusDays(1).with(LocalTime.MAX);
+					endOfTimeFrame = allEvents.get(allEvents.size() - 1).getDateTime().atZoneSameInstant(timerManager.getHomeTimeZone()).with(LocalTime.MAX);
 				}
 				break;
 			default:

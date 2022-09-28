@@ -320,4 +320,5 @@
     <string name="select_data_directory">Select Data Directory</string>
     <string name="notification_permission_removed">Disabled notifications in the settings because the permission was removed for the app.</string>
     <string name="notification_permissions_ungranted">Disabled notifications in the settings because the permission was not granted for the app. You can always allow notifications in the Android settings for this app.</string>
+    <string name="timeframe_description">from %1$s to %2$s</string>
 </resources>

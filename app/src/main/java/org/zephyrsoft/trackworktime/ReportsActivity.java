@@ -608,8 +608,9 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private String describeTimeRange(ZonedDateTime[] beginAndEnd) {
-		return "from " + DateTimeUtil.dateToULString(beginAndEnd[0])
-			+ " to " + DateTimeUtil.dateToULString(beginAndEnd[1]);
+		return getString(R.string.timeframe_description,
+			DateTimeUtil.dateToULString(beginAndEnd[0]),
+			DateTimeUtil.dateToULString(beginAndEnd[1].minusSeconds(1)));
 	}
 
 	/**
