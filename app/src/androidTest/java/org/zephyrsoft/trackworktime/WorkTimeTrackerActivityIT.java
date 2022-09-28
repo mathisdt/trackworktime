@@ -51,8 +51,8 @@ public class WorkTimeTrackerActivityIT {
     @BeforeClass
     public static void beforeClass() {
         // let's be generous, Github Actions are slow
-        IdlingPolicies.setMasterPolicyTimeout(120, TimeUnit.SECONDS);
-        IdlingPolicies.setIdlingResourceTimeout(120, TimeUnit.SECONDS);
+        IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.SECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.SECONDS);
     }
 
     @Test
