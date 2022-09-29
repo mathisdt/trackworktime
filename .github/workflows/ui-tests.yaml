@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         # test on the minimum and on a more recent version
-        android: [ 21, 31 ]
+        android: [ 21, 33 ]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
