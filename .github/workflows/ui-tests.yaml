@@ -42,7 +42,8 @@ jobs:
           java-version: 11
           check-latest: true
       - name: Set up Gradle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
+        id: gradle-cache
         with:
           path: |
             ~/.gradle/caches
@@ -50,14 +51,38 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: "UI Tests"
-        uses: reactivecircus/android-emulator-runner@v2.25.0
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
         with:
-          api-level: ${{ matrix.android }}
-          # only use target "google_apis" because there are no "default" images for recent Android versions
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+      - name: create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2.26.0
+        with:
+          api-level: ${{ matrix.api-level }}
+          # use target "google_apis" because there are no "default" images for recent Android versions
           target: google_apis
           arch: x86_64
+          force-avd-creation: false
           emulator-options: >-
             -no-boot-anim -no-audio -no-snapshot -no-window -camera-back none
             -camera-front none -gpu swiftshader_indirect
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+      - name: "UI Tests"
+        uses: reactivecircus/android-emulator-runner@v2.26.0
+        with:
+          api-level: ${{ matrix.android }}
+          # use target "google_apis" because there are no "default" images for recent Android versions
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: >-
+            -no-snapshot-save -no-boot-anim -no-audio -no-snapshot -no-window -camera-back none
+            -camera-front none -gpu swiftshader_indirect
+          disable-animations: true
           script: ./gradlew connectedAndroidTest --no-daemon --info

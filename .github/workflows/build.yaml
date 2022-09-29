@@ -26,7 +26,8 @@ jobs:
           java-version: 11
           check-latest: true
       - name: Set up Gradle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
+        id: gradle-cache
         with:
           path: |
             ~/.gradle/caches
