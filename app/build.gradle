@@ -37,8 +37,8 @@ android {
             buildConfigField "String", "APP_NAME", "\"${app_title} ${app_suffix}\""
         }
 
-        versionCode 62                      // increment after every release (for the next development cycle)
-        versionName '1.1.18'       // change with every release
+        versionCode 63                      // increment after every release (for the next development cycle)
+        versionName '1.1.19-SNAPSHOT'       // change with every release
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
