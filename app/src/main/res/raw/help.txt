@@ -28,11 +28,16 @@ the "Track Work Time" tile up which then can toggle your clocked-in state.<br>
 <br>
 If you prefer to use other apps like LlamaLab Automate or Tasker for tracking your movements, that's fine - <b>TWT can be triggered
 from other apps</b> and just do the book-keeping of your work time. In this case, you have to create broadcast intents
-with the actions org.zephyrsoft.trackworktime.ClockIn or org.zephyrsoft.trackworktime.ClockOutrespecively.
+with the actions <i>org.zephyrsoft.trackworktime.ClockIn</i> or <i>org.zephyrsoft.trackworktime.ClockOut</i> respecively.
 When using ClockIn, you can also set the parameters task=... and text=... in the "extra" section
 of the intent so your events are more meaningful. You can also use the action
-org.zephyrsoft.trackworktime.StatusRequest to get the current state of TWT: is the user clocked in,
+<i>org.zephyrsoft.trackworktime.StatusRequest</i> to get the current state of TWT: is the user clocked in,
 and if so, with which task and how much time remains for today? For more details on this, see the web site.<br>
+<br>
+It's also possible the other way around: <b>TWT generates broadcast intents on event creation/update/deletion</b>.
+Automation apps can listen for the actions <i>org.zephyrsoft.trackworktime.event.Created</i>,
+<i>org.zephyrsoft.trackworktime.event.Updated</i> and <i>org.zephyrsoft.trackworktime.event.Deleted</i>.
+See the web site for more details and some screenshots on how to use it.<br>
 <br>
 If you have a <b>Pebble</b> smart watch, the app will notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.<br>
