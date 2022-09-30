@@ -3,7 +3,7 @@ name: "UI Tests"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '00 02 * * *'
+    - cron: '21 15 * * *'
 
 jobs:
   check_date:
