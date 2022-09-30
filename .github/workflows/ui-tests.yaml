@@ -2,25 +2,10 @@ name: "UI Tests"
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '21 15 * * *'
 
 jobs:
-  check_date:
-    runs-on: ubuntu-latest
-    name: Check latest commit
-    outputs:
-      WAS_EDITED: ${{ steps.check_date.outputs.WAS_EDITED }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - id: check_date
-        name: Check if there were commits in the last day
-        run: echo '::set-output name=WAS_EDITED::'$(test -n "$(git log --format=%H --since='25 hours ago')" && echo 'true' || echo 'false')
   ui_tests:
     runs-on: macos-latest
-    needs: [check_date]
-    if: ${{ needs.check_date.outputs.WAS_EDITED == 'true' }}
     timeout-minutes: 45
     strategy:
       matrix:
@@ -51,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: AVD cache
+      - name: Set up AVD cache
         uses: actions/cache@v3
         id: avd-cache
         with:
@@ -59,7 +44,7 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.android }}
-      - name: create AVD and generate snapshot for caching
+      - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2.26.0
         with:
@@ -71,7 +56,7 @@ jobs:
             -camera-front none -gpu swiftshader_indirect
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
-      - name: "UI Tests"
+      - name: Run UI Tests
         uses: reactivecircus/android-emulator-runner@v2.26.0
         with:
           api-level: ${{ matrix.android }}
