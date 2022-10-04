@@ -22,6 +22,7 @@ import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.model.Event;
+import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 
 import java.time.OffsetDateTime;
@@ -68,7 +69,10 @@ public class BroadcastUtil {
         intent.putExtra("type", event.getTypeEnum().name());
         if (event.getTask() != null) {
             intent.putExtra("task_id", event.getTask());
-            intent.putExtra("task", Basics.get(context).getDao().getTask(event.getTask()).getName());
+            Task task = Basics.get(context).getDao().getTask(event.getTask());
+            if (task != null) {
+                intent.putExtra("task", task.getName());
+            }
         }
         intent.putExtra("comment", event.getText());
         intent.putExtra("source", source.name());
