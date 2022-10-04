@@ -61,10 +61,12 @@ public class OptionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(android.R.id.content, new SettingsFragment())
-            .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment())
+                .commit();
+        }
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
