@@ -15,16 +15,13 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -41,9 +38,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ListActivityBinding;
-import org.zephyrsoft.trackworktime.databinding.ListItemBinding;
-import org.zephyrsoft.trackworktime.databinding.ListItemSeparatorBinding;
 import org.zephyrsoft.trackworktime.editevent.EventEditActivity;
+import org.zephyrsoft.trackworktime.eventlist.EventAdapter;
+import org.zephyrsoft.trackworktime.eventlist.EventViewHolder;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Task;
@@ -134,9 +131,12 @@ public class EventListActivity extends AppCompatActivity {
 		}
 
 		events = new ArrayList<>();
-		refreshView();
-		myEventAdapter = new EventAdapter();
-		myEventAdapter.setHasStableIds(true);
+		myEventAdapter = new EventAdapter(
+				this::onEventClick,
+				locale,
+				this::getEventTaskName,
+				this::isEventSelected
+		);
 		myRecyclerView.setHasFixedSize(true);
 		myRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		myRecyclerView.setAdapter(myEventAdapter);
@@ -147,29 +147,9 @@ public class EventListActivity extends AppCompatActivity {
 				new EventKeyProvider(myRecyclerView),
 				new EventDetailsLookup(myRecyclerView),
 				StorageStrategy.createLongStorage()
-		).withSelectionPredicate(new SelectionTracker.SelectionPredicate<>() {
-			@Override
-			public boolean canSetStateForKey(@NonNull Long key, boolean nextState) {
-				if (key.intValue() >= 0 && key.intValue() < events.size()) {
-					return !(events.get(key.intValue()) instanceof EventSeparator);
-				}
+		).build();
 
-				return false;
-			}
-
-			@Override
-			public boolean canSetStateAtPosition(int position, boolean nextState) {
-				if (position >=0 && position < events.size()){
-					return !(events.get(position) instanceof EventSeparator);
-				}
-				return false;
-			}
-
-			@Override
-			public boolean canSelectMultiple() {
-				return true;
-			}
-		}).build();
+		refreshView();
 
 		// restore previous state
 		if (savedInstanceState != null) {
@@ -188,6 +168,34 @@ public class EventListActivity extends AppCompatActivity {
 				}
 			}
 		});
+	}
+
+	private void onEventClick(Event event) {
+		Logger.debug("View onClick");
+
+		if (!selectionTracker.hasSelection()) {
+			if (!(event instanceof EventSeparator)) {
+				startEditing(event);
+			}
+		}
+	}
+
+	private String getEventTaskName(Event event) {
+		Task task = taskIdToTaskMap.get(event.getTask());
+		if (task == null) {
+			return "";
+		} else {
+			return task.getName();
+		}
+	}
+
+	private boolean isEventSelected(Event event) {
+		Integer id = event.getId();
+		if (id == null) {
+			return false;
+		} else {
+			return selectionTracker.isSelected((long) id);
+		}
 	}
 
 	@Override
@@ -283,11 +291,8 @@ public class EventListActivity extends AppCompatActivity {
 		}
 	}
 
-	@SuppressLint("NotifyDataSetChanged")
 	private void refreshAdapter() {
-		if (myEventAdapter != null) {
-			myEventAdapter.notifyDataSetChanged();
-		}
+		myEventAdapter.submitEvents(events);
 	}
 
 	private static boolean isOnSameDay(Event e1, Event e2) {
@@ -328,7 +333,7 @@ public class EventListActivity extends AppCompatActivity {
 							OffsetDateTime cacheInvalidationStart = null;
 
 							for (int i = 0; i < events.size(); i++) {
-								if (selectionTracker.isSelected((long) i)) {
+								if (selectionTracker.isSelected((long) myEventAdapter.getItemId(i))) {
 									Event event = events.get(i);
 									boolean success = dao.deleteEvent(event);
 
@@ -375,150 +380,7 @@ public class EventListActivity extends AppCompatActivity {
 		}
 	};
 
-	private class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-		private static final int VIEW_TYPE_SEPARATOR = 0;
-		private static final int VIEW_TYPE_EVENT = 1;
-
-		class EventViewHolder extends RecyclerView.ViewHolder
-				implements View.OnClickListener {
-
-			private final ListItemBinding binding;
-
-			public EventViewHolder(ListItemBinding binding) {
-				super(binding.getRoot());
-				this.binding = binding;
-				itemView.setOnClickListener(this);
-			}
-
-			@Override
-			public void onClick(View v) {
-				Logger.debug("View onClick");
-
-				if (!selectionTracker.hasSelection()) {
-					Event event = events.get((int)getItemId());
-					if (!(event instanceof EventSeparator)) {
-						startEditing(event);
-					}
-				}
-			}
-
-			public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
-
-				return new ItemDetailsLookup.ItemDetails<>() {
-					@Override
-					public int getPosition() {
-						return getBindingAdapterPosition();
-					}
-
-					@Override
-					public Long getSelectionKey() {
-						return getItemId();
-					}
-				};
-			}
-
-			public void bind(Event event, Boolean isSelected) {
-				binding.time.setText(formatTime(event.getTime()));
-				binding.type.setText(formatType(event.getTypeEnum()));
-				binding.task.setText(getTaskName(event.getTask()));
-				itemView.setActivated(isSelected);
-			}
-
-			private String formatTime(OffsetDateTime time) {
-				return DateTimeUtil.formatLocalizedTime(time, locale);
-			}
-
-			private String formatType(TypeEnum type) {
-				switch (type) {
-					case CLOCK_IN:
-						return "IN";
-					case CLOCK_OUT:
-						return "OUT";
-					default:
-						throw new IllegalStateException("unrecognized event type");
-				}
-			}
-
-			private String getTaskName(Integer taskId) {
-				if (taskId == null) {
-					return null;
-				}
-				Task task = taskIdToTaskMap.get(taskId);
-				if (task == null) {
-					Logger.error("No task for id: {}", taskId);
-					return null;
-				}
-				return task.getName();
-			}
-		}
-
-		class EventSeparatorHolder extends RecyclerView.ViewHolder {
-			private final ListItemSeparatorBinding binding;
-
-			public EventSeparatorHolder(ListItemSeparatorBinding binding) {
-				super(binding.getRoot());
-				this.binding = binding;
-			}
-
-			public void bind(EventSeparator event) {
-				binding.title.setText(event.toString());
-			}
-		}
-
-		@Override
-		public int getItemViewType(int position) {
-			if (events.get(position) instanceof EventSeparator) {
-				return VIEW_TYPE_SEPARATOR;
-			} else {
-				return VIEW_TYPE_EVENT;
-			}
-		}
-
-		@Override
-		@NonNull
-		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-			switch(viewType) {
-				case VIEW_TYPE_SEPARATOR: {
-					ListItemSeparatorBinding binding = ListItemSeparatorBinding.inflate(inflater,
-							parent, false);
-					return new EventSeparatorHolder(binding);
-				} case VIEW_TYPE_EVENT: {
-					ListItemBinding binding = ListItemBinding.inflate(inflater, parent, false);
-					return new EventViewHolder(binding);
-				} default: {
-					throw new RuntimeException("Not implemented type: " + viewType);
-				}
-			}
-		}
-
-		@Override
-		public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-			final Event event = events.get(position);
-			if (holder instanceof EventViewHolder) {
-				EventViewHolder eventHolder = (EventViewHolder) holder;
-				boolean isSelected = selectionTracker.isSelected((long)position);
-				eventHolder.bind(event, isSelected);
-			} else if (holder instanceof EventSeparatorHolder) {
-				EventSeparatorHolder eventHolder = (EventSeparatorHolder) holder;
-				eventHolder.bind((EventSeparator) event);
-			} else {
-				throw new RuntimeException("Not implemented view holder type: " + holder);
-			}
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public int getItemCount() {
-			return events.size();
-		}
-	}
-
-	private final class EventDetailsLookup extends ItemDetailsLookup<Long> {
+	private static final class EventDetailsLookup extends ItemDetailsLookup<Long> {
 
 		private final RecyclerView mRecyclerView;
 
@@ -533,8 +395,8 @@ public class EventListActivity extends AppCompatActivity {
 			if (view != null) {
 				ViewHolder holder = mRecyclerView.getChildViewHolder(view);
 
-				if (holder instanceof EventAdapter.EventViewHolder) {
-					return ((EventAdapter.EventViewHolder) holder).getItemDetails();
+				if (holder instanceof EventViewHolder) {
+					return ((EventViewHolder) holder).getItemDetails();
 				}
 			}
 

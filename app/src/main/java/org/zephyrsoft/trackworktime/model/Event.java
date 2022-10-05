@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.model;
 import org.zephyrsoft.trackworktime.database.DAO;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 /**
  * Data class for an event.
@@ -107,4 +108,20 @@ public class Event extends Base implements Comparable<Event> {
 		return getDateTime() + " / " + TypeEnum.byValue(getType()).name() + " / " + getTask() + " - " + getText();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+		Event event = (Event) o;
+		return Objects.equals(id, event.id) &&
+				Objects.equals(task, event.task) &&
+				Objects.equals(type, event.type) &&
+				Objects.equals(time, event.time) &&
+				Objects.equals(text, event.text);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, task, type, time, text);
+	}
 }
