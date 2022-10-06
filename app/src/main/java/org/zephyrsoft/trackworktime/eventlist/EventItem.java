@@ -13,9 +13,15 @@ import java.util.Optional;
 public class EventItem extends BaseEventItem {
 
 	private final int id;
+	private final Event event;
 	private final String type;
 	private final String time;
 	private final String task;
+
+	@NonNull
+	public Event getEvent() {
+		return event;
+	}
 
 	@NonNull
 	public String getType() {
@@ -37,8 +43,17 @@ public class EventItem extends BaseEventItem {
 		return this.id;
 	}
 
+	@Override
+	public boolean isSameContentAs(@NonNull BaseEventItem other) {
+		if (!(other instanceof EventItem)) {
+			return false;
+		}
+		Event otherEvent = ((EventItem) other).getEvent();
+		return getEvent().equals(otherEvent);
+	}
+
 	public EventItem(@NonNull Event event, @NonNull Locale locale, @NonNull String task) {
-		super(event);
+		this.event = event;
 		this.id = Optional.ofNullable(event.getId()).orElse(System.identityHashCode(event));
 		this.type = formatType(event.getTypeEnum());
 		this.time = formatTime(event.getTime(), locale);

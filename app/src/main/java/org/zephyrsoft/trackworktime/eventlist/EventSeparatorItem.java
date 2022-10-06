@@ -2,15 +2,14 @@ package org.zephyrsoft.trackworktime.eventlist;
 
 import androidx.annotation.NonNull;
 
-import org.zephyrsoft.trackworktime.model.EventSeparator;
-
 public class EventSeparatorItem extends BaseEventItem {
 
 	private final int id;
+	private final String caption;
 
 	@NonNull
 	public String getTitle() {
-		return getEvent().toString();
+		return caption;
 	}
 
 	@Override
@@ -18,14 +17,16 @@ public class EventSeparatorItem extends BaseEventItem {
 		return id;
 	}
 
-	public EventSeparatorItem(EventSeparator event) {
-		super(event);
-		this.id = event.hashCode();
+	public EventSeparatorItem(@NonNull String caption) {
+		this.id = caption.hashCode();
+		this.caption = caption;
 	}
 
-	@NonNull
 	@Override
-	public EventSeparator getEvent() {
-		return (EventSeparator) super.getEvent();
+	public boolean isSameContentAs(@NonNull BaseEventItem other) {
+		if (!(other instanceof EventSeparatorItem)) {
+			return false;
+		}
+		return getId() == other.getId();
 	}
 }
