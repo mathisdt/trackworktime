@@ -15,6 +15,8 @@
  */
 package org.zephyrsoft.trackworktime.model;
 
+import java.util.Objects;
+
 /**
  * Separator for event lists.
  */
@@ -79,4 +81,17 @@ public class EventSeparator extends Event {
 		return caption;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+		if(!super.equals(o)) return false;
+		EventSeparator that = (EventSeparator) o;
+		return Objects.equals(caption, that.caption);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), caption);
+	}
 }
