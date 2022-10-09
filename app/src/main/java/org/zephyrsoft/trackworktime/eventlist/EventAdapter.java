@@ -17,7 +17,6 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class EventAdapter extends ListAdapter<BaseEventItem, ViewHolder> {
 
@@ -47,16 +46,14 @@ public class EventAdapter extends ListAdapter<BaseEventItem, ViewHolder> {
 			@NonNull Predicate<Event> isEventSelected
 	) {
 		super(ITEM_CALLBACK);
-		this.itemMapper = new EventItemMapper(locale, eventTaskName, isEventSelected);
+		this.itemMapper = new EventItemMapper(locale, eventTaskName);
 		this.onEventClick = onEventClick;
 		this.isEventSelected = isEventSelected;
 		setHasStableIds(true);
 	}
 
 	public void submitEvents(List<Event> events) {
-		var items = events.stream()
-				.map(itemMapper::map)
-				.collect(Collectors.toList());
+		var items = itemMapper.map(events);
 		submitList(items);
 	}
 
@@ -92,7 +89,8 @@ public class EventAdapter extends ListAdapter<BaseEventItem, ViewHolder> {
 		BaseEventItem item = getItem(position);
 		if (holder instanceof EventViewHolder) {
 			EventViewHolder eventHolder = (EventViewHolder) holder;
-			boolean isSelected = this.isEventSelected.test(item.getEvent());
+			EventItem eventItem = (EventItem) item;
+			boolean isSelected = this.isEventSelected.test(eventItem.getEvent());
 			eventHolder.bind((EventItem) item, isSelected, onEventClick);
 		} else if (holder instanceof EventSeparatorViewHolder) {
 			EventSeparatorViewHolder eventHolder = (EventSeparatorViewHolder) holder;

@@ -9,7 +9,7 @@ import org.zephyrsoft.trackworktime.model.Event;
 import java.util.function.Consumer;
 
 public class EventViewHolder extends ViewHolder {
-	final ListItemBinding binding;
+	private final ListItemBinding binding;
 
 	public EventViewHolder(ListItemBinding binding) {
 		super(binding.getRoot());

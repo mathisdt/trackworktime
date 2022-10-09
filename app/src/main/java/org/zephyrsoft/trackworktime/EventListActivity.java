@@ -42,13 +42,11 @@ import org.zephyrsoft.trackworktime.editevent.EventEditActivity;
 import org.zephyrsoft.trackworktime.eventlist.EventAdapter;
 import org.zephyrsoft.trackworktime.eventlist.EventViewHolder;
 import org.zephyrsoft.trackworktime.model.Event;
-import org.zephyrsoft.trackworktime.model.EventSeparator;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BroadcastUtil;
-import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.lang.ref.WeakReference;
@@ -57,7 +55,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -171,12 +168,8 @@ public class EventListActivity extends AppCompatActivity {
 	}
 
 	private void onEventClick(Event event) {
-		Logger.debug("View onClick");
-
 		if (!selectionTracker.hasSelection()) {
-			if (!(event instanceof EventSeparator)) {
-				startEditing(event);
-			}
+			startEditing(event);
 		}
 	}
 
@@ -264,22 +257,6 @@ public class EventListActivity extends AppCompatActivity {
 	private void refreshEvents() {
 		events.clear();
 		events.addAll(dao.getEventsInWeek(week, timerManager.getHomeTimeZone()));
-		insertSeparators(events);
-	}
-
-	private void insertSeparators(List<Event> eventList) {
-		ListIterator<Event> iter = eventList.listIterator();
-		Event prev = null;
-		while (iter.hasNext()) {
-			Event cur = iter.next();
-			if (prev == null || !isOnSameDay(prev, cur)) {
-				iter.previous();
-				String caption = DateTimeUtil.formatLocalizedDayAndDate(cur.getDateTime(), locale);
-				iter.add(new EventSeparator(caption));
-				iter.next();
-			}
-			prev = cur;
-		}
 	}
 
 	private void refreshTasks() {
@@ -293,10 +270,6 @@ public class EventListActivity extends AppCompatActivity {
 
 	private void refreshAdapter() {
 		myEventAdapter.submitEvents(events);
-	}
-
-	private static boolean isOnSameDay(Event e1, Event e2) {
-		return e1.getDateTime().toLocalDate().isEqual(e2.getDateTime().toLocalDate());
 	}
 
 	/**
@@ -332,9 +305,8 @@ public class EventListActivity extends AppCompatActivity {
 						(dialog, whichButton) -> {
 							OffsetDateTime cacheInvalidationStart = null;
 
-							for (int i = 0; i < events.size(); i++) {
-								if (selectionTracker.isSelected((long) myEventAdapter.getItemId(i))) {
-									Event event = events.get(i);
+							for (Event event : events) {
+								if (selectionTracker.isSelected((long) event.getId())) {
 									boolean success = dao.deleteEvent(event);
 
 									if (success) {
