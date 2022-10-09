@@ -49,6 +49,7 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BroadcastUtil;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ForeignCall;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.lang.ref.WeakReference;
@@ -255,6 +256,7 @@ public class EventListActivity extends AppCompatActivity {
 	/**
 	 * Refresh the event list and the main activity.
 	 */
+	@ForeignCall
 	public void refreshView() {
 		refreshEvents();
 		refreshTasks();
