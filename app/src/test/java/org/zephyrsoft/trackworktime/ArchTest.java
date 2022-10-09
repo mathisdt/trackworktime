@@ -41,7 +41,7 @@ public class ArchTest {
     private static String appPackageName;
     private static JavaClasses appClasses;
 
-    private static final Pattern TEST_LOCATIONS = Pattern.compile(".*/(debugUnitTest|unitTest|debugAndroidTest|androidTest)/.*");
+    private static final Pattern TEST_LOCATIONS = Pattern.compile(".*/(debugUnitTest|releaseUnitTest|unitTest|debugAndroidTest|releaseAndroidTest|androidTest)/.*");
 
     @BeforeClass
     public static void setup() {
