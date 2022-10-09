@@ -71,6 +71,7 @@ import org.zephyrsoft.trackworktime.util.BackupUtil;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 import org.zephyrsoft.trackworktime.util.FileUtil;
+import org.zephyrsoft.trackworktime.util.ForeignCall;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
@@ -308,6 +309,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		});
 	}
 
+	@ForeignCall
 	public void redrawWeekTable() {
 		Logger.debug("redrawing week table");
 		int index = binding.main.week.getCurrentItem();
@@ -432,6 +434,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	 * @param minutesToPredate
 	 *            if greater than 0, predate the event this many minutes
 	 */
+	@ForeignCall
 	public void clockInAction(int minutesToPredate) {
 		if (minutesToPredate < 0) {
 			throw new IllegalArgumentException("no negative argument allowed");
@@ -474,6 +477,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	 * @param minutesToPredate
 	 *            if greater than 0, predate the event this many minutes
 	 */
+	@ForeignCall
 	public void clockOutAction(int minutesToPredate) {
 		if (minutesToPredate < 0) {
 			throw new IllegalArgumentException("no negative argument allowed");
@@ -513,6 +517,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 	}
 
+	@ForeignCall
 	@SuppressLint("NotifyDataSetChanged")
 	protected void refreshView() {
 		if (preferences.getBoolean(getString(R.string.keyShowNavigationButtons), false)) {
@@ -579,6 +584,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 	/**
 	 * Mark task list as changed so it will be re-read from the database the next time the GUI is refreshed.
 	 */
+	@ForeignCall
 	public void refreshTasks() {
 		reloadTasksOnResume = true;
 	}
