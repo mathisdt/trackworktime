@@ -115,6 +115,25 @@ public class WeekStateCalculator {
 		dayRowState.highlighted = dayInfo.isToday();
 		dayRowState.label = formatter.format(dayInfo.getDate());
 
+		if (handleFlexiTime) {
+			switch (dayInfo.getType()) {
+				case DayInfo.TYPE_REGULAR_FREE:
+					dayRowState.labelHighlighted = WeekState.HighlightType.REGULAR_FREE;
+					break;
+				case DayInfo.TYPE_FREE:
+					dayRowState.labelHighlighted = WeekState.HighlightType.FREE;
+					break;
+				case DayInfo.TYPE_REGULAR_WORK:
+					// no highlighting
+					break;
+				case DayInfo.TYPE_SPECIAL_GRANT:
+					dayRowState.labelHighlighted = WeekState.HighlightType.CHANGED_TARGET_TIME;
+					break;
+				default:
+					throw new IllegalStateException("unknown DayInfo type " + dayInfo.getType());
+			}
+		}
+
 		if (displayTimes) {
 			dayRowState.in = formatTime(dayInfo.getTimeIn(), formatter.getLocale());
 
@@ -122,25 +141,6 @@ public class WeekStateCalculator {
 				dayRowState.out = getString(R.string.now);
 			} else {
 				dayRowState.out = formatTime(dayInfo.getTimeOut(), formatter.getLocale());
-			}
-
-			if (handleFlexiTime) {
-				switch (dayInfo.getType()) {
-					case DayInfo.TYPE_REGULAR_FREE:
-						dayRowState.labelHighlighted = WeekState.HighlightType.REGULAR_FREE;
-						break;
-					case DayInfo.TYPE_FREE:
-						dayRowState.labelHighlighted = WeekState.HighlightType.FREE;
-						break;
-					case DayInfo.TYPE_REGULAR_WORK:
-						// no highlighting
-						break;
-					case DayInfo.TYPE_SPECIAL_GRANT:
-						dayRowState.labelHighlighted = WeekState.HighlightType.CHANGED_TARGET_TIME;
-						break;
-					default:
-						throw new IllegalStateException("unknown DayInfo type " + dayInfo.getType());
-				}
 			}
 
 			boolean isTodayOrEarlier = dayInfo.getDate().atStartOfDay().isBefore(LocalDateTime.now());
