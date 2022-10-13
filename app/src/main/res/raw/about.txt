@@ -3,6 +3,6 @@
 
 Version {1}<br>
 <br>
-Feedback:<br>
+Feedback (in English or German):<br>
 {2}<br>
 <br>
