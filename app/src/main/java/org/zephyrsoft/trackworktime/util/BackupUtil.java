@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.util;
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
@@ -38,12 +39,12 @@ public class BackupUtil {
         // only static usage
     }
 
-    public static Boolean doBackup(Activity activity, BackupFileInfo info) {
+    public static Boolean doBackup(Context context, BackupFileInfo info) {
         try {
-            DAO dao = Basics.get(activity).getDao();
-            SharedPreferences preferences = Basics.get(activity).getPreferences();
+            DAO dao = Basics.get(context).getDao();
+            SharedPreferences preferences = Basics.get(context).getPreferences();
 
-            DocumentTreeStorage.writing(activity, info.getType(), info.getPreferencesBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(context, info.getType(), info.getPreferencesBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     PreferencesUtil.writePreferences(preferences, output);
@@ -52,7 +53,7 @@ public class BackupUtil {
                 }
             });
 
-            DocumentTreeStorage.writing(activity, info.getType(), info.getEventsBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(context, info.getType(), info.getEventsBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupEventsToWriter(output);
@@ -61,7 +62,7 @@ public class BackupUtil {
                 }
             });
 
-            DocumentTreeStorage.writing(activity, info.getType(), info.getTargetsBackupFile(), outputStream -> {
+            DocumentTreeStorage.writing(context, info.getType(), info.getTargetsBackupFile(), outputStream -> {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupTargetsToWriter(output);

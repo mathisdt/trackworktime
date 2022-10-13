@@ -43,6 +43,8 @@ public class Constants {
 	public static final int PERSISTENT_STATUS_ID = 2;
 	/** used for the message about ACCESS_*_LOCATION */
 	public static final int MISSING_PRIVILEGE_ACCESS_LOCATION_ID = 4;
+	/** used when the automatic backup is running */
+	public static final int AUTOMATIC_BACKUP_ID = 5;
 	/** used for the message about ACCESS_WIFI_STATE */
 	public static final int MISSING_PRIVILEGE_ACCESS_WIFI_STATE_ID = 16;
 	public static final int PERMISSION_REQUEST_CODE_DOCUMENT_TREE_ON_STARTUP = 128;

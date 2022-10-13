@@ -54,10 +54,10 @@ public class AboutActivity extends AppCompatActivity {
 		}
 
 		String aboutText = readRawTextFile(R.raw.about);
-		CharSequence name = getApplicationContext().getResources().getText(R.string.app_name);
-		CharSequence version = Basics.get(this).getVersionName();
+		String name = getString(R.string.app_name);
+		String version = Basics.get(this).getVersionName();
 
-		CharSequence email = getApplicationContext().getResources().getText(R.string.email);
+		String email = getString(R.string.email);
 		aboutText = MessageFormat.format(aboutText, name, version, email);
 		binding.aboutText.setText(Html.fromHtml(aboutText));
 		binding.aboutText.setLinkTextColor(Color.WHITE);
@@ -78,7 +78,7 @@ public class AboutActivity extends AppCompatActivity {
 	}
 
 	private String readRawTextFile(int id) {
-		InputStream inputStream = getApplicationContext().getResources().openRawResource(id);
+		InputStream inputStream = getResources().openRawResource(id);
 		InputStreamReader in = new InputStreamReader(inputStream);
 		BufferedReader buf = new BufferedReader(in);
 		String line;

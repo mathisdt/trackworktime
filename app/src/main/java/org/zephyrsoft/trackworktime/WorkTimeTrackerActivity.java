@@ -222,7 +222,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		Button clockInButton = binding.main.clockInButton;
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
-            Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+            Intent i = new Intent(this, TimeAheadActivity.class);
             String typeString;
             if (timerManager.isTracking()) {
                 typeString = getString(R.string.clockInChange);
@@ -238,7 +238,7 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		Button clockOutButton = binding.main.clockOutButton;
 		clockOutButton.setOnClickListener(v -> clockOutAction(0));
 		clockOutButton.setOnLongClickListener(v -> {
-            Intent i = new Intent(getApplicationContext(), TimeAheadActivity.class);
+            Intent i = new Intent(this, TimeAheadActivity.class);
             String typeString;
             if (timerManager.isTracking()) {
                 typeString = getString(R.string.clockOut);

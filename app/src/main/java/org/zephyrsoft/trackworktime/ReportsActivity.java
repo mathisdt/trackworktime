@@ -578,7 +578,7 @@ public class ReportsActivity extends AppCompatActivity {
 
 	private void logAndShowError(String reportName) {
 		Logger.error("could not generate report " + reportName);
-		Toast.makeText(getApplicationContext(), getString(R.string.reportGenerationError, reportName), Toast.LENGTH_LONG).show();
+		Toast.makeText(this, getString(R.string.reportGenerationError, reportName), Toast.LENGTH_LONG).show();
 	}
 
 	private Range getSelectedRange() {
@@ -633,7 +633,7 @@ public class ReportsActivity extends AppCompatActivity {
 					});
 		} catch (Exception e) {
 			Logger.error("could not write report " + fileName);
-			Toast.makeText(getApplicationContext(), getString(R.string.reportWritingError, fileName), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.reportWritingError, fileName), Toast.LENGTH_LONG).show();
 			return false;
 		}
 

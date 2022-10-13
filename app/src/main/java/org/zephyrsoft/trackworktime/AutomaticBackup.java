@@ -15,37 +15,69 @@
  */
 package org.zephyrsoft.trackworktime;
 
-import android.app.Activity;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class AutomaticBackup extends Worker {
 
-    private final Activity activity;
+    private final Context context;
 
-    public AutomaticBackup(@NonNull Activity activity, @NonNull WorkerParameters workerParams) {
-        super(activity, workerParams);
-        this.activity = activity;
+    public AutomaticBackup(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+        this.context = context;
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        return Futures.immediateFuture(new ForegroundInfo(Constants.AUTOMATIC_BACKUP_ID,
+            Basics.get(context).createNotification(context.getString(R.string.backup_started_in_background),
+                context.getString(R.string.backup_started_in_background),
+                null,
+                null,
+                false,
+                null, null, null,
+                null, null, null)));
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        if (!DocumentTreeStorage.hasValidDirectoryGrant(activity)) {
-            Logger.warn("automatic backup failed because no document tree access has been granted");
-            return Result.failure(new Data.Builder().putString("error", activity.getString(R.string.noDirectoryAccessGrantedError)).build());
-        }
-        final BackupFileInfo info = BackupFileInfo.getBackupFiles(activity, false, true);
+        try {
+            if (!DocumentTreeStorage.hasValidDirectoryGrant(context)) {
+                Logger.warn("automatic backup failed because no document tree access has been granted");
+                return Result.failure(new Data.Builder()
+                    .putString("error", context.getString(R.string.noDirectoryAccessGrantedError))
+                    .putString("lastError", DateTimeUtil.timestampNow())
+                    .build());
+            }
+            final BackupFileInfo info = BackupFileInfo.getBackupFiles(context, false, true);
 
-        Logger.info("starting automatic backup");
-        BackupUtil.doBackup(activity, info);
-        return Result.success();
+            Logger.info("starting automatic backup");
+            BackupUtil.doBackup(context, info);
+            Logger.info("automatic backup done");
+            return Result.success(new Data.Builder()
+                .putString("lastSuccess", DateTimeUtil.timestampNow())
+                .build());
+        } catch (Exception e) {
+            Logger.warn(e, "error while doing automatic backup");
+            return Result.failure(new Data.Builder()
+                .putString("error", e.getMessage())
+                .putString("lastError", DateTimeUtil.timestampNow())
+                .build());
+        }
     }
 }

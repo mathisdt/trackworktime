@@ -680,33 +680,7 @@ public class Basics {
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
-            @SuppressWarnings("deprecation")
-            NotificationCompat.Builder notificationBuilder = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                ? new NotificationCompat.Builder(context, notificationChannel.getId())
-                : new NotificationCompat.Builder(context));
-            notificationBuilder
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationSubtitle)
-                .setContentIntent(clickIntent)
-                .setSmallIcon(R.drawable.ic_notification)
-                .setTicker(scrollingText)
-                .setCategory(persistent
-                    ? (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Notification.CATEGORY_REMINDER : Notification.CATEGORY_PROGRESS)
-                    : Notification.CATEGORY_EVENT)
-                .setOnlyAlertOnce(true)
-                .setOngoing(persistent)
-                .setPriority(Notification.PRIORITY_DEFAULT)
-                .setSortKey("A is first");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                notificationBuilder.setChannelId(getNotificationChannel().getId());
-            }
-            if (buttonOneIntent != null && buttonOneIcon != null) {
-                notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
-            }
-            if (buttonTwoIntent != null && buttonTwoIcon != null) {
-                notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
-            }
-            Notification notification = notificationBuilder.build();
+            Notification notification = createNotification(scrollingText, notificationTitle, notificationSubtitle, clickIntent, persistent, buttonOneIntent, buttonOneIcon, buttonOneText, buttonTwoIntent, buttonTwoIcon, buttonTwoText);
             notificationManager.notify(notificationId, notification);
             Logger.debug("displayed/updated notification {} / {} with button1={} and button2={}",
                 notificationTitle,
@@ -714,6 +688,36 @@ public class Basics {
         } catch (Exception e) {
             Logger.warn(e, "could not display/update notification");
         }
+    }
+
+    public Notification createNotification(String scrollingText, String notificationTitle, String notificationSubtitle, PendingIntent clickIntent, boolean persistent, PendingIntent buttonOneIntent, Integer buttonOneIcon, String buttonOneText, PendingIntent buttonTwoIntent, Integer buttonTwoIcon, String buttonTwoText) {
+        @SuppressWarnings("deprecation")
+        NotificationCompat.Builder notificationBuilder = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            ? new NotificationCompat.Builder(context, notificationChannel.getId())
+            : new NotificationCompat.Builder(context));
+        notificationBuilder
+            .setContentTitle(notificationTitle)
+            .setContentText(notificationSubtitle)
+            .setContentIntent(clickIntent)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setTicker(scrollingText)
+            .setCategory(persistent
+                ? (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Notification.CATEGORY_REMINDER : Notification.CATEGORY_PROGRESS)
+                : Notification.CATEGORY_EVENT)
+            .setOnlyAlertOnce(true)
+            .setOngoing(persistent)
+            .setPriority(Notification.PRIORITY_DEFAULT)
+            .setSortKey("A is first");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationBuilder.setChannelId(getNotificationChannel().getId());
+        }
+        if (buttonOneIntent != null && buttonOneIcon != null) {
+            notificationBuilder.addAction(buttonOneIcon, buttonOneText, buttonOneIntent);
+        }
+        if (buttonTwoIntent != null && buttonTwoIcon != null) {
+            notificationBuilder.addAction(buttonTwoIcon, buttonTwoText, buttonTwoIntent);
+        }
+        return notificationBuilder.build();
     }
 
     public Boolean isNotificationActive(int id) {
