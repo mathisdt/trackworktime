@@ -114,6 +114,24 @@ public enum DataType {
 			return validate(value);
 		}
 	},
+	/** long */
+	LONG {
+		@Override
+		public boolean validate(String value) {
+			try {
+				Long.parseLong(value);
+				return true;
+			} catch (Exception nfe) {
+				return false;
+			}
+		}
+
+		@Override
+		public boolean validateFromSharedPreferences(SharedPreferences sharedPreferences, String key) {
+			String value = sharedPreferences.getString(key, "0");
+			return validate(value);
+		}
+	},
 	/** time in 24-hour format, e.g. "15.30" or "5.01" */
 	TIME {
 		@Override

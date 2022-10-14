@@ -68,10 +68,13 @@ import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.io.File;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -93,6 +96,7 @@ public class Basics {
     private NotificationChannel notificationChannel = null;
     private NotificationChannel serviceNotificationChannel = null;
     private ThirdPartyReceiver thirdPartyReceiver;
+    private AutomaticBackup automaticBackup;
 
     public Basics(Context context) {
         Logger.info("instantiating Basics");
@@ -122,6 +126,8 @@ public class Basics {
         initTinyLog();
 
         registerThirdPartyReceiver();
+
+        automaticBackup = new AutomaticBackup(context);
     }
 
     public void initTinyLog() {
@@ -239,6 +245,35 @@ public class Basics {
         safeCheckWifiBasedTracking();
         safeCheckExternalControls();
         WorkTimeTrackerActivity.refreshViewIfShown();
+        safeCheckAutomaticBackup();
+    }
+
+    private void safeCheckAutomaticBackup() {
+        try {
+            ZoneId timeZone = ZoneId.of(preferences.getString(Key.HOME_TIME_ZONE.getName(), ZoneId.systemDefault().getId()));
+            long last = preferences.getLong(Key.AUTOMATIC_BACKUP_LAST_TIME.getName(), 0);
+            ZoneOffset lastTimeZoneOffset = timeZone.getRules().getOffset(Instant.ofEpochSecond(last));
+            Instant nowInstant = Instant.now();
+            ZoneOffset nowTimeZoneOffset = timeZone.getRules().getOffset(nowInstant);
+            OffsetDateTime now = nowInstant.atOffset(nowTimeZoneOffset);
+            if (isMoreThan24HoursInThePast(last, now, lastTimeZoneOffset)) {
+                Logger.debug("starting automatic backup asynchronously");
+                automaticBackup.doAsynchronously();
+                // do this although we don't know if it will succeed (we don't want to run this every minute if it fails):
+                preferences.edit()
+                    .putLong(Key.AUTOMATIC_BACKUP_LAST_TIME.getName(), now.toEpochSecond())
+                    .commit();
+                Logger.debug("saved {} as last timestamp for automatic backup",
+                    now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            }
+        } catch(Exception e) {
+            Logger.warn(e, "error while checking automatic backup");
+        }
+    }
+
+    private boolean isMoreThan24HoursInThePast(long pastSeconds, OffsetDateTime now, ZoneOffset timeZoneOffset) {
+        long nowSeconds = now.toEpochSecond();
+        return Math.abs(nowSeconds - pastSeconds) > 24 * 60 * 60;
     }
 
     /**

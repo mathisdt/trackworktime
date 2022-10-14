@@ -35,13 +35,6 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.work.Configuration;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import org.acra.ACRA;
 import org.acra.config.CoreConfigurationBuilder;
@@ -52,25 +45,15 @@ import org.acra.sender.HttpSender;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.util.TinylogAndLogcatLogger;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Application entry point.
  */
-public class WorkTimeTrackerApplication extends Application implements Configuration.Provider {
+public class WorkTimeTrackerApplication extends Application {
 
 	private Basics basics;
 
 	public WorkTimeTrackerApplication() {
 		Logger.info("instantiating application");
-	}
-
-	@NonNull
-	@Override
-	public Configuration getWorkManagerConfiguration() {
-		return new Configuration.Builder()
-			.setMinimumLoggingLevel(Log.DEBUG)
-			.build();
 	}
 
 	@Override
@@ -123,21 +106,6 @@ public class WorkTimeTrackerApplication extends Application implements Configura
 
 		basics.setNotificationChannel(notificationChannel);
 		basics.setServiceNotificationChannel(serviceNotificationChannel);
-
-		try {
-			PeriodicWorkRequest automaticBackup =
-				new PeriodicWorkRequest.Builder(AutomaticBackup.class,
-					24, TimeUnit.HOURS, 6, TimeUnit.HOURS)
-					.build();
-			WorkManager.getInstance(this)
-				.enqueueUniquePeriodicWork(Constants.WORK_AUTOBACKUP,
-					ExistingPeriodicWorkPolicy.KEEP,
-					automaticBackup);
-
-			Logger.info("installed periodic work request for automatic backup");
-		} catch (Exception e) {
-			Logger.error(e, "error while installing periodic work request for automatic backup");
-		}
 
 		Logger.info("handing off to super");
 		super.onCreate();
