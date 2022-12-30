@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Track Work Time Companion</string>
+    <string name="clock_in">Start</string>
+    <string name="clock_out">Stop</string>
+    <string name="clock_in_description">Clock In</string>
+    <string name="clock_out_description">Clock Out</string>
+</resources>

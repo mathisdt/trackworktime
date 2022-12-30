@@ -317,6 +317,7 @@ public class Basics {
      */
     public void safeCheckExternalControls() {
         safeCheckWidget();
+        safeCheckWear();
         safeCheckPersistentNotification();
         timerManager.notifyListeners();
     }
@@ -338,6 +339,28 @@ public class Basics {
      */
     public void checkWidget() {
         Widget.dispatchUpdateIntent(context);
+    }
+
+    /**
+     * Wrapper for {@link #checkWear()} that doesn't throw any exception.
+     */
+    public void safeCheckWear() {
+        try {
+            checkWear();
+        } catch (Exception e) {
+            Logger.warn(e, "exception handled by ACRA");
+            ACRA.getErrorReporter().handleException(e);
+        }
+    }
+
+    /**
+     * Dispatches refresh event for Wear OS
+     */
+    private void checkWear() {
+        Intent intent = new Intent(timerManager.isTracking()
+            ? Constants.STATUS_CLOCKED_IN
+            : Constants.STATUS_CLOCKED_OUT);
+        context.sendBroadcast(intent);
     }
 
     /**

@@ -11,6 +11,10 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.main.iml" filepath="$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/timezonepicker/trackworktime.timezonepicker.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.main.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/trackworktime.wear.unitTest.iml" />
     </modules>
   </component>
 </project>

@@ -105,6 +105,8 @@ public class Constants {
     public static final String EVENT_CREATED_ACTION = BuildConfig.APPLICATION_ID + ".event.Created";
     public static final String EVENT_UPDATED_ACTION = BuildConfig.APPLICATION_ID + ".event.Updated";
     public static final String EVENT_DELETED_ACTION = BuildConfig.APPLICATION_ID + ".event.Deleted";
+    public static final String STATUS_CLOCKED_IN = BuildConfig.APPLICATION_ID + ".status.ClockedIn";
+    public static final String STATUS_CLOCKED_OUT = BuildConfig.APPLICATION_ID + ".status.ClockedOut";
 
 	// Work manager unique name
 	public static final String WORK_AUTOBACKUP = "AUTOBACKUP";
