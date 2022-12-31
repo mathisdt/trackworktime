@@ -71,7 +71,7 @@ public class TimerManager {
 		AUTO_PAUSE,
 		LOCATION,
 		WIFI,
-		/** this includes both externally created broadcasts and actions from TWT's own widget */
+		/** this includes both externally created broadcasts and actions from TWT's own widget and notification */
 		RECEIVED_INTENT,
 		/** events with this source are NOT sent out as broadcasts! */
 		RESTORE_BACKUP

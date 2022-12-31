@@ -358,48 +358,57 @@ public class Basics {
     private void checkPersistentNotification() {
         Logger.debug("checking persistent notification");
         if (preferences.getBoolean(Key.NOTIFICATION_ENABLED.getName(), false)
-            && timerManager.isTracking()) {
-            // display/update
-
-            Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class);
-            clickIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            clickIntent.setAction(Intent.ACTION_MAIN);
-            clickIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            && (timerManager.isTracking() || preferences.getBoolean(Key.NOTIFICATION_ALWAYS.getName(), false))) {
+            Intent clickIntent = new Intent(context, WorkTimeTrackerActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setAction(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER);
+            String buttonOneText = null;
             Intent buttonOneIntent = new Intent(Constants.CLOCK_IN_ACTION);
-            Intent buttonTwoIntent = new Intent(Constants.CLOCK_OUT_ACTION);
-
-            String title;
+            Intent buttonTwoIntent = null;
+            String title = null;
             String text = null;
-            if (preferences.getBoolean(Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName(), false)) {
-                OffsetDateTime lastClockIn = timerManager.getLastClockIn();
-                title = context.getString(R.string.notificationTitle2, DateTimeUtil.formatLocalizedTime(lastClockIn, getLocale()));
-            } else {
-                // calculated in home time zone
+
+            if (timerManager.isTracking()) {
+                buttonOneText = context.getString(R.string.clockInChangeShort);
+                buttonTwoIntent = new Intent(Constants.CLOCK_OUT_ACTION);
+
+                if (preferences.getBoolean(Key.NEVER_UPDATE_PERSISTENT_NOTIFICATION.getName(), false)) {
+                    OffsetDateTime lastClockIn = timerManager.getLastClockIn();
+                    title = context.getString(R.string.notificationTitle2, DateTimeUtil.formatLocalizedTime(lastClockIn, getLocale()));
+                } else {
+                    // calculated in home time zone
+                    int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
+                    String timeSoFar = DateTimeUtil.formatDuration(workedTime);
+                    title = context.getString(R.string.notificationTitle1, timeSoFar);
+                    if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
+                        Integer minutesRemaining = timerManager.getMinutesRemaining();
+
+                        if (minutesRemaining != null) {
+                            if (minutesRemaining >= 0) {
+                                // target time in future
+                                LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
+
+                                if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
+                                    String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime, getLocale());
+                                    text = context.getString(R.string.notificationText1, targetTime);
+                                } else {
+                                    text = context.getString(R.string.notificationText2);
+                                }
+                            } else {
+                                // target time in past
+                                text = context.getString(R.string.notificationText3, TimerManager.formatTime(-minutesRemaining));
+                            }
+                        } // else not a working day
+                    } else {
+                        // no second line displayed because no flexi time can be calculated
+                    }
+                }
+            } else if (preferences.getBoolean(Key.NOTIFICATION_ALWAYS.getName(), false)) {
+                buttonOneText = context.getString(R.string.clockInShort);
                 int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
                 String timeSoFar = DateTimeUtil.formatDuration(workedTime);
-                title = context.getString(R.string.notificationTitle1, timeSoFar);
-                if (preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false)) {
-                    Integer minutesRemaining = timerManager.getMinutesRemaining();
-
-                    if (minutesRemaining != null) {
-                        if (minutesRemaining >= 0) {
-                            // target time in future
-                            LocalDateTime finishingTime = LocalDateTime.now().plusMinutes(minutesRemaining);
-
-                            if (finishingTime.toLocalDate().isEqual(LocalDate.now())) {
-                                String targetTime = DateTimeUtil.formatLocalizedTime(finishingTime, getLocale());
-                                text = context.getString(R.string.notificationText1, targetTime);
-                            } else {
-                                text = context.getString(R.string.notificationText2);
-                            }
-                        } else {
-                            // target time in past
-                            text = context.getString(R.string.notificationText3, TimerManager.formatTime(-minutesRemaining));
-                        }
-                    } // else not a working day
-                } else {
-                    // no second line displayed because no flexi time can be calculated
-                }
+                title = context.getString(R.string.notificationTitle3, timeSoFar);
             }
             Logger.debug("prepared persistent notification: title={} text={}", title, text);
             Boolean notificationActive = isNotificationActive(Constants.PERSISTENT_STATUS_ID);
@@ -408,21 +417,18 @@ public class Basics {
                 && notificationActive) {
                 Logger.debug("not updated persistent notification, configuration forbids it");
             } else {
+                int intentFlags = PendingIntent.FLAG_UPDATE_CURRENT +
+                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ? PendingIntent.FLAG_IMMUTABLE
+                        : 0);
                 showNotification(null, title, text,
-                    PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT +
-                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                            ? PendingIntent.FLAG_IMMUTABLE
-                            : 0)),
+                    PendingIntent.getActivity(context, 0, clickIntent, intentFlags),
                     Constants.PERSISTENT_STATUS_ID, true,
-                    PendingIntent.getBroadcast(context, 0, buttonOneIntent, PendingIntent.FLAG_CANCEL_CURRENT +
-                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                            ? PendingIntent.FLAG_IMMUTABLE
-                            : 0)),
-                    R.drawable.ic_menu_forward, context.getString(R.string.clockInChangeShort),
-                    PendingIntent.getBroadcast(context, 0, buttonTwoIntent, PendingIntent.FLAG_CANCEL_CURRENT +
-                        (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
-                            ? PendingIntent.FLAG_IMMUTABLE
-                            : 0)),
+                    PendingIntent.getBroadcast(context, 0, buttonOneIntent, intentFlags),
+                    R.drawable.ic_menu_forward, buttonOneText,
+                    (buttonTwoIntent == null
+                        ? null
+                        : PendingIntent.getBroadcast(context, 0, buttonTwoIntent, intentFlags)),
                     R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.clockOutShort));
                 Logger.debug("added persistent notification");
             }
@@ -450,7 +456,7 @@ public class Basics {
     public void fixPersistentNotification() {
         Logger.debug("fixing persistent notification");
         if (preferences.getBoolean(Key.NOTIFICATION_ENABLED.getName(), false)
-            && timerManager.isTracking()) {
+            && (timerManager.isTracking() || preferences.getBoolean(Key.NOTIFICATION_ALWAYS.getName(), false))) {
             safeRemovePersistentNotification();
             checkPersistentNotification();
         }
@@ -740,7 +746,8 @@ public class Basics {
                 ? (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Notification.CATEGORY_REMINDER : Notification.CATEGORY_PROGRESS)
                 : Notification.CATEGORY_EVENT)
             .setOnlyAlertOnce(true)
-            .setOngoing(persistent)
+            .setOngoing(persistent && !preferences.getBoolean(Key.NOTIFICATION_NONPERSISTENT.getName(), false))
+            .setSilent(preferences.getBoolean(Key.NOTIFICATION_SILENT.getName(), false))
             .setPriority(Notification.PRIORITY_DEFAULT)
             .setSortKey("A is first");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

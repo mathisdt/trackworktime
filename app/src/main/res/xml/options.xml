@@ -162,6 +162,18 @@
             android:summary="@string/notificationDescription"
             android:title="@string/notificationEnabled" />
         <CheckBoxPreference
+            android:key="@string/keyNotificationAlways"
+            android:summary="@string/notificationAlwaysDescription"
+            android:title="@string/notificationAlways" />
+        <CheckBoxPreference
+            android:key="@string/keyNotificationNonPersistent"
+            android:summary="@string/notificationNonpersistentDescription"
+            android:title="@string/notificationNonpersistent" />
+        <CheckBoxPreference
+            android:key="@string/keyNotificationSilent"
+            android:summary="@string/notificationSilentDescription"
+            android:title="@string/notificationSilent" />
+        <CheckBoxPreference
             android:key="@string/keyNotificationUsesFlexiTimeAsTarget"
             android:summary="@string/notificationFlexiTimeDescription"
             android:title="@string/notificationUsesFlexiTimeAsTarget" />

@@ -56,7 +56,7 @@ task (name of the event's task, not available on clock-out events),
 comment (only available if the user provided it),
 source (where the event was generated originally, possible values are
 MAIN_SCREEN_BUTTON, EVENT_LIST, QUICK_SETTINGS, LAUNCHER_SHORTCUT, MULTI_INSERT, AUTO_PAUSE,
-LOCATION, WIFI, RECEIVED_INTENT [includes both externally created broadcasts and actions from TWT's own widget]).  
+LOCATION, WIFI, RECEIVED_INTENT [includes both externally created broadcasts and actions from TWT's own widget and notification]).  
 Some screenshots so you can see it in action in Automate:
 [Flow overview](https://zephyrsoft.org/images/automate-receive-1.png),
 ["Receive Broadcast" settings top](https://zephyrsoft.org/images/automate-receive-2.png),
@@ -65,9 +65,19 @@ Some screenshots so you can see it in action in Automate:
 [Result 1](https://zephyrsoft.org/images/automate-receive-5.png),
 [Result 2](https://zephyrsoft.org/images/automate-receive-6.png).
 
-If you have a **Pebble** smart watch, the app will notify you on clock-in and clock-out events which is especially
+If you have a **Pebble** smart watch, the app can notify you on clock-in and clock-out events which is especially
 useful if you want to be in the know about automatic time tracking via location and/or WiFi.
-  
+
+For **other smart watches** you can enable some options regarding notifications to help you.
+Firstly, you can enable the notification generally. Without any other related option, this will only display
+a notification on your phone in case you're clocked in. To also display this notification on your phone
+when not clocked in, select to always show it. Now, if you want it also on your watch, you also have to switch
+notifications to non-persistent (otherwise Android won't synchronize them). This is kind of a compromise because
+with this option notifications won't be pinned at the top of the list and also can be closed unintentionally
+(but will be displayed again after a minute). In addition you can silence all notifications so you are
+not distracted by them (this will be applied on your watch as well as on your phone, Android doesn't
+differentiate here).
+
 Finally, the app can generate **reports** for you. The raw events report is the right thing if you want to
 import your data somewhere else, while year/month/week reports are fine if you want to keep track of your
 task progress.

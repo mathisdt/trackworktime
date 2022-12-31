@@ -26,6 +26,7 @@
     <string name="clockedIn">clocked in</string>
     <string name="clockedOut">clocked out</string>
     <string name="clockIn">Start Tracking</string>
+    <string name="clockInShort">Start</string>
     <string name="clockInChange">Start New Period</string>
     <string name="clockInChangeShort">New Period</string>
     <string name="clockOut">Stop Tracking</string>
@@ -114,6 +115,12 @@
     <string name="notification">Notification</string>
     <string name="notificationEnabled">Notification enabled</string>
     <string name="notificationDescription">only shown when clocked in</string>
+    <string name="notificationAlways">Always show notification</string>
+    <string name="notificationAlwaysDescription">Useful for clocking in/out via a connected device, e.g. a smartwatch (combined with non-persistent notifications, see below)</string>
+    <string name="notificationNonpersistent">Make all notifications non-persistent</string>
+    <string name="notificationNonpersistentDescription">Pro: notifications can be synced to connected devices, e.g. a smartwatch / Contra: notifications are not pinned at the top of the list and also can be closed unintentionally (but will come back after a minute)</string>
+    <string name="notificationSilent">Make all notifications silent</string>
+    <string name="notificationSilentDescription">Don\'t notify audibly or by vibration at all</string>
     <string name="timeAheadTitle">File an event in advance</string>
     <string name="timeAheadIntro">File an event of the type</string>
     <string name="timeAheadOutro">in advance for in</string>
@@ -251,6 +258,7 @@
     <string name="noFileManagerApp">No file manager app available which supports opening directories!\n\nPlease install one, e.g. "Simple File Manager" by "Simple Mobile Tools".</string>
     <string name="notificationTitle1">worked %1$s so far</string>
     <string name="notificationTitle2">clocked in since %1$s</string>
+    <string name="notificationTitle3">worked %1$s today</string>
     <string name="notificationText1">possible finishing time: %1$s</string>
     <string name="notificationText2">target working time cannot be reached today!</string>
     <string name="notificationText3">regular work time is over since %1$s</string>

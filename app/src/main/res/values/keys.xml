@@ -39,6 +39,9 @@
     <string name="keyAutoPauseEnd">keyAutoPauseEnd</string>
     <string name="keyNotificationCategory">keyNotificationCategory</string>
     <string name="keyNotificationEnabled">keyNotificationEnabled</string>
+    <string name="keyNotificationAlways">keyNotificationAlways</string>
+    <string name="keyNotificationNonPersistent">keyNotificationNonPersistent</string>
+    <string name="keyNotificationSilent">keyNotificationSilent</string>
     <string name="keyNotificationUsesFlexiTimeAsTarget">keyNotificationUsesFlexiTimeAsTarget</string>
     <string name="keyBackupCategory">keyBackupCategory</string>
     <string name="keyBackupSettingAsked">keyBackupSettingAsked</string>

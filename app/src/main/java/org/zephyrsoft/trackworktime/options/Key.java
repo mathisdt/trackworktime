@@ -66,6 +66,9 @@ public enum Key {
 	AUTO_PAUSE_END("keyAutoPauseEnd", DataType.TIME, AUTO_PAUSE_ENABLED, R.string.autoPauseEnd),
 
 	NOTIFICATION_ENABLED("keyNotificationEnabled", DataType.BOOLEAN, null, R.string.notificationEnabled),
+	NOTIFICATION_ALWAYS("keyNotificationAlways", DataType.BOOLEAN, NOTIFICATION_ENABLED, R.string.notificationAlways),
+	NOTIFICATION_NONPERSISTENT("keyNotificationNonPersistent", DataType.BOOLEAN, NOTIFICATION_ENABLED, R.string.notificationAlways),
+	NOTIFICATION_SILENT("keyNotificationSilent", DataType.BOOLEAN, NOTIFICATION_ENABLED, R.string.notificationSilent),
 	NOTIFICATION_USES_FLEXI_TIME_AS_TARGET("keyNotificationUsesFlexiTimeAsTarget", DataType.BOOLEAN,
 		NOTIFICATION_ENABLED, R.string.notificationUsesFlexiTimeAsTarget),
 	NEVER_UPDATE_PERSISTENT_NOTIFICATION("keyNeverUpdatePersistentNotification", DataType.BOOLEAN,
