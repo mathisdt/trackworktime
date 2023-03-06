@@ -87,13 +87,16 @@ If the app crashes, it will offer you to send some information about the crash c
 (and does that only if you agree, you will be asked every time). The app does NOT include tracked times or
 places in the bug report, but the general log file is appended and might potentially include personal data -
 if so, it will be kept strictly confidential and only used to identify the problem.
-  
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
-     alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
+alt="Get it on F-Droid"
+height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+alt="Get it on Google Play"
+height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
+[<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-white.png"
+alt="Get it on Amazon Appstore"
+height="80">](https://www.amazon.com/gp/product/B0BX4FGB6T)
   
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
