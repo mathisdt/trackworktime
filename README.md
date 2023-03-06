@@ -90,13 +90,13 @@ if so, it will be kept strictly confidential and only used to identify the probl
 
 [<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-fdroid.png"
      alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
+     height="54px">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
 [<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-google-play.png"
      alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
+     height="54px">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
 [<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-amazon-appstore.png"
      alt="Get it on Amazon Appstore"
-     height="80">](https://www.amazon.com/gp/product/B0BX4FGB6T)
+     height="54px">](https://www.amazon.com/gp/product/B0BX4FGB6T)
 
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
