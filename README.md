@@ -88,15 +88,15 @@ If the app crashes, it will offer you to send some information about the crash c
 places in the bug report, but the general log file is appended and might potentially include personal data -
 if so, it will be kept strictly confidential and only used to identify the problem.
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+[<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-fdroid.png"
 alt="Get it on F-Droid"
-width="206px">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+height="80px">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
+[<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-google-play.png"
 alt="Get it on Google Play"
-width="206px">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
-[<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-black.png"
+height="80px">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
+[<img src="https://zephyrsoft.org/wp-content/uploads/get-it-on-amazon-appstore.png"
 alt="Get it on Amazon Appstore"
-width="180px" style="padding:13px">](https://www.amazon.com/gp/product/B0BX4FGB6T)
+height="80px">](https://www.amazon.com/gp/product/B0BX4FGB6T)
   
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
