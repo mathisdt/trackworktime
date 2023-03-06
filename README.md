@@ -94,9 +94,9 @@ height="80">](https://f-droid.org/packages/org.zephyrsoft.trackworktime/)
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
 alt="Get it on Google Play"
 height="80">](https://play.google.com/store/apps/details?id=org.zephyrsoft.trackworktime)
-[<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-white.png"
+[<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-black.png"
 alt="Get it on Amazon Appstore"
-height="80">](https://www.amazon.com/gp/product/B0BX4FGB6T)
+height="56">](https://www.amazon.com/gp/product/B0BX4FGB6T)
   
 You can track the past development by looking at the [version history](https://zephyrsoft.org/trackworktime/history).  
   
