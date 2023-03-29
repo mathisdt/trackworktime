@@ -9,54 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: Build
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Display branch name
-        run: |
-          echo "current branch: $GITHUB_REF"
-      - name: Init submodules
-        run: git submodule update --init --recursive
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 11
-          check-latest: true
-      - name: Set up Gradle cache
-        uses: actions/cache@v3
-        id: gradle-cache
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Test
-        run: ./gradlew clean test
-      - name: Assemble
-        run: ./gradlew assemble
-      - name: Cleanup Gradle cache
-        run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
-      - name: Collect release metadata
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: collect_release_metadata
-        run: |
-          echo "release_number=$(git tag --points-at HEAD)"  >> $GITHUB_ENV
-          echo "release_apk=$(ls app/build/outputs/apk/release/*.apk)" >> $GITHUB_ENV
-          echo "release_apk_short=$(ls app/build/outputs/apk/release/*.apk | sed -e 's#^.*/##g')" >> $GITHUB_ENV
-      - name: Create release
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ env.release_number }}
-          body: "see changelog: https://zephyrsoft.org/trackworktime/history"
-          tag_name: ${{ env.release_number }}
-          files: ${{ env.release_apk }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+    uses: mathisdt/workflows/.github/workflows/android.yaml@master
+    with:
+      changelog-link: https://zephyrsoft.org/trackworktime/history
+    secrets: inherit
