@@ -909,7 +909,7 @@ public class DAO {
 	public boolean deleteTarget(Target target) {
 		open();
 		final boolean result = db.delete(TARGET, TARGET_ID + "=" + target.getId(), null) > 0;
-		//dataChanged(); // TODO
+		dataChanged();
 		return result;
 	}
 

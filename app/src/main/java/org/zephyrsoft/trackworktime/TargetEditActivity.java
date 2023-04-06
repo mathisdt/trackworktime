@@ -227,6 +227,11 @@ public class TargetEditActivity extends AppCompatActivity
 			case DELETE_TARGET:
 				Logger.debug("Deleting target {}", editedTarget.toString());
 				dao.deleteTarget(editedTarget);
+
+				// we have to call this manually when using the DAO directly
+				timerManager.invalidateCacheFrom(targetDay);
+				Basics.get(this).safeCheckPersistentNotification();
+
 				finish();
 			case android.R.id.home:
 				finish();
