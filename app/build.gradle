@@ -83,7 +83,7 @@ dependencies {
     implementation "ch.acra:acra-http:$acraVersion"
     implementation "ch.acra:acra-dialog:$acraVersion"
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'com.google.guava:guava:32.0.1-android'
+    implementation 'com.google.guava:guava:32.1.1-android'
     implementation 'net.sf.supercsv:super-csv:2.4.0'
     implementation 'org.tinylog:tinylog:1.3.6'
 
