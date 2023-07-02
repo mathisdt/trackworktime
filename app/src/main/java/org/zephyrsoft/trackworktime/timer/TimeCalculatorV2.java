@@ -18,6 +18,8 @@ package org.zephyrsoft.trackworktime.timer;
 import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateEventToMinute;
 import static org.zephyrsoft.trackworktime.util.DateTimeUtil.truncateEventsToMinute;
 
+import android.content.SharedPreferences;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
@@ -28,6 +30,7 @@ import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetEnum;
 import org.zephyrsoft.trackworktime.model.TimeInfo;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
+import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 import java.time.DayOfWeek;
@@ -114,6 +117,9 @@ public class TimeCalculatorV2 {
 	private final boolean handleFlexiTime;
 	private final ZoneId zoneId;
 
+	private final boolean roundingEnabled;
+	private final int smallestTimeUnit;
+
 	private LocalDate startDate;
 	private Event lastEventBeforeDay;
 	private LocalDate currentDate;
@@ -138,15 +144,22 @@ public class TimeCalculatorV2 {
 	private long currentBalance = 0;
 	private int futureWorkDays = -1;
 
-	public TimeCalculatorV2(DAO dao, TimerManager timerManager, LocalDate startDate, boolean handleFlexiTime) {
+	public TimeCalculatorV2(DAO dao, TimerManager timerManager, LocalDate startDate, SharedPreferences preferences) {
 		this.dao = dao;
 		this.timerManager = timerManager;
 
-		this.handleFlexiTime = handleFlexiTime;
+		this.handleFlexiTime = preferences.getBoolean(Key.ENABLE_FLEXI_TIME.getName(), false);
 		if (handleFlexiTime) {
 			this.flexiReset = timerManager.getFlexiReset();
 		} else {
 			this.flexiReset = FlexiReset.NONE;
+		}
+
+		this.roundingEnabled = preferences.getBoolean(Key.ROUNDING_ENABLED.getName(), false);
+		if (preferences.getBoolean(Key.ROUNDING_ENABLED.getName(), false)) {
+			this.smallestTimeUnit = Integer.parseInt(preferences.getString(Key.SMALLEST_TIME_UNIT.getName(), "1"));
+		} else {
+			this.smallestTimeUnit = 1;
 		}
 
 		this.zoneId = timerManager.getHomeTimeZone();
@@ -361,7 +374,7 @@ public class TimeCalculatorV2 {
 
 		currentDayHasEvents = (events != null && !events.isEmpty());
 
-		workedTime += calculateWorkTime(events);
+		workedTime += roundUpToMultiple(calculateWorkTime(events), smallestTimeUnit);
 
 		// always show real worked time
 		currentDayActual = workedTime;
@@ -552,5 +565,13 @@ public class TimeCalculatorV2 {
 		// restore value of "today"
 		this.currentDayActual = currentDayActual;
 		this.currentDayTarget = currentDayTarget;
+	}
+
+	public static long roundUpToMultiple(long value, long multiple) {
+		if (multiple == 1) {
+			return value;
+		} else {
+			return (value + multiple - 1) / multiple * multiple;
+		}
 	}
 }
