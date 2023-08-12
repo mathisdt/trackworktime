@@ -22,6 +22,7 @@ import android.net.wifi.ScanResult;
 import androidx.annotation.NonNull;
 
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.WorkTimeTrackerActivity;
@@ -30,6 +31,7 @@ import org.zephyrsoft.trackworktime.util.ExternalNotificationManager;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Enables the tracking of work time by presence at a specific wifi ssid. This is an addition to the manual tracking,
@@ -123,6 +125,13 @@ public class WifiTracker implements WifiScanner.WifiScanListener {
 
 	@Override
 	public void onScanResultsUpdated(@NonNull List<ScanResult> wifiNetworksInRange) {
+		if (Basics.get(context).getPreferences().getBoolean(context.getString(R.string.keyLogVisibleNetworks), false)) {
+			Logger.info("visible wifi networks (duplicates removed): {}", wifiNetworksInRange.stream()
+				.map(sr -> sr.SSID)
+				.distinct()
+				.collect(Collectors.joining("', '", "'", "'")));
+		}
+
 		Logger.debug("checking wifi for ssid \"{}\"", ssid);
 		final boolean ssidIsNowInRange = isConfiguredSsidInRange(wifiNetworksInRange);
 		Logger.debug("wifi ssid \"{}\" in range now: {}, previous state: {}", ssid, ssidIsNowInRange,

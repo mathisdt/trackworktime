@@ -60,5 +60,7 @@
     <string name="keyPebbleNotification">keyPebbleNotification</string>
     <string name="keyNeverUpdatePersistentNotification">keyNeverUpdatePersistentNotification</string>
     <string name="keyAutomaticBackupLastTime">keyAutomaticBackupLastTime</string>
+    <string name="keyLoggingCategory">keyLoggingCategory</string>
+    <string name="keyLogVisibleNetworks">keyLogVisibleNetworks</string>
 
 </resources>

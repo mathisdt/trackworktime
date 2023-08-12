@@ -329,4 +329,7 @@
     <string name="notification_permission_removed">Disabled notifications in the settings because the permission was removed for the app.</string>
     <string name="notification_permissions_ungranted">Disabled notifications in the settings because the permission was not granted for the app. You can always allow notifications in the Android settings for this app.</string>
     <string name="timeframe_description">from %1$s to %2$s</string>
+    <string name="logging">Logging</string>
+    <string name="logVisibleWiFiNetworks">Log visible Wi-Fi networks</string>
+    <string name="logVisibleWiFiNetworksSubtitle">Only writes the names of the networks into the app\'s log file on your device, will not be published</string>
 </resources>

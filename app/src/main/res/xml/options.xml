@@ -217,4 +217,13 @@
             android:key="@string/keyShowNavigationButtons"
             android:title="@string/show_navigation_buttons" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/keyLoggingCategory"
+        android:title="@string/logging">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/keyLogVisibleNetworks"
+            android:title="@string/logVisibleWiFiNetworks"
+            android:summary="@string/logVisibleWiFiNetworksSubtitle" />
+    </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
