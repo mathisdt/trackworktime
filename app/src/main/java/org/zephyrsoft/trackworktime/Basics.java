@@ -88,7 +88,6 @@ public class Basics {
 
     private Context context = null;
     private SharedPreferences preferences = null;
-    private Uri documentTree = null;
     private DAO dao = null;
     private TimerManager timerManager = null;
     private TimeCalculator timeCalculator = null;
@@ -970,13 +969,10 @@ public class Basics {
     }
 
     public Uri getDocumentTree() {
-        if (documentTree == null) {
-            String documenTreeString = preferences.getString(getContext().getString(R.string.keyGrantedDocumentTree), null);
-            documentTree = documenTreeString == null
-                ? null
-                : Uri.parse(documenTreeString);
-        }
-        return documentTree;
+        String documenTreeString = preferences.getString(getContext().getString(R.string.keyGrantedDocumentTree), null);
+        return documenTreeString == null
+            ? null
+            : Uri.parse(documenTreeString);
     }
 
     public Locale getLocale() {
