@@ -120,4 +120,8 @@ public class Task extends Base implements Comparable<Task> {
 			return id.equals(other.id);
 		}
 	}
+
+	public boolean isActive() {
+		return getActive() != null && getActive() == 1;
+	}
 }

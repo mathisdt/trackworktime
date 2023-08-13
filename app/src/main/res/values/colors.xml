@@ -2,6 +2,7 @@
 <resources>
 
     <color name="light_gray">#d0d0d0</color>
+    <color name="medium_gray">#a0a0a0</color>
     <color name="background">#2b2b2b</color>
     <color name="toolbar_bg">#151515</color>
     <color name="accent">#ffffff</color>

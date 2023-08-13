@@ -26,4 +26,8 @@ public interface SeparatorIdentificationMethod<T> extends StringExtractionMethod
 	 */
 	boolean isSeparator(T object);
 
+	@Override
+	default String extractText(T object) {
+		return "";
+	}
 }

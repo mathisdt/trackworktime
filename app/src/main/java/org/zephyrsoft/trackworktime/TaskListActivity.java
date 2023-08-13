@@ -1,15 +1,15 @@
 /*
  * This file is part of TrackWorkTime (TWT).
- * 
+ *
  * TWT is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License 3.0 as published by
  * the Free Software Foundation.
- * 
+ *
  * TWT is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License 3.0 for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License 3.0
  * along with TWT. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -34,6 +33,8 @@ import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.TasksActivityBinding;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
+import org.zephyrsoft.trackworktime.util.SeparatorIdentificationMethod;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class TaskListActivity extends AppCompatActivity {
 
 	private WorkTimeTrackerActivity parentActivity = null;
 
-	private ArrayAdapter<Task> tasksAdapter;
+	private FlexibleArrayAdapter<Task> tasksAdapter;
 
 	@Override
 	protected void onPause() {
@@ -81,7 +82,18 @@ public class TaskListActivity extends AppCompatActivity {
 
 		dao = Basics.get(this).getDao();
 		tasks = dao.getAllTasks();
-		tasksAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tasks);
+		tasksAdapter = new FlexibleArrayAdapter<>(this,
+            android.R.layout.simple_list_item_1, 0, tasks,
+            Task::getName, R.layout.list_item_inactive, new SeparatorIdentificationMethod<>() {
+            @Override
+            public boolean isSeparator(Task task) {
+                return !task.isActive();
+            }
+            @Override
+            public String extractText(Task task) {
+                return task.getName() + " (" + getString(R.string.inactive) + ")";
+            }
+        });
 		tasksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		listView.setAdapter(tasksAdapter);
 
@@ -147,7 +159,7 @@ public class TaskListActivity extends AppCompatActivity {
 		menu.add(Menu.NONE, RENAME_TASK, RENAME_TASK,
 			getString(R.string.rename_task)).setIcon(R.drawable.ic_menu_info_details);
 		menu.add(Menu.NONE, TOGGLE_DEFAULT, TOGGLE_DEFAULT,
-			getString(R.string.toggle_default)).setIcon(R.drawable.ic_menu_revert);
+			getString(R.string.make_default_task)).setIcon(R.drawable.ic_menu_revert);
 		menu.add(Menu.NONE, TOGGLE_ACTIVATION_STATE_OF_TASK,
 			TOGGLE_ACTIVATION_STATE_OF_TASK, getString(R.string.toggle_activation_state_of_task))
 			.setIcon(R.drawable.ic_menu_revert);
