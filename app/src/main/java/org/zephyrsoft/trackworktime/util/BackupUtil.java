@@ -48,6 +48,7 @@ public class BackupUtil {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     PreferencesUtil.writePreferences(preferences, output);
+                    Logger.debug("wrote preferences to backup");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -57,6 +58,7 @@ public class BackupUtil {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupEventsToWriter(output);
+                    Logger.debug("wrote events to backup");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -66,6 +68,7 @@ public class BackupUtil {
                 try (Writer writer = new OutputStreamWriter(outputStream);
                      BufferedWriter output = new BufferedWriter(writer)) {
                     dao.backupTargetsToWriter(output);
+                    Logger.debug("wrote targets to backup");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -88,6 +91,7 @@ public class BackupUtil {
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             PreferencesUtil.readPreferences(preferences, input);
+                            Logger.debug("read preferences from backup");
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -99,6 +103,7 @@ public class BackupUtil {
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             dao.restoreEventsFromReader(input);
+                            Logger.debug("read events from backup");
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -110,6 +115,7 @@ public class BackupUtil {
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
                             dao.restoreTargetsFromReader(input);
+                            Logger.debug("read targets from backup");
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }

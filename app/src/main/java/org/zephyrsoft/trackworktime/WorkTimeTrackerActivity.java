@@ -1113,6 +1113,9 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 
 		@Override
 		protected Boolean doInBackground(Void... none) {
+			// consciously ignore the result of the backup, it's only a safety measure
+			// and should not keep the restore from working
+			BackupUtil.doBackup(activity, BackupFileInfo.getBackupFilesWithTimestamp(activity));
 			return BackupUtil.doRestore(activity, info);
 		}
 

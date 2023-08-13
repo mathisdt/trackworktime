@@ -22,18 +22,21 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.zephyrsoft.trackworktime.DocumentTreeStorage;
+import org.zephyrsoft.trackworktime.util.DateTimeUtil;
 
 public class BackupFileInfo {
 
-    private static final String BACKUP_FILE_OLD = "backup.csv";
-    private static final String BACKUP_FILE_EVENTS = "backup.events.csv";
-    private static final String BACKUP_FILE_TARGETS = "backup.targets.csv";
-    private static final String BACKUP_FILE_PREFERENCES = "backup.preferences.csv";
+    private static final String BACKUP_FILE_OLD = "backup";
+    private static final String BACKUP_FILE_EVENTS = "backup.events";
+    private static final String BACKUP_FILE_TARGETS = "backup.targets";
+    private static final String BACKUP_FILE_PREFERENCES = "backup.preferences";
+    private static final String BACKUP_FILE_EXTENSION = ".csv";
 
     private String eventsBackupFile;
     private String targetsBackupFile;
-    private final String preferencesBackupFile = BACKUP_FILE_PREFERENCES;
+    private String preferencesBackupFile;
     private DocumentTreeStorage.Type type;
 
     private BackupFileInfo() {}
@@ -83,16 +86,27 @@ public class BackupFileInfo {
      * @param existing search for existing files
      */
     public static BackupFileInfo getBackupFiles(Context context, boolean existing, boolean isAutomaticBackup) {
+        return getBackupFiles(context, existing, isAutomaticBackup, null);
+    }
+
+    private static BackupFileInfo getBackupFiles(Context context, boolean existing, boolean isAutomaticBackup, String suffix) {
         BackupFileInfo info = new BackupFileInfo();
-        info.eventsBackupFile = BACKUP_FILE_EVENTS;
-        info.targetsBackupFile = BACKUP_FILE_TARGETS;
+        info.eventsBackupFile = BACKUP_FILE_EVENTS +
+            (StringUtils.isNotBlank(suffix) ? "." + suffix : "")
+            + BACKUP_FILE_EXTENSION;
+        info.targetsBackupFile = BACKUP_FILE_TARGETS +
+            (StringUtils.isNotBlank(suffix) ? "." + suffix : "")
+            + BACKUP_FILE_EXTENSION;
+        info.preferencesBackupFile = BACKUP_FILE_PREFERENCES +
+            (StringUtils.isNotBlank(suffix) ? "." + suffix : "")
+            + BACKUP_FILE_EXTENSION;
         info.type = isAutomaticBackup
                 ? DocumentTreeStorage.Type.AUTOMATIC_BACKUP
                 : DocumentTreeStorage.Type.MANUAL_BACKUP;
 
         if (existing && !exists(context, info.type, info.eventsBackupFile)) {
-            if (exists(context, info.type, BACKUP_FILE_OLD)) {
-                info.eventsBackupFile = BACKUP_FILE_OLD;
+            if (exists(context, info.type, BACKUP_FILE_OLD + BACKUP_FILE_EXTENSION)) {
+                info.eventsBackupFile = BACKUP_FILE_OLD + BACKUP_FILE_EXTENSION;
             }
         }
 
@@ -113,5 +127,12 @@ public class BackupFileInfo {
      */
     public static BackupFileInfo getBackupFiles(Context context, boolean existing) {
         return getBackupFiles(context, existing, false);
+    }
+
+    /**
+     * Get backup files (which don't have to exist) with current date and time as suffix
+     */
+    public static BackupFileInfo getBackupFilesWithTimestamp(Context context) {
+        return getBackupFiles(context, false, false, DateTimeUtil.timestampNow());
     }
 }
