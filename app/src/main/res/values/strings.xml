@@ -8,6 +8,8 @@
     <string name="onespace">" "</string>
     <string name="out">OUT</string>
     <string name="worked">Worked</string>
+    <string name="workedWithDuration">Worked: %1$s</string>
+    <string name="workedWithDurationPreview">Worked: 5:30</string>
     <string name="shortDate">E, MM/dd</string>
     <string name="flexi">Flexi</string>
     <string name="mondayLong">Monday</string>

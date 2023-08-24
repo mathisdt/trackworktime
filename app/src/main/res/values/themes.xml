@@ -63,4 +63,6 @@
     <style name="Theme.trackworktime.toolbar.popup" parent="ThemeOverlay.AppCompat.Dark">
         <!--item name="android:textColor">@color/actionbar_textcolor</item-->
     </style>
+
+    <style name="Theme.trackworktime.widget" parent="Theme.Material3.DynamicColors.Dark" />
 </resources>
