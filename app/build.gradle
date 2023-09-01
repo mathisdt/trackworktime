@@ -67,7 +67,7 @@ android {
 }
 
 dependencies {
-    def acraVersion = "5.11.0"
+    def acraVersion = "5.11.1"
 
     implementation 'com.github.mathisdt:timezonepicker:cb06a1b0f9'
     implementation 'androidx.documentfile:documentfile:1.0.1'
