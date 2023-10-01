@@ -6,3 +6,8 @@ updates:
       interval: "monthly"
     allow:
       - dependency-type: "direct"
+    groups:
+      minor-and-patch-version-updates:
+        update-types:
+          - "minor"
+          - "patch"
