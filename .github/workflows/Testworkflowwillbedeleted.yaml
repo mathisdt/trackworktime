@@ -1,0 +1,23 @@
+name: Debug build
+
+on: [push, pull_request]
+   
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/playstore'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '17'
+    - run: ./gradlew test
+    - run: ./gradlew assembleDebug -PdoNotStrip
+    - name: Upload APK File
+      uses: actions/upload-artifact@v3.1.3
+      with:
+        name: app_debug
+        path: app/build/outputs/apk/debug/
+        
