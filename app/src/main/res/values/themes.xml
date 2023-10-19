@@ -3,7 +3,7 @@
     <!--
     http://www.murrayc.com/permalink/2014/10/28/android-changing-the-toolbars-text-color-and-overflow-icon-color/
     -->
-    <style name="Theme.trackworktime" parent="@style/Theme.AppCompat">
+    <style name="Theme.trackworktime" parent="Theme.Material3.DayNight">
         <!-- draw the contextual action bar over the toolbar -->
         <!--item name="windowActionModeOverlay">true</item-->
 
