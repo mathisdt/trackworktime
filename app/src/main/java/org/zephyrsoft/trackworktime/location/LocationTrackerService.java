@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.location;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Build;
@@ -46,7 +47,10 @@ public class LocationTrackerService extends Service {
     public void onCreate() {
         Logger.info("creating LocationTrackerService");
         basics = Basics.get(getApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
         }
         locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics

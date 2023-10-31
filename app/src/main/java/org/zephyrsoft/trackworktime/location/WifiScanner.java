@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -130,7 +131,11 @@ public class WifiScanner extends BroadcastReceiver {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 		// Note: Android API only allows registering broadcast receivers to application context!
-		context.getApplicationContext().registerReceiver(this, intentFilter);
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			context.getApplicationContext().registerReceiver(this, intentFilter, Context.RECEIVER_EXPORTED);
+		} else {
+			context.getApplicationContext().registerReceiver(this, intentFilter);
+		}
 		this.context = context;
 		setRegistered(true);
 	}

@@ -18,6 +18,7 @@ package org.zephyrsoft.trackworktime.location;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -49,7 +50,10 @@ public class WifiTrackerService extends Service {
     public void onCreate() {
         Logger.info("creating WifiTrackerService");
         basics = Basics.get(getApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
         }
 

@@ -178,7 +178,11 @@ public class Basics {
         intentFilter.addAction(Constants.CLOCK_IN_ACTION);
         intentFilter.addAction(Constants.CLOCK_OUT_ACTION);
         intentFilter.addAction(Constants.STATUS_REQUEST_ACTION);
-        context.registerReceiver(thirdPartyReceiver, intentFilter);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(thirdPartyReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(thirdPartyReceiver, intentFilter);
+        }
         Logger.debug("Registered {}", ThirdPartyReceiver.class.getSimpleName());
     }
 

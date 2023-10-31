@@ -43,10 +43,9 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
+        compileSdk 34
     }
-
-    compileSdkVersion 33
 
     buildTypes {
         release {
@@ -59,8 +58,8 @@ android {
     }
 
     // rename final APK files
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
+    android.applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
             outputFileName = "TrackWorkTime_${variant.versionName}_${buildTime()}_${variant.buildType.name}${variant.signingReady ? "" : "-unsigned"}.apk"
         }
     }
@@ -75,12 +74,11 @@ dependencies {
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
-    // material:1.10.0 forces API level 34
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation "ch.acra:acra-http:$acraVersion"
     implementation "ch.acra:acra-dialog:$acraVersion"
     implementation 'org.apache.commons:commons-lang3:3.13.0'
