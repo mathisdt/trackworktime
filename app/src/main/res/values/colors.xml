@@ -7,8 +7,6 @@
     <color name="toolbar_bg">#151515</color>
     <color name="accent">#ffffff</color>
     <color name="selected_background">#4c4b4d</color>
-    <color name="widget_background">#dd2b2b2b</color>
-    <color name="widget_border">#dd777777</color>
     <color name="text_disabled">#ff444444</color>
     <color name="date_regular_work">#d0d0d0</color>
     <color name="date_regular_free">#5CFF16</color>

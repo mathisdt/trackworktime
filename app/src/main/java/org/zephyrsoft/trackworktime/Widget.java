@@ -117,7 +117,7 @@ public class Widget extends AppWidgetProvider {
     private void updateWorkTime() {
         int workedTime = (int) timerManager.calculateTimeSum(LocalDate.now(), PeriodEnum.DAY);
         String timeSoFar = DateTimeUtil.formatDuration(workedTime);
-        String workedText = getString(R.string.worked) + ": " + timeSoFar;
+        String workedText = context.getString(R.string.workedWithDuration, timeSoFar);
         int viewId = R.id.workTime;
         views.setTextViewText(viewId, workedText);
         Intent intent = new Intent(context, WorkTimeTrackerActivity.class);
@@ -131,7 +131,7 @@ public class Widget extends AppWidgetProvider {
 
     private void updateClockInBtn() {
         int textRes = isClockedIn() ? R.string.clockInChangeShort : R.string.clockIn;
-        String text = getString(textRes);
+        String text = context.getString(textRes);
         int viewId = R.id.clockIn;
         views.setTextViewText(viewId, text);
         PendingIntent intent = createIntentForAction(Constants.CLOCK_IN_ACTION);
@@ -169,10 +169,6 @@ public class Widget extends AppWidgetProvider {
 
     private void dispatchUpdate() {
         manager.updateAppWidget(currentWidgetId, views);
-    }
-
-    private String getString(@StringRes int id) {
-        return context.getString(id);
     }
 
 }
