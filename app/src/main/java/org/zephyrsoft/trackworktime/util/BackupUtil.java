@@ -90,7 +90,7 @@ public class BackupUtil {
                 DocumentTreeStorage.reading(activity, info.getType(), info.getPreferencesBackupFile(),
                     reader -> {
                         try (final BufferedReader input = new BufferedReader(reader)) {
-                            PreferencesUtil.readPreferences(preferences, input);
+                            PreferencesUtil.readPreferences(activity, preferences, input);
                             Logger.debug("read preferences from backup");
                         } catch (IOException e) {
                             throw new RuntimeException(e);

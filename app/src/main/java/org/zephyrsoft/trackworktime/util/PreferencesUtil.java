@@ -16,11 +16,13 @@
 package org.zephyrsoft.trackworktime.util;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
+import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.options.Checks;
 import org.zephyrsoft.trackworktime.options.Key;
 
@@ -142,7 +144,7 @@ public class PreferencesUtil {
 
 	/**
 	 * writes the current preferences including their values to the given writer
-	 * @see #readPreferences(SharedPreferences, BufferedReader)
+	 * @see #readPreferences(Activity, SharedPreferences, BufferedReader)
 	 */
 	@SuppressWarnings({"unchecked"})
 	public static void writePreferences(SharedPreferences preferences, BufferedWriter output) throws IOException {
@@ -213,8 +215,9 @@ public class PreferencesUtil {
      * @see #writePreferences(SharedPreferences, BufferedWriter)
      */
 	@SuppressLint("ApplySharedPref")
-	public static void readPreferences(SharedPreferences preferences, BufferedReader input) throws IOException {
-	    String line;
+	public static void readPreferences(Activity activity, SharedPreferences preferences, BufferedReader input) throws IOException {
+		String grantedDirectory = preferences.getString(activity.getString(R.string.keyGrantedDocumentTree), null);
+		String line;
 		SharedPreferences.Editor editor = preferences.edit();
 		// remove all entries
 		editor.clear();
@@ -249,6 +252,13 @@ public class PreferencesUtil {
 						+ " for preference " + parts[0]);
 			}
         }
+		if (grantedDirectory != null) {
+			// reset the directory from which we are reading to the previously configured value
+			// (else we won't be able to read the events and targets files which come after this step
+			// in the process of restoring a backup!)
+			Logger.info("reapplying previously configured granted directory: {}", grantedDirectory);
+			editor.putString(activity.getString(R.string.keyGrantedDocumentTree), grantedDirectory);
+		}
 		// if no exception until here, make changes permanent
 		editor.commit();
 	}
