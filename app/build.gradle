@@ -11,8 +11,8 @@ static def buildTime() {
 android {
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -91,7 +91,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.truth:truth:1.1.5'
-    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'com.tngtech.archunit:archunit:1.2.0'
 
     androidTestImplementation 'androidx.test:runner:1.5.2'
