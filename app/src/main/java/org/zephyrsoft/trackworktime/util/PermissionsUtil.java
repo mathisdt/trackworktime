@@ -71,12 +71,23 @@ public class PermissionsUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             addPermissionIfNotGranted(Manifest.permission.FOREGROUND_SERVICE, permissionsToRequest, context);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            addPermissionIfNotGranted(Manifest.permission.FOREGROUND_SERVICE_LOCATION, permissionsToRequest, context);
+        }
+        if (PermissionsUtil.isNotificationPermissionMissing(context)) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
         return permissionsToRequest;
     }
 
     public static boolean isBackgroundPermissionMissing(Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
             && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean isForegroundLocationServicePermissionMissing(Context context) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            && ActivityCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE_LOCATION) != PackageManager.PERMISSION_GRANTED;
     }
 
     public static boolean isNotificationPermissionMissing(Context context) {
@@ -113,6 +124,9 @@ public class PermissionsUtil {
                 + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                 ? String.format(activity.getString(R.string.locationPermissionsRequestTextSupplementForAPI30),
                     activity.getPackageManager().getBackgroundPermissionOptionLabel())
+                : "")
+                + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                ? activity.getString(R.string.locationPermissionsRequestTextSupplementForAPI33)
                 : ""))
             .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 Basics.get(activity).disableLocationBasedTracking();

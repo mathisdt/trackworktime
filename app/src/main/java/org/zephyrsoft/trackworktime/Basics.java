@@ -78,6 +78,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Creates the database connection on device boot and starts the location-based tracking service (if location-based
@@ -269,7 +270,7 @@ public class Basics {
                 Logger.debug("saved {} as last timestamp for automatic backup",
                     now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.warn(e, "error while checking automatic backup");
         }
     }
@@ -471,6 +472,12 @@ public class Basics {
     private void checkLocationBasedTracking() {
         Logger.debug("checking location-based tracking");
         if (preferences.getBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false)) {
+            if (PermissionsUtil.isForegroundLocationServicePermissionMissing(context)) {
+                PreferencesUtil.disablePreference(preferences, Key.LOCATION_BASED_TRACKING_ENABLED);
+                Toast.makeText(context, context.getString(R.string.locationPermissionsRemoved), Toast.LENGTH_LONG).show();
+                return;
+            }
+
             String latitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LATITUDE.getName(), "0");
             String longitudeString = preferences.getString(Key.LOCATION_BASED_TRACKING_LONGITUDE.getName(), "0");
             String toleranceString = preferences.getString(Key.LOCATION_BASED_TRACKING_TOLERANCE.getName(), "0");
@@ -514,6 +521,11 @@ public class Basics {
      * start the location-based tracking service by serviceIntent
      */
     private void startLocationTrackerService(double latitude, double longitude, double tolerance, Boolean vibrate) {
+        Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
+        if (!missingPermissions.isEmpty()) {
+            Logger.debug("not starting location tracker service because of missing permissions: {}", missingPermissions);
+            return;
+        }
         try {
             Intent startIntent = buildLocationTrackerServiceIntent(latitude, longitude, tolerance, vibrate);
             // we can start the service again even if it is already running because
