@@ -143,12 +143,15 @@ public class EventEditActivity extends AppCompatActivity {
 				OffsetDateTime startDateTime = getCurrentlySetDateTime();
 				OffsetDateTime endDateTime = getCurrentlySetEndDateTime();
 				if (startDateTime == null || endDateTime == null) {
-					// TODO: Would be better to disable save button, if date/time is not selected
 					showMsgDateTimeNotSelected();
 					return;
 				}
 
 				Task selectedTask = (Task) task.getSelectedItem();
+				if (selectedTask == null) {
+					showMsgTaskNotSelected();
+					return;
+				}
 				Integer taskId = selectedTask.getId();
 				String textString = text.getText().toString();
 
@@ -161,15 +164,17 @@ public class EventEditActivity extends AppCompatActivity {
 
 				OffsetDateTime dateTime = getCurrentlySetDateTime();
 				if (dateTime == null) {
-					// TODO: Would be better to disable save button, if date/time is not selected
 					showMsgDateTimeNotSelected();
 					return;
 				}
 
 				Task selectedTask = (Task) task.getSelectedItem();
-				Integer taskId = ((typeEnum == TypeEnum.CLOCK_OUT || selectedTask == null) ? null :
-					selectedTask.getId());
-				String textString = (typeEnum == TypeEnum.CLOCK_OUT ? null : text.getText().toString());
+				if (typeEnum == TypeEnum.CLOCK_IN && selectedTask == null) {
+					showMsgTaskNotSelected();
+					return;
+				}
+				Integer taskId = (typeEnum != TypeEnum.CLOCK_IN ? null : selectedTask.getId());
+				String textString = (typeEnum != TypeEnum.CLOCK_IN ? null : text.getText().toString());
 
 				if (newEvent) {
 					Logger.debug("saving new event: {} @ {}", typeEnum.name(), dateTime);
@@ -399,6 +404,10 @@ public class EventEditActivity extends AppCompatActivity {
 
 	private void showMsgDateTimeNotSelected() {
 		Toast.makeText(this, R.string.errorDateOrTimeNotSelected, Toast.LENGTH_LONG).show();
+	}
+
+	private void showMsgTaskNotSelected() {
+		Toast.makeText(this, R.string.errorTaskNotSelected, Toast.LENGTH_LONG).show();
 	}
 
 }
