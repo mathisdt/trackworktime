@@ -38,7 +38,7 @@ android {
         }
 
         versionCode 66                      // increment after every release (for the next development cycle)
-        versionName '1.1.22-SNAPSHOT'       // change with every release
+        versionName '1.1.22'       // change with every release
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
