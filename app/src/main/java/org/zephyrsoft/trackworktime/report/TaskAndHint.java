@@ -38,7 +38,7 @@ public class TaskAndHint extends Base implements Comparable<TaskAndHint> {
 
     @Override
     public int compareTo(TaskAndHint another) {
-        return getTask().compareTo(another.getTask());
+        return compare(getTask(), another.getTask(), compare(getText(), another.getText(), 0));
     }
 
     @Override
