@@ -161,7 +161,26 @@ public class CsvGenerator {
 		};
 	}
 
-	/** (month|week), task, spent */
+	/** task, text, spent */
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getSumsAndHintsProcessors() {
+		return new CellProcessor[] {
+				new NotNull(),
+				new NotNull(),
+				new CellProcessorAdaptor() {
+					@Override
+					public Object execute(Object arg0, CsvContext arg1) {
+						if (arg0 == null) {
+							throw new IllegalStateException("time sum may not be null");
+						} else {
+							return arg0.toString();
+						}
+					}
+				}
+		};
+	}
+
+	/** (day|month|week), task, spent */
 	@SuppressWarnings("unchecked")
 	private CellProcessor[] getSumsPerRangeProcessors() {
 		return new CellProcessor[]{
@@ -177,6 +196,26 @@ public class CsvGenerator {
 					}
 				}
 			}
+		};
+	}
+
+	/** (day|month|week), task, text, spent */
+	@SuppressWarnings("unchecked")
+	private CellProcessor[] getSumsPerRangeWithHintsProcessors() {
+		return new CellProcessor[]{
+				new NotNull(),
+				new NotNull(),
+				new NotNull(),
+				new CellProcessorAdaptor() {
+					@Override
+					public Object execute(Object arg0, CsvContext arg1) {
+						if (arg0 == null) {
+							throw new IllegalStateException("time sum may not be null");
+						} else {
+							return arg0.toString();
+						}
+					}
+				}
 		};
 	}
 
@@ -263,6 +302,26 @@ public class CsvGenerator {
 		return createCsv(prepared, new String[] { "task", "spent" }, getSumsProcessors());
 	}
 
+	public String createSumsCsvWithHints(Map<TaskAndHint, TimeSum> sums) {
+		List<TimeSumsAndHintsHolder> prepared = new ArrayList<>();
+		for (Entry<TaskAndHint, TimeSum> entry : sums.entrySet()) {
+			String task = "";
+			String hint = "";
+			if (entry.getKey() != null) {
+				if (entry.getKey().getTask() != null) {
+					task = entry.getKey().getTask().getName() + " (ID=" + entry.getKey().getTask().getId() + ")";
+				}
+				if (entry.getKey().getText() != null) {
+					hint = entry.getKey().getText();
+				}
+			}
+			prepared.add(new TimeSumsAndHintsHolder(null, null, null, task, hint, entry.getValue()));
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "task", "text", "spent" }, getSumsAndHintsProcessors());
+	}
+
 	public String createSumsPerDayCsv(Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange) {
 		List<TimeSumsHolder> prepared = new ArrayList<>();
 		for (Entry<ZonedDateTime, Map<Task, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
@@ -279,6 +338,30 @@ public class CsvGenerator {
 		Collections.sort(prepared);
 
 		return createCsv(prepared, new String[] { "day", "task", "spent" }, getSumsPerRangeProcessors());
+	}
+
+	public String createSumsWithHintsPerDayCsv(Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange) {
+		List<TimeSumsAndHintsHolder> prepared = new ArrayList<>();
+		for (Entry<ZonedDateTime, Map<TaskAndHint, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String day = DateTimeUtil.dateToULString(rangeEntry.getKey());
+			Map<TaskAndHint, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<TaskAndHint, TimeSum> entry : sums.entrySet()) {
+				String task = "";
+				String hint = "";
+				if (entry.getKey() != null) {
+					if (entry.getKey().getTask() != null) {
+						task = entry.getKey().getTask().getName() + " (ID=" + entry.getKey().getTask().getId() + ")";
+					}
+					if (entry.getKey().getText() != null) {
+						hint = entry.getKey().getText();
+					}
+				}
+				prepared.add(TimeSumsAndHintsHolder.createForDay(day, task, hint, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, new String[] { "day", "task", "text", "spent" }, getSumsPerRangeWithHintsProcessors());
 	}
 
 	public <T> String createSumsPerWeekCsv(Map<ZonedDateTime, Map<T, TimeSum>> sumsPerRange,
@@ -298,6 +381,32 @@ public class CsvGenerator {
 		Collections.sort(prepared);
 
 		return createCsv(prepared, header, getSumsPerRangeProcessors());
+	}
+
+	public String createSumsWithHintsPerWeeksCsv(Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange,
+												 String[] header, Function<TaskAndHint, String> keyExtractor,
+												 Function<TaskAndHint, String> hintExtractor) {
+		List<TimeSumsAndHintsHolder> prepared = new ArrayList<>();
+		for (Entry<ZonedDateTime, Map<TaskAndHint, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String week = DateTimeUtil.dateToULString(rangeEntry.getKey());
+			Map<TaskAndHint, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<TaskAndHint, TimeSum> entry : sums.entrySet()) {
+				String key = "";
+				String hint = "";
+				if (entry.getKey() != null) {
+					if (entry.getKey().getTask() != null) {
+						key = keyExtractor.apply(entry.getKey());
+					}
+					if (entry.getKey().getText() != null) {
+						hint = hintExtractor.apply(entry.getKey());
+					}
+				}
+				prepared.add(TimeSumsAndHintsHolder.createForWeek(week, key, hint, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, header, getSumsPerRangeWithHintsProcessors());
 	}
 
 	public String createDayCountPerWeekCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
@@ -331,6 +440,32 @@ public class CsvGenerator {
 		Collections.sort(prepared);
 
 		return createCsv(prepared, header, getSumsPerRangeProcessors());
+	}
+
+	public String createSumsWithHintsPerMonthCsv(Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange,
+											String[] header, Function<TaskAndHint, String> keyExtractor,
+										Function<TaskAndHint, String> hintExtractor) {
+		List<TimeSumsAndHintsHolder> prepared = new ArrayList<>();
+		for (Entry<ZonedDateTime, Map<TaskAndHint, TimeSum>> rangeEntry : sumsPerRange.entrySet()) {
+			String month = DateTimeUtil.dateToULString(rangeEntry.getKey());
+			Map<TaskAndHint, TimeSum> sums = rangeEntry.getValue();
+			for (Entry<TaskAndHint, TimeSum> entry : sums.entrySet()) {
+				String task = "";
+				String hint = "";
+				if (entry.getKey() != null) {
+					if (entry.getKey().getTask() != null) {
+						task = keyExtractor.apply(entry.getKey());
+					}
+					if (entry.getKey().getText() != null) {
+						hint = hintExtractor.apply(entry.getKey());
+					}
+				}
+				prepared.add(TimeSumsAndHintsHolder.createForMonth(month, task, hint, entry.getValue()));
+			}
+		}
+		Collections.sort(prepared);
+
+		return createCsv(prepared, header, getSumsPerRangeWithHintsProcessors());
 	}
 
 	public String createDayCountPerMonthCsv(Map<ZonedDateTime, Map<String, Integer>> sumsPerRange, String[] header) {
