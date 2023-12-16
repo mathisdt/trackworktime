@@ -172,9 +172,13 @@
     <string name="eventGrouping">Grouping</string>
     <string name="eventGroupingNone">Events: raw (all events)</string>
     <string name="eventGroupingByTask">Events: Times per Task</string>
+    <string name="eventGroupingByTaskAndHint">Events: Times per Task and Hint</string>
     <string name="eventGroupingByTaskPerDay">Events: times per task (daily)</string>
+    <string name="eventGroupingByTaskAndHintPerDay">Events: times per task and hint (daily)</string>
     <string name="eventGroupingByTaskPerWeek">Events: times per task (weekly)</string>
+    <string name="eventGroupingByTaskAndHintPerWeek">Events: times per task and hint (weekly)</string>
     <string name="eventGroupingByTaskPerMonth">Events: times per task (monthly)</string>
+    <string name="eventGroupingByTaskAndHintPerMonth">Events: times per task and hint (monthly)</string>
     <string name="targetGroupingNone">Targets: raw (all targets)</string>
     <string name="targetGroupingPerWeek">Targets: days per type/comment (weekly)</string>
     <string name="targetGroupingPerMonth">Targets: days per type/comment (monthly)</string>
