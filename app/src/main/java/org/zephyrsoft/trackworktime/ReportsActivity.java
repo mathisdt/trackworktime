@@ -124,24 +124,28 @@ public class ReportsActivity extends AppCompatActivity {
 
 	private void restoreSelectionState() {
 		int rangeId = loadSelectedId(Key.REPORT_LAST_RANGE);
-		checkRadioGroup(binding.range, rangeId);
+		checkRadioGroup(binding.range, rangeId, R.id.rangeLast);
 
 		int unitId = loadSelectedId(Key.REPORT_LAST_UNIT);
-		checkRadioGroup(binding.unit, unitId);
+		checkRadioGroup(binding.unit, unitId, R.id.unitWeek);
 
 		int groupingId = loadSelectedId(Key.REPORT_LAST_GROUPING);
-		checkRadioGroup(binding.grouping, groupingId);
+		checkRadioGroup(binding.grouping, groupingId, R.id.groupingNone);
 	}
 
 	private int loadSelectedId(Key key) {
 		return preferences.getInt(key.getName(), NO_ID);
 	}
 
-	private void checkRadioGroup(RadioGroup group, int idToCheck) {
-		if (idToCheck == NO_ID || group.findViewById(idToCheck) == null) {
+	private void checkRadioGroup(RadioGroup group, int idToCheck, int backupIdToCheck) {
+		if (group.findViewById(idToCheck) == null) {
 			return;
 		}
-		group.check(idToCheck);
+		if (idToCheck == NO_ID) {
+			group.check(backupIdToCheck);
+		} else {
+			group.check(idToCheck);
+		}
 	}
 
 	private void preview() {
