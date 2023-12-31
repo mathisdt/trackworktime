@@ -226,12 +226,6 @@ public class TimeCalculator {
 		}
 		// add new times to sum
 		long minutesWorked = ChronoUnit.MINUTES.between(from, to);
-		if (minutesWorked > Integer.MAX_VALUE - 60) {
-			// this is extremely unlikely, someone would have to work 4084 years without pause...
-			int correctedMinutesWorked = Integer.MAX_VALUE - 60;
-			Logger.warn("could not handle {} minutes, number is too high - taking {} instead",
-					minutesWorked, correctedMinutesWorked);
-		}
 		sumForTask.add(0, (int) minutesWorked);
 	}
 
