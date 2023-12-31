@@ -225,8 +225,8 @@ public class TimeCalculator {
 			mapForCounting.put(taskAndHint, sumForTask);
 		}
 		// add new times to sum
-		long minutesWorked = ChronoUnit.MINUTES.between(from, to);
-		sumForTask.add(0, (int) minutesWorked);
+		int minutesWorked = (int) ChronoUnit.MINUTES.between(from, to);
+		sumForTask.add(0, minutesWorked);
 	}
 
 	public ZonedDateTime[] calculateBeginAndEnd(Range range, Unit unit) {
