@@ -523,7 +523,9 @@ public class Basics {
     private void startLocationTrackerService(double latitude, double longitude, double tolerance, Boolean vibrate) {
         Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
         if (!missingPermissions.isEmpty()) {
-            Logger.debug("not starting location tracker service because of missing permissions: {}", missingPermissions);
+            Logger.warn("not starting location tracker service because of missing permissions, disabling automatic tracking: {}", missingPermissions);
+            PreferencesUtil.disableAutomaticTracking(context);
+            Toast.makeText(context, context.getString(R.string.locationPermissionsRemoved), Toast.LENGTH_LONG).show();
             return;
         }
         try {
@@ -585,6 +587,13 @@ public class Basics {
      * start the wifi-based tracking service by serviceIntent
      */
     private void startWifiTrackerService(String ssid, Boolean vibrate, Integer checkInterval) {
+        Set<String> missingPermissions = PermissionsUtil.missingPermissionsForTracking(context);
+        if (!missingPermissions.isEmpty()) {
+            Logger.warn("not starting WiFi tracker service because of missing permissions, disabling automatic tracking: {}", missingPermissions);
+            PreferencesUtil.disableAutomaticTracking(context);
+            Toast.makeText(context, context.getString(R.string.locationPermissionsRemoved), Toast.LENGTH_LONG).show();
+            return;
+        }
         try {
             Intent startIntent = buildWifiTrackerServiceIntent(ssid, vibrate, checkInterval);
             Logger.debug("try to start wifi-based tracking service");
