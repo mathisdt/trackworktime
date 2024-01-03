@@ -23,11 +23,13 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.R;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,11 +49,18 @@ public class LocationTrackerService extends Service {
     public void onCreate() {
         Logger.info("creating LocationTrackerService");
         basics = Basics.get(getApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
+            }
+        } catch (SecurityException se) {
+            // there are permissions missing, disable automatic tracking and tell user
+            Logger.warn(se, "could not start location tracking, disabling all automatic tracking");
+            PreferencesUtil.disableAutomaticTracking(getApplicationContext());
+            Toast.makeText(this, this.getString(R.string.locationPermissionsRemoved), Toast.LENGTH_LONG).show();
         }
         // note: API levels 21 - 25 don't display a notification while "tracking by location" is active
         locationTracker = new LocationTracker((LocationManager) getSystemService(Context.LOCATION_SERVICE), basics

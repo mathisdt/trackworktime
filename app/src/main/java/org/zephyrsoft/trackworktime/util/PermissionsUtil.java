@@ -74,7 +74,7 @@ public class PermissionsUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             addPermissionIfNotGranted(Manifest.permission.FOREGROUND_SERVICE_LOCATION, permissionsToRequest, context);
         }
-        if (PermissionsUtil.isNotificationPermissionMissing(context)) {
+        if (isNotificationPermissionMissing(context)) {
             permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
         }
         return permissionsToRequest;
@@ -91,7 +91,8 @@ public class PermissionsUtil {
     }
 
     public static boolean isNotificationPermissionMissing(Context context) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        return Basics.get(context).isNotificationEnabled()
+            && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED;
     }
 

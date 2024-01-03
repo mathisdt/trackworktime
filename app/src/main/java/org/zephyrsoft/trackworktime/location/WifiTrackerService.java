@@ -23,12 +23,14 @@ import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
 import org.zephyrsoft.trackworktime.Constants;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.options.Key;
+import org.zephyrsoft.trackworktime.util.PreferencesUtil;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,18 +52,23 @@ public class WifiTrackerService extends Service {
     public void onCreate() {
         Logger.info("creating WifiTrackerService");
         basics = Basics.get(getApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForeground(Constants.PERSISTENT_TRACKING_ID, basics.createNotificationTracking());
+            }
+        } catch (SecurityException se) {
+            // there are permissions missing, disable automatic tracking and tell user
+            Logger.warn(se, "could not start WiFi tracking, disabling all automatic tracking");
+            PreferencesUtil.disableAutomaticTracking(getApplicationContext());
+            Toast.makeText(this, this.getString(R.string.locationPermissionsRemoved), Toast.LENGTH_LONG).show();
         }
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         String checkIntervalString = basics.getPreferences().getString(Key.WIFI_BASED_TRACKING_CHECK_INTERVAL.getName(), "1");
-        int checkInterval = checkIntervalString == null
-            ? 1
-            : Integer.parseInt(checkIntervalString);
+        int checkInterval = Integer.parseInt(checkIntervalString);
         int time = checkInterval * 60 - 30;
         wifiScanner = new WifiScanner(wifiManager, time, time);
         wifiScanner.register(getApplicationContext());

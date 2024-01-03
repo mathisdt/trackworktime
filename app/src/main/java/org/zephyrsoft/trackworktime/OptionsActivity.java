@@ -256,10 +256,7 @@ public class OptionsActivity extends AppCompatActivity {
         }
 
         private void locationPermissionNotGranted() {
-            final SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
-            editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
-            editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
-            editor.apply();
+            PreferencesUtil.disableAutomaticTracking(getActivity());
 
             Intent messageIntent = Basics.get(getActivity())
                 .createMessageIntent(getString(R.string.locationPermissionsUngranted), null);

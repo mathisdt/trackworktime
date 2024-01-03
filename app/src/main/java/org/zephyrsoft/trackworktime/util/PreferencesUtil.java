@@ -262,4 +262,11 @@ public class PreferencesUtil {
 		// if no exception until here, make changes permanent
 		editor.commit();
 	}
+
+    public static void disableAutomaticTracking(Context context) {
+		final SharedPreferences.Editor editor = Basics.get(context).getPreferences().edit();
+		editor.putBoolean(Key.LOCATION_BASED_TRACKING_ENABLED.getName(), false);
+		editor.putBoolean(Key.WIFI_BASED_TRACKING_ENABLED.getName(), false);
+		editor.apply();
+    }
 }

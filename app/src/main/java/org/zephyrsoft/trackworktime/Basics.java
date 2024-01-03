@@ -714,6 +714,10 @@ public class Basics {
         }
     }
 
+    public boolean isNotificationEnabled() {
+        return PreferencesUtil.getBooleanPreference(preferences, Key.NOTIFICATION_ENABLED);
+    }
+
     /**
      * Show a notification.
      *
