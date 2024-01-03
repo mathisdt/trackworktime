@@ -233,7 +233,7 @@
     <string name="locationPermissionsRequestTextSupplementForAPI30">\n\nYou will have to do that in the app\'s system settings, which will open automatically: please choose \"%s\".</string>
     <string name="locationPermissionsRequestTextSupplementForAPI33">\n\nThe system will also ask to show a notification while tracking by location/WiFi is on. If you don\'t want that, don\'t allow notifications.</string>
     <string name="locationPermissionsGranted">Please check if the automatic time tracking method you want is still enabled - it could be disabled because the permission was missing until now.</string>
-    <string name="locationPermissionsRemoved">Necessary permission is missing, disabled location-based and WiFi-based tracking.</string>
+    <string name="locationPermissionsRemoved">Necessary permission is missing, disabled automatic tracking!</string>
     <string name="locationPermissionsUngranted">You did not grant the requested permissions. Automatic time tracking is disabled now.\n\nIf you change your mind, you can re-enable it later in the options.\n\nIf you didn\'t see any permission dialog, please just wait some minutes (Android imposes a rate limit on permission requests) or manually grant the permission in Android\'s settings for this app.</string>
     <string name="locationPermissionsForCurrentLocationUngranted">You did not grant the requested permissions, so the current location cannot be determined.</string>
     <string name="storagePermissionsRequestTitle">Storage Permission</string>
