@@ -9,22 +9,22 @@ jobs:
     timeout-minutes: 45
     strategy:
       matrix:
-        # test on the minimum and on a more recent version
-        android: [ 21, 28 ]
+        # test on the minimum, a more recent version and the current maximum
+        android: [ 21, 28, 34 ]
       fail-fast: false
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Display branch name
         run: |
           echo "current branch: $GITHUB_REF"
       - name: Init submodules
         run: git submodule update --init --recursive
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 20    # JDK 21 is still unsupported by Kotlin
           check-latest: true
       - name: Set up Gradle cache
         uses: actions/cache@v3
