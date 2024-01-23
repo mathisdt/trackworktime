@@ -27,6 +27,7 @@ import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.model.Event;
 import org.zephyrsoft.trackworktime.model.Range;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.report.TaskAndHint;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -156,6 +157,48 @@ public class TimeCalculator {
 		return ret;
 	}
 
+	/**
+	 * Calculate the time sums per task and hint in a given time range.
+	 */
+	public Map<TaskAndHint, TimeSum> calculateSumsPerTaskAndHint(OffsetDateTime beginOfPeriod, OffsetDateTime endOfPeriod, List<Event> events) {
+		Map<TaskAndHint, TimeSum> ret = new HashMap<>();
+		if (events == null || events.isEmpty()) {
+			return ret;
+		}
+
+		OffsetDateTime timeOfFirstEvent = events.get(0).getDateTime();
+		Event lastEventBefore = dao.getLastEventBefore(timeOfFirstEvent);
+
+		OffsetDateTime clockedInSince = null;
+		TaskAndHint currentTaskAndHint = null;
+
+		if (TimerManager.isClockInEvent(lastEventBefore)) {
+			// clocked in since begin of period
+			clockedInSince = beginOfPeriod;
+			currentTaskAndHint = lastEventBefore.getTask() != null ? new TaskAndHint(lastEventBefore.getText(), dao.getTask(lastEventBefore.getTask())) : null;
+		}
+
+		for (Event event : events) {
+			OffsetDateTime eventTime = event.getDateTime();
+			if (clockedInSince != null) {
+				countTime(ret, currentTaskAndHint, clockedInSince, eventTime);
+			}
+			if (TimerManager.isClockInEvent(event)) {
+				clockedInSince = eventTime;
+				currentTaskAndHint = event.getTask() != null ? new TaskAndHint(event.getText(), dao.getTask(event.getTask())) : null;
+			} else {
+				clockedInSince = null;
+				currentTaskAndHint = null;
+			}
+		}
+
+		if (clockedInSince != null) {
+			countTime(ret, currentTaskAndHint, clockedInSince, endOfPeriod);
+		}
+
+		return ret;
+	}
+
 	private static void countTime(Map<Task, TimeSum> mapForCounting, Task task, OffsetDateTime from, OffsetDateTime to) {
 		// fetch sum up to now
 		TimeSum sumForTask = mapForCounting.get(task);
@@ -172,6 +215,18 @@ public class TimeCalculator {
 				minutesWorked, correctedMinutesWorked);
 		}
 		sumForTask.add(0, (int) minutesWorked);
+	}
+
+	private static void countTime(Map<TaskAndHint, TimeSum> mapForCounting, TaskAndHint taskAndHint, OffsetDateTime from, OffsetDateTime to) {
+		// fetch sum up to now
+		TimeSum sumForTask = mapForCounting.get(taskAndHint);
+		if (sumForTask == null) {
+			sumForTask = new TimeSum();
+			mapForCounting.put(taskAndHint, sumForTask);
+		}
+		// add new times to sum
+		int minutesWorked = (int) ChronoUnit.MINUTES.between(from, to);
+		sumForTask.add(0, minutesWorked);
 	}
 
 	public ZonedDateTime[] calculateBeginAndEnd(Range range, Unit unit) {

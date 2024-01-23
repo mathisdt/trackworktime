@@ -113,10 +113,22 @@
                 android:text="@string/eventGroupingByTask" />
 
             <RadioButton
+                android:id="@+id/groupingByTaskAndHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskAndHint" />
+
+            <RadioButton
                 android:id="@+id/groupingByTaskPerDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/eventGroupingByTaskPerDay"/>
+
+            <RadioButton
+                android:id="@+id/groupingByTaskAndHintPerDay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskAndHintPerDay" />
 
             <RadioButton
                 android:id="@+id/groupingByTaskPerWeek"
@@ -125,10 +137,22 @@
                 android:text="@string/eventGroupingByTaskPerWeek"/>
 
             <RadioButton
+                android:id="@+id/groupingByTaskAndHintPerWeek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskAndHintPerWeek" />
+
+            <RadioButton
                 android:id="@+id/groupingByTaskPerMonth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/eventGroupingByTaskPerMonth"/>
+
+            <RadioButton
+                android:id="@+id/groupingByTaskAndHintPerMonth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eventGroupingByTaskAndHintPerMonth" />
 
             <RadioButton
                 android:id="@+id/targetGroupingNone"

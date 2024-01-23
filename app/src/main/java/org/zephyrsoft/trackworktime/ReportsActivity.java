@@ -42,6 +42,7 @@ import org.zephyrsoft.trackworktime.model.Report;
 import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetWrapper;
 import org.zephyrsoft.trackworktime.model.Task;
+import org.zephyrsoft.trackworktime.report.TaskAndHint;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Unit;
@@ -157,14 +158,26 @@ public class ReportsActivity extends AppCompatActivity {
 			case R.id.groupingByTask:
 				report = createReportForTimesByTask();
 				break;
+			case R.id.groupingByTaskAndHint:
+				report = createReportForTimesByTaskAndHint();
+				break;
 			case R.id.groupingByTaskPerDay:
 				report = createReportForTimesByTaskPerDay();
+				break;
+			case R.id.groupingByTaskAndHintPerDay:
+				report = createReportForTimesByTaskAndHintPerDay();
 				break;
 			case R.id.groupingByTaskPerWeek:
 				report = createReportForTimesByTaskPerWeek();
 				break;
+			case R.id.groupingByTaskAndHintPerWeek:
+				report = createReportForTimesByTaskAndHintPerWeek();
+				break;
 			case R.id.groupingByTaskPerMonth:
 				report = createReportForTimesByTaskPerMonth();
+				break;
+			case R.id.groupingByTaskAndHintPerMonth:
+				report = createReportForTimesByTaskAndHintPerMonth();
 				break;
 			case R.id.targetGroupingNone:
 				report = createReportForAllTargets();
@@ -218,14 +231,26 @@ public class ReportsActivity extends AppCompatActivity {
 			case R.id.groupingByTask:
 				exportTimesByTask();
 				break;
+			case R.id.groupingByTaskAndHint:
+				exportTimesByTaskAndHint();
+				break;
 			case R.id.groupingByTaskPerDay:
 				exportTimesByTaskPerDay();
+				break;
+			case R.id.groupingByTaskAndHintPerDay:
+				exportTimesByTaskAndHintPerDay();
 				break;
 			case R.id.groupingByTaskPerWeek:
 				exportTimesByTaskPerWeek();
 				break;
+			case R.id.groupingByTaskAndHintPerWeek:
+				exportTimesByTaskAndHintPerWeek();
+				break;
 			case R.id.groupingByTaskPerMonth:
 				exportTimesByTaskPerMonth();
+				break;
+			case R.id.groupingByTaskAndHintPerMonth:
+				exportTimesByTaskAndHintPerMonth();
 				break;
 			case R.id.targetGroupingNone:
 				exportAllTargets();
@@ -314,6 +339,43 @@ public class ReportsActivity extends AppCompatActivity {
 		return new Report(reportName, report);
 	}
 
+	private void exportTimesByTaskAndHint() {
+		Report report = createReportForTimesByTaskAndHint();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+				"sums-" + name.replaceAll(" ", "-"),
+				data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForTimesByTaskAndHint() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<Event> events = dao.getEvents(beginAndEnd[0].toInstant(), beginAndEnd[1].toInstant());
+		truncateEventsToMinute(events);
+		Map<TaskAndHint, TimeSum> sums = timeCalculator.calculateSumsPerTaskAndHint(beginAndEnd[0].toOffsetDateTime(), beginAndEnd[1].toOffsetDateTime(), events);
+
+		String report = csvGenerator.createSumsCsvWithHints(sums);
+		String reportName = describeTimeRange(beginAndEnd);
+		if (report == null) {
+			logAndShowError(reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
 	private void exportTimesByTaskPerDay() {
 		Report report = createReportForTimesByTaskPerDay();
 		if (report == null) {
@@ -342,6 +404,43 @@ public class ReportsActivity extends AppCompatActivity {
 		Map<ZonedDateTime, Map<Task, TimeSum>> sumsPerRange = calculateSumsPerRange(rangeBeginnings, beginAndEnd[1]);
 
 		String report = csvGenerator.createSumsPerDayCsv(sumsPerRange);
+		String reportName = describeTimeRange(beginAndEnd);
+		if (report == null) {
+			logAndShowError(reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTaskAndHintPerDay() {
+		Report report = createReportForTimesByTaskAndHintPerDay();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+				"sums-per-day-" + name.replaceAll(" ", "-"),
+				data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForTimesByTaskAndHintPerDay() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.DAY, beginAndEnd[0],
+				beginAndEnd[1]);
+		Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange = calculateSumsWithHintsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createSumsWithHintsPerDayCsv(sumsPerRange);
 		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
@@ -390,6 +489,46 @@ public class ReportsActivity extends AppCompatActivity {
 		return new Report(reportName, report);
 	}
 
+	private void exportTimesByTaskAndHintPerWeek() {
+		Report report = createReportForTimesByTaskAndHintPerWeek();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+				"sums-per-week-" + name.replaceAll(" ", "-"),
+				data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForTimesByTaskAndHintPerWeek() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.WEEK, beginAndEnd[0],
+				beginAndEnd[1]);
+		Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange = calculateSumsWithHintsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createSumsWithHintsPerWeeksCsv(sumsPerRange,
+				new String[] { "week", "task", "text", "spent" },
+				taskAndHint -> taskAndHint.getTask().getName() + " (ID=" + taskAndHint.getTask().getId() + ")",
+				taskAndHint -> taskAndHint.getText());
+		String reportName = describeTimeRange(beginAndEnd);
+		if (report == null) {
+			logAndShowError(reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
 	private void exportTimesByTaskPerMonth() {
 		Report report = createReportForTimesByTaskPerMonth();
 		if (report == null) {
@@ -420,6 +559,46 @@ public class ReportsActivity extends AppCompatActivity {
 		String report = csvGenerator.createSumsPerMonthCsv(sumsPerRange,
 			new String[] { "month", "task", "spent" },
 			task -> task.getName() + " (ID=" + task.getId() + ")");
+		String reportName = describeTimeRange(beginAndEnd);
+		if (report == null) {
+			logAndShowError(reportName);
+			return null;
+		}
+
+		return new Report(reportName, report);
+	}
+
+	private void exportTimesByTaskAndHintPerMonth() {
+		Report report = createReportForTimesByTaskAndHintPerMonth();
+		if (report == null) {
+			return;
+		}
+
+		String name = report.getName();
+		String data = report.getData();
+		boolean success = saveAndSendReport(name,
+				"sums-per-month-" + name.replaceAll(" ", "-"),
+				data);
+
+		if (success) {
+			// close this dialog
+			finish();
+		}
+	}
+
+	private Report createReportForTimesByTaskAndHintPerMonth() {
+		Range selectedRange = getSelectedRange();
+		Unit selectedUnit = getSelectedUnit();
+
+		ZonedDateTime[] beginAndEnd = timeCalculator.calculateBeginAndEnd(selectedRange, selectedUnit);
+		List<ZonedDateTime> rangeBeginnings = timeCalculator.calculateRangeBeginnings(Unit.MONTH, beginAndEnd[0],
+				beginAndEnd[1]);
+		Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange = calculateSumsWithHintsPerRange(rangeBeginnings, beginAndEnd[1]);
+
+		String report = csvGenerator.createSumsWithHintsPerMonthCsv(sumsPerRange,
+				new String[] { "month", "task", "text", "spent" },
+				taskAndHint -> taskAndHint.getTask().getName() + " (ID=" + taskAndHint.getTask().getId() + ")",
+				taskAndHint -> taskAndHint.getText());
 		String reportName = describeTimeRange(beginAndEnd);
 		if (report == null) {
 			logAndShowError(reportName);
@@ -554,6 +733,27 @@ public class ReportsActivity extends AppCompatActivity {
 			}
 			truncateEventsToMinute(events);
 			Map<Task, TimeSum> sums = timeCalculator.calculateSums(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
+			sumsPerRange.put(rangeStart, sums);
+		}
+		return sumsPerRange;
+	}
+
+	private Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> calculateSumsWithHintsPerRange(List<ZonedDateTime> rangeBeginnings, ZonedDateTime end) {
+		Map<ZonedDateTime, Map<TaskAndHint, TimeSum>> sumsPerRange = new HashMap<>();
+
+		for (int i = 0; i < rangeBeginnings.size(); i++) {
+			ZonedDateTime rangeStart = rangeBeginnings.get(i);
+			ZonedDateTime rangeEnd = (i >= rangeBeginnings.size() - 1 ? end : rangeBeginnings.get(i + 1));
+			List<Event> events = dao.getEvents(rangeStart.toInstant(), rangeEnd.toInstant());
+			ZonedDateTime now = ZonedDateTime.now();
+			if (rangeStart.isBefore(now) && rangeEnd.isAfter(now)
+					&& !events.isEmpty()
+					&& events.get(events.size() - 1).getTypeEnum() == TypeEnum.CLOCK_IN
+					&& events.get(events.size() - 1).getDateTime().isBefore(now.toOffsetDateTime())) {
+				events.add(new Event(null, null, TypeEnum.CLOCK_OUT_NOW.getValue(), now.toOffsetDateTime(), null));
+			}
+			truncateEventsToMinute(events);
+			Map<TaskAndHint, TimeSum> sums = timeCalculator.calculateSumsPerTaskAndHint(rangeStart.toOffsetDateTime(), rangeEnd.toOffsetDateTime(), events);
 			sumsPerRange.put(rangeStart, sums);
 		}
 		return sumsPerRange;
