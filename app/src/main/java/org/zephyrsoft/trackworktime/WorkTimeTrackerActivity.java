@@ -904,6 +904,12 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		binding.drawer.closeDrawer(GravityCompat.START, false);
 
 		refreshView();
+
+		binding.main.text.setFocusableInTouchMode(false);
+		binding.main.text.setFocusable(false);
+		binding.main.text.setFocusableInTouchMode(true);
+		binding.main.text.setFocusable(true);
+
 		super.onResume();
 	}
 
