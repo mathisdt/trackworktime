@@ -43,8 +43,8 @@ public enum Key {
 
 	DECIMAL_TIME_SUMS("keyShowDecimalTimeAmounts", DataType.BOOLEAN, null, R.string.showDecimalTimeAmounts),
 
-	FLATTENING_ENABLED("keyFlatteningEnabled", DataType.BOOLEAN, null, R.string.flatteningEnabled),
-	SMALLEST_TIME_UNIT("keySmallestTimeUnit", DataType.INTEGER, FLATTENING_ENABLED, R.string.smallestTimeUnit),
+	ROUNDING_ENABLED("keyRoundingEnabled", DataType.BOOLEAN, null, R.string.roundingEnabled),
+	SMALLEST_TIME_UNIT("keySmallestTimeUnit", DataType.INTEGER, ROUNDING_ENABLED, R.string.smallestTimeUnit),
 
 	LOCATION_BASED_TRACKING_ENABLED("keyLocationBasedTrackingEnabled", DataType.BOOLEAN, null,
 		R.string.enableLocationBasedTracking),
