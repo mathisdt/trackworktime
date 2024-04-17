@@ -3,11 +3,12 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/app"
     schedule:
-      interval: "monthly"
+      interval: "daily"
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 100
     allow:
       - dependency-type: "direct"
-    groups:
-      minor-and-patch-version-updates:
-        update-types:
-          - "minor"
-          - "patch"
+    labels:
+      - "dependencies"
+      - "automatic-merge"
