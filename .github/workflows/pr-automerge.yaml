@@ -1,0 +1,12 @@
+name: PR-AutoMerge
+
+on:
+  pull_request:
+    branches:
+      - "master"
+  workflow_dispatch:
+
+jobs:
+  enable-pr-automerge:
+    uses: mathisdt/workflows/.github/workflows/enable-pr-automerge.yaml@master
+    secrets: inherit
