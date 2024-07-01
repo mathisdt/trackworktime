@@ -245,7 +245,8 @@ public class TimeCalculatorV2 {
 				// clocked in before the begin of day or no clock-in event this day
 			}
 
-			if (clockedInSince != null) {
+			if (clockedInSince != null &&
+					LocalDateTime.now().isAfter(clockedInSince.toLocalDateTime())) {
 				// still clocked-in at the end of the day
 				timeOut = currentDate.atTime(LocalTime.MAX).atZone(zoneId).toOffsetDateTime();
 
@@ -259,7 +260,8 @@ public class TimeCalculatorV2 {
 			// update last event
 			lastEventBeforeDay = events.get(events.size() - 1);
 
-		} else if (TimerManager.isClockInEvent(lastEventBeforeDay)) {
+		} else if (TimerManager.isClockInEvent(lastEventBeforeDay) &&
+				LocalDateTime.now().isAfter(lastEventBeforeDay.getTime().toLocalDateTime())) {
 			// although there are no events on this day, the user is clocked in all day long -
 			// else there would be a CLOCK_OUT_NOW event!
 			timeIn = currentDate.atTime(LocalTime.MIN).atZone(zoneId).toOffsetDateTime();
