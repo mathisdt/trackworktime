@@ -137,4 +137,9 @@ public class LocationTrackerService extends Service {
         stopSelf();
     }
 
+    @Override
+    public void onLowMemory() {
+        Logger.info("low memory - LocationTrackerService");
+        super.onLowMemory();
+    }
 }

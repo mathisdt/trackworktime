@@ -165,4 +165,9 @@ public class WifiTrackerService extends Service {
         stopSelf();
     }
 
+    @Override
+    public void onLowMemory() {
+        Logger.info("low memory - WifiTrackerService");
+        super.onLowMemory();
+    }
 }
