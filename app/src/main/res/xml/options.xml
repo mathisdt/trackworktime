@@ -70,20 +70,18 @@
             android:summary="@string/flexiTimeDayDescription"
             android:title="@string/sundayLong" />
     </PreferenceCategory>
-    <!--
     <PreferenceCategory
-        android:key="@string/keyFlatteningCategory"
-        android:title="@string/timeFlattening" >
+        android:key="@string/keyRoundingCategory"
+        android:title="@string/timeRounding" >
         <CheckBoxPreference
-            android:key="@string/keyFlatteningEnabled"
-            android:title="@string/flatteningEnabled" />
+            android:key="@string/keyRoundingEnabled"
+            android:title="@string/roundingEnabled" />
 
         <EditTextPreference
             android:key="@string/keySmallestTimeUnit"
             android:summary="@string/smallestTimeUnitDescription"
             android:title="@string/smallestTimeUnit" />
     </PreferenceCategory>
-    -->
 
     <PreferenceCategory
         android:key="@string/keyUserInterfaceCategory"
