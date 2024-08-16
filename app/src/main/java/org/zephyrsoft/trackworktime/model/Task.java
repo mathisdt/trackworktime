@@ -17,6 +17,8 @@ package org.zephyrsoft.trackworktime.model;
 
 import org.zephyrsoft.trackworktime.database.DAO;
 
+import java.util.Objects;
+
 /**
  * Data class for a task.
  * 
@@ -98,10 +100,7 @@ public class Task extends Base implements Comparable<Task> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return Objects.hash(id);
 	}
 
 	@Override

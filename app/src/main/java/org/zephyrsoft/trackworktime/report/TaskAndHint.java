@@ -18,6 +18,8 @@ package org.zephyrsoft.trackworktime.report;
 import org.zephyrsoft.trackworktime.model.Base;
 import org.zephyrsoft.trackworktime.model.Task;
 
+import java.util.Objects;
+
 /**
  * Comparable class that holds a task and the hint/text for a event
  **/
@@ -63,11 +65,7 @@ public class TaskAndHint extends Base implements Comparable<TaskAndHint> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((task != null) ? 0 : task.hashCode());
-        result = prime * result + ((text != null) ? 0 : text.hashCode());
-        return result;
+        return Objects.hash(task, text);
     }
 
     @Override
