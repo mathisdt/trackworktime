@@ -307,13 +307,13 @@ public class TimerManager {
 
 		switch (periodEnum) {
 			case DAY: {
-				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, true);
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, preferences);
 				timeCalc.calculatePeriod(PeriodEnum.DAY, false);
 				return timeCalc.getTimeWorked();
 			}
 
 			case WEEK: {
-				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, true);
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, date, preferences);
 				timeCalc.calculatePeriod(PeriodEnum.WEEK, false);
 				return timeCalc.getTimeWorked();
 			}
@@ -363,13 +363,13 @@ public class TimerManager {
 
 			if (!isFollowedByWorkDay(weekDay) || toZeroEveryDay) {
 				// reach zero today
-				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), preferences);
 				timeCalc.calculatePeriod(PeriodEnum.DAY, true);
 
 				minutesRemaining += (int)-timeCalc.getBalance();
 			} else {
 				// not the last work day of the week, distribute remaining work time
-				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), true);
+				TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, dateTime.toLocalDate(), preferences);
 				timeCalc.calculatePeriod(PeriodEnum.WEEK, false);
 
 				long remainingWeekPerDay = -timeCalc.getBalance() / (timeCalc.getFutureWorkDays() + 1);
@@ -433,7 +433,7 @@ public class TimerManager {
 		Logger.debug("Date range to calculate: {} -> {}", startDate, targetDate);
 		Logger.debug("Number of days to calculate: {}", iter);
 
-		TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, startDate,true);
+		TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, this, startDate, preferences);
 		timeCalc.setStartSums(ret);
 
 		// FIXME background task
