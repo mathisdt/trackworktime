@@ -12,44 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="actionModeStyle">@style/trackworktime.ActionMode</item>
     </style>
 
-    <style name="trackworktime.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="background">@color/toolbar_bg</item>
-    </style>
-
-    <style name="Theme.trackworktime.toolbar" parent="@style/ThemeOverlay.AppCompat.Light">
-        <!-- android:textColorPrimary is the  color of the title text
-               in the Toolbar, in the Theme.AppCompat theme:  -->
-        <!--item name="android:textColorPrimary">@color/actionbar_textcolor</item-->
-
-        <!-- android:textColorPrimaryInverse is the  color of the title
-             text in the Toolbar, in the Theme.AppCompat.Light theme:  -->
-        <!-- <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_light</item> -->
-
-        <!-- android:actionMenuTextColor is the color of the text of
-              action (menu) items in the Toolbar, at least in the
-              Theme.AppCompat theme.
-              For some reason, they already get the textColorPrimary
-              when running on API 21, but not on older versions of
-              Android, so this is only necessary to support older
-              Android versions.-->
-        <!--item name="actionMenuTextColor">@color/actionbar_textcolor</item-->
-        <!-- android:textColorSecondary is the color of the menu
-             overflow icon (three vertical dots) -->
-        <!--item name="android:textColorSecondary">@color/actionbar_textcolor</item-->
-
-        <!-- This would set the toolbar's background color,
-              but setting this also changes the popup menu's background,
-              even if we define popupTheme for our <Toolbar> -->
-        <!-- <item name="android:background">@color/color_primary</item> -->
-
-    </style>
-
-    <style name="Theme.trackworktime.toolbar.popup" parent="ThemeOverlay.AppCompat.Dark">
-        <!--item name="android:textColor">@color/actionbar_textcolor</item-->
-    </style>
-
-    <style name="Theme.trackworktime.widget" parent="Theme.Material3.DynamicColors.Dark" />
+    <!-- Widget adjusts to theme of OS not app -->
+    <style name="Theme.trackworktime.widget" parent="Theme.Material3.DayNight" />
 </resources>
