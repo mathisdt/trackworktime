@@ -2,16 +2,22 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="Theme.trackworktime" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/light_green</item>
-        <item name="colorPrimaryVariant">@color/dark_green</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/medium_green</item>
+        <item name="colorPrimaryVariant">@color/medium_green</item>
+        <item name="colorOnPrimary">@color/super_dark_green</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/dark_green</item>
-        <item name="colorSecondaryVariant">@color/dark_gray</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/medium_green</item>
+        <item name="colorSecondaryVariant">@color/medium_green</item>
+        <item name="colorOnSecondary">@color/super_dark_green</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="oddRow">@color/dark_gray</item>
+        <item name="highlightedRow">@color/dark_red</item>
+        <item name="date_regular_work">@color/light_gray</item>
+        <item name="date_regular_free">@color/neon_green</item>
+        <item name="date_free">@color/light_blue</item>
+        <item name="date_target_changed">@color/yellow</item>
     </style>
 
     <!-- Widget adjusts to theme of OS not app -->

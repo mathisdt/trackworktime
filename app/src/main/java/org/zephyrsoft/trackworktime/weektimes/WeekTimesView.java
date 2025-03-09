@@ -26,6 +26,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 
+import com.google.android.material.color.MaterialColors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.Basics;
@@ -154,16 +156,16 @@ public class WeekTimesView extends LinearLayout {
 	private void setColorAccording(WeekState.HighlightType type, TextView textView) {
 		switch (type) {
 			case NONE:
-				textView.setTextColor(getResources().getColor(R.color.date_regular_work));
+				textView.setTextColor(MaterialColors.getColor(textView, R.attr.date_regular_work));
 				break;
 			case REGULAR_FREE:
-				textView.setTextColor(getResources().getColor(R.color.date_regular_free));
+				textView.setTextColor(MaterialColors.getColor(textView, R.attr.date_regular_free));
 				break;
 			case FREE:
-				textView.setTextColor(getResources().getColor(R.color.date_free));
+				textView.setTextColor(MaterialColors.getColor(textView, R.attr.date_free));
 				break;
 			case CHANGED_TARGET_TIME:
-				textView.setTextColor(getResources().getColor(R.color.date_target_changed));
+				textView.setTextColor(MaterialColors.getColor(textView, R.attr.date_target_changed));
 				break;
 			default:
 				throw new IllegalStateException("unknown highlight type " + type);
@@ -191,11 +193,13 @@ public class WeekTimesView extends LinearLayout {
 		}
 	}
 
-	private void setRowHighlighting(DayRowState dayRowState, TableRow tableRow,  boolean isLight) {
-		int unhighlightedDrawable = isLight ? R.drawable.table_row : 0;
+    private void setRowHighlighting(DayRowState dayRowState, TableRow tableRow, boolean isLight) {
+		int oddRowColor = MaterialColors.getColor(getRootView(), R.attr.oddRow);
+		int unhighlightedDrawable = isLight ? oddRowColor : 0;
+		int highlightedRowColor = MaterialColors.getColor(getRootView(), R.attr.highlightedRow);
 		
-		tableRow.setBackgroundResource(dayRowState.highlighted
-				? R.drawable.table_row_highlighting : unhighlightedDrawable);
+		tableRow.setBackgroundColor(dayRowState.highlighted
+				? highlightedRowColor : unhighlightedDrawable);
 	}	
 	
 	private TextView getTableCell(TableRow tableRow, int index) {
