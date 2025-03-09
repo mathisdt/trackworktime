@@ -14,5 +14,6 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <!-- Widget adjusts to theme of OS not app -->
     <style name="Theme.trackworktime.widget" parent="Theme.Material3.DayNight" />
 </resources>
