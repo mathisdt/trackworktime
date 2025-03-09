@@ -342,4 +342,14 @@
     <string name="logVisibleWiFiNetworks">Log visible Wi-Fi networks</string>
     <string name="logVisibleWiFiNetworksSubtitle">Only writes the names of the networks into the app\'s log file on your device, will not be published</string>
     <string name="inactive">inactive</string>
+    <string-array name="nightMode">
+        <item>Light mode</item>
+        <item>Dark mode</item>
+        <item>System default</item>
+    </string-array>
+    <string-array name="nightModeValues">
+        <item>1</item>
+        <item>2</item>
+        <item>-1</item>
+    </string-array>
 </resources>

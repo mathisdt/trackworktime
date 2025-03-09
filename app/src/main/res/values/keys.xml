@@ -62,5 +62,6 @@
     <string name="keyAutomaticBackupLastTime">keyAutomaticBackupLastTime</string>
     <string name="keyLoggingCategory">keyLoggingCategory</string>
     <string name="keyLogVisibleNetworks">keyLogVisibleNetworks</string>
+    <string name="keyNightMode">keyNightMode</string>
 
 </resources>

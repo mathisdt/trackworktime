@@ -15,6 +15,8 @@
  */
 package org.zephyrsoft.trackworktime;
 
+import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -246,6 +248,9 @@ public class OptionsActivity extends AppCompatActivity {
             )) {
                 Basics.get(getActivity()).getTimerManager().invalidateCacheFrom((LocalDate) null);
             }
+
+            int nightMode = Integer.parseInt(sharedPreferences.getString(getString(R.string.keyNightMode), "2"));
+            setDefaultNightMode(nightMode);
         }
 
         private void allPermissionsInPlace() {
