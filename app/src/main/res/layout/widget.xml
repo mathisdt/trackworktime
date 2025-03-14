@@ -3,7 +3,7 @@
     android:id="@android:id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
+    android:background="?attr/colorSecondaryContainer"
     android:orientation="vertical"
     android:theme="@style/Theme.trackworktime.widget">
 
@@ -33,6 +33,7 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="2"
+            android:backgroundTint="?attr/colorPrimary"
             android:text="@string/clockIn" />
 
         <Button
@@ -42,6 +43,7 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="2"
+            android:backgroundTint="?attr/colorPrimary"
             android:text="@string/clockOut" />
 
     </LinearLayout>
