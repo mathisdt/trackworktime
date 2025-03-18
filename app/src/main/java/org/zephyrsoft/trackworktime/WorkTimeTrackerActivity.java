@@ -16,6 +16,7 @@
 package org.zephyrsoft.trackworktime;
 
 
+import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import static org.zephyrsoft.trackworktime.DocumentTreeStorage.exists;
 import static java.lang.Math.abs;
 
@@ -222,32 +223,32 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		Button clockInButton = binding.main.clockInButton;
 		clockInButton.setOnClickListener(v -> clockInAction(0));
 		clockInButton.setOnLongClickListener(v -> {
-            Intent i = new Intent(this, TimeAheadActivity.class);
-            String typeString;
-            if (timerManager.isTracking()) {
-                typeString = getString(R.string.clockInChange);
-            } else {
-                typeString = getString(R.string.clockIn);
-            }
-            i.putExtra(Constants.TYPE_EXTRA_KEY, 0);
-            i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
-            startActivity(i);
-            return true;
-        });
+			Intent i = new Intent(this, TimeAheadActivity.class);
+			String typeString;
+			if (timerManager.isTracking()) {
+				typeString = getString(R.string.clockInChange);
+			} else {
+				typeString = getString(R.string.clockIn);
+			}
+			i.putExtra(Constants.TYPE_EXTRA_KEY, 0);
+			i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
+			startActivity(i);
+			return true;
+		});
 
 		Button clockOutButton = binding.main.clockOutButton;
 		clockOutButton.setOnClickListener(v -> clockOutAction(0));
 		clockOutButton.setOnLongClickListener(v -> {
-            Intent i = new Intent(this, TimeAheadActivity.class);
-            String typeString;
-            if (timerManager.isTracking()) {
-                typeString = getString(R.string.clockOut);
-                i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
-                i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
-                startActivity(i);
-            }
-            return true;
-        });
+			Intent i = new Intent(this, TimeAheadActivity.class);
+			String typeString;
+			if (timerManager.isTracking()) {
+				typeString = getString(R.string.clockOut);
+				i.putExtra(Constants.TYPE_EXTRA_KEY, 1);
+				i.putExtra(Constants.TYPE_STRING_EXTRA_KEY, typeString);
+				startActivity(i);
+			}
+			return true;
+		});
 
 		// delegate the rest of the work to onResume()
 		reloadTasksOnResume = true;
@@ -266,24 +267,27 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 		}
 		if (playServicesAvailable && !preferences.getBoolean(getString(R.string.keyBackupSettingAsked), false)) {
 			@SuppressLint("ApplySharedPref") DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-                final Editor editor = preferences.edit();
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        editor.putBoolean(getText(R.string.keyBackupEnabled) + "", true);
-                        break;
+				final Editor editor = preferences.edit();
+				switch (which) {
+					case DialogInterface.BUTTON_POSITIVE:
+						editor.putBoolean(getText(R.string.keyBackupEnabled) + "", true);
+						break;
 
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        editor.putBoolean(getText(R.string.keyBackupEnabled) + "", false);
-                        break;
-                }
-                editor.putBoolean(getString(R.string.keyBackupSettingAsked), true);
-                editor.commit();
-            };
+					case DialogInterface.BUTTON_NEGATIVE:
+						editor.putBoolean(getText(R.string.keyBackupEnabled) + "", false);
+						break;
+				}
+				editor.putBoolean(getString(R.string.keyBackupSettingAsked), true);
+				editor.commit();
+			};
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.backup_on_google_servers)
-				.setPositiveButton(R.string.yes, dialogClickListener)
-				.setNegativeButton(R.string.no, dialogClickListener).show();
+					.setPositiveButton(R.string.yes, dialogClickListener)
+					.setNegativeButton(R.string.no, dialogClickListener).show();
 		}
+
+		int nightMode = Integer.parseInt(preferences.getString(getString(R.string.keyNightMode), "2"));
+		setDefaultNightMode(nightMode);
 	}
 
 	@Override
