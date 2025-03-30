@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="super_light_green">#DCFDA0</color>
-    <color name="light_green">#C4EB65</color>
-    <color name="medium_green">#93c01f</color>
-    <color name="dark_green">#7FA81B</color>
-    <color name="super_dark_green">#526813</color>
+    <color name="super_light_green">#b2df3a</color>
+    <color name="light_green">#98c520</color>
+    <color name="medium_green">#769a19</color>
+    <color name="dark_green">#556e12</color>
+    <color name="super_dark_green">#33420b</color>
+    <color name="extremely_dark_green">#111604</color>
     <color name="light_purple">#6334de</color>
     <color name="medium_purple">#4d1fc0</color>
     <color name="dark_purple">#2B1271</color>
