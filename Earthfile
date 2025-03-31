@@ -42,7 +42,12 @@ build-and-release-on-github:
     RUN apt-get update >/dev/null 2>&1 && apt-get -y install gh >/dev/null 2>&1
     COPY .git .git
     COPY +build/build build
-    RUN --push export TAG=$(git tag --points-at HEAD); \
+    RUN --push export BRANCH=$(git rev-parse --abbrev-ref HEAD); \
+               if [ "$BRANCH" != "main" -a "$BRANCH" != "master" ]; then \
+                  echo "not releasing, we're on branch $BRANCH"; \
+                  exit 0; \
+               fi; \
+               export TAG=$(git tag --points-at HEAD); \
                echo TAG: $TAG; \
                export MATCH=$(echo "$TAG" | grep -e "^v"); \
                if [ -n "$MATCH" ]; then \
