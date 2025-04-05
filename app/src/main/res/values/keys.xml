@@ -15,8 +15,8 @@
     <string name="keyFlexiTimeDayFriday">keyFlexiTimeDayFriday</string>
     <string name="keyFlexiTimeDaySaturday">keyFlexiTimeDaySaturday</string>
     <string name="keyFlexiTimeDaySunday">keyFlexiTimeDaySunday</string>
-    <string name="keyFlatteningCategory">keyFlatteningCategory</string>
-    <string name="keyFlatteningEnabled">keyFlatteningEnabled</string>
+    <string name="keyRoundingCategory">keyRoundingCategory</string>
+    <string name="keyRoundingEnabled">keyRoundingEnabled</string>
     <string name="keySmallestTimeUnit">keySmallestTimeUnit</string>
     <string name="keyLocationBasedTrackingCategory">keyLocationBasedTrackingCategory</string>
     <string name="keyLocationBasedTrackingEnabled">keyLocationBasedTrackingEnabled</string>
