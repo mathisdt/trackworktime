@@ -216,6 +216,12 @@
             android:defaultValue="false"
             android:key="@string/keyShowNavigationButtons"
             android:title="@string/show_navigation_buttons" />
+        <ListPreference
+            android:key="@string/keyNightMode"
+            android:title="Set Dark or Light mode"
+            android:entries="@array/nightMode"
+            android:entryValues="@array/nightModeValues"
+            android:defaultValue="2"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/keyLoggingCategory"

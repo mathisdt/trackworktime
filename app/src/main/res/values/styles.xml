@@ -15,4 +15,11 @@
         <item name="android:longClickable">false</item>
     </style>
 
+    <attr name="date_regular_work" format="reference"/>
+    <attr name="oddRow" format="reference"/>
+    <attr name="highlightedRow" format="reference"/>
+    <attr name="date_regular_free" format="reference"/>
+    <attr name="date_free" format="reference"/>
+    <attr name="date_target_changed" format="reference"/>
+
 </resources>

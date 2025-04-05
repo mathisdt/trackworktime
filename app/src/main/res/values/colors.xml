@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="super_light_green">#b2df3a</color>
+    <color name="light_green">#98c520</color>
+    <color name="medium_green">#769a19</color>
+    <color name="dark_green">#556e12</color>
+    <color name="super_dark_green">#33420b</color>
+    <color name="extremely_dark_green">#111604</color>
+    <color name="light_purple">#6334de</color>
+    <color name="medium_purple">#4d1fc0</color>
+    <color name="dark_purple">#2B1271</color>
     <color name="light_gray">#d0d0d0</color>
+    <color name="light_red">#FF2F2F</color>
+    <color name="dark_red">#800000</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
     <color name="medium_gray">#a0a0a0</color>
+    <color name="dark_gray">#303030</color>
     <color name="background">#2b2b2b</color>
-    <color name="toolbar_bg">#151515</color>
     <color name="accent">#ffffff</color>
     <color name="selected_background">#4c4b4d</color>
     <color name="text_disabled">#ff444444</color>
-    <color name="date_regular_work">#d0d0d0</color>
-    <color name="date_regular_free">#5CFF16</color>
-    <color name="date_free">#00FFC4</color>
-    <color name="date_target_changed">#FFD603</color>
+    <color name="neon_green">#5CFF16</color>
+    <color name="light_blue">#00FFC4</color>
+    <color name="yellow">#FFD603</color>
 
 </resources>
