@@ -1,0 +1,17 @@
+name: mirror repository
+run-name: mirror repository to codeberg.org
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "master"
+
+jobs:
+  mirror:
+    name: to codeberg.org
+    uses: mathisdt/workflows/.github/workflows/mirror-repository.yaml@master
+    with:
+      target-repo: git@codeberg.org:mathisdt/trackworktime.git
+    secrets: inherit

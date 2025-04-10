@@ -104,3 +104,13 @@ You can track the past development by looking at the [version history](https://z
 [file an issue](https://github.com/mathisdt/trackworktime/issues) or even fix things yourself and create a pull request.
 Please don't try to communicate with me via reviews, that doesn't work in both directions.
 You can always [write me an email](https://zephyrsoft.org/contact-about-me) and I'll see what I can do.
+
+If you want to **build the app yourself**, you can do so using
+[Earthly](https://docs.earthly.dev/). This uses Docker, so be sure to have both Docker and
+Earthly ready before calling `earthly +build` which will create a container with everything
+needed for the build, create the app package(s) inside it and then copy the results to the
+directory build/outputs/apk for you.
+
+For real development, it is of course necessary to have everything installed locally,
+in that case the Earthfile (which describes the build process) can be used as blueprint
+for the setup.
