@@ -683,7 +683,9 @@ public class DAO {
 				buf.append(";");
 
 				String eventComment = cur.getString(eventTextCol);
-				buf.append(eventComment == null ? "" : eventComment);
+				buf.append(eventComment == null ? "" : eventComment
+					.replaceAll("[\r\n]", " ")
+					.replaceAll(";", ","));
 				buf.append(";");
 			} else {
 				// this is a task that has no events
