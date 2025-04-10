@@ -3,7 +3,6 @@
     android:id="@+id/weekTable"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background"
     android:stretchColumns="0,1,2,3,4">
 
     <!-- title row -->
@@ -18,42 +17,41 @@
             android:layout_height="wrap_content"
             android:text="@string/onespace"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/in"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/out"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/worked"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/flexi"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- monday row -->
     <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_row"
         android:gravity="center_vertical"
         android:padding="@dimen/padding_in_table">
 
@@ -62,35 +60,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/mondayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/mondayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/mondayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/mondayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- tuesday row -->
@@ -105,42 +103,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/tuesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/tuesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/tuesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/tuesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- wednesday row -->
     <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_row"
         android:gravity="center_vertical"
         android:padding="@dimen/padding_in_table">
 
@@ -149,35 +146,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/wednesdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/wednesdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/wednesdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/wednesdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- thursday row -->
@@ -192,42 +189,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/thursdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/thursdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/thursdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/thursdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- friday row -->
     <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_row"
         android:gravity="center_vertical"
         android:padding="@dimen/padding_in_table">
 
@@ -236,35 +232,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/fridayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/fridayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/fridayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/fridayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- saturday row -->
@@ -279,42 +275,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/saturdayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/saturdayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/saturdayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/saturdayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- sunday row -->
     <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/table_row"
         android:gravity="center_vertical"
         android:padding="@dimen/padding_in_table">
 
@@ -323,35 +318,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/sundayIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/sundayOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/sundayWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/sundayFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 
     <!-- total row -->
@@ -369,20 +364,20 @@
             android:layout_span="3"
             android:text="@string/total"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/totalWorked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
 
         <TextView
             android:id="@+id/totalFlexi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/light_gray" />
+            android:textColor="?attr/date_regular_work" />
     </TableRow>
 </TableLayout>
