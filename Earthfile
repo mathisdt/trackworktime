@@ -1,7 +1,7 @@
 VERSION 0.8
 
 build:
-    FROM eclipse-temurin:17-jdk
+    FROM eclipse-temurin:21-jdk
     WORKDIR /project
     RUN apt-get update >/dev/null 2>&1 && apt-get -y install wget unzip >/dev/null 2>&1
     RUN echo "setting up Android SDK"
@@ -9,7 +9,7 @@ build:
     ENV ANDROID_HOME="$ANDROID_SDK_ROOT"
     ENV PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
     # download URL from https://developer.android.com/studio?hl=en#command-line-tools-only:
-    RUN curl -s https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /cmdline-tools.zip && \
+    RUN curl -s https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o /cmdline-tools.zip && \
         mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
         unzip -q /cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools/ && \
         mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
@@ -18,7 +18,7 @@ build:
         && echo "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_SDK_ROOT/licenses/android-sdk-license \
         && echo "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license \
         && yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null
-    RUN $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" >/dev/null
+    RUN $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" >/dev/null
     COPY .git .git
     COPY gradle gradle
     COPY metadata metadata

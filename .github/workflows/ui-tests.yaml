@@ -9,8 +9,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       matrix:
-        # test on the minimum, a more recent version and the current maximum
-        android: [ 21, 28, 34 ]
+        android: [ 21, 28, 34, 36 ]
       fail-fast: false
     steps:
       - name: Check out repository
