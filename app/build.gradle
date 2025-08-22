@@ -10,22 +10,22 @@ static def buildTime() {
 
 android {
     compileOptions {
-        coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
-        viewBinding true
-        dataBinding true
-        buildConfig true
+        viewBinding = true
+        dataBinding = true
+        buildConfig = true
     }
 
     lint {
-        abortOnError false
+        abortOnError = false
     }
 
-    namespace 'org.zephyrsoft.trackworktime'
+    namespace = 'org.zephyrsoft.trackworktime'
 
     defaultConfig {
         if (app_suffix == null || app_suffix.trim().isEmpty()) {
@@ -51,9 +51,9 @@ android {
     buildTypes {
         release {
             postprocessing {
-                removeUnusedCode false
-                obfuscate false
-                optimizeCode false
+                removeUnusedCode = false
+                obfuscate = false
+                optimizeCode = false
             }
         }
     }
