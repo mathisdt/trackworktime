@@ -8,6 +8,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="indentation">8dp</dimen>
     <dimen name="padding_in_table">6dp</dimen>
+    <dimen name="padding_between_buttons_each_side">2dp</dimen>
 
     <dimen name="widget_radius">5dp</dimen>
 </resources>

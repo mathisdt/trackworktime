@@ -75,6 +75,7 @@
             android:id="@+id/ok"
             android:layout_width="1dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_between_buttons_each_side"
             android:layout_weight="0.5"
             android:text="@string/ok" />
 
@@ -82,6 +83,7 @@
             android:id="@+id/cancel"
             android:layout_width="1dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_between_buttons_each_side"
             android:layout_weight="0.5"
             android:text="@string/cancel" />
     </LinearLayout>

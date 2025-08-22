@@ -184,14 +184,16 @@
                 android:id="@+id/reportPreview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/padding_between_buttons_each_side"
                 android:layout_weight="1"
                 android:text="@string/preview" />
 
             <Button
                 android:id="@+id/reportExport"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_between_buttons_each_side"
+                android:layout_weight="1"
                 android:text="@string/export" />
 
         </LinearLayout>

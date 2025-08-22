@@ -22,6 +22,7 @@
             android:id="@+id/previous"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_between_buttons_each_side"
             android:layout_weight="1"
             android:drawableStart="@drawable/ic_navigate_arrow_left"
             android:text="@string/previous" />
@@ -30,6 +31,8 @@
             android:id="@+id/today"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_between_buttons_each_side"
+            android:layout_marginEnd="@dimen/padding_between_buttons_each_side"
             android:layout_weight="1"
             android:text="@string/today" />
 
@@ -37,6 +40,7 @@
             android:id="@+id/next"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_between_buttons_each_side"
             android:layout_weight="1"
             android:drawableEnd="@drawable/ic_navigate_arrow_right"
             android:text="@string/next" />
@@ -60,6 +64,7 @@
             android:id="@+id/clockInButton"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_between_buttons_each_side"
             android:layout_weight="1.0"
             android:text="@string/clockIn" />
 
@@ -67,6 +72,7 @@
             android:id="@+id/clockOutButton"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_between_buttons_each_side"
             android:layout_weight="1.0"
             android:text="@string/clockOut" />
     </LinearLayout>
