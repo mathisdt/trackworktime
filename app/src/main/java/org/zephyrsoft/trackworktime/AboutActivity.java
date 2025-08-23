@@ -22,10 +22,10 @@ import android.text.util.Linkify;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.zephyrsoft.trackworktime.databinding.AboutBinding;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,10 +45,7 @@ public class AboutActivity extends AppCompatActivity {
 		AboutBinding binding = AboutBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		String aboutText = readRawTextFile(R.raw.about);
 		String name = getString(R.string.app_name);

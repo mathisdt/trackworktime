@@ -3,6 +3,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:descendantFocusability="beforeDescendants"
+        android:fitsSystemWindows="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="vertical">
@@ -46,6 +47,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:paddingBottom="@dimen/normal_vertical_space"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -61,7 +63,8 @@
                 android:id="@+id/radioType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/normal_vertical_space">
 
                 <RadioButton
                     android:id="@+id/radioFlexiSet"
@@ -84,7 +87,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:entries="@array/day_targets" />
+                android:entries="@array/day_targets"
+                android:paddingBottom="@dimen/normal_vertical_space" />
 
             <TextView
                 android:id="@+id/dateTimeLabel"
@@ -97,7 +101,8 @@
             <RelativeLayout
                 android:id="@+id/dateLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/normal_vertical_space">
 
                 <DatePicker
                         android:id="@+id/date"
@@ -120,7 +125,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="text" />
+                android:inputType="text"
+                android:layout_marginBottom="@dimen/big_vertical_space" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/comment"

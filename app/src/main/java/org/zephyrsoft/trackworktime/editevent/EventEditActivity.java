@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -44,6 +43,7 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.ui.DateTextViewController;
 import org.zephyrsoft.trackworktime.util.BroadcastUtil;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -100,10 +100,7 @@ public class EventEditActivity extends AppCompatActivity {
 		binding = EventBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		timeTextViewController = new TimeTextViewController(binding.time);
 		endTextViewController = new TimeTextViewController(binding.end);

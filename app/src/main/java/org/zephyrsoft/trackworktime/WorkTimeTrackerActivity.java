@@ -75,6 +75,7 @@ import org.zephyrsoft.trackworktime.util.FileUtil;
 import org.zephyrsoft.trackworktime.util.ForeignCall;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekAdapter;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 import org.zephyrsoft.trackworktime.weektimes.WeekStateCalculatorFactory;
@@ -204,9 +205,8 @@ public class WorkTimeTrackerActivity extends AppCompatActivity
 			binding.navView.getMenu().findItem(R.id.nav_ignore_battery_optimizations).setVisible(true);
 		}
 
-		ActionBar actionBar = getSupportActionBar();
+		ActionBar actionBar = ThemeUtil.styleActionBar(this, getSupportActionBar());;
 		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setHomeButtonEnabled(true);
 		}
 

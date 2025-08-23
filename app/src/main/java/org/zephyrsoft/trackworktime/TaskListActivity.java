@@ -26,7 +26,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -35,6 +34,7 @@ import org.zephyrsoft.trackworktime.databinding.TasksActivityBinding;
 import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.util.FlexibleArrayAdapter;
 import org.zephyrsoft.trackworktime.util.SeparatorIdentificationMethod;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.util.List;
 
@@ -71,10 +71,7 @@ public class TaskListActivity extends AppCompatActivity {
 		TasksActivityBinding binding = TasksActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		ListView listView = binding.listView;
 

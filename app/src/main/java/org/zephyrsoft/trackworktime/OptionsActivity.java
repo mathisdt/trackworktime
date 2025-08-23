@@ -27,7 +27,6 @@ import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
@@ -36,6 +35,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.WorkTimeTrackerBackupManager;
 import org.zephyrsoft.trackworktime.database.DAO;
+import org.zephyrsoft.trackworktime.databinding.OptionsActivityBinding;
 import org.zephyrsoft.trackworktime.options.CheckIntervalPreference;
 import org.zephyrsoft.trackworktime.options.CheckIntervalPreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.options.DurationPreference;
@@ -47,6 +47,7 @@ import org.zephyrsoft.trackworktime.options.TimeZonePreference;
 import org.zephyrsoft.trackworktime.options.TimeZonePreferenceDialogFragment;
 import org.zephyrsoft.trackworktime.util.PermissionsUtil;
 import org.zephyrsoft.trackworktime.util.PreferencesUtil;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.text.DateFormat;
 import java.time.LocalDate;
@@ -63,17 +64,17 @@ public class OptionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        OptionsActivityBinding binding = OptionsActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                 .beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
+                .replace(R.id.options_view, new SettingsFragment())
                 .commit();
         }
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        ThemeUtil.styleActionBar(this, getSupportActionBar());
     }
 
     @Override

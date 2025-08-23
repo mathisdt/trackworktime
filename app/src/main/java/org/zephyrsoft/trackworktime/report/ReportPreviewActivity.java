@@ -26,10 +26,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.R;
 import org.zephyrsoft.trackworktime.databinding.ReportPreviewBinding;
 import org.zephyrsoft.trackworktime.model.Report;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 public class ReportPreviewActivity extends AppCompatActivity {
 
@@ -62,13 +62,11 @@ public class ReportPreviewActivity extends AppCompatActivity {
 	}
 
 	private void setTitle() {
-		ActionBar bar = getSupportActionBar();
-		if (bar == null) {
-			Logger.error("Action bar was null");
-			return;
+		ActionBar bar = ThemeUtil.styleActionBar(this, getSupportActionBar());
+		if (bar != null) {
+			bar.setTitle(R.string.report_preview);
 		}
-		bar.setTitle(R.string.report_preview);
-		bar.setDisplayHomeAsUpEnabled(true);
+
 	}
 
 	private void setContent(String content) {

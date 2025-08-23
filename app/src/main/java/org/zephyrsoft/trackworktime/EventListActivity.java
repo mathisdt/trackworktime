@@ -24,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -48,6 +47,7 @@ import org.zephyrsoft.trackworktime.model.Week;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.BroadcastUtil;
 import org.zephyrsoft.trackworktime.util.ForeignCall;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 import org.zephyrsoft.trackworktime.weektimes.WeekIndexConverter;
 
 import java.lang.ref.WeakReference;
@@ -104,10 +104,7 @@ public class EventListActivity extends AppCompatActivity {
 		ListActivityBinding binding = ListActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		RecyclerView myRecyclerView = binding.recyclerView;
 

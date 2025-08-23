@@ -21,12 +21,12 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.database.DAO;
 import org.zephyrsoft.trackworktime.databinding.ActivityDebugBinding;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.time.ZoneId;
 
@@ -39,10 +39,7 @@ public class DebugActivity extends AppCompatActivity {
         ActivityDebugBinding binding = ActivityDebugBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        ThemeUtil.styleActionBar(this, getSupportActionBar());
 
         binding.timezone.setText(ZoneId.systemDefault().toString());
 

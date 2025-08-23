@@ -28,7 +28,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
@@ -42,15 +41,16 @@ import org.zephyrsoft.trackworktime.model.Report;
 import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetWrapper;
 import org.zephyrsoft.trackworktime.model.Task;
-import org.zephyrsoft.trackworktime.report.TaskAndHint;
 import org.zephyrsoft.trackworktime.model.TimeSum;
 import org.zephyrsoft.trackworktime.model.TypeEnum;
 import org.zephyrsoft.trackworktime.model.Unit;
 import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.report.CsvGenerator;
 import org.zephyrsoft.trackworktime.report.ReportPreviewActivity;
+import org.zephyrsoft.trackworktime.report.TaskAndHint;
 import org.zephyrsoft.trackworktime.timer.TimeCalculator;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -97,10 +97,7 @@ public class ReportsActivity extends AppCompatActivity {
 		binding = ReportsBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		binding.rangeAllData.setOnCheckedChangeListener((buttonView, isChecked) -> {
 			binding.unitWeek.setEnabled(!isChecked);

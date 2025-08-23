@@ -4,11 +4,9 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"
+    <LinearLayout
+        android:id="@+id/options_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:orientation="vertical"></LinearLayout>
 </FrameLayout>

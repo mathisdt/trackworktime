@@ -20,11 +20,11 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.databinding.TimeAheadBinding;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 /**
  * Activity for querying the amount of time which the new event should be pre-dated.
@@ -44,10 +44,7 @@ public class TimeAheadActivity extends AppCompatActivity {
 		binding = TimeAheadBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		EditText minutes = binding.minutes;
 

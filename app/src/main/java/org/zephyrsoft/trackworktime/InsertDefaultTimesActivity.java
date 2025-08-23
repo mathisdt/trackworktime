@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
 
@@ -36,6 +35,7 @@ import org.zephyrsoft.trackworktime.options.Key;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.ui.DateTextViewController;
 import org.zephyrsoft.trackworktime.ui.TargetTimeValidityCheck;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,10 +68,7 @@ public class InsertDefaultTimesActivity extends AppCompatActivity {
         binding = DefaultTimesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        ThemeUtil.styleActionBar(this, getSupportActionBar());
 
         // bind lists to spinners
         List<Task> tasks = dao.getActiveTasks();

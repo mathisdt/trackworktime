@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="22dp"
         android:orientation="horizontal"
-        android:paddingTop="@dimen/space_below_table">
+        android:paddingTop="@dimen/normal_vertical_space">
 
         <Button
             android:id="@+id/clockInButton"
@@ -81,15 +81,14 @@
         android:id="@+id/LinearLayout3"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:paddingTop="@dimen/normal_vertical_space"
         android:orientation="horizontal" >
 
         <TextView
             android:id="@+id/taskLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:text="@string/task"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -103,7 +102,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/LinearLayout4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/big_vertical_space">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/text"

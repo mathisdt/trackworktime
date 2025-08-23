@@ -10,6 +10,7 @@
         <item name="colorSecondaryVariant">@color/medium_green</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
+        <!-- "colorPrimaryVariant" is also manually set in Java as the color of the Actionbar! -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="oddRow">@color/light_gray</item>

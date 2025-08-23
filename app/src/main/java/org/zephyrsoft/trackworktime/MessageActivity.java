@@ -24,10 +24,10 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.zephyrsoft.trackworktime.databinding.MessageBinding;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 /**
  * Activity for showing a message to the user.
@@ -45,10 +45,7 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 		binding = MessageBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		binding.message.setOnClickListener(this);
 	}

@@ -31,7 +31,6 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.pmw.tinylog.Logger;
@@ -41,6 +40,7 @@ import org.zephyrsoft.trackworktime.model.Target;
 import org.zephyrsoft.trackworktime.model.TargetEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
+import org.zephyrsoft.trackworktime.util.ThemeUtil;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -91,10 +91,7 @@ public class TargetEditActivity extends AppCompatActivity
 		binding = TargetBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		ThemeUtil.styleActionBar(this, getSupportActionBar());
 
 		type = binding.targetType;
 
