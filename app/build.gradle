@@ -48,6 +48,11 @@ android {
         compileSdk = 36
     }
 
+    buildFeatures {
+        // generate the BuildConfig class
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             postprocessing {
