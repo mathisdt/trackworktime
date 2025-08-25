@@ -86,7 +86,7 @@ public class WeekStateCalculator {
 		}
 
 		try {
-			TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, timerManager, startDate, handleFlexiTime);
+			TimeCalculatorV2 timeCalc = new TimeCalculatorV2(dao, timerManager, startDate, preferences);
 			timeCalc.setStartSums(timerManager.getTimesAt(startDate));
 		
 			weekState.topLeftCorner = activity.getString(R.string.weekNumber, startDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
