@@ -101,7 +101,7 @@ dependencies {
     runtimeOnly 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.google.truth:truth:1.4.4'
+    testImplementation 'com.google.truth:truth:1.4.5'
     testImplementation 'org.mockito:mockito-core:5.19.0'
     testImplementation 'com.tngtech.archunit:archunit:1.4.1'
 
