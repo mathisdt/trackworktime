@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="?attr/widget_background"
     android:orientation="vertical"
-    android:theme="@style/Theme.trackworktime.widget">
+    android:theme="@style/Theme.trackworktime.widget_day">
 
     <TextView
         android:id="@+id/workTime"

@@ -26,10 +26,10 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.model.NightMode;
 import org.zephyrsoft.trackworktime.model.PeriodEnum;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.DateTimeUtil;
@@ -76,14 +76,22 @@ public class Widget extends AppWidgetProvider {
         } finally {
             clean();
         }
+        super.onUpdate(context, widgetManager, widgetIds);
     }
 
     private void init(Context context, AppWidgetManager manager, int[] widgetIds) {
         this.context = context;
         this.manager = manager;
         this.widgetIds = widgetIds;
-        this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
         Basics basics = Basics.get(context);
+        int nightMode = Integer.parseInt(basics.getPreferences().getString(context.getString(R.string.keyNightMode), "2"));
+        if (nightMode == NightMode.LIGHT_MODE.getValue()) {
+            this.views = new RemoteViews(context.getPackageName(), R.layout.widget_day);
+        } else if (nightMode == NightMode.DARK_MODE.getValue()) {
+            this.views = new RemoteViews(context.getPackageName(), R.layout.widget_night);
+        } else {
+            this.views = new RemoteViews(context.getPackageName(), R.layout.widget);
+        }
         this.timerManager = basics.getTimerManager();
     }
 

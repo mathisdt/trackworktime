@@ -21,6 +21,22 @@
         <item name="date_target_changed">@color/yellow</item>
     </style>
 
-    <!-- Widget adjusts to theme of OS not app -->
-    <style name="Theme.trackworktime.widget" parent="Theme.Material3.DynamicColors.DayNight" />
+    <!-- adjust to theme of OS ("day" in this file): -->
+    <style name="Theme.trackworktime.widget" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="widget_background">@color/light_gray</item>
+        <item name="widget_button_background">@color/medium_gray</item>
+        <item name="widget_text">@color/dark_green</item>
+    </style>
+    <!-- day: -->
+    <style name="Theme.trackworktime.widget_day" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="widget_background">@color/light_gray</item>
+        <item name="widget_button_background">@color/medium_gray</item>
+        <item name="widget_text">@color/dark_green</item>
+    </style>
+    <!-- night: -->
+    <style name="Theme.trackworktime.widget_night" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="widget_background">@color/dark_gray</item>
+        <item name="widget_button_background">@color/light_gray</item>
+        <item name="widget_text">@color/medium_green</item>
+    </style>
 </resources>

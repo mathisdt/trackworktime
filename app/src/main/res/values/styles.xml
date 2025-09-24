@@ -21,5 +21,8 @@
     <attr name="date_regular_free" format="reference"/>
     <attr name="date_free" format="reference"/>
     <attr name="date_target_changed" format="reference"/>
+    <attr name="widget_background" format="reference"/>
+    <attr name="widget_button_background" format="reference"/>
+    <attr name="widget_text" format="reference"/>
 
 </resources>
