@@ -1,0 +1,33 @@
+when:
+  - event: [ cron ]
+
+clone:
+  - name: clone
+    image: woodpeckerci/plugin-git
+    settings:
+      depth: 0
+      partial: false
+      recursive: true
+
+steps:
+  - name: renovate
+    when:
+      - event: cron
+        cron: "renovate"  # a cron with this name has to exist in the Woodpecker repo, e.g. with expression "30 3 * * *"
+    depends_on: []
+    image: renovate/renovate
+    commands: |
+      renovate $${CI_REPO}
+    environment:
+      RENOVATE_PLATFORM: forgejo
+      RENOVATE_ENDPOINT: https://codeberg.org
+      RENOVATE_ONBOARDING: false
+      RENOVATE_REQUIRE_CONFIG: optional
+      RENOVATE_AUTO_APPROVE: true
+      RENOVATE_AUTOMERGE: true
+      RENOVATE_AUTOMERGE_STRATEGY: fast-forward
+      LOG_LEVEL: debug
+      RENOVATE_TOKEN:
+        from_secret: RENOVATE_TOKEN
+      GITHUB_COM_TOKEN:
+        from_secret: GITHUB_COM_TOKEN
