@@ -27,12 +27,12 @@ steps:
     when:
       - event: [ push, manual ]
     depends_on: []
-    image: eclipse-temurin:21-jdk
+    image: eclipse-temurin:25-jdk
     pull: true
     commands: |
       echo "installing packages..."
       apt-get update >/dev/null 2>&1
-      apt-get -y install wget unzip >/dev/null 2>&1
+      apt-get -y install curl unzip wget >/dev/null 2>&1
       echo "done installing packages"
       echo "setting up Android SDK..."
       export ANDROID_SDK_ROOT="/sdk"
