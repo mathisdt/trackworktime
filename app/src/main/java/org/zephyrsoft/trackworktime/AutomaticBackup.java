@@ -19,8 +19,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import org.pmw.tinylog.Logger;
 import org.zephyrsoft.trackworktime.backup.BackupFileInfo;
 import org.zephyrsoft.trackworktime.util.BackupUtil;
@@ -31,9 +29,11 @@ import java.util.concurrent.Executors;
 public class AutomaticBackup {
 
     private final Context context;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-        .setDaemon(true)
-        .build());
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        return t;
+    });
 
     public AutomaticBackup(@NonNull Context context) {
         this.context = context;
