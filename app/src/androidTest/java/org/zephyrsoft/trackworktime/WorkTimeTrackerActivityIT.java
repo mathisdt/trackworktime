@@ -37,8 +37,8 @@ import org.zephyrsoft.trackworktime.weektimes.WeekTimesView;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Attention: DON'T USE visibility expectations or assertions for UI elements!
- * The script running this test in a Github Action doesn't support that, it will result in test failure.
+ * Attention: DON'T USE visibility expectations or assertions for UI elements! The script
+ * running this test during the build doesn't support that, it will result in test failure.
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -50,7 +50,7 @@ public class WorkTimeTrackerActivityIT {
 
     @BeforeClass
     public static void beforeClass() {
-        // let's be generous, Github Actions are slow
+        // let's be generous regarding the timeout, build agents can be slow
         IdlingPolicies.setMasterPolicyTimeoutWhenDebuggerAttached(true);
         IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.SECONDS);
         IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.SECONDS);

@@ -76,7 +76,7 @@ android {
 dependencies {
     def acraVersion = "5.13.1"
 
-    implementation 'com.github.mathisdt:timezonepicker:cb06a1b0f9'
+    implementation 'com.github.mathisdt:timezonepicker:cb06a1b0f9' // from https://jitpack.io/#mathisdt/timezonepicker/
     implementation 'androidx.documentfile:documentfile:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.asynclayoutinflater:asynclayoutinflater:1.1.0'
