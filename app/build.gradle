@@ -19,6 +19,7 @@ android {
         viewBinding = true
         dataBinding = true
         buildConfig = true
+        resValues = true
     }
 
     lint {
@@ -55,20 +56,10 @@ android {
         buildConfig = true
     }
 
-    buildTypes {
-        release {
-            postprocessing {
-                removeUnusedCode = false
-                obfuscate = false
-                optimizeCode = false
-            }
-        }
-    }
-
     // rename final APK files
-    android.applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach {
-            outputFileName = "TrackWorkTime_${variant.versionName}_${buildTime()}_${variant.buildType.name}${variant.signingReady ? "" : "-unsigned"}.apk"
+    androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set(output.outputFileName.get().replace("app-", "TrackWorkTime_${defaultConfig.versionName}_${buildTime()}-"))
         }
     }
 }

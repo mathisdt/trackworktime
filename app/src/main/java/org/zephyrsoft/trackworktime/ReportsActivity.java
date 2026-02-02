@@ -148,46 +148,34 @@ public class ReportsActivity extends AppCompatActivity {
 
 	private void preview() {
 		Report report;
-		switch (binding.grouping.getCheckedRadioButtonId()) {
-			case R.id.groupingNone:
-				report = createReportForAllEvents();
-				break;
-			case R.id.groupingByTask:
-				report = createReportForTimesByTask();
-				break;
-			case R.id.groupingByTaskAndHint:
-				report = createReportForTimesByTaskAndHint();
-				break;
-			case R.id.groupingByTaskPerDay:
-				report = createReportForTimesByTaskPerDay();
-				break;
-			case R.id.groupingByTaskAndHintPerDay:
-				report = createReportForTimesByTaskAndHintPerDay();
-				break;
-			case R.id.groupingByTaskPerWeek:
-				report = createReportForTimesByTaskPerWeek();
-				break;
-			case R.id.groupingByTaskAndHintPerWeek:
-				report = createReportForTimesByTaskAndHintPerWeek();
-				break;
-			case R.id.groupingByTaskPerMonth:
-				report = createReportForTimesByTaskPerMonth();
-				break;
-			case R.id.groupingByTaskAndHintPerMonth:
-				report = createReportForTimesByTaskAndHintPerMonth();
-				break;
-			case R.id.targetGroupingNone:
-				report = createReportForAllTargets();
-				break;
-			case R.id.targetGroupingPerWeek:
-				report = createReportForTargetsDaysPerTypeAndCommentPerWeek();
-				break;
-			case R.id.targetGroupingPerMonth:
-				report = createReportForTargetsDaysPerTypeAndCommentPerMonth();
-				break;
-			default:
-				throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
-		}
+        int checkedRadioButtonId = binding.grouping.getCheckedRadioButtonId();
+        if (checkedRadioButtonId == R.id.groupingNone) {
+            report = createReportForAllEvents();
+        } else if (checkedRadioButtonId == R.id.groupingByTask) {
+            report = createReportForTimesByTask();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHint) {
+            report = createReportForTimesByTaskAndHint();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerDay) {
+            report = createReportForTimesByTaskPerDay();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerDay) {
+            report = createReportForTimesByTaskAndHintPerDay();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerWeek) {
+            report = createReportForTimesByTaskPerWeek();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerWeek) {
+            report = createReportForTimesByTaskAndHintPerWeek();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerMonth) {
+            report = createReportForTimesByTaskPerMonth();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerMonth) {
+            report = createReportForTimesByTaskAndHintPerMonth();
+        } else if (checkedRadioButtonId == R.id.targetGroupingNone) {
+            report = createReportForAllTargets();
+        } else if (checkedRadioButtonId == R.id.targetGroupingPerWeek) {
+            report = createReportForTargetsDaysPerTypeAndCommentPerWeek();
+        } else if (checkedRadioButtonId == R.id.targetGroupingPerMonth) {
+            report = createReportForTargetsDaysPerTypeAndCommentPerMonth();
+        } else {
+            throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
+        }
 
 		if (report == null) {
 			return;
@@ -221,46 +209,34 @@ public class ReportsActivity extends AppCompatActivity {
 	}
 
 	private void doExport() {
-		switch (binding.grouping.getCheckedRadioButtonId()) {
-			case R.id.groupingNone:
-				exportAllEvents();
-				break;
-			case R.id.groupingByTask:
-				exportTimesByTask();
-				break;
-			case R.id.groupingByTaskAndHint:
-				exportTimesByTaskAndHint();
-				break;
-			case R.id.groupingByTaskPerDay:
-				exportTimesByTaskPerDay();
-				break;
-			case R.id.groupingByTaskAndHintPerDay:
-				exportTimesByTaskAndHintPerDay();
-				break;
-			case R.id.groupingByTaskPerWeek:
-				exportTimesByTaskPerWeek();
-				break;
-			case R.id.groupingByTaskAndHintPerWeek:
-				exportTimesByTaskAndHintPerWeek();
-				break;
-			case R.id.groupingByTaskPerMonth:
-				exportTimesByTaskPerMonth();
-				break;
-			case R.id.groupingByTaskAndHintPerMonth:
-				exportTimesByTaskAndHintPerMonth();
-				break;
-			case R.id.targetGroupingNone:
-				exportAllTargets();
-				break;
-			case R.id.targetGroupingPerWeek:
-				exportTargetsDaysPerTypeAndCommentPerWeek();
-				break;
-			case R.id.targetGroupingPerMonth:
-				exportTargetsDaysPerTypeAndCommentPerMonth();
-				break;
-			default:
-				throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
-		}
+        int checkedRadioButtonId = binding.grouping.getCheckedRadioButtonId();
+        if (checkedRadioButtonId == R.id.groupingNone) {
+            exportAllEvents();
+        } else if (checkedRadioButtonId == R.id.groupingByTask) {
+            exportTimesByTask();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHint) {
+            exportTimesByTaskAndHint();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerDay) {
+            exportTimesByTaskPerDay();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerDay) {
+            exportTimesByTaskAndHintPerDay();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerWeek) {
+            exportTimesByTaskPerWeek();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerWeek) {
+            exportTimesByTaskAndHintPerWeek();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskPerMonth) {
+            exportTimesByTaskPerMonth();
+        } else if (checkedRadioButtonId == R.id.groupingByTaskAndHintPerMonth) {
+            exportTimesByTaskAndHintPerMonth();
+        } else if (checkedRadioButtonId == R.id.targetGroupingNone) {
+            exportAllTargets();
+        } else if (checkedRadioButtonId == R.id.targetGroupingPerWeek) {
+            exportTargetsDaysPerTypeAndCommentPerWeek();
+        } else if (checkedRadioButtonId == R.id.targetGroupingPerMonth) {
+            exportTargetsDaysPerTypeAndCommentPerMonth();
+        } else {
+            throw new RuntimeException("Grouping " + binding.grouping.getCheckedRadioButtonId() + " not implemented");
+        }
 	}
 
 	private void exportAllEvents() {
