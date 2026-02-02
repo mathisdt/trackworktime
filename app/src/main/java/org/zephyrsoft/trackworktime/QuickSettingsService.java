@@ -26,8 +26,12 @@ import org.zephyrsoft.trackworktime.model.Task;
 import org.zephyrsoft.trackworktime.timer.TimerManager;
 import org.zephyrsoft.trackworktime.util.Updatable;
 
+import java.time.format.DateTimeFormatter;
+
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class QuickSettingsService extends TileService implements Updatable {
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     private TimerManager timerManager;
 
     @Override
@@ -44,8 +48,14 @@ public class QuickSettingsService extends TileService implements Updatable {
         if (timerManager.isTracking()) {
             getQsTile().setState(Tile.STATE_ACTIVE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                getQsTile().setStateDescription(getString(R.string.clockedIn));
-                getQsTile().setSubtitle(getString(R.string.clockedIn));
+                String since = timerManager.getLastClockIn() != null
+                    ? timerManager.getLastClockIn().format(TIME_FORMATTER)
+                    : null;
+                String desc = since != null
+                    ? getString(R.string.since, since)
+                    : getString(R.string.clockedIn);
+                getQsTile().setStateDescription(desc);
+                getQsTile().setSubtitle(desc);
             }
         } else {
             getQsTile().setState(Tile.STATE_INACTIVE);

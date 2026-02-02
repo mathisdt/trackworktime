@@ -26,6 +26,7 @@
     <string name="text">Text</string>
     <string name="choose_task">Choose a task</string>
     <string name="clockedIn">clocked in</string>
+    <string name="since">since %1$s</string>
     <string name="clockedOut">clocked out</string>
     <string name="clockIn">Start Tracking</string>
     <string name="clockInShort">Start</string>
