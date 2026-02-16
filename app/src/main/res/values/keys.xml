@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="keyHomeTimezone">keyHomeTimezone</string>
-    <string name="keyFlexiTimeCategory">keyFlexiTimeCategory</string>
-    <string name="keyEnableFlexiTime">keyEnableFlexiTime</string>
-    <string name="keyFlexiTimeToZeroOnEveryDay">keyFlexiTimeToZeroOnEveryDay</string>
-    <string name="keyFlexiTimeStartValue">keyFlexiTimeStartValue</string>
-    <string name="keyFlexiTimeTarget">keyFlexiTimeTarget</string>
-    <string name="keyFlexiTimeResetInterval">keyFlexiTimeResetInterval</string>
-    <string name="keyFlexiTimeDayMonday">keyFlexiTimeDayMonday</string>
-    <string name="keyFlexiTimeDayTuesday">keyFlexiTimeDayTuesday</string>
-    <string name="keyFlexiTimeDayWednesday">keyFlexiTimeDayWednesday</string>
-    <string name="keyFlexiTimeDayThursday">keyFlexiTimeDayThursday</string>
-    <string name="keyFlexiTimeDayFriday">keyFlexiTimeDayFriday</string>
-    <string name="keyFlexiTimeDaySaturday">keyFlexiTimeDaySaturday</string>
-    <string name="keyFlexiTimeDaySunday">keyFlexiTimeDaySunday</string>
-    <string name="keyFlatteningCategory">keyFlatteningCategory</string>
-    <string name="keyFlatteningEnabled">keyFlatteningEnabled</string>
-    <string name="keySmallestTimeUnit">keySmallestTimeUnit</string>
-    <string name="keyLocationBasedTrackingCategory">keyLocationBasedTrackingCategory</string>
-    <string name="keyLocationBasedTrackingEnabled">keyLocationBasedTrackingEnabled</string>
-    <string name="keyLocationBasedTrackingVibrate">keyLocationBasedTrackingVibrate</string>
-    <string name="keyLocationBasedTrackingLatitude">keyLocationBasedTrackingLatitude</string>
-    <string name="keyLocationBasedTrackingLongitude">keyLocationBasedTrackingLongitude</string>
-    <string name="keyLocationBasedTrackingTolerance">keyLocationBasedTrackingTolerance</string>
-    <string name="keyLocationBasedTrackingIgnoreBeforeEvents">keyLocationBasedTrackingIgnoreBeforeEvents</string>
-    <string name="keyLocationBasedTrackingIgnoreAfterEvents">keyLocationBasedTrackingIgnoreAfterEvents</string>
-    <string name="keyWifiBasedTrackingCategory">keyWifiBasedTrackingCategory</string>
-    <string name="keyWifiBasedTrackingEnabled">keyWifiBasedTrackingEnabled</string>
-    <string name="keyWifiBasedTrackingSSID">keyWifiBasedTrackingSSID</string>
-    <string name="keyWifiBasedTrackingVibrate">keyWifiBasedTrackingVibrate</string>
-    <string name="keyWifiBasedTrackingCheckInterval">keyWifiBasedTrackingCheckInterval</string>
-    <string name="keyUserInterfaceCategory">keyUserInterfaceCategory</string>
-    <string name="keyShowDecimalTimeAmounts">keyShowDecimalTimeAmounts</string>
-    <string name="keyAutoPause">keyAutoPause</string>
-    <string name="keyAutoPauseEnabled">keyAutoPauseEnabled</string>
-    <string name="keyAutoPauseBegin">keyAutoPauseBegin</string>
-    <string name="keyAutoPauseEnd">keyAutoPauseEnd</string>
-    <string name="keyNotificationCategory">keyNotificationCategory</string>
-    <string name="keyNotificationEnabled">keyNotificationEnabled</string>
-    <string name="keyNotificationAlways">keyNotificationAlways</string>
-    <string name="keyNotificationNonPersistent">keyNotificationNonPersistent</string>
-    <string name="keyNotificationSilent">keyNotificationSilent</string>
-    <string name="keyNotificationUsesFlexiTimeAsTarget">keyNotificationUsesFlexiTimeAsTarget</string>
-    <string name="keyBackupCategory">keyBackupCategory</string>
-    <string name="keyBackupSettingAsked">keyBackupSettingAsked</string>
-    <string name="keyBackupEnabled">keyBackupEnabled</string>
-    <string name="keyBackupLastModifiedTimestamp">keyBackupLastModifiedTimestamp</string>
-    <string name="keyBackupLastBackupTimestamp">keyBackupLastBackupTimestamp</string>
-    <string name="keyActiveMethods">keyActiveMethods</string>
-    <string name="keyClockedInByLocation">keyClockedInByLocation</string>
-    <string name="keyClockedInByWifi">keyClockedInByWifi</string>
-    <string name="keyAutomaticTrackingCategory">keyAutomaticTrackingCategory</string>
-    <string name="keyEachTrackingMethodGeneratesEventsSeparately">keyEachTrackingMethodGeneratesEventsSeparately</string>
-    <string name="keyAppearanceCategory">keyApperanceCategory</string>
-    <string name="keyShowNavigationButtons">keyShowNavigationButtons</string>
-    <string name="keyLastAskedForDocumentTree">keyLastAskedForDocumentTree</string>
-    <string name="keyGrantedDocumentTree">keyGrantedDocumentTree</string>
-    <string name="keyPebbleNotification">keyPebbleNotification</string>
-    <string name="keyNeverUpdatePersistentNotification">keyNeverUpdatePersistentNotification</string>
-    <string name="keyAutomaticBackupLastTime">keyAutomaticBackupLastTime</string>
-    <string name="keyLoggingCategory">keyLoggingCategory</string>
-    <string name="keyLogVisibleNetworks">keyLogVisibleNetworks</string>
-    <string name="keyNightMode">keyNightMode</string>
+    <string name="keyHomeTimezone" translatable="false">keyHomeTimezone</string>
+    <string name="keyFlexiTimeCategory" translatable="false">keyFlexiTimeCategory</string>
+    <string name="keyEnableFlexiTime" translatable="false">keyEnableFlexiTime</string>
+    <string name="keyFlexiTimeToZeroOnEveryDay" translatable="false">keyFlexiTimeToZeroOnEveryDay</string>
+    <string name="keyFlexiTimeStartValue" translatable="false">keyFlexiTimeStartValue</string>
+    <string name="keyFlexiTimeTarget" translatable="false">keyFlexiTimeTarget</string>
+    <string name="keyFlexiTimeResetInterval" translatable="false">keyFlexiTimeResetInterval</string>
+    <string name="keyFlexiTimeDayMonday" translatable="false">keyFlexiTimeDayMonday</string>
+    <string name="keyFlexiTimeDayTuesday" translatable="false">keyFlexiTimeDayTuesday</string>
+    <string name="keyFlexiTimeDayWednesday" translatable="false">keyFlexiTimeDayWednesday</string>
+    <string name="keyFlexiTimeDayThursday" translatable="false">keyFlexiTimeDayThursday</string>
+    <string name="keyFlexiTimeDayFriday" translatable="false">keyFlexiTimeDayFriday</string>
+    <string name="keyFlexiTimeDaySaturday" translatable="false">keyFlexiTimeDaySaturday</string>
+    <string name="keyFlexiTimeDaySunday" translatable="false">keyFlexiTimeDaySunday</string>
+    <string name="keyFlatteningCategory" translatable="false">keyFlatteningCategory</string>
+    <string name="keyFlatteningEnabled" translatable="false">keyFlatteningEnabled</string>
+    <string name="keySmallestTimeUnit" translatable="false">keySmallestTimeUnit</string>
+    <string name="keyLocationBasedTrackingCategory" translatable="false">keyLocationBasedTrackingCategory</string>
+    <string name="keyLocationBasedTrackingEnabled" translatable="false">keyLocationBasedTrackingEnabled</string>
+    <string name="keyLocationBasedTrackingVibrate" translatable="false">keyLocationBasedTrackingVibrate</string>
+    <string name="keyLocationBasedTrackingLatitude" translatable="false">keyLocationBasedTrackingLatitude</string>
+    <string name="keyLocationBasedTrackingLongitude" translatable="false">keyLocationBasedTrackingLongitude</string>
+    <string name="keyLocationBasedTrackingTolerance" translatable="false">keyLocationBasedTrackingTolerance</string>
+    <string name="keyLocationBasedTrackingIgnoreBeforeEvents" translatable="false">keyLocationBasedTrackingIgnoreBeforeEvents</string>
+    <string name="keyLocationBasedTrackingIgnoreAfterEvents" translatable="false">keyLocationBasedTrackingIgnoreAfterEvents</string>
+    <string name="keyWifiBasedTrackingCategory" translatable="false">keyWifiBasedTrackingCategory</string>
+    <string name="keyWifiBasedTrackingEnabled" translatable="false">keyWifiBasedTrackingEnabled</string>
+    <string name="keyWifiBasedTrackingSSID" translatable="false">keyWifiBasedTrackingSSID</string>
+    <string name="keyWifiBasedTrackingVibrate" translatable="false">keyWifiBasedTrackingVibrate</string>
+    <string name="keyWifiBasedTrackingCheckInterval" translatable="false">keyWifiBasedTrackingCheckInterval</string>
+    <string name="keyUserInterfaceCategory" translatable="false">keyUserInterfaceCategory</string>
+    <string name="keyShowDecimalTimeAmounts" translatable="false">keyShowDecimalTimeAmounts</string>
+    <string name="keyAutoPause" translatable="false">keyAutoPause</string>
+    <string name="keyAutoPauseEnabled" translatable="false">keyAutoPauseEnabled</string>
+    <string name="keyAutoPauseBegin" translatable="false">keyAutoPauseBegin</string>
+    <string name="keyAutoPauseEnd" translatable="false">keyAutoPauseEnd</string>
+    <string name="keyNotificationCategory" translatable="false">keyNotificationCategory</string>
+    <string name="keyNotificationEnabled" translatable="false">keyNotificationEnabled</string>
+    <string name="keyNotificationAlways" translatable="false">keyNotificationAlways</string>
+    <string name="keyNotificationNonPersistent" translatable="false">keyNotificationNonPersistent</string>
+    <string name="keyNotificationSilent" translatable="false">keyNotificationSilent</string>
+    <string name="keyNotificationUsesFlexiTimeAsTarget" translatable="false">keyNotificationUsesFlexiTimeAsTarget</string>
+    <string name="keyBackupCategory" translatable="false">keyBackupCategory</string>
+    <string name="keyBackupSettingAsked" translatable="false">keyBackupSettingAsked</string>
+    <string name="keyBackupEnabled" translatable="false">keyBackupEnabled</string>
+    <string name="keyBackupLastModifiedTimestamp" translatable="false">keyBackupLastModifiedTimestamp</string>
+    <string name="keyBackupLastBackupTimestamp" translatable="false">keyBackupLastBackupTimestamp</string>
+    <string name="keyActiveMethods" translatable="false">keyActiveMethods</string>
+    <string name="keyClockedInByLocation" translatable="false">keyClockedInByLocation</string>
+    <string name="keyClockedInByWifi" translatable="false">keyClockedInByWifi</string>
+    <string name="keyAutomaticTrackingCategory" translatable="false">keyAutomaticTrackingCategory</string>
+    <string name="keyEachTrackingMethodGeneratesEventsSeparately" translatable="false">keyEachTrackingMethodGeneratesEventsSeparately</string>
+    <string name="keyAppearanceCategory" translatable="false">keyApperanceCategory</string>
+    <string name="keyShowNavigationButtons" translatable="false">keyShowNavigationButtons</string>
+    <string name="keyLastAskedForDocumentTree" translatable="false">keyLastAskedForDocumentTree</string>
+    <string name="keyGrantedDocumentTree" translatable="false">keyGrantedDocumentTree</string>
+    <string name="keyPebbleNotification" translatable="false">keyPebbleNotification</string>
+    <string name="keyNeverUpdatePersistentNotification" translatable="false">keyNeverUpdatePersistentNotification</string>
+    <string name="keyAutomaticBackupLastTime" translatable="false">keyAutomaticBackupLastTime</string>
+    <string name="keyLoggingCategory" translatable="false">keyLoggingCategory</string>
+    <string name="keyLogVisibleNetworks" translatable="false">keyLogVisibleNetworks</string>
+    <string name="keyNightMode" translatable="false">keyNightMode</string>
 
 </resources>

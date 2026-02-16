@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_title_short">TWT</string>
+    <string name="app_title_short" translatable="false">TWT</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="email">android@zephyrsoft.org</string>
+    <string name="email" translatable="false">android@zephyrsoft.org</string>
     <string name="in">IN</string>
-    <string name="onespace">" "</string>
+    <string name="onespace" translatable="false">" "</string>
     <string name="out">OUT</string>
     <string name="worked">Worked</string>
     <string name="workedWithDuration">Worked: %1$s</string>
@@ -222,7 +222,7 @@
     </string-array>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_subtitle">https://zephyrsoft.org/trackworktime</string>
+    <string name="nav_header_subtitle" translatable="false">https://zephyrsoft.org/trackworktime</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="current_value">current value: %s</string>
     <string name="current_value_minutes">current value: %s minutes</string>

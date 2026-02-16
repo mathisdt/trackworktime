@@ -4,5 +4,4 @@
     <issue id="LongLogTag" severity="ignore" />
     <issue id="InvalidResourceFolder" severity="ignore" />
     <issue id="ApplySharedPref" severity="ignore" />
-    <issue id="MissingTranslation" severity="ignore" />
 </lint>

@@ -276,8 +276,8 @@
     <string name="currentLocationAsWorkplaceSuccessExt2">Você pode ativar o rastreamento por localização. só marcar \"%1$s\".</string>
     <string name="currentLocationAsWorkplaceError">Não foi possível obter a localização. Verifique que o app pode acessar a localização exata.</string>
     <string name="serviceNotificationTitle">rastreamento automático por localização/Wi-Fi ativo</string>
-    <string name="dateAdjustment1">a data 'até' foi ajustada para a data \'desde\'</string>
-    <string name="dateAdjustment2">a data 'desde' foi ajustada para a data \'até\'</string>
+    <string name="dateAdjustment1">a data \'até\' foi ajustada para a data \'desde\'</string>
+    <string name="dateAdjustment2">a data \'desde\' foi ajustada para a data \'até\'</string>
     <string name="disabledDueToInvalidSettings">A opção \"%1$s\" foi desativada devido a configurações inválidas.\n\nPode reativá-la depois de conferir os valores digitados.</string>
     <string name="noDirectoryAccessGrantedError">backup automático falhou: nenhum acesso a pastas concedido</string>
     <string name="cacheDeleted">Cache apagada...</string>
