@@ -16,10 +16,12 @@
 package org.zephyrsoft.trackworktime.database;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.pmw.tinylog.Logger;
+import org.zephyrsoft.trackworktime.R;
 
 /**
  * Helper class to manage the SQLite database.
@@ -119,12 +121,15 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_ALTER_WEEK_3_TO_4 = "alter table " + WEEK
 		+ " add column flexi integer null;";
 
-	/**
+    private final Context context;
+
+    /**
 	 * Constructor
 	 */
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-	}
+        this.context = context;
+    }
 
 	@Override
 	public void onCreate(SQLiteDatabase database) {
@@ -172,7 +177,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		database.execSQL(DATABASE_CREATE_TARGET);
 		database.execSQL(DATABASE_CREATE_CACHE);
 		// add default task
-		database.execSQL(DATABASE_INSERT_TASK);
+		String insertDefaultTask = DATABASE_INSERT_TASK;
+		try {
+			insertDefaultTask = insertDefaultTask.replaceAll("'Default'",
+				"'" + context.getString(R.string.default_task_name) + "'");
+		} catch (Resources.NotFoundException nfe) {
+			// the current language doesn't have a translated name for the default task
+		}
+		database.execSQL(insertDefaultTask);
 	}
 
 	private void dbUpgradeFrom2to3(SQLiteDatabase database) {

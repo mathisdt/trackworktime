@@ -353,4 +353,6 @@
         <item>2</item>
         <item>-1</item>
     </string-array>
+    <string name="default_task_name">Default</string>
+    <string name="set_dark_or_light_mode">Set Dark or Light mode</string>
 </resources>

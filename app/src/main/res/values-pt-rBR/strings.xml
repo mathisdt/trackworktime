@@ -347,4 +347,6 @@
         <item>Modo escuro</item>
         <item>Padrão do sistema</item>
     </string-array>
+    <string name="default_task_name">Padrão</string>
+    <string name="set_dark_or_light_mode">Selecione o modo escuro ou claro</string>
 </resources>

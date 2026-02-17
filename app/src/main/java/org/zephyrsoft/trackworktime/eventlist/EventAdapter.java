@@ -1,5 +1,6 @@
 package org.zephyrsoft.trackworktime.eventlist;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -43,10 +44,11 @@ public class EventAdapter extends ListAdapter<BaseEventItem, ViewHolder> {
 			@NonNull Consumer<Event> onEventClick,
 			@NonNull Locale locale,
 			@NonNull Function<Event, String> eventTaskName,
-			@NonNull Predicate<Event> isEventSelected
+			@NonNull Predicate<Event> isEventSelected,
+			@NonNull Context context
 	) {
 		super(ITEM_CALLBACK);
-		this.itemMapper = new EventItemMapper(locale, eventTaskName);
+		this.itemMapper = new EventItemMapper(locale, eventTaskName, context);
 		this.onEventClick = onEventClick;
 		this.isEventSelected = isEventSelected;
 		setHasStableIds(true);

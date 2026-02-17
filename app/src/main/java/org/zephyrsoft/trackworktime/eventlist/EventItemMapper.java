@@ -1,5 +1,7 @@
 package org.zephyrsoft.trackworktime.eventlist;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import org.zephyrsoft.trackworktime.model.Event;
@@ -14,14 +16,17 @@ public class EventItemMapper {
 
 	private final Locale locale;
 	private final Function<Event, String> eventTaskName;
+    private final Context context;
 
-	public EventItemMapper(
-			@NonNull Locale locale,
-			@NonNull Function<Event, String> eventTaskName
+    public EventItemMapper(
+		@NonNull Locale locale,
+		@NonNull Function<Event, String> eventTaskName,
+		@NonNull Context context
 	) {
 		this.locale = locale;
 		this.eventTaskName = eventTaskName;
-	}
+        this.context = context;
+    }
 
 	public List<BaseEventItem> map(List<Event> events) {
 		List<BaseEventItem> items = new ArrayList<>(events.size());
@@ -41,7 +46,7 @@ public class EventItemMapper {
 	}
 
 	private EventItem newEventItem(Event event) {
-		return new EventItem(event, locale, eventTaskName.apply(event));
+		return new EventItem(event, locale, eventTaskName.apply(event), context);
 	}
 
 	private EventSeparatorItem newEventSeparatorItem(Event event) {

@@ -218,7 +218,7 @@
             android:title="@string/show_navigation_buttons" />
         <ListPreference
             android:key="@string/keyNightMode"
-            android:title="Set Dark or Light mode"
+            android:title="@string/set_dark_or_light_mode"
             android:entries="@array/nightMode"
             android:entryValues="@array/nightModeValues"
             android:defaultValue="2"/>

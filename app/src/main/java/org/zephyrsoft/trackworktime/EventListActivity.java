@@ -130,7 +130,8 @@ public class EventListActivity extends AppCompatActivity {
 				this::onEventClick,
 				locale,
 				this::getEventTaskName,
-				this::isEventSelected
+				this::isEventSelected,
+				this
 		);
 		myRecyclerView.setHasFixedSize(true);
 		myRecyclerView.setLayoutManager(new LinearLayoutManager(this));
