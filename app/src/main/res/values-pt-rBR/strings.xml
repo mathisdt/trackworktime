@@ -9,11 +9,11 @@
     <string name="workedWithDurationPreview">Trabalhou: 5:30</string>
     <string name="shortDate">E, MM/dd</string>
     <string name="flexi">Flex</string>
-    <string name="mondayLong">Segunda</string>
-    <string name="tuesdayLong">Terça</string>
-    <string name="wednesdayLong">Quarta</string>
-    <string name="thursdayLong">Quinta</string>
-    <string name="fridayLong">Sexta</string>
+    <string name="mondayLong">Segunda-feira</string>
+    <string name="tuesdayLong">Terça-feira</string>
+    <string name="wednesdayLong">Quarta-feira</string>
+    <string name="thursdayLong">Quinta-feira</string>
+    <string name="fridayLong">Sexta-feira</string>
     <string name="saturdayLong">Sábado</string>
     <string name="sundayLong">Domingo</string>
     <string name="flexiTimeDayDescription">marque se trabalha neste dia</string>
@@ -348,5 +348,5 @@
         <item>Padrão do sistema</item>
     </string-array>
     <string name="default_task_name">Padrão</string>
-    <string name="set_dark_or_light_mode">Selecione o modo escuro ou claro</string>
+    <string name="set_dark_or_light_mode">Tema</string>
 </resources>
