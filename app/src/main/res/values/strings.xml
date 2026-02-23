@@ -348,7 +348,7 @@
         <item>Dark mode</item>
         <item>System default</item>
     </string-array>
-    <string-array name="nightModeValues">
+    <string-array name="nightModeValues" translatable="false">
         <item>1</item>
         <item>2</item>
         <item>-1</item>
