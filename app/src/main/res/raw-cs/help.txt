@@ -1,0 +1,137 @@
+<h3>FAQ: https://zephyrsoft.org/trackworktime/faq</h3>
+<br>
+<h3>Web Site: https://zephyrsoft.org/trackworktime</h3>
+<br>
+Tato aplikace vám umožní snadno sledovat pracovní dobu! Sledování času můžete automatizovat pomocí funkcí geo-fencingu (viz níže).
+Každý zaznamenaný interval můžete <b>roztřídit podle předem definovaného klienta/úkolu</b> a doplnit libovolným textem.
+Seznam klientů/úkolů lze samozřejmě upravit podle vašich potřeb. Aplikace má také widget na domovskou obrazovku.<br>
+<br>
+Navíc, pokud si přejete, <b>aplikace se postará o váš flexibilní pracovní účet</b>: vždy vidíte, kolik jste odpracovali.
+Můžete také sledovat, kolik pracovního času zbývá na dnešek nebo na aktuální týden (pomocí <b>oznámení</b>,
+které lze zapnout).<br>
+<br>
+Aplikace umožňuje snadno upravit plánovanou pracovní dobu – stačí klepnout na datum, které chcete upravit v hlavní tabulce.<br>
+<br>
+Můžete zadat <b>zeměpisné souřadnice</b> svého pracoviště a aplikace vás může automaticky přihlásit, když jste v práci.
+To vše probíhá <b>bez použití GPS</b>, takže aplikace nebude zbytečně vybíjet baterii.<br>
+<br>
+Můžete také zadat <b>název Wi-Fi sítě</b>, která je na vašem pracovišti viditelná. Aplikace vás automaticky přihlásí,
+když je tato SSID v dosahu (nemusíte k ní být připojeni). Samozřejmě musí být zapnuté Wi-Fi.<br>
+<br>
+Nechcete aplikaci otevírat pro přihlášení a odhlášení? Žádný problém – existují alespoň tři způsoby:
+přidat widget na domovskou obrazovku, použít zástupce launcheru (dlouhým podržením ikony aplikace),
+nebo přidat novou dlaždici do rychlého nastavení klepnutím na tužku a přetažením
+dlaždice „Track Work Time“ nahoru, která pak umožní přepínat stav přihlášení.<br>
+<br>
+Pokud raději používáte jiné aplikace jako LlamaLab Automate nebo Tasker pro sledování pohybu,
+je to v pořádku – <b>TWT lze spouštět z jiných aplikací</b> a postará se pouze o evidenci pracovní doby.
+V takovém případě je nutné vytvořit broadcast intenty s akcemi
+<i>org.zephyrsoft.trackworktime.ClockIn</i> nebo <i>org.zephyrsoft.trackworktime.ClockOut</i>.
+Při použití ClockIn můžete nastavit parametry task=... a text=... v části „extra“,
+aby byly události konkrétnější. Pomocí akce
+<i>org.zephyrsoft.trackworktime.StatusRequest</i> lze zjistit aktuální stav TWT:
+zda je uživatel přihlášen, s jakým úkolem a kolik času zbývá na dnešek.
+Více informací naleznete na webu.<br>
+<br>
+Je to možné i opačně: <b>TWT generuje broadcast intenty při vytvoření/úpravě/smazání události</b>.
+Automatizační aplikace mohou naslouchat akcím
+<i>org.zephyrsoft.trackworktime.event.Created</i>,
+<i>org.zephyrsoft.trackworktime.event.Updated</i> a
+<i>org.zephyrsoft.trackworktime.event.Deleted</i>.
+Více podrobností a snímků obrazovky naleznete na webu.<br>
+<br>
+Pokud máte chytré hodinky <b>Pebble</b>, aplikace vás upozorní na přihlášení a odhlášení,
+což je užitečné zejména při automatickém sledování pomocí polohy a/nebo Wi-Fi.<br>
+<br>
+Nejprve můžete oznámení obecně povolit. Bez dalších voleb se zobrazí pouze tehdy,
+Pro <b>ostatní chytré hodinky</b> můžete zapnout některé možnosti týkající se oznámení.
+Nejprve můžete oznámení obecně povolit. Bez dalších voleb se zobrazí pouze tehdy,
+když jste přihlášeni. Pokud ji chcete zobrazovat i když nejste přihlášeni,
+zvolte možnost „vždy zobrazovat“. Pokud ji chcete také na hodinkách,
+je nutné nastavit oznámení jako smazatelné/neperzistentní (jinak je Android nesynchronizuje).
+Nevýhodou je, že nebudou připnuté nahoře a mohou být omylem zavřeny
+(ale po minutě se znovu zobrazí). Oznámení lze také ztišit,
+aby vás nerušily (platí pro telefon i hodinky).<br>
+<br>
+Pokud chcete <b>zálohovat svá data</b>, máte dvě možnosti: použít mechanismus Googlu nebo si zálohování řešit sami.
+Pro použití serverů Googlu stačí zapnout příslušnou možnost. Pokud nechcete svá data Googlu poskytovat,
+aplikace každý den automaticky vytvoří zálohu do složky, ke které jste jí povolili přístup
+(pokud jste přístup nepovolili, automatické zálohy se nevytvářejí).
+Můžete použít libovolnou synchronizační aplikaci pro pravidelné kopírování celé složky
+(nebo jen podsložky „twt_automatic_backup“).<br>
+<br>
+Nakonec aplikace umí generovat <b>reporty</b>. Přehled surových událostí je vhodný pro export dat,
+zatímco roční/měsíční/týdenní reporty slouží ke sledování postupu práce na úkolech.<br>
+<br>
+Důležitá poznámka: <b>Tato aplikace nikdy nepoužije vaše osobní údaje k ničemu, co si nepřejete!</b>
+Pokud aplikace spadne, nabídne vám odeslání informací o pádu vývojáři
+(a to pouze s vaším souhlasem – budete dotázáni pokaždé).
+Zaznamenané časy ani místa nejsou součástí hlášení o chybě,
+ale připojuje se obecný log soubor, který může obsahovat osobní údaje –
+pokud ano, budou přísně důvěrné a použity pouze k identifikaci problému.<br>
+<br>
+<b>Jedná se o open source projekt</b>, takže pokud se vám něco nelíbí,
+můžete nahlásit problém nebo změny sami opravit a vytvořit pull request.
+Prosím, nepokoušejte se komunikovat prostřednictvím recenzí.
+Můžete mi kdykoli napsat e-mail – viz web a kontaktní údaje výše.<br>
+<br>
+<br>
+<h2>Ochrana osobních údajů</h2>
+<b>Stručně: Aplikace bez vašeho výslovného souhlasu nikam neodesílá vaše osobní údaje.</b><br>
+Tyto zásady ochrany osobních údajů jsou dostupné také online: https://zephyrsoft.org/trackworktime/privacy<br>
+<br>
+<h3>Soukromí uživatele – zejména údaje o poloze</h3>
+Aplikaci lze nastavit tak, aby sledovala přibližnou polohu uživatele pomocí mobilní sítě
+(nepoužívá se přesné GPS sledování) nebo podle viditelného názvu Wi-Fi sítě
+(což vyžaduje průběžnou kontrolu všech viditelných Wi-Fi sítí).
+Veškerá takto získaná data jsou ukládána pouze v zařízení uživatele
+a nikam se neodesílají, pokud to uživatel výslovně nevyvolá.<br>
+<h3>Jaké osobní údaje aplikace používá?</h3>
+Track Work Time slouží – jak název napovídá – ke sledování pracovní doby.
+Zpracovává události (čas přihlášení, čas odhlášení, úkol, poznámka)
+a nastavení (seznam úkolů, domácí časové pásmo, automatické pauzy,
+týdenní pracovní fond, pracovní dny, poloha pracoviště, název Wi-Fi na pracovišti),
+které do aplikace zadáte.
+Pokud zapnete sledování podle polohy a/nebo Wi-Fi,
+aplikace používá také přibližnou polohu a/nebo viditelné názvy Wi-Fi sítí.<br>
+<h3>Jak jsou osobní údaje používány?</h3>
+Všechna data jsou uchovávána lokálně ve vašem zařízení:
+v interním úložišti/databázi aplikace (hlavní data)
+a ve sdíleném úložišti zařízení (zálohy, log soubory).
+Log soubory mohou obsahovat názvy Wi-Fi sítí
+(pokud je zapnuto sledování podle Wi-Fi)
+a/nebo přibližné zeměpisné souřadnice
+(pokud je zapnuto sledování podle polohy).<br>
+Existují tři situace, kdy mohou být osobní údaje odeslány –
+vždy pouze s vaším aktivním souhlasem:<br>
+<ul>
+<li>Záloha na servery Googlu – pokud tuto možnost zapnete, data budou uložena na serverech Googlu a lze je odtud obnovit. Vývojář nenese odpovědnost za zabezpečení infrastruktury Googlu.</li>
+<li>Hlášení pádů – při pádu aplikace můžete odeslat zprávu vývojáři. Obsahuje technické informace potřebné k analýze problému (verze Androidu, verze aplikace, konfigurace, model zařízení, část logu apod.). Přenos probíhá zabezpečeně přes HTTPS a data jsou důvěrná.</li>
+<li>Odeslání logu – při problému můžete odeslat log soubor e-mailem. Nejprve jej můžete zkontrolovat a případně anonymizovat.</li>
+</ul>
+<h3>Oprávnění aplikace</h3>
+<h4>ACCESS_COARSE_LOCATION / ACCESS_BACKGROUND_LOCATION / FOREGROUND_SERVICE</h4>
+Pro automatické přihlášení podle polohy aplikace používá mobilní síť
+k získání přibližné polohy (bez GPS).
+Může tedy sbírat údaje o poloze i na pozadí.
+Pokud si to nepřejete, můžete oprávnění odebrat –
+aplikace bude fungovat i bez něj.<br>
+<h4>ACCESS_WIFI_STATE / CHANGE_WIFI_STATE / ACCESS_FINE_LOCATION / NEARBY_WIFI_DEVICES / FOREGROUND_SERVICE</h4>
+Pro automatické přihlášení podle Wi-Fi aplikace sleduje,
+kdy je zadaná Wi-Fi síť v dosahu.
+Oprávnění lze kdykoli odebrat.<br>
+<h4>RECEIVE_BOOT_COMPLETED</h4>
+Po restartu zařízení je třeba znovu aktivovat kontrolu polohy,
+aby automatické přihlášení fungovalo správně.<br>
+<h4>POST_NOTIFICATIONS</h4>
+Aplikace může zobrazovat trvalé oznámení o pracovním dni.
+Ve výchozím nastavení je vypnuto.<br>
+<h4>INTERNET</h4>
+Používá se pouze pro odesílání hlášení o pádech (s vaším souhlasem).
+Oprávnění lze odebrat.<br>
+<h4>VIBRATE</h4>
+Aplikace může vibrovat při automatickém přihlášení/odhlášení.
+Ve výchozím nastavení je vypnuto.<br>
+<h4>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</h4>
+Pro správné fungování na pozadí může uživatel aplikaci vyjmout z optimalizace baterie.
+To může mírně zvýšit spotřebu, ale zlepší přesnost automatického přihlašování.<br>
