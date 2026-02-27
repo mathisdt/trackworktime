@@ -8,6 +8,7 @@ clone:
       depth: 0
       partial: false
       recursive: true
+      tags: true
 
 steps:
   - name: mirror to Github
